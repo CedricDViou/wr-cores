@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2013-03-15
+-- Last update: 2017-06-23
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -115,6 +115,8 @@ entity wr_endpoint is
     phy_enable_o : out std_logic;
     phy_syncen_o : out std_logic;
     phy_rdy_i    : in  std_logic;
+    phy_debug_i : in std_logic_vector(15 downto 0);
+    phy_debug_o : out std_logic_vector(15 downto 0);
 
     phy_ref_clk_i      : in  std_logic;
     phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
@@ -528,6 +530,8 @@ begin
       serdes_enable_o          => phy_enable_o,
       serdes_syncen_o          => phy_syncen_o,
       serdes_rdy_i             => phy_rdy_i,
+      serdes_debug_i => phy_debug_i,
+      serdes_debug_o => phy_debug_o,
 
       serdes_tx_clk_i       => phy_ref_clk_i,
       serdes_tx_data_o      => phy_tx_data_o,

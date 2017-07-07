@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2012-11-16
+-- Last update: 2017-06-23
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -100,30 +100,33 @@ entity xwr_endpoint is
     phy_loopen_o         : out std_logic;
     phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
     phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
-    phy_sfp_tx_fault_i   : in std_logic;
-    phy_sfp_los_i        : in std_logic;
+    phy_sfp_tx_fault_i   : in  std_logic;
+    phy_sfp_los_i        : in  std_logic;
     phy_sfp_tx_disable_o : out std_logic;
     phy_enable_o         : out std_logic;
     phy_syncen_o         : out std_logic;
     phy_rdy_i            : in  std_logic;
+    
+    phy_debug_i          : in  std_logic_vector(15 downto 0);
+    phy_debug_o          : out  std_logic_vector(15 downto 0);
+    
+    phy_ref_clk_i        : in  std_logic := '0';
+    phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    phy_tx_disparity_i   : in  std_logic := '0';
+    phy_tx_enc_err_i     : in  std_logic := '0';
 
-    phy_ref_clk_i      : in  std_logic := '0';
-    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
-    phy_tx_disparity_i : in  std_logic := '0';
-    phy_tx_enc_err_i   : in  std_logic := '0';
-
-    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
-    phy_rx_clk_i      : in std_logic                     := '0';
-    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
-    phy_rx_enc_err_i  : in std_logic                     := '0';
-    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others => '0');
+    phy_rx_clk_i      : in std_logic                                                  := '0';
+    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0)    := (others => '0');
+    phy_rx_enc_err_i  : in std_logic                                                  := '0';
+    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0)  := (others => '0');
 
     -- 2nd option is to use record-based I/Os
-    phy8_o            : out t_phy_8bits_from_wrc;
-    phy8_i            : in  t_phy_8bits_to_wrc;
-    phy16_o           : out t_phy_16bits_from_wrc;
-    phy16_i           : in  t_phy_16bits_to_wrc;
+    phy8_o  : out t_phy_8bits_from_wrc;
+    phy8_i  : in  t_phy_8bits_to_wrc;
+    phy16_o : out t_phy_16bits_from_wrc;
+    phy16_i : in  t_phy_16bits_to_wrc;
 
 -------------------------------------------------------------------------------
 -- GMII Interface (8-bit)
@@ -184,7 +187,7 @@ entity xwr_endpoint is
 
 -- request strobe, single HI pulse begins evaluation of the request. 
     rtu_rq_strobe_p1_o : out std_logic;
-    rtu_rq_abort_o         : out std_logic;
+    rtu_rq_abort_o     : out std_logic;
 
 -- source and destination MAC addresses extracted from the packet header
     rtu_rq_smac_o : out std_logic_vector(48 - 1 downto 0);
@@ -213,27 +216,27 @@ entity xwr_endpoint is
 -------------------------------------------------------------------------------
 -- direct output of packet filter  (for TRU/HW-RSTP)
 -------------------------------------------------------------------------------
-   
-   pfilter_pclass_o       : out   std_logic_vector(7 downto 0);
-   pfilter_drop_o         : out   std_logic;
-   pfilter_done_o         : out   std_logic;
+
+    pfilter_pclass_o : out std_logic_vector(7 downto 0);
+    pfilter_drop_o   : out std_logic;
+    pfilter_done_o   : out std_logic;
 
 -------------------------------------------------------------------------------
 -- control of PAUSE sending (ML: not used and not tested... TRU uses packet injection) -- 
 -------------------------------------------------------------------------------
-   
-   fc_tx_pause_req_i   : in std_logic := '0';
-   fc_tx_pause_delay_i : in std_logic_vector(15 downto 0) := x"0000";
-   fc_tx_pause_ready_o : out std_logic;
+
+    fc_tx_pause_req_i   : in  std_logic                     := '0';
+    fc_tx_pause_delay_i : in  std_logic_vector(15 downto 0) := x"0000";
+    fc_tx_pause_ready_o : out std_logic;
 
 -------------------------------------------------------------------------------
 -- information about received PAUSE (for SWcore)
 -------------------------------------------------------------------------------
 
-   fc_rx_pause_start_p_o     : out std_logic;
-   fc_rx_pause_quanta_o      : out std_logic_vector(15 downto 0);
-   fc_rx_pause_prio_mask_o   : out std_logic_vector(7 downto 0);
-   fc_rx_buffer_occupation_o : out std_logic_vector(7 downto 0);
+    fc_rx_pause_start_p_o     : out std_logic;
+    fc_rx_pause_quanta_o      : out std_logic_vector(15 downto 0);
+    fc_rx_pause_prio_mask_o   : out std_logic_vector(7 downto 0);
+    fc_rx_buffer_occupation_o : out std_logic_vector(7 downto 0);
 -------------------------------------------------------------------------------
 -- Packet Injection Interface (for TRU/HW-RSTP)
 -------------------------------------------------------------------------------
@@ -256,52 +259,53 @@ entity xwr_endpoint is
 -------------------------------------------------------------------------------
 -- Misc stuff
 -------------------------------------------------------------------------------
-    rmon_events_o        : out std_logic_vector(c_epevents_sz-1 downto 0);
+    rmon_events_o : out std_logic_vector(c_epevents_sz-1 downto 0);
 
     led_link_o : out std_logic;
     led_act_o  : out std_logic;
 
-    link_kill_i : in  std_logic := '0';
-    link_up_o   : out std_logic;
-    stop_traffic_i : in std_logic := '0';
-    dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
-    dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
-    nice_dbg_o  : out t_dbg_ep);
+    link_kill_i           : in  std_logic := '0';
+    link_up_o             : out std_logic;
+    stop_traffic_i        : in  std_logic := '0';
+    dbg_tx_pcs_wr_count_o : out std_logic_vector(5+4 downto 0);
+    dbg_tx_pcs_rd_count_o : out std_logic_vector(5+4 downto 0);
+    nice_dbg_o            : out t_dbg_ep);
 
 end xwr_endpoint;
 
 architecture syn of xwr_endpoint is
 
-  signal phy_rst          : std_logic;
-  signal phy_loopen       : std_logic;
-  signal phy_loopen_vec   : std_logic_vector(2 downto 0);
-  signal phy_enable       : std_logic;
-  signal phy_syncen       : std_logic;
-  signal phy_tx_data : std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-  signal phy_tx_k    : std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
-  signal phy_tx_prbs_sel  : std_logic_vector(2 downto 0);
-  signal sfp_tx_disable   : std_logic;
-  signal phy_tx_clk       : std_logic;
+  signal phy_rst         : std_logic;
+  signal phy_loopen      : std_logic;
+  signal phy_loopen_vec  : std_logic_vector(2 downto 0);
+  signal phy_enable      : std_logic;
+  signal phy_syncen      : std_logic;
+  signal phy_tx_data     : std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+  signal phy_tx_k        : std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+  signal phy_tx_prbs_sel : std_logic_vector(2 downto 0);
+  signal sfp_tx_disable  : std_logic;
+  signal phy_tx_clk      : std_logic;
 
   signal phy_tx_disparity : std_logic;
   signal phy_tx_enc_err   : std_logic;
-  signal phy_rx_data : std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+  signal phy_rx_data      : std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
   signal phy_rx_clk       : std_logic;
-  signal phy_rx_k    : std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+  signal phy_rx_k         : std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
   signal phy_rx_enc_err   : std_logic;
-  signal phy_rx_bts  : std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+  signal phy_rx_bts       : std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
   signal phy_rdy          : std_logic;
   signal sfp_tx_fault     : std_logic;
   signal sfp_los          : std_logic;
 
+  signal phy_debug_in, phy_debug_out:  std_logic_vector(15 downto 0);
 begin
 
   U_Wrapped_Endpoint : wr_endpoint
     generic map (
-      g_interface_mode      => g_interface_mode,
-      g_address_granularity => g_address_granularity,
-      g_tx_force_gap_length => g_tx_force_gap_length,
-      g_tx_runt_padding     => g_tx_runt_padding,
+      g_interface_mode        => g_interface_mode,
+      g_address_granularity   => g_address_granularity,
+      g_tx_force_gap_length   => g_tx_force_gap_length,
+      g_tx_runt_padding       => g_tx_runt_padding,
       g_simulation            => g_simulation,
       g_pcs_16bit             => g_pcs_16bit,
       g_rx_buffer_size        => g_rx_buffer_size,
@@ -318,111 +322,113 @@ begin
       g_use_new_txcrc         => g_use_new_txcrc,
       g_with_stop_traffic     => g_with_stop_traffic)
     port map (
-      clk_ref_i            => clk_ref_i,
-      clk_sys_i            => clk_sys_i,
-      clk_dmtd_i           => clk_dmtd_i,
-      rst_n_i              => rst_n_i,
-      pps_csync_p1_i       => pps_csync_p1_i,
-      pps_valid_i          => pps_valid_i,
+      clk_ref_i      => clk_ref_i,
+      clk_sys_i      => clk_sys_i,
+      clk_dmtd_i     => clk_dmtd_i,
+      rst_n_i        => rst_n_i,
+      pps_csync_p1_i => pps_csync_p1_i,
+      pps_valid_i    => pps_valid_i,
 
-      phy_rst_o            => phy_rst,
-      phy_loopen_o         => phy_loopen,
-      phy_loopen_vec_o     => phy_loopen_vec,
-      phy_tx_prbs_sel_o    => phy_tx_prbs_sel,
-      phy_enable_o         => phy_enable,
-      phy_syncen_o         => phy_syncen,
-      phy_rdy_i            => phy_rdy,
+      phy_rst_o         => phy_rst,
+      phy_loopen_o      => phy_loopen,
+      phy_loopen_vec_o  => phy_loopen_vec,
+      phy_tx_prbs_sel_o => phy_tx_prbs_sel,
+      phy_enable_o      => phy_enable,
+      phy_syncen_o      => phy_syncen,
+      phy_rdy_i         => phy_rdy,
+      phy_debug_i       => phy_debug_in,
+      phy_debug_o       => phy_debug_out,
 
       phy_sfp_tx_fault_i   => sfp_tx_fault,
       phy_sfp_los_i        => sfp_los,
       phy_sfp_tx_disable_o => sfp_tx_disable,
 
-      phy_ref_clk_i        => phy_tx_clk,
-      phy_tx_data_o        => phy_tx_data,
-      phy_tx_k_o           => phy_tx_k,
-      phy_tx_disparity_i   => phy_tx_disparity,
-      phy_tx_enc_err_i     => phy_tx_enc_err,
-      phy_rx_data_i        => phy_rx_data,
-      phy_rx_clk_i         => phy_rx_clk,
-      phy_rx_k_i           => phy_rx_k,
-      phy_rx_enc_err_i     => phy_rx_enc_err,
-      phy_rx_bitslide_i    => phy_rx_bts,
+      phy_ref_clk_i      => phy_tx_clk,
+      phy_tx_data_o      => phy_tx_data,
+      phy_tx_k_o         => phy_tx_k,
+      phy_tx_disparity_i => phy_tx_disparity,
+      phy_tx_enc_err_i   => phy_tx_enc_err,
+      phy_rx_data_i      => phy_rx_data,
+      phy_rx_clk_i       => phy_rx_clk,
+      phy_rx_k_i         => phy_rx_k,
+      phy_rx_enc_err_i   => phy_rx_enc_err,
+      phy_rx_bitslide_i  => phy_rx_bts,
 
-      gmii_tx_clk_i        => gmii_tx_clk_i,
-      gmii_txd_o           => gmii_txd_o,
-      gmii_tx_en_o         => gmii_tx_en_o,
-      gmii_tx_er_o         => gmii_tx_er_o,
-      gmii_rx_clk_i        => gmii_rx_clk_i,
-      gmii_rxd_i           => gmii_rxd_i,
-      gmii_rx_er_i         => gmii_rx_er_i,
-      gmii_rx_dv_i         => gmii_rx_dv_i,
-      src_dat_o            => src_o.dat,
-      src_adr_o            => src_o.adr,
-      src_sel_o            => src_o.sel,
-      src_cyc_o            => src_o.cyc,
-      src_stb_o            => src_o.stb,
-      src_we_o             => src_o.we,
-      src_stall_i          => src_i.stall,
-      src_ack_i            => src_i.ack,
-      src_err_i            => src_i.err,
-      snk_dat_i            => snk_i.dat,
-      snk_adr_i            => snk_i.adr,
-      snk_sel_i            => snk_i.sel,
-      snk_cyc_i            => snk_i.cyc,
-      snk_stb_i            => snk_i.stb,
-      snk_we_i             => snk_i.we,
-      snk_stall_o          => snk_o.stall,
-      snk_ack_o            => snk_o.ack,
-      snk_err_o            => snk_o.err,
-      snk_rty_o            => snk_o.rty,
-      txtsu_port_id_o      => txtsu_port_id_o,
-      txtsu_frame_id_o     => txtsu_frame_id_o,
-      txtsu_ts_value_o     => txtsu_ts_value_o,
-      txtsu_ts_incorrect_o => txtsu_ts_incorrect_o,
-      txtsu_stb_o          => txtsu_stb_o,
-      txtsu_ack_i          => txtsu_ack_i,
-      rtu_full_i           => rtu_full_i,
-      rtu_almost_full_i    => rtu_almost_full_i,
-      rtu_rq_strobe_p1_o   => rtu_rq_strobe_p1_o,
-      rtu_rq_abort_o       => rtu_rq_abort_o,
-      rtu_rq_smac_o        => rtu_rq_smac_o,
-      rtu_rq_dmac_o        => rtu_rq_dmac_o,
-      rtu_rq_vid_o         => rtu_rq_vid_o,
-      rtu_rq_has_vid_o     => rtu_rq_has_vid_o,
-      rtu_rq_prio_o        => rtu_rq_prio_o,
-      rtu_rq_has_prio_o    => rtu_rq_has_prio_o,
-      wb_cyc_i             => wb_i.cyc,
-      wb_stb_i             => wb_i.stb,
-      wb_we_i              => wb_i.we,
-      wb_sel_i             => wb_i.sel,
-      wb_adr_i             => wb_i.adr(7 downto 0),
-      wb_dat_i             => wb_i.dat,
-      wb_dat_o             => wb_o.dat,
-      wb_ack_o             => wb_o.ack,
-      wb_stall_o           => wb_o.stall,
-      rmon_events_o        => rmon_events_o,
-      led_link_o           => led_link_o,
-      led_act_o            => led_act_o,
-      link_up_o            => link_up_o,
-      link_kill_i          => link_kill_i,
-      pfilter_pclass_o     => pfilter_pclass_o,
-      pfilter_drop_o       => pfilter_drop_o,
-      pfilter_done_o       => pfilter_done_o,
-      fc_tx_pause_req_i    => fc_tx_pause_req_i,
-      fc_tx_pause_delay_i  => fc_tx_pause_delay_i,
-      fc_tx_pause_ready_o  => fc_tx_pause_ready_o,
-      fc_rx_pause_start_p_o   => fc_rx_pause_start_p_o,
-      fc_rx_pause_quanta_o    => fc_rx_pause_quanta_o,
-      fc_rx_pause_prio_mask_o => fc_rx_pause_prio_mask_o,
-      fc_rx_buffer_occupation_o =>fc_rx_buffer_occupation_o,
-      inject_req_i         => inject_req_i,
-      inject_user_value_i  => inject_user_value_i,
-      inject_packet_sel_i  => inject_packet_sel_i,
-      inject_ready_o       => inject_ready_o,
-      stop_traffic_i       => stop_traffic_i,
-      dbg_tx_pcs_wr_count_o=>dbg_tx_pcs_wr_count_o,
-      dbg_tx_pcs_rd_count_o=>dbg_tx_pcs_rd_count_o,
-      nice_dbg_o           => nice_dbg_o);
+      gmii_tx_clk_i             => gmii_tx_clk_i,
+      gmii_txd_o                => gmii_txd_o,
+      gmii_tx_en_o              => gmii_tx_en_o,
+      gmii_tx_er_o              => gmii_tx_er_o,
+      gmii_rx_clk_i             => gmii_rx_clk_i,
+      gmii_rxd_i                => gmii_rxd_i,
+      gmii_rx_er_i              => gmii_rx_er_i,
+      gmii_rx_dv_i              => gmii_rx_dv_i,
+      src_dat_o                 => src_o.dat,
+      src_adr_o                 => src_o.adr,
+      src_sel_o                 => src_o.sel,
+      src_cyc_o                 => src_o.cyc,
+      src_stb_o                 => src_o.stb,
+      src_we_o                  => src_o.we,
+      src_stall_i               => src_i.stall,
+      src_ack_i                 => src_i.ack,
+      src_err_i                 => src_i.err,
+      snk_dat_i                 => snk_i.dat,
+      snk_adr_i                 => snk_i.adr,
+      snk_sel_i                 => snk_i.sel,
+      snk_cyc_i                 => snk_i.cyc,
+      snk_stb_i                 => snk_i.stb,
+      snk_we_i                  => snk_i.we,
+      snk_stall_o               => snk_o.stall,
+      snk_ack_o                 => snk_o.ack,
+      snk_err_o                 => snk_o.err,
+      snk_rty_o                 => snk_o.rty,
+      txtsu_port_id_o           => txtsu_port_id_o,
+      txtsu_frame_id_o          => txtsu_frame_id_o,
+      txtsu_ts_value_o          => txtsu_ts_value_o,
+      txtsu_ts_incorrect_o      => txtsu_ts_incorrect_o,
+      txtsu_stb_o               => txtsu_stb_o,
+      txtsu_ack_i               => txtsu_ack_i,
+      rtu_full_i                => rtu_full_i,
+      rtu_almost_full_i         => rtu_almost_full_i,
+      rtu_rq_strobe_p1_o        => rtu_rq_strobe_p1_o,
+      rtu_rq_abort_o            => rtu_rq_abort_o,
+      rtu_rq_smac_o             => rtu_rq_smac_o,
+      rtu_rq_dmac_o             => rtu_rq_dmac_o,
+      rtu_rq_vid_o              => rtu_rq_vid_o,
+      rtu_rq_has_vid_o          => rtu_rq_has_vid_o,
+      rtu_rq_prio_o             => rtu_rq_prio_o,
+      rtu_rq_has_prio_o         => rtu_rq_has_prio_o,
+      wb_cyc_i                  => wb_i.cyc,
+      wb_stb_i                  => wb_i.stb,
+      wb_we_i                   => wb_i.we,
+      wb_sel_i                  => wb_i.sel,
+      wb_adr_i                  => wb_i.adr(7 downto 0),
+      wb_dat_i                  => wb_i.dat,
+      wb_dat_o                  => wb_o.dat,
+      wb_ack_o                  => wb_o.ack,
+      wb_stall_o                => wb_o.stall,
+      rmon_events_o             => rmon_events_o,
+      led_link_o                => led_link_o,
+      led_act_o                 => led_act_o,
+      link_up_o                 => link_up_o,
+      link_kill_i               => link_kill_i,
+      pfilter_pclass_o          => pfilter_pclass_o,
+      pfilter_drop_o            => pfilter_drop_o,
+      pfilter_done_o            => pfilter_done_o,
+      fc_tx_pause_req_i         => fc_tx_pause_req_i,
+      fc_tx_pause_delay_i       => fc_tx_pause_delay_i,
+      fc_tx_pause_ready_o       => fc_tx_pause_ready_o,
+      fc_rx_pause_start_p_o     => fc_rx_pause_start_p_o,
+      fc_rx_pause_quanta_o      => fc_rx_pause_quanta_o,
+      fc_rx_pause_prio_mask_o   => fc_rx_pause_prio_mask_o,
+      fc_rx_buffer_occupation_o => fc_rx_buffer_occupation_o,
+      inject_req_i              => inject_req_i,
+      inject_user_value_i       => inject_user_value_i,
+      inject_packet_sel_i       => inject_packet_sel_i,
+      inject_ready_o            => inject_ready_o,
+      stop_traffic_i            => stop_traffic_i,
+      dbg_tx_pcs_wr_count_o     => dbg_tx_pcs_wr_count_o,
+      dbg_tx_pcs_rd_count_o     => dbg_tx_pcs_rd_count_o,
+      nice_dbg_o                => nice_dbg_o);
 
   wb_o.err <= '0';
   wb_o.rty <= '0';
@@ -430,7 +436,7 @@ begin
 
 
   -- Record-based PHY connections, depending on 8/16-bit PCS
-  GEN_16BIT_IF: if g_pcs_16bit and g_records_for_phy generate
+  GEN_16BIT_IF : if g_pcs_16bit and g_records_for_phy generate
     phy16_o.rst            <= phy_rst;
     phy16_o.loopen         <= phy_loopen;
     phy16_o.loopen_vec     <= phy_loopen_vec;
@@ -440,6 +446,7 @@ begin
     phy16_o.tx_k           <= phy_tx_k;
     phy16_o.tx_prbs_sel    <= phy_tx_prbs_sel;
     phy16_o.sfp_tx_disable <= sfp_tx_disable;
+    phy16_o.debug <= phy_debug_out;
 
     phy_tx_clk       <= phy16_i.ref_clk;
     phy_tx_disparity <= phy16_i.tx_disparity;
@@ -450,11 +457,12 @@ begin
     phy_rx_enc_err   <= phy16_i.rx_enc_err;
     phy_rx_bts       <= phy16_i.rx_bitslide;
     phy_rdy          <= phy16_i.rdy;
+    phy_debug_in <= phy16_i.debug;
     sfp_tx_fault     <= phy16_i.sfp_tx_fault;
     sfp_los          <= phy16_i.sfp_los;
   end generate;
 
-  GEN_8BIT_IF: if not g_pcs_16bit and g_records_for_phy generate
+  GEN_8BIT_IF : if not g_pcs_16bit and g_records_for_phy generate
     phy8_o.rst            <= phy_rst;
     phy8_o.loopen         <= phy_loopen;
     phy8_o.loopen_vec     <= phy_loopen_vec;
@@ -479,7 +487,7 @@ begin
   end generate;
 
   -- backwards compatibility
-  GEN_STD_IF: if not g_records_for_phy generate
+  GEN_STD_IF : if not g_records_for_phy generate
     phy_rst_o            <= phy_rst;
     phy_loopen_o         <= phy_loopen;
     phy_loopen_vec_o     <= phy_loopen_vec;
@@ -489,7 +497,8 @@ begin
     phy_tx_k_o           <= phy_tx_k;
     phy_tx_prbs_sel_o    <= phy_tx_prbs_sel;
     phy_sfp_tx_disable_o <= sfp_tx_disable;
-
+    phy_debug_o <= phy_debug_out;
+    
     phy_tx_clk       <= phy_ref_clk_i;
     phy_tx_disparity <= phy_tx_disparity_i;
     phy_tx_enc_err   <= phy_tx_enc_err_i;
@@ -499,6 +508,7 @@ begin
     phy_rx_enc_err   <= phy_rx_enc_err_i;
     phy_rx_bts       <= phy_rx_bitslide_i;
     phy_rdy          <= phy_rdy_i;
+    phy_debug_in <= phy_debug_i;
     sfp_tx_fault     <= phy_sfp_tx_fault_i;
     sfp_los          <= phy_sfp_los_i;
   end generate;
