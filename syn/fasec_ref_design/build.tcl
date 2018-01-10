@@ -1,3 +1,7 @@
+# Some file gymnastics needed for IP defenition
+file copy -force ../../board/fasec/component.xml ../../.
+#file delete -force ../../board/fasec/component.xml
+
 # Create Vivado project
 source ./fasec_ref_design.tcl
 

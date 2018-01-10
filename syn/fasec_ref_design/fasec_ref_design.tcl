@@ -99,7 +99,6 @@ set obj [get_projects fasec_ref_design]
 set_property "corecontainer.enable" "1" $obj
 set_property "default_lib" "xil_defaultlib" $obj
 set_property "ip_cache_permissions" "read write" $obj
-set_property "ip_output_repo" "/home/greg/wr/wr-cores/syn/fasec_ref_design/fasec_ref_design.cache/ip" $obj
 set_property "part" "xc7z030ffg676-2" $obj
 set_property "sim.ip.auto_export_scripts" "1" $obj
 set_property "simulator_language" "Mixed" $obj

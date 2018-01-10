@@ -175,6 +175,8 @@ proc create_root_design { parentCell } {
   set clk_sys_62m5_p [ create_bd_port -dir O -from 0 -to 0 -type clk clk_sys_62m5_p ]
   set dio_oe_n [ create_bd_port -dir O -from 2 -to 0 dio_oe_n ]
   set dio_term [ create_bd_port -dir O -from 2 -to 0 dio_term ]
+  set mdio_spi_N [ create_bd_port -dir IO -from 0 -to 0 mdio_spi_N ]
+  set mdio_spi_P [ create_bd_port -dir IO -from 0 -to 0 mdio_spi_P ]
   set pll20dac_cs_n_o [ create_bd_port -dir O pll20dac_cs_n_o ]
   set pll25dac_cs_n_o [ create_bd_port -dir O pll25dac_cs_n_o ]
   set plldac_din_o [ create_bd_port -dir O plldac_din_o ]
@@ -182,11 +184,18 @@ proc create_root_design { parentCell } {
   set pps_n [ create_bd_port -dir O -from 0 -to 0 -type clk pps_n ]
   set pps_p [ create_bd_port -dir O -from 0 -to 0 -type clk pps_p ]
   set sfp_rate_select_o [ create_bd_port -dir O sfp_rate_select_o ]
+  set watchdog_PL [ create_bd_port -dir O -from 0 -to 0 watchdog_PL ]
 
   # Create instance: axi_uartlite_0, and set properties
   set axi_uartlite_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_uartlite:2.0 axi_uartlite_0 ]
   set_property -dict [ list \
 CONFIG.C_BAUDRATE {115200} \
+CONFIG.C_S_AXI_ACLK_FREQ_HZ {100000000} \
+ ] $axi_uartlite_0
+
+  # Need to retain value_src of defaults
+  set_property -dict [ list \
+CONFIG.C_S_AXI_ACLK_FREQ_HZ.VALUE_SRC {DEFAULT} \
  ] $axi_uartlite_0
 
   # Create instance: processing_system7_0, and set properties
@@ -278,14 +287,16 @@ CONFIG.PCW_ENET1_PERIPHERAL_ENABLE {0} \
 CONFIG.PCW_ENET1_PERIPHERAL_FREQMHZ {1000 Mbps} \
 CONFIG.PCW_ENET1_RESET_ENABLE {0} \
 CONFIG.PCW_ENET1_RESET_IO {<Select>} \
-CONFIG.PCW_ENET_RESET_ENABLE {1} \
+CONFIG.PCW_ENET_RESET_ENABLE {0} \
 CONFIG.PCW_ENET_RESET_POLARITY {Active Low} \
-CONFIG.PCW_ENET_RESET_SELECT {Share reset pin} \
+CONFIG.PCW_ENET_RESET_SELECT {<Select>} \
 CONFIG.PCW_EN_4K_TIMER {0} \
+CONFIG.PCW_EN_EMIO_GPIO {1} \
 CONFIG.PCW_EN_EMIO_TTC0 {1} \
 CONFIG.PCW_EN_ENET0 {1} \
 CONFIG.PCW_EN_GPIO {1} \
 CONFIG.PCW_EN_I2C0 {1} \
+CONFIG.PCW_EN_I2C1 {1} \
 CONFIG.PCW_EN_QSPI {1} \
 CONFIG.PCW_EN_SDIO0 {1} \
 CONFIG.PCW_EN_TTC0 {1} \
@@ -302,10 +313,7 @@ CONFIG.PCW_FCLK2_PERIPHERAL_DIVISOR1 {1} \
 CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC {IO PLL} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0 {1} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1 {1} \
-CONFIG.PCW_FCLK_CLK0_BUF {TRUE} \
-CONFIG.PCW_FCLK_CLK1_BUF {FALSE} \
-CONFIG.PCW_FCLK_CLK2_BUF {FALSE} \
-CONFIG.PCW_FCLK_CLK3_BUF {FALSE} \
+CONFIG.PCW_FCLK_CLK0_BUF {true} \
 CONFIG.PCW_FPGA0_PERIPHERAL_FREQMHZ {100} \
 CONFIG.PCW_FPGA1_PERIPHERAL_FREQMHZ {10} \
 CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ {50} \
@@ -319,27 +327,28 @@ CONFIG.PCW_FTM_CTI_OUT0 {<Select>} \
 CONFIG.PCW_FTM_CTI_OUT1 {<Select>} \
 CONFIG.PCW_FTM_CTI_OUT2 {<Select>} \
 CONFIG.PCW_FTM_CTI_OUT3 {<Select>} \
-CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {0} \
-CONFIG.PCW_GPIO_EMIO_GPIO_IO {<Select>} \
+CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE {1} \
+CONFIG.PCW_GPIO_EMIO_GPIO_IO {1} \
+CONFIG.PCW_GPIO_EMIO_GPIO_WIDTH {1} \
 CONFIG.PCW_GPIO_MIO_GPIO_ENABLE {1} \
 CONFIG.PCW_GPIO_MIO_GPIO_IO {MIO} \
 CONFIG.PCW_GPIO_PERIPHERAL_ENABLE {0} \
 CONFIG.PCW_I2C0_GRP_INT_ENABLE {0} \
 CONFIG.PCW_I2C0_GRP_INT_IO {<Select>} \
-CONFIG.PCW_I2C0_I2C0_IO {MIO 30 .. 31} \
+CONFIG.PCW_I2C0_I2C0_IO {MIO 38 .. 39} \
 CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {1} \
 CONFIG.PCW_I2C0_RESET_ENABLE {0} \
 CONFIG.PCW_I2C0_RESET_IO {<Select>} \
-CONFIG.PCW_I2C1_GRP_INT_ENABLE {0} \
-CONFIG.PCW_I2C1_GRP_INT_IO {<Select>} \
-CONFIG.PCW_I2C1_I2C1_IO {<Select>} \
-CONFIG.PCW_I2C1_PERIPHERAL_ENABLE {0} \
+CONFIG.PCW_I2C1_GRP_INT_ENABLE {1} \
+CONFIG.PCW_I2C1_GRP_INT_IO {EMIO} \
+CONFIG.PCW_I2C1_I2C1_IO {MIO 28 .. 29} \
+CONFIG.PCW_I2C1_PERIPHERAL_ENABLE {1} \
 CONFIG.PCW_I2C1_RESET_ENABLE {0} \
 CONFIG.PCW_I2C1_RESET_IO {<Select>} \
 CONFIG.PCW_I2C_PERIPHERAL_FREQMHZ {111.111115} \
-CONFIG.PCW_I2C_RESET_ENABLE {1} \
+CONFIG.PCW_I2C_RESET_ENABLE {0} \
 CONFIG.PCW_I2C_RESET_POLARITY {Active Low} \
-CONFIG.PCW_I2C_RESET_SELECT {Share reset pin} \
+CONFIG.PCW_I2C_RESET_SELECT {<Select>} \
 CONFIG.PCW_IOPLL_CTRL_FBDIV {30} \
 CONFIG.PCW_IO_IO_PLL_FREQMHZ {1000.000} \
 CONFIG.PCW_IRQ_F2P_INTR {1} \
@@ -372,19 +381,19 @@ CONFIG.PCW_MIO_15_IOTYPE {LVCMOS 3.3V} \
 CONFIG.PCW_MIO_15_PULLUP {enabled} \
 CONFIG.PCW_MIO_15_SLEW {slow} \
 CONFIG.PCW_MIO_16_DIRECTION {out} \
-CONFIG.PCW_MIO_16_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_16_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_16_PULLUP {disabled} \
 CONFIG.PCW_MIO_16_SLEW {fast} \
 CONFIG.PCW_MIO_17_DIRECTION {out} \
-CONFIG.PCW_MIO_17_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_17_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_17_PULLUP {disabled} \
 CONFIG.PCW_MIO_17_SLEW {fast} \
 CONFIG.PCW_MIO_18_DIRECTION {out} \
-CONFIG.PCW_MIO_18_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_18_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_18_PULLUP {disabled} \
 CONFIG.PCW_MIO_18_SLEW {fast} \
 CONFIG.PCW_MIO_19_DIRECTION {out} \
-CONFIG.PCW_MIO_19_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_19_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_19_PULLUP {disabled} \
 CONFIG.PCW_MIO_19_SLEW {fast} \
 CONFIG.PCW_MIO_1_DIRECTION {out} \
@@ -392,131 +401,131 @@ CONFIG.PCW_MIO_1_IOTYPE {LVCMOS 3.3V} \
 CONFIG.PCW_MIO_1_PULLUP {enabled} \
 CONFIG.PCW_MIO_1_SLEW {slow} \
 CONFIG.PCW_MIO_20_DIRECTION {out} \
-CONFIG.PCW_MIO_20_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_20_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_20_PULLUP {disabled} \
 CONFIG.PCW_MIO_20_SLEW {fast} \
 CONFIG.PCW_MIO_21_DIRECTION {out} \
-CONFIG.PCW_MIO_21_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_21_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_21_PULLUP {disabled} \
 CONFIG.PCW_MIO_21_SLEW {fast} \
 CONFIG.PCW_MIO_22_DIRECTION {in} \
-CONFIG.PCW_MIO_22_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_22_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_22_PULLUP {disabled} \
 CONFIG.PCW_MIO_22_SLEW {fast} \
 CONFIG.PCW_MIO_23_DIRECTION {in} \
-CONFIG.PCW_MIO_23_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_23_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_23_PULLUP {disabled} \
 CONFIG.PCW_MIO_23_SLEW {fast} \
 CONFIG.PCW_MIO_24_DIRECTION {in} \
-CONFIG.PCW_MIO_24_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_24_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_24_PULLUP {disabled} \
 CONFIG.PCW_MIO_24_SLEW {fast} \
 CONFIG.PCW_MIO_25_DIRECTION {in} \
-CONFIG.PCW_MIO_25_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_25_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_25_PULLUP {disabled} \
 CONFIG.PCW_MIO_25_SLEW {fast} \
 CONFIG.PCW_MIO_26_DIRECTION {in} \
-CONFIG.PCW_MIO_26_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_26_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_26_PULLUP {disabled} \
 CONFIG.PCW_MIO_26_SLEW {fast} \
 CONFIG.PCW_MIO_27_DIRECTION {in} \
-CONFIG.PCW_MIO_27_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_27_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_27_PULLUP {disabled} \
 CONFIG.PCW_MIO_27_SLEW {fast} \
 CONFIG.PCW_MIO_28_DIRECTION {inout} \
-CONFIG.PCW_MIO_28_IOTYPE {LVCMOS 3.3V} \
-CONFIG.PCW_MIO_28_PULLUP {enabled} \
+CONFIG.PCW_MIO_28_IOTYPE {LVCMOS 1.8V} \
+CONFIG.PCW_MIO_28_PULLUP {disabled} \
 CONFIG.PCW_MIO_28_SLEW {slow} \
 CONFIG.PCW_MIO_29_DIRECTION {inout} \
-CONFIG.PCW_MIO_29_IOTYPE {LVCMOS 3.3V} \
-CONFIG.PCW_MIO_29_PULLUP {enabled} \
+CONFIG.PCW_MIO_29_IOTYPE {LVCMOS 1.8V} \
+CONFIG.PCW_MIO_29_PULLUP {disabled} \
 CONFIG.PCW_MIO_29_SLEW {slow} \
 CONFIG.PCW_MIO_2_DIRECTION {inout} \
 CONFIG.PCW_MIO_2_IOTYPE {LVCMOS 3.3V} \
 CONFIG.PCW_MIO_2_PULLUP {disabled} \
 CONFIG.PCW_MIO_2_SLEW {slow} \
 CONFIG.PCW_MIO_30_DIRECTION {inout} \
-CONFIG.PCW_MIO_30_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_30_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_30_PULLUP {enabled} \
 CONFIG.PCW_MIO_30_SLEW {slow} \
 CONFIG.PCW_MIO_31_DIRECTION {inout} \
-CONFIG.PCW_MIO_31_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_31_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_31_PULLUP {enabled} \
 CONFIG.PCW_MIO_31_SLEW {slow} \
 CONFIG.PCW_MIO_32_DIRECTION {inout} \
-CONFIG.PCW_MIO_32_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_32_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_32_PULLUP {enabled} \
 CONFIG.PCW_MIO_32_SLEW {slow} \
 CONFIG.PCW_MIO_33_DIRECTION {inout} \
-CONFIG.PCW_MIO_33_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_33_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_33_PULLUP {enabled} \
 CONFIG.PCW_MIO_33_SLEW {slow} \
 CONFIG.PCW_MIO_34_DIRECTION {inout} \
-CONFIG.PCW_MIO_34_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_34_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_34_PULLUP {enabled} \
 CONFIG.PCW_MIO_34_SLEW {slow} \
 CONFIG.PCW_MIO_35_DIRECTION {inout} \
-CONFIG.PCW_MIO_35_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_35_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_35_PULLUP {enabled} \
 CONFIG.PCW_MIO_35_SLEW {slow} \
 CONFIG.PCW_MIO_36_DIRECTION {inout} \
-CONFIG.PCW_MIO_36_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_36_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_36_PULLUP {enabled} \
 CONFIG.PCW_MIO_36_SLEW {slow} \
 CONFIG.PCW_MIO_37_DIRECTION {inout} \
-CONFIG.PCW_MIO_37_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_37_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_37_PULLUP {enabled} \
 CONFIG.PCW_MIO_37_SLEW {slow} \
 CONFIG.PCW_MIO_38_DIRECTION {inout} \
-CONFIG.PCW_MIO_38_IOTYPE {LVCMOS 3.3V} \
-CONFIG.PCW_MIO_38_PULLUP {enabled} \
+CONFIG.PCW_MIO_38_IOTYPE {LVCMOS 1.8V} \
+CONFIG.PCW_MIO_38_PULLUP {disabled} \
 CONFIG.PCW_MIO_38_SLEW {slow} \
 CONFIG.PCW_MIO_39_DIRECTION {inout} \
-CONFIG.PCW_MIO_39_IOTYPE {LVCMOS 3.3V} \
-CONFIG.PCW_MIO_39_PULLUP {enabled} \
+CONFIG.PCW_MIO_39_IOTYPE {LVCMOS 1.8V} \
+CONFIG.PCW_MIO_39_PULLUP {disabled} \
 CONFIG.PCW_MIO_39_SLEW {slow} \
 CONFIG.PCW_MIO_3_DIRECTION {inout} \
 CONFIG.PCW_MIO_3_IOTYPE {LVCMOS 3.3V} \
 CONFIG.PCW_MIO_3_PULLUP {disabled} \
 CONFIG.PCW_MIO_3_SLEW {slow} \
 CONFIG.PCW_MIO_40_DIRECTION {inout} \
-CONFIG.PCW_MIO_40_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_40_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_40_PULLUP {enabled} \
 CONFIG.PCW_MIO_40_SLEW {slow} \
 CONFIG.PCW_MIO_41_DIRECTION {inout} \
-CONFIG.PCW_MIO_41_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_41_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_41_PULLUP {enabled} \
 CONFIG.PCW_MIO_41_SLEW {slow} \
 CONFIG.PCW_MIO_42_DIRECTION {inout} \
-CONFIG.PCW_MIO_42_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_42_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_42_PULLUP {enabled} \
 CONFIG.PCW_MIO_42_SLEW {slow} \
 CONFIG.PCW_MIO_43_DIRECTION {inout} \
-CONFIG.PCW_MIO_43_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_43_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_43_PULLUP {enabled} \
 CONFIG.PCW_MIO_43_SLEW {slow} \
 CONFIG.PCW_MIO_44_DIRECTION {inout} \
-CONFIG.PCW_MIO_44_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_44_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_44_PULLUP {enabled} \
 CONFIG.PCW_MIO_44_SLEW {slow} \
 CONFIG.PCW_MIO_45_DIRECTION {inout} \
-CONFIG.PCW_MIO_45_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_45_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_45_PULLUP {enabled} \
 CONFIG.PCW_MIO_45_SLEW {slow} \
 CONFIG.PCW_MIO_46_DIRECTION {inout} \
-CONFIG.PCW_MIO_46_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_46_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_46_PULLUP {enabled} \
 CONFIG.PCW_MIO_46_SLEW {slow} \
 CONFIG.PCW_MIO_47_DIRECTION {inout} \
-CONFIG.PCW_MIO_47_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_47_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_47_PULLUP {enabled} \
 CONFIG.PCW_MIO_47_SLEW {slow} \
 CONFIG.PCW_MIO_48_DIRECTION {out} \
-CONFIG.PCW_MIO_48_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_48_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_48_PULLUP {enabled} \
 CONFIG.PCW_MIO_48_SLEW {slow} \
 CONFIG.PCW_MIO_49_DIRECTION {in} \
-CONFIG.PCW_MIO_49_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_49_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_49_PULLUP {enabled} \
 CONFIG.PCW_MIO_49_SLEW {slow} \
 CONFIG.PCW_MIO_4_DIRECTION {inout} \
@@ -524,19 +533,19 @@ CONFIG.PCW_MIO_4_IOTYPE {LVCMOS 3.3V} \
 CONFIG.PCW_MIO_4_PULLUP {disabled} \
 CONFIG.PCW_MIO_4_SLEW {slow} \
 CONFIG.PCW_MIO_50_DIRECTION {inout} \
-CONFIG.PCW_MIO_50_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_50_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_50_PULLUP {enabled} \
 CONFIG.PCW_MIO_50_SLEW {slow} \
 CONFIG.PCW_MIO_51_DIRECTION {inout} \
-CONFIG.PCW_MIO_51_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_51_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_51_PULLUP {enabled} \
 CONFIG.PCW_MIO_51_SLEW {slow} \
 CONFIG.PCW_MIO_52_DIRECTION {out} \
-CONFIG.PCW_MIO_52_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_52_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_52_PULLUP {enabled} \
 CONFIG.PCW_MIO_52_SLEW {slow} \
 CONFIG.PCW_MIO_53_DIRECTION {inout} \
-CONFIG.PCW_MIO_53_IOTYPE {LVCMOS 3.3V} \
+CONFIG.PCW_MIO_53_IOTYPE {LVCMOS 1.8V} \
 CONFIG.PCW_MIO_53_PULLUP {enabled} \
 CONFIG.PCW_MIO_53_SLEW {slow} \
 CONFIG.PCW_MIO_5_DIRECTION {inout} \
@@ -559,8 +568,8 @@ CONFIG.PCW_MIO_9_DIRECTION {inout} \
 CONFIG.PCW_MIO_9_IOTYPE {LVCMOS 3.3V} \
 CONFIG.PCW_MIO_9_PULLUP {enabled} \
 CONFIG.PCW_MIO_9_SLEW {slow} \
-CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#GPIO#GPIO#I2C 0#I2C 0#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#GPIO#GPIO#UART 1#UART 1#GPIO#GPIO#Enet 0#Enet 0} \
-CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#gpio[14]#gpio[15]#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#gpio[28]#gpio[29]#scl#sda#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#gpio[38]#gpio[39]#clk#cmd#data[0]#data[1]#data[2]#data[3]#gpio[46]#gpio[47]#tx#rx#gpio[50]#gpio[51]#mdc#mdio} \
+CONFIG.PCW_MIO_TREE_PERIPHERALS {GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#I2C 1#I2C 1#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#GPIO#I2C 0#I2C 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#GPIO#GPIO#UART 1#UART 1#GPIO#GPIO#Enet 0#Enet 0} \
+CONFIG.PCW_MIO_TREE_SIGNALS {gpio[0]#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]#qspi0_sclk#gpio[7]#gpio[8]#gpio[9]#gpio[10]#gpio[11]#gpio[12]#gpio[13]#gpio[14]#gpio[15]#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#scl#sda#gpio[30]#gpio[31]#gpio[32]#gpio[33]#gpio[34]#gpio[35]#gpio[36]#gpio[37]#scl#sda#clk#cmd#data[0]#data[1]#data[2]#data[3]#gpio[46]#gpio[47]#tx#rx#gpio[50]#gpio[51]#mdc#mdio} \
 CONFIG.PCW_M_AXI_GP0_FREQMHZ {62} \
 CONFIG.PCW_M_AXI_GP1_FREQMHZ {62} \
 CONFIG.PCW_NAND_CYCLES_T_AR {1} \
@@ -631,7 +640,7 @@ CONFIG.PCW_PJTAG_PERIPHERAL_ENABLE {0} \
 CONFIG.PCW_PJTAG_PJTAG_IO {<Select>} \
 CONFIG.PCW_PLL_BYPASSMODE_ENABLE {0} \
 CONFIG.PCW_PRESET_BANK0_VOLTAGE {LVCMOS 3.3V} \
-CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 3.3V} \
+CONFIG.PCW_PRESET_BANK1_VOLTAGE {LVCMOS 1.8V} \
 CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE {0} \
 CONFIG.PCW_QSPI_GRP_FBCLK_IO {<Select>} \
 CONFIG.PCW_QSPI_GRP_IO1_ENABLE {0} \
@@ -826,7 +835,7 @@ CONFIG.PCW_USB1_PERIPHERAL_FREQMHZ {60} \
 CONFIG.PCW_USB1_RESET_ENABLE {0} \
 CONFIG.PCW_USB1_RESET_IO {<Select>} \
 CONFIG.PCW_USB1_USB1_IO {<Select>} \
-CONFIG.PCW_USB_RESET_ENABLE {1} \
+CONFIG.PCW_USB_RESET_ENABLE {0} \
 CONFIG.PCW_USB_RESET_POLARITY {Active Low} \
 CONFIG.PCW_USB_RESET_SELECT {<Select>} \
 CONFIG.PCW_USE_CROSS_TRIGGER {0} \
@@ -917,6 +926,8 @@ CONFIG.PCW_ENET1_RESET_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_ENET1_RESET_IO.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_ENET_RESET_POLARITY.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_EN_4K_TIMER.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_EN_EMIO_GPIO.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_EN_I2C1.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK0_PERIPHERAL_CLKSRC.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK1_PERIPHERAL_CLKSRC.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK1_PERIPHERAL_DIVISOR0.VALUE_SRC {DEFAULT} \
@@ -928,9 +939,6 @@ CONFIG.PCW_FCLK3_PERIPHERAL_CLKSRC.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR0.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK3_PERIPHERAL_DIVISOR1.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FCLK_CLK0_BUF.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_FCLK_CLK1_BUF.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_FCLK_CLK2_BUF.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_FCLK_CLK3_BUF.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FPGA2_PERIPHERAL_FREQMHZ.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FPGA3_PERIPHERAL_FREQMHZ.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FPGA_FCLK0_ENABLE.VALUE_SRC {DEFAULT} \
@@ -942,8 +950,7 @@ CONFIG.PCW_FTM_CTI_OUT0.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FTM_CTI_OUT1.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FTM_CTI_OUT2.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_FTM_CTI_OUT3.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_GPIO_EMIO_GPIO_ENABLE.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_GPIO_EMIO_GPIO_IO.VALUE_SRC {DEFAULT} \
+CONFIG.PCW_GPIO_EMIO_GPIO_WIDTH.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_GPIO_PERIPHERAL_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C0_GRP_INT_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C0_GRP_INT_IO.VALUE_SRC {DEFAULT} \
@@ -951,8 +958,6 @@ CONFIG.PCW_I2C0_RESET_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C0_RESET_IO.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C1_GRP_INT_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C1_GRP_INT_IO.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_I2C1_I2C1_IO.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_I2C1_PERIPHERAL_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C1_RESET_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C1_RESET_IO.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_I2C_RESET_POLARITY.VALUE_SRC {DEFAULT} \
@@ -1023,7 +1028,6 @@ CONFIG.PCW_PJTAG_PERIPHERAL_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_PJTAG_PJTAG_IO.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_PLL_BYPASSMODE_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_PRESET_BANK0_VOLTAGE.VALUE_SRC {DEFAULT} \
-CONFIG.PCW_PRESET_BANK1_VOLTAGE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_QSPI_GRP_FBCLK_IO.VALUE_SRC {DEFAULT} \
 CONFIG.PCW_QSPI_GRP_IO1_ENABLE.VALUE_SRC {DEFAULT} \
@@ -1233,13 +1237,14 @@ CONFIG.C_BUF_TYPE {OBUFDS} \
 CONFIG.C_BUF_TYPE {OBUFDS} \
  ] $util_ds_buf_2
 
+  # Create instance: util_ds_buf_3, and set properties
+  set util_ds_buf_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:util_ds_buf:2.1 util_ds_buf_3 ]
+  set_property -dict [ list \
+CONFIG.C_BUF_TYPE {IOBUFDS} \
+ ] $util_ds_buf_3
+
   # Create instance: wrc_board_fasec_0, and set properties
   set wrc_board_fasec_0 [ create_bd_cell -type ip -vlnv CERN:white_rabbit:wrc_board_fasec:4.2 wrc_board_fasec_0 ]
-
-  set_property -dict [ list \
-CONFIG.NUM_READ_OUTSTANDING {1} \
-CONFIG.NUM_WRITE_OUTSTANDING {1} \
- ] [get_bd_intf_pins /wrc_board_fasec_0/s00_axi]
 
   # Create instance: xlconcat_0, and set properties
   set xlconcat_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconcat:2.1 xlconcat_0 ]
@@ -1269,6 +1274,12 @@ CONFIG.CONST_VAL {0000} \
 CONFIG.CONST_WIDTH {4} \
  ] $xlconstant_2
 
+  # Create instance: xlconstant_3, and set properties
+  set xlconstant_3 [ create_bd_cell -type ip -vlnv xilinx.com:ip:xlconstant:1.1 xlconstant_3 ]
+  set_property -dict [ list \
+CONFIG.CONST_WIDTH {1} \
+ ] $xlconstant_3
+
   # Create interface connections
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
@@ -1282,6 +1293,8 @@ CONFIG.CONST_WIDTH {4} \
   connect_bd_intf_net -intf_net wrc_board_fasec_0_thermo_id [get_bd_intf_ports thermo_id] [get_bd_intf_pins wrc_board_fasec_0/thermo_id]
 
   # Create port connections
+  connect_bd_net -net Net [get_bd_ports mdio_spi_P] [get_bd_pins util_ds_buf_3/IOBUF_DS_P]
+  connect_bd_net -net Net1 [get_bd_ports mdio_spi_N] [get_bd_pins util_ds_buf_3/IOBUF_DS_N]
   connect_bd_net -net areset_n_i_1 [get_bd_ports areset_n_i] [get_bd_pins wrc_board_fasec_0/areset_n_i]
   connect_bd_net -net axi_uartlite_0_interrupt [get_bd_pins axi_uartlite_0/interrupt] [get_bd_pins xlconcat_0/In1]
   connect_bd_net -net axi_uartlite_0_tx [get_bd_pins axi_uartlite_0/tx] [get_bd_pins wrc_board_fasec_0/uart_rxd_i]
@@ -1292,6 +1305,7 @@ CONFIG.CONST_WIDTH {4} \
   connect_bd_net -net clk_20m_vcxo_i_1 [get_bd_ports clk_20m_vcxo_i] [get_bd_pins wrc_board_fasec_0/clk_20m_vcxo_i]
   connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_uartlite_0/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_100M/slowest_sync_clk]
   connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_100M/ext_reset_in] [get_bd_pins rst_wrc_board_fasec_0_62M/ext_reset_in]
+  connect_bd_net -net processing_system7_0_GPIO_O [get_bd_ports watchdog_PL] [get_bd_pins processing_system7_0/GPIO_O]
   connect_bd_net -net rst_ps7_0_100M_interconnect_aresetn [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins rst_ps7_0_100M/interconnect_aresetn]
   connect_bd_net -net rst_ps7_0_100M_peripheral_aresetn [get_bd_pins axi_uartlite_0/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_100M/peripheral_aresetn]
   connect_bd_net -net rst_wrc_board_fasec_0_62M_interconnect_aresetn [get_bd_pins ps7_0_axi_periph_1/ARESETN] [get_bd_pins rst_wrc_board_fasec_0_62M/interconnect_aresetn]
@@ -1316,6 +1330,7 @@ CONFIG.CONST_WIDTH {4} \
   connect_bd_net -net xlconstant_0_dout [get_bd_ports dio_oe_n] [get_bd_pins xlconstant_0/dout]
   connect_bd_net -net xlconstant_1_dout [get_bd_ports dio_term] [get_bd_pins xlconstant_1/dout]
   connect_bd_net -net xlconstant_2_dout [get_bd_pins xlconcat_0/In0] [get_bd_pins xlconstant_2/dout]
+  connect_bd_net -net xlconstant_3_dout [get_bd_pins util_ds_buf_3/IOBUF_IO_I] [get_bd_pins util_ds_buf_3/IOBUF_IO_T] [get_bd_pins xlconstant_3/dout]
 
   # Create address segments
   create_bd_addr_seg -range 0x00010000 -offset 0x42C00000 [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_uartlite_0/S_AXI/Reg] SEG_axi_uartlite_0_Reg
@@ -1323,7 +1338,7 @@ CONFIG.CONST_WIDTH {4} \
 
   # Perform GUI Layout
   regenerate_bd_layout -layout_string {
-   guistr: "# # String gsaved with Nlview 6.6.5b  2016-09-06 bk=1.3687 VDI=39 GEI=35 GUI=JA:1.6
+   guistr: "# # String gsaved with Nlview 6.5.12  2016-01-29 bk=1.3547 VDI=39 GEI=35 GUI=JA:1.6
 #  -string -flagsOSRD
 preplace port sfp_rate_select_o -pg 1 -y 870 -defaultsOSRD
 preplace port DDR -pg 1 -y 480 -defaultsOSRD
@@ -1336,7 +1351,7 @@ preplace port pll25dac_cs_n_o -pg 1 -y 830 -defaultsOSRD
 preplace port pll20dac_cs_n_o -pg 1 -y 850 -defaultsOSRD
 preplace port areset_n_i -pg 1 -y 720 -defaultsOSRD
 preplace port eeprom_i2c -pg 1 -y 670 -defaultsOSRD
-preplace port FIXED_IO -pg 1 -y 510 -defaultsOSRD
+preplace port FIXED_IO -pg 1 -y 500 -defaultsOSRD
 preplace port clk_125m_pllref_p_i -pg 1 -y 760 -defaultsOSRD
 preplace port clk_125m_gtp_p_i -pg 1 -y 820 -defaultsOSRD
 preplace port plldac_sclk_o -pg 1 -y 790 -defaultsOSRD
@@ -1347,14 +1362,19 @@ preplace portBus dio_oe_n -pg 1 -y 1210 -defaultsOSRD
 preplace portBus pps_n -pg 1 -y 1130 -defaultsOSRD
 preplace portBus pps_p -pg 1 -y 1110 -defaultsOSRD
 preplace portBus clk_sys_62m5_n -pg 1 -y 410 -defaultsOSRD
+preplace portBus mdio_spi_N -pg 1 -y 1400 -defaultsOSRD
 preplace portBus dio_term -pg 1 -y 1290 -defaultsOSRD
 preplace portBus clk_sys_62m5_p -pg 1 -y 390 -defaultsOSRD
+preplace portBus mdio_spi_P -pg 1 -y 1380 -defaultsOSRD
+preplace portBus watchdog_PL -pg 1 -y 520 -defaultsOSRD
 preplace portBus clk_ref_125m_n -pg 1 -y 100 -defaultsOSRD
 preplace inst util_ds_buf_1 -pg 1 -lvl 6 -y 400 -defaultsOSRD
 preplace inst util_ds_buf_2 -pg 1 -lvl 6 -y 90 -defaultsOSRD
+preplace inst util_ds_buf_3 -pg 1 -lvl 6 -y 1400 -defaultsOSRD
 preplace inst xlconstant_0 -pg 1 -lvl 6 -y 1210 -defaultsOSRD
 preplace inst xlconstant_1 -pg 1 -lvl 6 -y 1290 -defaultsOSRD
 preplace inst xlconstant_2 -pg 1 -lvl 1 -y 580 -defaultsOSRD
+preplace inst xlconstant_3 -pg 1 -lvl 5 -y 1400 -defaultsOSRD
 preplace inst xlconcat_0 -pg 1 -lvl 2 -y 590 -defaultsOSRD
 preplace inst wrc_board_fasec_0 -pg 1 -lvl 6 -y 790 -defaultsOSRD
 preplace inst ps7_0_axi_periph -pg 1 -lvl 5 -y 110 -defaultsOSRD
@@ -1363,52 +1383,56 @@ preplace inst rst_wrc_board_fasec_0_62M -pg 1 -lvl 3 -y 330 -defaultsOSRD
 preplace inst rst_ps7_0_100M -pg 1 -lvl 3 -y 90 -defaultsOSRD
 preplace inst util_ds_buf_0 -pg 1 -lvl 6 -y 1120 -defaultsOSRD
 preplace inst ps7_0_axi_periph_1 -pg 1 -lvl 5 -y 350 -defaultsOSRD
-preplace inst processing_system7_0 -pg 1 -lvl 4 -y 570 -defaultsOSRD
-preplace netloc processing_system7_0_DDR 1 4 3 1180J 480 NJ 480 NJ
+preplace inst processing_system7_0 -pg 1 -lvl 4 -y 600 -defaultsOSRD
+preplace netloc processing_system7_0_DDR 1 4 3 1290 480 NJ 480 NJ
 preplace netloc xlconstant_1_dout 1 6 1 NJ
 preplace netloc wrc_board_fasec_0_pll25dac_cs_n_o 1 6 1 NJ
 preplace netloc xlconstant_2_dout 1 1 1 NJ
-preplace netloc wrc_board_fasec_0_clk_ref_125m_o 1 5 2 1470 30 1840
+preplace netloc wrc_board_fasec_0_clk_ref_125m_o 1 5 2 1790 30 2110
 preplace netloc util_ds_buf_1_OBUF_DS_P 1 6 1 NJ
 preplace netloc clk_125m_gtp_p_i_1 1 0 6 NJ 820 NJ 820 NJ 820 NJ 820 NJ 820 NJ
 preplace netloc wrc_board_fasec_0_SFP 1 6 1 NJ
+preplace netloc processing_system7_0_GPIO_O 1 4 3 NJ 510 NJ 510 NJ
 preplace netloc util_ds_buf_0_OBUF_DS_N 1 6 1 NJ
-preplace netloc axi_uartlite_0_interrupt 1 1 6 160 420 NJ 420 NJ 420 1130J 470 NJ 470 1790
+preplace netloc axi_uartlite_0_interrupt 1 1 6 150 -20 NJ -20 NJ -20 N -20 NJ -20 2100
 preplace netloc wrc_board_fasec_0_thermo_id 1 6 1 NJ
-preplace netloc processing_system7_0_M_AXI_GP0 1 4 1 1120
-preplace netloc rst_ps7_0_100M_peripheral_aresetn 1 3 3 N 130 1190 230 NJ
-preplace netloc clk_20m_vcxo_i_1 1 0 6 NJ 740 NJ 740 NJ 740 NJ 740 NJ 740 NJ
-preplace netloc processing_system7_0_M_AXI_GP1 1 4 1 1170
-preplace netloc wrc_board_fasec_0_uart_txd_o 1 6 1 1830
+preplace netloc processing_system7_0_M_AXI_GP0 1 4 1 1270
+preplace netloc rst_ps7_0_100M_peripheral_aresetn 1 3 3 N 130 1330 230 NJ
+preplace netloc clk_20m_vcxo_i_1 1 0 6 NJ 740 NJ 740 NJ 740 NJ 780 NJ 740 NJ
+preplace netloc processing_system7_0_M_AXI_GP1 1 4 1 1300
+preplace netloc wrc_board_fasec_0_uart_txd_o 1 6 1 2090
 preplace netloc wrc_board_fasec_0_plldac_sclk_o 1 6 1 NJ
 preplace netloc util_ds_buf_0_OBUF_DS_P 1 6 1 NJ
-preplace netloc processing_system7_0_FCLK_RESET0_N 1 2 3 370 240 NJ 240 1110
-preplace netloc areset_n_i_1 1 0 6 NJ 720 NJ 720 NJ 720 NJ 720 NJ 720 NJ
-preplace netloc wrc_board_fasec_0_clk_sys_62m5_o 1 5 2 1490 460 1800
-preplace netloc rst_wrc_board_fasec_0_62M_peripheral_aresetn 1 3 3 NJ 370 1140 520 1470J
+preplace netloc processing_system7_0_FCLK_RESET0_N 1 2 3 380 240 NJ 240 1260
+preplace netloc areset_n_i_1 1 0 6 NJ 720 NJ 720 NJ 720 NJ 770 NJ 720 NJ
+preplace netloc wrc_board_fasec_0_clk_sys_62m5_o 1 5 2 1790 490 2070
+preplace netloc rst_wrc_board_fasec_0_62M_peripheral_aresetn 1 3 3 NJ 370 1320 470 1770
 preplace netloc util_ds_buf_2_OBUF_DS_N 1 6 1 NJ
 preplace netloc clk_125m_gtp_n_i_1 1 0 6 NJ 800 NJ 800 NJ 800 NJ 800 NJ 800 NJ
-preplace netloc axi_uartlite_0_tx 1 6 1 1820
-preplace netloc wrc_board_fasec_0_eeprom_i2c 1 6 1 NJ
+preplace netloc axi_uartlite_0_tx 1 6 1 2080
 preplace netloc wrc_board_fasec_0_sfp_i2c 1 6 1 NJ
+preplace netloc wrc_board_fasec_0_eeprom_i2c 1 6 1 NJ
 preplace netloc xlconstant_0_dout 1 6 1 NJ
 preplace netloc xlconcat_0_dout 1 2 2 N 590 NJ
 preplace netloc wrc_board_fasec_0_pll20dac_cs_n_o 1 6 1 NJ
-preplace netloc processing_system7_0_FIXED_IO 1 4 3 NJ 510 NJ 510 NJ
+preplace netloc processing_system7_0_FIXED_IO 1 4 3 NJ 500 NJ 500 NJ
 preplace netloc wrc_board_fasec_0_sfp_rate_select_o 1 6 1 NJ
 preplace netloc util_ds_buf_2_OBUF_DS_P 1 6 1 NJ
-preplace netloc rst_wrc_board_fasec_0_62M_interconnect_aresetn 1 3 2 NJ 350 1160
-preplace netloc ps7_0_axi_periph_1_M00_AXI 1 5 1 1480
-preplace netloc clk_125m_pllref_p_i_1 1 0 6 NJ 760 NJ 760 NJ 760 NJ 760 NJ 760 NJ
+preplace netloc rst_wrc_board_fasec_0_62M_interconnect_aresetn 1 3 2 NJ 330 N
+preplace netloc ps7_0_axi_periph_1_M00_AXI 1 5 1 1780
+preplace netloc clk_125m_pllref_p_i_1 1 0 6 NJ 760 NJ 760 NJ 760 NJ 790 NJ 760 NJ
+preplace netloc Net1 1 6 1 N
+preplace netloc Net 1 6 1 N
 preplace netloc wrc_board_fasec_0_plldac_din_o 1 6 1 NJ
-preplace netloc processing_system7_0_FCLK_CLK0 1 2 4 350 430 710 430 1150 500 1470J
-preplace netloc clk_125m_pllref_n_i_1 1 0 6 NJ 780 NJ 780 NJ 780 NJ 780 NJ 780 NJ
-preplace netloc ps7_0_axi_periph_M00_AXI 1 5 1 1470
-preplace netloc wrc_board_fasec_0_pps_p_o 1 5 2 1480 1060 1790
-preplace netloc wrc_board_fasec_0_s00_axi_aclk_o 1 2 5 360 890 710 890 1190 890 1490J 490 1810
+preplace netloc processing_system7_0_FCLK_CLK0 1 2 4 360 420 730 420 1280 -10 1780
+preplace netloc clk_125m_pllref_n_i_1 1 0 6 NJ 780 NJ 780 NJ 780 NJ 810 NJ 780 NJ
+preplace netloc ps7_0_axi_periph_M00_AXI 1 5 1 1770
+preplace netloc wrc_board_fasec_0_pps_p_o 1 5 2 1790 1060 2070
+preplace netloc xlconstant_3_dout 1 5 1 1780
+preplace netloc wrc_board_fasec_0_s00_axi_aclk_o 1 2 5 370 430 720 430 1330 520 N 520 2100
 preplace netloc util_ds_buf_1_OBUF_DS_N 1 6 1 NJ
-preplace netloc rst_ps7_0_100M_interconnect_aresetn 1 3 2 N 110 1110J
-levelinfo -pg 1 0 90 260 540 910 1330 1640 1860 -top 0 -bot 1340
+preplace netloc rst_ps7_0_100M_interconnect_aresetn 1 3 2 730 90 N
+levelinfo -pg 1 -50 90 280 540 1070 1620 1930 2140 -top -30 -bot 1470
 ",
 }
 
@@ -1425,7 +1449,6 @@ levelinfo -pg 1 0 90 260 540 910 1330 1640 1860 -top 0 -bot 1340
 ##################################################################
 
 create_root_design ""
-
 
 common::send_msg_id "BD_TCL-1000" "WARNING" "This Tcl script was generated from a block design that has not been validated. It is possible that design <$design_name> may result in errors during validation."
 

@@ -3,8 +3,8 @@ set_property IOSTANDARD LVCMOS18 [get_ports areset_n_i]
 
 set_property PACKAGE_PIN C8 [get_ports clk_20m_vcxo_i]
 set_property IOSTANDARD LVCMOS18 [get_ports clk_20m_vcxo_i]
-set_property PACKAGE_PIN U5 [get_ports clk_125m_gtp_n_i]
 set_property PACKAGE_PIN U6 [get_ports clk_125m_gtp_p_i]
+set_property PACKAGE_PIN U5 [get_ports clk_125m_gtp_n_i]
 #set_property IOSTANDARD LVDS_25 [get_ports clk_125m_pllref_p_i]
 set_property PACKAGE_PIN G7 [get_ports clk_125m_pllref_p_i]
 set_property PACKAGE_PIN F7 [get_ports clk_125m_pllref_n_i]
@@ -68,7 +68,7 @@ set_property IOSTANDARD LVCMOS25 [get_ports {dio_oe_n[0]}]
 set_property IOSTANDARD LVCMOS25 [get_ports {dio_oe_n[1]}]
 set_property IOSTANDARD LVCMOS25 [get_ports {dio_oe_n[2]}]
 
-
-set_clock_groups -asynchronous -group [get_clocks clk_fpga_0] -group [get_clocks clk_sys]
-
-
+set_property PACKAGE_PIN AA19 [get_ports {watchdog_PL[0]}]
+set_property IOSTANDARD LVCMOS25 [get_ports {watchdog_PL[0]}]
+set_property PACKAGE_PIN B16 [get_ports {mdio_spi_P[0]}]
+set_property IOSTANDARD LVDS [get_ports {mdio_spi_P[0]}]
