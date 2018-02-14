@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2017-02-20
+-- Last update: 2018-02-14
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ entity wr_softpll_ng is
 
     g_ref_clock_rate : integer := 125000000;
     g_ext_clock_rate : integer := 10000000;
-
+    g_sys_clock_rate: integer := 62500000;
 
     g_interface_mode      : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity : t_wishbone_address_granularity := WORD
@@ -354,21 +354,20 @@ begin  -- rtl
 
   U_Meas_DMTD_Freq: gc_frequency_meter
     generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
+      g_with_internal_timebase => true,
+      g_clk_sys_freq           => g_sys_clock_rate,
       g_counter_bits           => 28)
     port map (
       clk_sys_i    => clk_sys_i,
       clk_in_i     => clk_dmtd_i,
       rst_n_i      => rst_n_i,
-      pps_p1_i     => pps_ext_a_i,
       freq_o       => regs_out.f_dmtd_freq_i,
       freq_valid_o => open);            -- fixme
 
   U_Meas_REF_Freq: gc_frequency_meter
     generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
+      g_with_internal_timebase => true,
+      g_clk_sys_freq           => g_sys_clock_rate,
       g_counter_bits           => 28)
     port map (
       clk_sys_i    => clk_sys_i,
