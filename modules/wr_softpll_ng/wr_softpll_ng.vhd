@@ -83,7 +83,7 @@ entity wr_softpll_ng is
 
     g_ref_clock_rate : integer := 125000000;
     g_ext_clock_rate : integer := 10000000;
-
+    g_sys_clock_rate: integer := 62500000;
 
     g_interface_mode      : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity : t_wishbone_address_granularity := WORD
@@ -149,7 +149,7 @@ entity wr_softpll_ng is
     wb_we_i    : in  std_logic;
     wb_ack_o   : out std_logic;
     wb_stall_o : out std_logic;
-    wb_irq_o   : out std_logic;
+    irq_o      : out std_logic;
     debug_o    : out std_logic_vector(5 downto 0);
 
 -- Debug FIFO readout interrupt
@@ -296,8 +296,6 @@ architecture rtl of wr_softpll_ng is
   signal rcer_int : std_logic_vector(g_num_ref_inputs-1 downto 0);
   signal ocer_int : std_logic_vector(g_num_outputs-1 downto 0);
 
-  signal wb_irq_out : std_logic;
-
   signal wb_out   : t_wishbone_slave_out;
   signal wb_in    : t_wishbone_slave_in;
   signal regs_in  : t_SPLL_out_registers;
@@ -328,8 +326,14 @@ architecture rtl of wr_softpll_ng is
   signal aligner_sample_valid, aligner_sample_ack : std_logic_vector(g_num_outputs downto 0);
   signal aligner_sample_cref, aligner_sample_cin  : t_aligner_sample_array;
 
-  signal raw_dmtd_ref: std_logic_vector(31 downto 0);
-  
+  -- necessary to be able to relax timing from spll_aligner outputs cref and
+  -- cin (driven by ref clock) to the registers (driven by sys clock). The two
+  -- sides are already sychronized via a gc_pulse_synchronizer, which makes
+  -- sure that cref and cin are stable when sampled by the sys clock.
+  attribute keep : string;
+  attribute keep of aligner_sample_cref : signal is "true";
+  attribute keep of aligner_sample_cin  : signal is "true";
+
 begin  -- rtl
 
   U_Adapter : wb_slave_adapter
@@ -357,8 +361,8 @@ begin  -- rtl
 
   U_Meas_DMTD_Freq: gc_frequency_meter
     generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
+      g_with_internal_timebase => true,
+      g_clk_sys_freq           => g_sys_clock_rate,
       g_counter_bits           => 28)
     port map (
       clk_sys_i    => clk_sys_i,
@@ -370,8 +374,8 @@ begin  -- rtl
 
   U_Meas_REF_Freq: gc_frequency_meter
     generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
+      g_with_internal_timebase => true,
+      g_clk_sys_freq           => g_sys_clock_rate,
       g_counter_bits           => 28)
     port map (
       clk_sys_i    => clk_sys_i,
@@ -428,9 +432,6 @@ begin  -- rtl
 
   end generate gen_ref_dmtds;
 
-  debug_o(0) <= tags_p(1);
-  debug_o(1) <= tags_p(2);
-  
   gen_feedback_dmtds : for i in 0 to g_num_outputs-1 generate
     
     DMTD_FB : dmtd_with_deglitcher
@@ -460,19 +461,19 @@ begin  -- rtl
 
         deglitch_threshold_i => deglitch_thr_slv,
         dbg_dmtdout_o        => open,
-        dbg_clk_d3_o         => open); --debug_o(4));
+				dbg_clk_d3_o         => open); --debug_o(4));
 
 
   end generate gen_feedback_dmtds;
 
   -- drive unused debug output
---  debug_o(4) <= '0';
+  debug_o(4) <= '0';
 
   gen_with_ext_clock_input : if(g_with_ext_clock_input) generate
 
---    debug_o(0) <= fb_resync_out(0);
---    debug_o(1) <= tags_p(g_num_ref_inputs + g_num_outputs);
---    debug_o(2) <= tags_p(g_num_ref_inputs);
+    debug_o(0) <= fb_resync_out(0);
+    debug_o(1) <= tags_p(g_num_ref_inputs + g_num_outputs);
+    debug_o(2) <= tags_p(g_num_ref_inputs);
     
     U_DMTD_EXT : dmtd_with_deglitcher
       generic map (
@@ -545,11 +546,11 @@ begin  -- rtl
     regs_out.eccr_ext_ref_stopped_i          <= '0';
     clk_ext_rst_o <= '0';
     -- drive unused debug outputs
-    --debug_o(0) <= '0';
-    --debug_o(1) <= '0';
-    --debug_o(2) <= '0';
-    --debug_o(3) <= '0';
-    --debug_o(5) <= '0';
+    debug_o(0) <= '0';
+    debug_o(1) <= '0';
+    debug_o(2) <= '0';
+    debug_o(3) <= '0';
+    debug_o(5) <= '0';
   end generate gen_without_ext_clock_input;
 
   p_ack_aligner_samples: process(regs_in, aligner_sample_valid)
@@ -588,7 +589,7 @@ begin  -- rtl
       wb_stb_i   => wb_in.stb,
       wb_we_i    => wb_in.we,
       wb_ack_o   => wb_out.ack,
-      wb_int_o   => wb_irq_out,
+      wb_int_o   => irq_o,
       wb_stall_o => open,
 
       regs_o => regs_in,
@@ -600,7 +601,6 @@ begin  -- rtl
     wb_out.err   <= '0';
     wb_out.rty   <= '0';
     wb_out.stall <= '0';
-    wb_out.int   <= '0';
 
   p_ocer_rcer_regs : process(clk_sys_i)
   begin
@@ -803,8 +803,6 @@ begin  -- rtl
   dac_out_data_o <= regs_in.dac_main_value_o;
   dac_out_sel_o  <= regs_in.dac_main_dac_sel_o;
   dac_out_load_o <= regs_in.dac_main_value_wr_o;
-
-  wb_irq_o <= wb_irq_out;
 
   regs_out.al_cr_required_i    <= (others => '0');
   regs_out.csr_dbg_supported_i <= '0';
