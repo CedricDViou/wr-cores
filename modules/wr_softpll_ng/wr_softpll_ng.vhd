@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2018-07-30
+-- Last update: 2017-02-20
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -83,7 +83,7 @@ entity wr_softpll_ng is
 
     g_ref_clock_rate : integer := 125000000;
     g_ext_clock_rate : integer := 10000000;
-
+    g_sys_clock_rate: integer := 62500000;
 
     g_interface_mode      : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity : t_wishbone_address_granularity := WORD
@@ -296,6 +296,8 @@ architecture rtl of wr_softpll_ng is
   signal rcer_int : std_logic_vector(g_num_ref_inputs-1 downto 0);
   signal ocer_int : std_logic_vector(g_num_outputs-1 downto 0);
 
+  signal wb_irq_out : std_logic;
+
   signal wb_out   : t_wishbone_slave_out;
   signal wb_in    : t_wishbone_slave_in;
   signal regs_in  : t_SPLL_out_registers;
@@ -324,7 +326,7 @@ architecture rtl of wr_softpll_ng is
 
   signal aligner_sample_valid, aligner_sample_ack : std_logic_vector(g_num_outputs downto 0);
   signal aligner_sample_cref, aligner_sample_cin  : t_aligner_sample_array;
-
+  
   -- necessary to be able to relax timing from spll_aligner outputs cref and
   -- cin (driven by ref clock) to the registers (driven by sys clock). The two
   -- sides are already sychronized via a gc_pulse_synchronizer, which makes
@@ -360,8 +362,8 @@ begin  -- rtl
 
   U_Meas_DMTD_Freq: gc_frequency_meter
     generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
+      g_with_internal_timebase => true,
+      g_clk_sys_freq           => g_sys_clock_rate,
       g_counter_bits           => 28)
     port map (
       clk_sys_i    => clk_sys_i,
@@ -373,8 +375,8 @@ begin  -- rtl
 
   U_Meas_REF_Freq: gc_frequency_meter
     generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
+      g_with_internal_timebase => true,
+      g_clk_sys_freq           => g_sys_clock_rate,
       g_counter_bits           => 28)
     port map (
       clk_sys_i    => clk_sys_i,
