@@ -362,6 +362,7 @@ begin  -- rtl
       clk_in_i     => clk_dmtd_i,
       rst_n_i      => rst_n_i,
       freq_o       => regs_out.f_dmtd_freq_i,
+      pps_p1_i     => '0',
       freq_valid_o => open);            -- fixme
 
   U_Meas_REF_Freq: gc_frequency_meter
