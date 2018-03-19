@@ -124,7 +124,6 @@ begin
 
   slave_o.err <= '0';
   slave_o.rty <= '0';
-  slave_o.int <= '0';
 
 end syn;
 

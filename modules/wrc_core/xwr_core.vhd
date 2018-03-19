@@ -11,10 +11,10 @@
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
 -- Description:
--- WR PTP Core is a HDL module implementing a complete gigabit Ethernet 
--- interface (MAC + PCS + PHY) with integrated PTP slave ordinary clock 
--- compatible with White Rabbit protocol. It performs subnanosecond clock 
--- synchronization via WR protocol and also acts as an Ethernet "gateway", 
+-- WR PTP Core is a HDL module implementing a complete gigabit Ethernet
+-- interface (MAC + PCS + PHY) with integrated PTP slave ordinary clock
+-- compatible with White Rabbit protocol. It performs subnanosecond clock
+-- synchronization via WR protocol and also acts as an Ethernet "gateway",
 -- providing access to TX/RX interfaces of the built-in WR MAC.
 --
 -- Starting from version 2.0 all modules are interconnected with pipelined
@@ -25,20 +25,20 @@
 --
 -- Copyright (c) 2012 - 2017 CERN
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -70,7 +70,7 @@ use work.softpll_pkg.all;
 
 entity xwr_core is
   generic(
-    --if set to 1, then blocks in PCS use smaller calibration counter to speed 
+    --if set to 1, then blocks in PCS use smaller calibration counter to speed
     --up simulation
     g_simulation                : integer                        := 0;
     g_with_external_clock_input : boolean                        := true;
@@ -167,7 +167,7 @@ entity xwr_core is
     phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
     phy16_o              : out t_phy_16bits_from_wrc;
     phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-   
+
     -----------------------------------------
     --GPIO
     -----------------------------------------
@@ -414,7 +414,7 @@ begin
 
       abscal_txts_o        => abscal_txts_o,
       abscal_rxts_o        => abscal_rxts_o,
-      
+
       fc_tx_pause_req_i    => fc_tx_pause_req_i,
       fc_tx_pause_delay_i  => fc_tx_pause_delay_i,
       fc_tx_pause_ready_o  => fc_tx_pause_ready_o,
@@ -440,8 +440,6 @@ begin
       );
 
   timestamps_o.port_id(5) <= '0';
-
-  slave_o.int <= '0';
 
   wrf_snk_o.rty <= '0';
 

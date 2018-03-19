@@ -704,8 +704,6 @@ begin
     tm_clk_aux_locked_o <= spll_out_locked(g_aux_clks downto 1);
   end generate;
 
-  softpll_irq <= spll_wb_out.int;
-
   -----------------------------------------------------------------------------
   -- Endpoint
   -----------------------------------------------------------------------------
@@ -1073,7 +1071,6 @@ begin
   secbar_master_i(7).stall <= aux_stall_i;
   secbar_master_i(7).err   <= '0';
   secbar_master_i(7).rty   <= '0';
-  secbar_master_i(7).int   <= '0';
 
   --secbar_master_i(6).err <= '0';
   --secbar_master_i(5).err <= '0';

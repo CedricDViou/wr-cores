@@ -120,7 +120,7 @@ begin
       regs_o     => regs_fromwb);
   wb_out.rty <= '0';
   wb_out.err <= '0';
-  wb_out.int <= '0';
+
   -------------------------------------------
 
   FRAME_FIFO: generic_sync_fifo

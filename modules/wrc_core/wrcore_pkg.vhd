@@ -135,7 +135,8 @@ package wrcore_pkg is
       txtsu_stb_i         : in  std_logic;
       txtsu_ack_o         : out std_logic;
       wb_i                : in  t_wishbone_slave_in;
-      wb_o                : out t_wishbone_slave_out);
+      wb_o                : out t_wishbone_slave_out;
+      int_o               : out std_logic);
   end component;
 
   -----------------------------------------------------------------------------
@@ -346,12 +347,13 @@ package wrcore_pkg is
       out_locked_o    : out std_logic_vector(g_num_outputs-1 downto 0);
       slave_i         : in  t_wishbone_slave_in;
       slave_o         : out t_wishbone_slave_out;
+      int_o           : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
   
   constant cc_unused_master_in : t_wishbone_master_in :=
-    ('1', '0', '0', '0', '0', cc_dummy_data);
+    ('1', '0', '0', '0', cc_dummy_data);
 
   -----------------------------------------------------------------------------
   -- Public WR component definitions

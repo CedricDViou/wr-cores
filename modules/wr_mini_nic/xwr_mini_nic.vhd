@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk, Tomasz Wlostowski
 -- Company    : CERN BE-Co-HT
 -- Created    : 2010-07-26
--- Last update: 2017-02-03
+-- Last update: 2018-03-19
 -- Platform   : FPGA-generic
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -78,7 +78,13 @@ entity xwr_mini_nic is
 -------------------------------------------------------------------------------    
 
   wb_i : in  t_wishbone_slave_in;
-  wb_o : out t_wishbone_slave_out
+  wb_o : out t_wishbone_slave_out;
+
+-------------------------------------------------------------------------------
+-- Interrupt output
+-------------------------------------------------------------------------------
+
+  int_o : out std_logic
     );
 end xwr_mini_nic;
 
@@ -127,7 +133,7 @@ architecture wrapper of xwr_mini_nic is
       wb_dat_o            : out std_logic_vector(c_wishbone_data_width-1 downto 0);
       wb_ack_o            : out std_logic;
       wb_stall_o          : out std_logic;
-      wb_int_o            : out std_logic);
+      int_o               : out std_logic);
   end component;
   
 begin  -- wrapper
@@ -175,7 +181,7 @@ begin  -- wrapper
       wb_dat_o            => wb_o.dat,
       wb_ack_o            => wb_o.ack,
       wb_stall_o          => wb_o.stall,
-      wb_int_o            => wb_o.int);
+      int_o               => int_o);
 
 
   wb_o.err <= '0';

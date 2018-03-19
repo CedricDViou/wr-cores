@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2010-09-02
--- Last update: 2017-02-20
+-- Last update: 2018-03-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -500,7 +500,6 @@ begin  -- behavioral
 -- drive unused signals
   wb_out.rty   <= '0';
   wb_out.stall <= '0';
-  wb_out.int   <= '0';
   wb_out.err   <= '0';
 
 -- start the adjustment upon write of 1 to CNT_ADJ bit

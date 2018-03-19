@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2017-02-20
+-- Last update: 2018-03-19
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -128,6 +128,8 @@ entity xwr_softpll_ng is
     slave_i : in  t_wishbone_slave_in;
     slave_o : out t_wishbone_slave_out;
 
+    int_o: out std_logic;
+
     debug_o        : out std_logic_vector(5 downto 0);
     dbg_fifo_irq_o : out std_logic
     );
@@ -181,7 +183,7 @@ architecture wrapper of xwr_softpll_ng is
       wb_we_i         : in  std_logic;
       wb_ack_o        : out std_logic;
       wb_stall_o      : out std_logic;
-      wb_irq_o        : out std_logic;
+      irq_o           : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
@@ -234,7 +236,7 @@ begin  -- behavioral
       wb_we_i         => slave_i.we,
       wb_ack_o        => slave_o.ack,
       wb_stall_o      => slave_o.stall,
-      wb_irq_o        => slave_o.int,
+      irq_o           => int_o,
       debug_o         => debug_o,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 

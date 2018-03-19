@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2017-02-20
+-- Last update: 2018-03-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -773,7 +773,6 @@ begin
   wb_out.stall <= '0';
   wb_out.rty   <= '0';
   wb_out.err   <= '0';
-  wb_out.int   <= '0';
 
   regs_towb <= regs_towb_ep or regs_towb_tsu or regs_towb_rpath or regs_towb_tpath or regs_towb_dmtd;
 
