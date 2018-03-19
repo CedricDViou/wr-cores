@@ -351,7 +351,6 @@ begin  -- behavioral
    -----------------------------------------------------------------------------
    -- WB Interface
    -----------------------------------------------------------------------------  
-   ctrl_slave_o.int     <= '0';
    ctrl_slave_o.rty     <= '0';
    ctrl_slave_o.stall   <= r_c_stall;    
    ctrl_slave_o.ack     <= r_c_ack;

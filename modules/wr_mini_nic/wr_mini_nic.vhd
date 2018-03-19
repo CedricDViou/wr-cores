@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk, Tomasz Wlostowski
 -- Company    : CERN BE-Co-HT
 -- Created    : 2010-07-26
--- Last update: 2017-02-03
+-- Last update: 2018-03-19
 -- Platform   : FPGA-generic
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -119,7 +119,12 @@ entity wr_mini_nic is
     wb_dat_o   : out std_logic_vector(c_wishbone_data_width-1 downto 0);
     wb_ack_o   : out std_logic;
     wb_stall_o : out std_logic;
-    wb_int_o   : out std_logic
+
+-------------------------------------------------------------------------------
+-- Interrupt output
+-------------------------------------------------------------------------------
+
+    int_o   : out std_logic
     );
 end wr_mini_nic;
 
@@ -772,7 +777,7 @@ begin  -- behavioral
       wb_we_i          => wb_out.we,
       wb_ack_o         => wb_in.ack,
       wb_stall_o       => wb_in.stall,
-      wb_int_o         => wb_int_o,
+      wb_int_o         => int_o,
       regs_i           => regs_in,
       regs_o           => regs_out,
       tx_ts_read_ack_o => open,
@@ -785,7 +790,6 @@ begin  -- behavioral
 
   wb_in.err <= '0';
   wb_in.rty <= '0';
-  wb_in.int <= '0';
 
   --TRIG0(0) <= regs_out.mcr_rx_en_o;
   --TRIG0(1) <= rx_fifo_empty;

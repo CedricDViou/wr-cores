@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-05-11
--- Last update: 2018-08-14
+-- Last update: 2017-05-29
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -135,7 +135,8 @@ package wrcore_pkg is
       txtsu_stb_i         : in  std_logic;
       txtsu_ack_o         : out std_logic;
       wb_i                : in  t_wishbone_slave_in;
-      wb_o                : out t_wishbone_slave_out);
+      wb_o                : out t_wishbone_slave_out;
+      int_o               : out std_logic);
   end component;
 
   -----------------------------------------------------------------------------
@@ -346,12 +347,13 @@ package wrcore_pkg is
       out_locked_o    : out std_logic_vector(g_num_outputs-1 downto 0);
       slave_i         : in  t_wishbone_slave_in;
       slave_o         : out t_wishbone_slave_out;
+      int_o           : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
   
   constant cc_unused_master_in : t_wishbone_master_in :=
-    ('1', '0', '0', '0', '0', cc_dummy_data);
+    ('1', '0', '0', '0', cc_dummy_data);
 
   -----------------------------------------------------------------------------
   -- Public WR component definitions
@@ -380,8 +382,7 @@ package wrcore_pkg is
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
-      g_diag_rw_size              : integer                        := 0;
-      g_extra_rx_clocks : integer := 0);
+      g_diag_rw_size              : integer                        := 0);
     port(
       clk_sys_i            : in std_logic;
       clk_dmtd_i           : in std_logic := '0';

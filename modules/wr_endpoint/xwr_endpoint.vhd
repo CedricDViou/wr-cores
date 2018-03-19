@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2017-02-20
+-- Last update: 2018-03-08
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -433,7 +433,6 @@ begin
 
   wb_o.err <= '0';
   wb_o.rty <= '0';
-  wb_o.int <= '0';
 
 
   -- Record-based PHY connections, depending on 8/16-bit PCS

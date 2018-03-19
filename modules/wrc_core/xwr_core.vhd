@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2018-08-14
+-- Last update: 2017-05-29
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -118,7 +118,7 @@ entity xwr_core is
     clk_ext_i : in std_logic := '0';
 
     clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0) := (others => '0');
-    
+
     clk_ext_mul_i : in std_logic := '0';
     clk_ext_mul_locked_i : in std_logic := '1';
     clk_ext_stopped_i    : in  std_logic := '0';
@@ -267,9 +267,7 @@ entity xwr_core is
     aux_diag_i    : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
     aux_diag_o    : out t_generic_word_array(g_diag_rw_size-1 downto 0);
 
-    link_ok_o : out std_logic;
-
-    debug_o : out std_logic_vector(31 downto 0)
+    link_ok_o : out std_logic
     );
 end xwr_core;
 
@@ -449,8 +447,6 @@ begin
       );
 
   timestamps_o.port_id(5) <= '0';
-
-  slave_o.int <= '0';
 
   wrf_snk_o.rty <= '0';
 

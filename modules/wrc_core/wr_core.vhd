@@ -684,7 +684,7 @@ begin
 
       slave_i => spll_wb_in,
       slave_o => spll_wb_out,
-
+      int_o => softpll_irq,
       debug_o => debug_o(5 downto 0));
 
   softpll_clk_ref(0) <= phy_rx_clk;
@@ -692,7 +692,7 @@ begin
   gen_with_extra_ref_clocks: if g_extra_rx_clocks > 0 generate
     softpll_clk_ref(g_extra_rx_clocks downto 1) <= clk_rx_extra_i;
   end generate gen_with_extra_ref_clocks;
-  
+
   clk_fb(0)                       <= clk_ref_i;
   clk_fb(g_aux_clks downto 1)     <= clk_aux_i;
   out_enable(0)                   <= '1';
@@ -717,8 +717,6 @@ begin
   locked_spll : if g_aux_clks > 0 generate
     tm_clk_aux_locked_o <= spll_out_locked(g_aux_clks downto 1);
   end generate;
-
-  softpll_irq <= spll_wb_out.int;
 
   -----------------------------------------------------------------------------
   -- Endpoint
@@ -1087,7 +1085,6 @@ begin
   secbar_master_i(7).stall <= aux_stall_i;
   secbar_master_i(7).err   <= '0';
   secbar_master_i(7).rty   <= '0';
-  secbar_master_i(7).int   <= '0';
 
   --secbar_master_i(6).err <= '0';
   --secbar_master_i(5).err <= '0';

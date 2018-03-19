@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2010-09-02
--- Last update: 2017-02-20
+-- Last update: 2018-03-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -157,6 +157,5 @@ begin  -- behavioral
 
   slave_o.err <= '0';
   slave_o.rty <= '0';
-  slave_o.int <= '0';
 
 end behavioral;

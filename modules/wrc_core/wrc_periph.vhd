@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-04-04
--- Last update: 2017-04-25
+-- Last update: 2018-03-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -414,7 +414,6 @@ begin
 
   slave_o(0).err <= '0';
   slave_o(0).rty <= '0';
-  slave_o(0).int <= '0';
 
   --------------------------------------
   -- UART
