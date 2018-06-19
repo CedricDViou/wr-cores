@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-11-18
--- Last update: 2013-06-04
+-- Last update: 2018-06-19
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -67,6 +67,9 @@ entity wr_gtx_phy_virtex6 is
     -- Reference 62.5 MHz clock for the GTX transceiver
     clk_gtx_i : in std_logic;
 
+    -- DMTD clock for phase measurements (done in the PHY module as we need to
+    -- multiplex between several GTX clock outputs)
+    clk_dmtd_i : in std_logic;
     -- TX path, clk_ref_i - synchronous:
 
     -- data input (8 bits, not 8b10b-encoded)
@@ -87,6 +90,8 @@ entity wr_gtx_phy_virtex6 is
 
     -- RX recovered clock
     rx_rbclk_o : out std_logic;
+
+    rx_rbclk_sampled_o : out std_logic;
 
     -- 8b10b-decoded data output. The data output must be kept invalid before
     -- the transceiver is locked on the incoming signal to prevent the EP from
@@ -112,8 +117,16 @@ entity wr_gtx_phy_virtex6 is
 
     pad_rxn_i : in std_logic := '0';
     pad_rxp_i : in std_logic := '0';
-    
-    rdy_o : out std_logic
+
+    rdy_o : out std_logic;
+
+    debug_i : in  std_logic_vector(15 downto 0) := x"0000";
+    debug_o : out std_logic_vector(15 downto 0);
+
+    tx_sampled_i : in std_logic := '0';
+    rx_sampled_i : in std_logic := '0';
+
+    TX_CLK_o : out std_logic
 
     );
 
@@ -184,45 +197,17 @@ architecture rtl of wr_gtx_phy_virtex6 is
       I   : in  std_ulogic);
   end component;
 
-  component gtp_phase_align_virtex6
+  component dmtd_sampler is
     generic (
-      g_simulation : integer);
+      g_divide_input_by_2 : boolean;
+      g_reverse           : boolean);
     port (
-      gtp_rst_i                   : in  std_logic;
-      gtp_tx_clk_i                : in  std_logic;
-      gtp_tx_en_pma_phase_align_o : out std_logic;
-      gtp_tx_pma_set_phase_o      : out std_logic;
-      gtp_tx_dly_align_disable_o  : out std_logic;
-      gtp_tx_dly_align_reset_o    : out std_logic;
-      align_en_i                  : in  std_logic;
-      align_done_o                : out std_logic);
-  end component;
+      clk_in_i      : in  std_logic;
+      clk_dmtd_i    : in  std_logic;
+      clk_sampled_o : out std_logic);
+  end component dmtd_sampler;
 
-  component gtp_bitslide
-    generic (
-      g_simulation : integer;
-      g_target     : string := "virtex6");
-    port (
-      gtp_rst_i                : in  std_logic;
-      gtp_rx_clk_i             : in  std_logic;
-      gtp_rx_comma_det_i       : in  std_logic;
-      gtp_rx_byte_is_aligned_i : in  std_logic;
-      serdes_ready_i           : in  std_logic;
-      gtp_rx_slide_o           : out std_logic;
-      gtp_rx_cdr_rst_o         : out std_logic;
-      bitslide_o               : out std_logic_vector(4 downto 0);
-      synced_o                 : out std_logic);
-  end component;
 
-  component gtx_reset
-    port (
-      clk_tx_i        : in  std_logic;
-      rst_i           : in  std_logic;
-      txpll_lockdet_i : in  std_logic;
-      gtx_test_o      : out std_logic_vector(12 downto 0));
-  end component;
-
-  signal trig0, trig1, trig2, trig3 : std_logic_vector(31 downto 0);
   signal gtx_rst                    : std_logic;
   signal gtx_loopback               : std_logic_vector(2 downto 0);
   signal gtx_reset_done             : std_logic;
@@ -245,7 +230,7 @@ architecture rtl of wr_gtx_phy_virtex6 is
   signal align_enable : std_logic;
   signal align_done   : std_logic;
 
-  signal tx_rst_done, rx_rst_done : std_logic;
+  signal gtx_tx_rst_done, rx_rst_done : std_logic;
 
   signal txpll_lockdet, rxpll_lockdet : std_logic;
   signal pll_lockdet                  : std_logic;
@@ -267,10 +252,95 @@ architecture rtl of wr_gtx_phy_virtex6 is
   signal tx_is_k_swapped : std_logic_vector(1 downto 0);
   signal tx_data_swapped : std_logic_vector(15 downto 0);
 
-  signal cur_disp : t_8b10b_disparity;
+  signal cur_disp                               : t_8b10b_disparity;
+  signal tx_out_clk, tx_out_clk_buf             : std_logic;
+  signal rx_rec_clk_sampled, tx_out_clk_sampled : std_logic;
 
-  signal tx_rundisp_v6 : std_logic_vector(1 downto 0);
+  signal tx_rundisp_v6  : std_logic_vector(1 downto 0);
+  signal gtx_tx_reset_a : std_logic;
+
+  signal tx_reset_done : std_logic;
+
+  signal link_up, link_aligned : std_logic;
+  signal tx_enable, tx_enable_refclk : std_logic;
+
+  signal tx_sw_reset : std_logic;
+  signal rx_enable, rx_enable_rxclk : std_logic;
+  signal gtx_rx_rst_a : std_logic;
+  signal rx_sw_reset : std_logic;
+  
 begin  -- rtl
+
+  tx_sw_reset <= debug_i(0);
+  tx_enable <= debug_i(1);
+  rx_enable <= debug_i(2);
+  rx_sw_reset <= debug_i(3);
+  
+  U_SyncTxEnable : gc_sync_ffs
+    port map
+    (
+      clk_i    => clk_ref_i,
+      rst_n_i  => '1',
+      data_i   => tx_enable,
+      synced_o => tx_enable_refclk
+      );
+
+  U_SyncRxEnable : gc_sync_ffs
+    port map
+    (
+      clk_i    => rx_rec_clk,
+      rst_n_i  => '1',
+      data_i   => rx_enable,
+      synced_o => rx_enable_rxclk
+      );
+
+  U_SyncRxReset : gc_sync_ffs
+    port map
+    (
+      clk_i    => clk_dmtd_i,
+      rst_n_i  => '1',
+      data_i   => rx_sw_reset,
+      synced_o => gtx_rx_rst_a
+      );
+
+  
+  BUFR_1 : BUFG
+    port map (
+      O => tx_out_clk,
+      I => tx_out_clk_buf);
+
+  TX_CLK_o <= tx_out_clk;
+
+  U_Sampler_RX : dmtd_sampler
+    generic map (
+      g_divide_input_by_2 => false,
+      g_reverse           => true)
+    port map (
+      clk_in_i      => rx_rec_clk,
+      clk_dmtd_i    => clk_dmtd_i,
+      clk_sampled_o => rx_rec_clk_sampled);
+
+  U_Sampler_TX : dmtd_sampler
+    generic map (
+      g_divide_input_by_2 => false,
+      g_reverse           => true)
+    port map (
+      clk_in_i      => tx_out_clk,
+      clk_dmtd_i    => clk_dmtd_i,
+      clk_sampled_o => tx_out_clk_sampled);
+
+  process(rx_rec_clk_sampled, tx_out_clk_sampled, debug_i)
+  begin
+    case debug_i(15 downto 14) is
+      when "00" =>
+        rx_rbclk_sampled_o <= rx_rec_clk_sampled;
+      when "01" =>
+        rx_rbclk_sampled_o <= tx_out_clk_sampled;
+      when others =>
+        rx_rbclk_sampled_o <= '0';
+    end case;
+  end process;
+
 
   tx_enc_err_o <= '0';
 
@@ -296,15 +366,23 @@ begin  -- rtl
 
   gtx_rst <= rst_synced or std_logic(not reset_counter(reset_counter'left));
 
-  U_Twice_Reset_Gen : gtx_reset
+  
+  U_Tx_Reset_Gen : entity work.gtx_tx_reset
     port map (
-      clk_tx_i        => clk_ref_i,
-      rst_i           => gtx_rst,
-      txpll_lockdet_i => txpll_lockdet,
-      gtx_test_o      => gtx_test);
+      clk_dmtd_i          => clk_dmtd_i,
+      clk_tx_i            => clk_ref_i,
+      rst_i               => gtx_rst,
+      rst_sw_i            => tx_sw_reset,
+      txpll_lockdet_i     => txpll_lockdet,
+      gtx_test_o          => gtx_test,
+      gtx_tx_reset_o      => gtx_tx_reset_a,
+      gtx_tx_reset_done_i => gtx_tx_rst_done,
+      done_o              => tx_reset_done);
+
+  debug_o(0) <= tx_reset_done;
 
   gen_rx_bufg : if(g_use_bufr = false) generate
-    
+
     U_BUF_RxRecClk : BUFG
       port map (
         I => rx_rec_clk_bufin,
@@ -323,8 +401,19 @@ begin  -- rtl
 
   rx_rbclk_o <= rx_rec_clk;
 
-  tx_is_k_swapped <= tx_k_i(0) & tx_k_i(1);
-  tx_data_swapped <= tx_data_i(7 downto 0) & tx_data_i(15 downto 8);
+  process(clk_ref_i)
+  begin
+    if rising_edge(clk_ref_i) then
+      if tx_enable_refclk = '0' then
+        tx_is_k_swapped <= "00";
+        tx_data_swapped <= (others => '0');
+      else
+        tx_is_k_swapped <= tx_k_i(0) & tx_k_i(1);
+        tx_data_swapped <= tx_data_i(7 downto 0) & tx_data_i(15 downto 8);
+      end if;
+      
+    end if;
+  end process;
 
   U_GTX_INST : WHITERABBITGTX_WRAPPER_GTX
     generic map (
@@ -332,88 +421,68 @@ begin  -- rtl
       GTX_TX_CLK_SOURCE        => "TXPLL",
       GTX_POWER_SAVE           => "0000110000")
     port map (
-      LOOPBACK_IN           => gtx_loopback,
-      RXCHARISK_OUT         => rx_k_int,
-      RXDISPERR_OUT         => rx_disp_err,
-      RXNOTINTABLE_OUT      => rx_code_err,
-      RXBYTEISALIGNED_OUT   => rx_byte_is_aligned,
-      RXCOMMADET_OUT        => rx_comma_det,
-      RXSLIDE_IN            => rx_slide,
-      RXDATA_OUT            => rx_data_int,
-      RXRECCLK_OUT          => rx_rec_clk_bufin,
-      RXUSRCLK2_IN          => rx_rec_clk,
-      RXCDRRESET_IN         => rx_cdr_rst,
-      RXN_IN                => pad_rxn_i,
-      RXP_IN                => pad_rxp_i,
-      GTXRXRESET_IN         => gtx_rst,
-      MGTREFCLKRX_IN        => mgtrefclk_in,
-      PLLRXRESET_IN         => '0',
-      RXPLLLKDET_OUT        => rxpll_lockdet,
-      RXRESETDONE_OUT       => rx_rst_done,
-      TXCHARISK_IN          => tx_is_k_swapped,
-      GTXTEST_IN            => gtx_test,
-      TXDATA_IN             => tx_data_swapped,
-      TXOUTCLK_OUT          => open,
-      TXUSRCLK2_IN          => clk_ref_i,
-      TXRUNDISP_OUT         => tx_rundisp_v6,
-      TXN_OUT               => pad_txn_o,
+      LOOPBACK_IN         => gtx_loopback,
+      RXCHARISK_OUT       => rx_k_int,
+      RXDISPERR_OUT       => rx_disp_err,
+      RXNOTINTABLE_OUT    => rx_code_err,
+      RXBYTEISALIGNED_OUT => open,
+      RXCOMMADET_OUT      => open,
+      RXSLIDE_IN          => '0',
+      RXDATA_OUT          => rx_data_int,
+      RXRECCLK_OUT        => rx_rec_clk_bufin,
+      RXUSRCLK2_IN        => rx_rec_clk,
+      RXCDRRESET_IN       => '0',
+      RXN_IN              => pad_rxn_i,
+      RXP_IN              => pad_rxp_i,
+      GTXRXRESET_IN       => gtx_rx_rst_a,
+      MGTREFCLKRX_IN      => mgtrefclk_in,
+      PLLRXRESET_IN       => '0',
+      RXPLLLKDET_OUT      => rxpll_lockdet,
+      RXRESETDONE_OUT     => rx_rst_done,
+      TXCHARISK_IN        => tx_is_k_swapped,
+      GTXTEST_IN          => gtx_test,
+      TXDATA_IN           => tx_data_swapped,
+      TXOUTCLK_OUT        => tx_out_clk_buf,
+      TXUSRCLK2_IN        => clk_ref_i,
+      TXRUNDISP_OUT       => open,
+      TXN_OUT             => pad_txn_o,
+
       TXP_OUT               => pad_txp_o,
-      TXDLYALIGNDISABLE_IN  => tx_dly_align_disable,
+      TXDLYALIGNDISABLE_IN  => '1',
       TXDLYALIGNMONENB_IN   => '1',
       TXDLYALIGNMONITOR_OUT => open,
-      TXDLYALIGNRESET_IN    => tx_dly_align_reset,
-      TXENPMAPHASEALIGN_IN  => tx_en_pma_phase_align,
-      TXPMASETPHASE_IN      => tx_pma_set_phase,
-      GTXTXRESET_IN         => gtx_rst,
+      TXDLYALIGNRESET_IN    => '0',
+      TXENPMAPHASEALIGN_IN  => '0',
+      TXPMASETPHASE_IN      => '0',
+      GTXTXRESET_IN         => gtx_tx_reset_a,
       MGTREFCLKTX_IN        => mgtrefclk_in,
       PLLTXRESET_IN         => '0',
       TXPLLLKDET_OUT        => txpll_lockdet,
-      TXRESETDONE_OUT       => tx_rst_done);
+      TXRESETDONE_OUT       => gtx_tx_rst_done);
 
   mgtrefclk_in <= '0' & clk_gtx_i;
 
-  U_Phase_Align : gtp_phase_align_virtex6
-    generic map (
-      g_simulation => g_simulation)
-    port map (
-      gtp_rst_i                   => gtx_rst,
-      gtp_tx_clk_i                => clk_ref_i,
-      gtp_tx_en_pma_phase_align_o => tx_en_pma_phase_align,
-      gtp_tx_pma_set_phase_o      => tx_pma_set_phase,
-      gtp_tx_dly_align_disable_o  => tx_dly_align_disable,
-      gtp_tx_dly_align_reset_o    => tx_dly_align_reset,
-      align_en_i                  => align_enable,
-      align_done_o                => align_done);
+  rx_synced <= '0';
 
-  U_Bitslide : gtp_bitslide
-    generic map (
-      g_simulation => g_simulation,
-      g_target     => "virtex6")
-    port map (
-      gtp_rst_i                => gtx_rst,
-      gtp_rx_clk_i             => rx_rec_clk,
-      gtp_rx_comma_det_i       => rx_comma_det,
-      gtp_rx_byte_is_aligned_i => rx_byte_is_aligned,
-      serdes_ready_i           => everything_ready,
-      gtp_rx_slide_o           => rx_slide,
-      gtp_rx_cdr_rst_o         => rx_cdr_rst,
-      bitslide_o               => rx_bitslide_o,
-      synced_o                 => rx_synced);
-
-  rst_done         <= rx_rst_done and tx_rst_done;
+  rst_done         <= rx_rst_done and tx_reset_done;
   pll_lockdet      <= txpll_lockdet and rxpll_lockdet;
   serdes_ready     <= rst_done and pll_lockdet;
   align_enable     <= serdes_ready;
   everything_ready <= serdes_ready and align_done;
-  rdy_o <= everything_ready;
+  rdy_o            <= everything_ready;
 
-  trig2(3) <= rx_rst_done;
-  trig2(4) <= tx_rst_done;
-  trig2(5) <= txpll_lockdet;
-  trig2(6) <= rxpll_lockdet;
-  trig2(7) <= align_done;
+  U_Comma_Detect : entity work.gtx_comma_detect
+    port map (
+      clk_rx_i  => rx_rec_clk,
+      rst_i     => gtx_rst,
+      rx_k_i    => rx_k_int,
+      rx_data_i => rx_data_int,
+      link_up_o => link_up,
+      aligned_o => link_aligned);
 
 
+  debug_o(1) <= link_up;
+  debug_o(2) <= link_aligned;
 
   p_gen_rx_outputs : process(rx_rec_clk, gtx_rst)
   begin
@@ -422,7 +491,7 @@ begin  -- rtl
       rx_k_o       <= (others => '0');
       rx_enc_err_o <= '0';
     elsif rising_edge(rx_rec_clk) then
-      if(everything_ready = '1' and rx_synced = '1') then
+      if(rx_enable_rxclk = '1') then
         rx_data_o    <= rx_data_int(7 downto 0) & rx_data_int(15 downto 8);
         rx_k_o       <= rx_k_int(0) & rx_k_int(1);
         rx_enc_err_o <= rx_disp_err(0) or rx_disp_err(1) or rx_code_err(0) or rx_code_err(1);
@@ -437,7 +506,7 @@ begin  -- rtl
   p_gen_tx_disparity : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if gtx_rst = '1' then
+      if tx_enable_refclk = '0' then
         cur_disp <= RD_MINUS;
       else
         cur_disp <= f_next_8b10b_disparity16(cur_disp, tx_k_i, tx_data_i);

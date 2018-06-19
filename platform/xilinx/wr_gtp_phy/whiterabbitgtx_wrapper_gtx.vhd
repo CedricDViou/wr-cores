@@ -78,7 +78,7 @@ entity WHITERABBITGTX_WRAPPER_GTX is
       -- Share RX PLL parameter
       GTX_TX_CLK_SOURCE : string     := "TXPLL";
       -- Save power parameter
-      GTX_POWER_SAVE    : bit_vector := "0000000000"
+      GTX_POWER_SAVE    : bit_vector := "0000110000"
       );
   port
     (
@@ -222,7 +222,7 @@ begin
       GEN_TXUSRCLK  => (true),
       TX_DATA_WIDTH => (20),
       TX_USRCLK_CFG => (x"00"),
-      TXOUTCLK_CTRL => ("TXPLLREFCLK_DIV2"),
+      TXOUTCLK_CTRL => ("TXOUTCLKPMA_DIV2"),
       TXOUTCLK_DLY  => ("0000000000"),
 
       --------------TX Buffering and Phase Alignment----------------
@@ -326,7 +326,7 @@ begin
       PCOMMA_DETECT        => (true),
       RX_DECODE_SEQ_MATCH  => (true),
       RX_SLIDE_AUTO_WAIT   => (5),
-      RX_SLIDE_MODE        => ("PCS"),
+      RX_SLIDE_MODE        => ("OFF"),
 --        SHOW_REALIGN_COMMA                      =>     (TRUE),
       SHOW_REALIGN_COMMA   => (false),
 
@@ -494,7 +494,7 @@ begin
       RXBUFSTATUS              => open,
       RXCHANISALIGNED          => open,
       RXCHANREALIGN            => open,
-      RXDLYALIGNDISABLE        => tied_to_ground_i,
+      RXDLYALIGNDISABLE        => '1',
       RXDLYALIGNMONENB         => tied_to_ground_i,
       RXDLYALIGNMONITOR        => open,
       RXDLYALIGNOVERRIDE       => tied_to_vcc_i,
