@@ -395,7 +395,7 @@ endclass // CIWBMasterAccessor
       settings.gen_random_throttling  = 0;
       settings.throttle_prob 	      = 0.1;
       settings.cyc_on_stall = 0;
-      settings.addr_gran = WORD;
+      settings.addr_gran = BYTE;
    end
 
    
