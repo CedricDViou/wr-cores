@@ -24,8 +24,8 @@ entity cute_core_ref_top is
       g_dpram_initf               : string :=   "../../bin/wrpc/wrc_phy8.bram";
       g_sfp0_enable               : boolean:= true;
       g_sfp1_enable               : boolean:= false;
-      g_aux_sdb                   : t_sdb_device  := c_xwb_xil_multiboot_sdb;
-      g_multiboot_enable          : boolean:= true
+      g_aux_sdb                   : t_sdb_device  := c_xwb_tcpip_sdb;
+      g_multiboot_enable          : boolean:= false
      );
   port
     (

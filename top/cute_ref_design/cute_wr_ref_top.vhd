@@ -20,7 +20,9 @@ entity cute_wr_ref_top is
 generic (
   g_dpram_initf : string := "../../bin/wrpc/wrc_phy8.bram";
   g_sfp0_enable : boolean:= true;
-  g_sfp1_enable : boolean:= false
+  g_sfp1_enable : boolean:= false;
+  g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
+  g_multiboot_enable   : boolean:= true
 );
 port
 (
@@ -130,7 +132,9 @@ component cute_core_ref_top is
       g_simulation                : integer              := 0;
       g_dpram_initf : string := "../../bin/wrpc/wrc_phy8.bram";
       g_sfp0_enable               : boolean:= true;
-      g_sfp1_enable               : boolean:= false);
+      g_sfp1_enable               : boolean:= false;
+      g_aux_sdb                   : t_sdb_device  := c_xwb_xil_multiboot_sdb;
+      g_multiboot_enable          : boolean:= false);
   port
     (
       rst_n_i              : in  std_logic;
@@ -385,7 +389,9 @@ u_wr_core : cute_core_ref_top
   generic map(
     g_dpram_initf => g_dpram_initf,
     g_sfp0_enable => g_sfp0_enable,
-    g_sfp1_enable => g_sfp1_enable)
+    g_sfp1_enable => g_sfp1_enable,
+    g_aux_sdb     => g_aux_sdb,
+    g_multiboot_enable => g_multiboot_enable)
   port map (
     rst_n_i             => local_reset_n,
     clk_20m_i           => clk_20m_buf,
