@@ -245,6 +245,7 @@ entity xwrc_board_common is
     btn1_i     : in  std_logic := '1';
     btn2_i     : in  std_logic := '1';
     -- 1PPS output
+    pps_valid_o : out std_logic;
     pps_csync_o : out std_logic;
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
@@ -443,6 +444,7 @@ begin  -- architecture struct
       tm_time_valid_o      => tm_time_valid,
       tm_tai_o             => tm_tai,
       tm_cycles_o          => tm_cycles,
+      pps_valid_o          => pps_valid_o,
       pps_csync_o          => pps_csync_o,
       pps_p_o              => pps_p_o,
       pps_led_o            => pps_led_o,
