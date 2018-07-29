@@ -1,0 +1,177 @@
+config vccaux  = 3.3;
+
+# clock related
+net "fpga_clk_p" loc = h2;net "fpga_clk_p" iostandard = lvds_33;
+net "fpga_clk_n" loc = h1;net "fpga_clk_n" iostandard = lvds_33;
+# net "clk25m" loc = l5;net "clk25m" iostandard = lvcmos33;
+
+# flash
+net "flash_sclk_o" loc = r15;net "flash_sclk_o" iostandard = lvcmos33;
+net "flash_ncs_o" loc = v3;net "flash_ncs_o" iostandard = lvcmos33;
+net "flash_mosi_o" loc = t13;net "flash_mosi_o" iostandard = lvcmos33;
+net "flash_miso_i" loc = r13;net "flash_miso_i" iostandard = lvcmos33;
+net "plldac_din" loc = d2;net "plldac_din" iostandard = lvcmos33;
+net "plldac_sclk" loc = c1;net "plldac_sclk" iostandard = lvcmos33;
+net "plldac_sync_n" loc = d3;net "plldac_sync_n" iostandard = lvcmos33;
+net "plldac_load_n" loc = e1;net "plldac_load_n" iostandard = lvcmos33;
+
+# temperature sensor
+net "one_wire" loc = u2;net "one_wire" iostandard = lvcmos33;
+
+# eeprom
+# net "eeprom_sda" loc=u1;net "eeprom_sda" iostandard = lvcmos33;
+# net "eeprom_scl" loc=n1;net "eeprom_scl" iostandard = lvcmos33;
+
+# net "debug0" loc=f2;net "debug0" iostandard = lvcmos33;
+# net "debug1" loc=e3;net "debug1" iostandard = lvcmos33;
+
+# m part
+# uart
+net "ref_1_123_clk_n" loc = e10;net "ref_1_123_clk_n" iostandard = lvcmos33;
+net "ref_1_123_clk_p" loc = f10;net "ref_1_123_clk_p" iostandard = lvcmos33;
+
+net "m_uart_rx" loc = u15;net "m_uart_rx" iostandard = lvcmos33;
+net "m_uart_tx" loc = u16;net "m_uart_tx" iostandard = lvcmos33;
+
+net "m_sfp0_c1" loc = f16;net "m_sfp0_c1" iostandard = lvcmos33;
+net "m_sfp0_c2" loc = f15;net "m_sfp0_c2" iostandard = lvcmos33;
+
+# net "m_sfp1_c1" loc = d18;net "m_sfp1_c1" iostandard = lvcmos33;
+# net "m_sfp1_c2" loc = e16;net "m_sfp1_c2" iostandard = lvcmos33;
+
+net "m_sfp0_rx_n" loc = c11;
+net "m_sfp0_rx_p" loc = d11;
+net "m_sfp0_tx_n" loc = a12;
+net "m_sfp0_tx_p" loc = b12;
+
+# net "m_sfp1_rx_n" loc = c13;
+# net "m_sfp1_rx_p" loc = d13;
+# net "m_sfp1_tx_n" loc = a14;
+# net "m_sfp1_tx_p" loc = b14;
+
+# net "m_clk_o_p" loc=c15;net "m_clk_o_p" iostandard = lvds_33;
+# net "m_clk_o_n" loc=a15;net "m_clk_o_n" iostandard = lvds_33;
+
+net "m_clk_125_o_p" loc=f12;net "m_clk_125_o_p" iostandard = lvds_33;
+net "m_clk_125_o_n" loc=e12;net "m_clk_125_o_n" iostandard = lvds_33;
+
+net "m_pps_o_p" loc=e14;net "m_pps_o_p" iostandard = lvds_33;
+net "m_pps_o_n" loc=d15;net "m_pps_o_n" iostandard = lvds_33;
+
+# net "m_pdata_tx_0_7_dat[0]" loc = n18;net "m_pdata_tx_0_7_dat[0]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[1]" loc = p17;net "m_pdata_tx_0_7_dat[1]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[2]" loc = p18;net "m_pdata_tx_0_7_dat[2]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[3]" loc = p16;net "m_pdata_tx_0_7_dat[3]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[4]" loc = t17;net "m_pdata_tx_0_7_dat[4]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[5]" loc = t18;net "m_pdata_tx_0_7_dat[5]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[6]" loc = l17;net "m_pdata_tx_0_7_dat[6]" iostandard = lvcmos33;
+# net "m_pdata_tx_0_7_dat[7]" loc = l18;net "m_pdata_tx_0_7_dat[7]" iostandard = lvcmos33;
+# net "m_pdata_tx_8_valid"    loc = k17;net "m_pdata_tx_8_valid" iostandard    = lvcmos33;
+# net "m_pdata_tx_9_cts"      loc = j18;net "m_pdata_tx_9_cts" iostandard      = lvcmos33;
+
+# net "m_pdata_rx_0_7_dat[0]" loc = n16;net "m_pdata_rx_0_7_dat[0]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[1]" loc = n17;net "m_pdata_rx_0_7_dat[1]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[2]" loc = p15;net "m_pdata_rx_0_7_dat[2]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[3]" loc = r11;net "m_pdata_rx_0_7_dat[3]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[4]" loc = t14;net "m_pdata_rx_0_7_dat[4]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[5]" loc = v14;net "m_pdata_rx_0_7_dat[5]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[6]" loc = j16;net "m_pdata_rx_0_7_dat[6]" iostandard = lvcmos33;
+# net "m_pdata_rx_0_7_dat[7]" loc = h17;net "m_pdata_rx_0_7_dat[7]" iostandard = lvcmos33;
+# net "m_pdata_rx_8_9_ctl[0]" loc = g18;net "m_pdata_rx_8_9_ctl[0]" iostandard = lvcmos33;
+# net "m_pdata_rx_8_9_ctl[1]" loc = g14;net "m_pdata_rx_8_9_ctl[1]" iostandard = lvcmos33;
+
+# s part
+# net "ref_1_101_clk_n" loc = c9;net "ref_1_101_clk_n" iostandard = lvds_33;
+# net "ref_1_101_clk_p" loc = d9;net "ref_1_101_clk_p" iostandard = lvds_33;
+
+# net "s_pps_o_p" loc=b2;
+# net "s_pps_o_p" iostandard = lvds_33;
+# net "s_pps_o_n" loc=a2;
+# net "s_pps_o_n" iostandard = lvds_33;
+
+# net "s_clk_125_o_p" loc=e6;
+# net "s_clk_125_o_p" iostandard = lvds_33;
+# net "s_clk_125_o_n" loc=f7;
+# net "s_clk_125_o_n" iostandard = lvds_33;
+
+# net "s_clk_o_p" loc=g8;
+# net "s_clk_o_p" iostandard = lvds_33;
+# net "s_clk_o_n" loc=e8;
+# net "s_clk_o_n" iostandard = lvds_33;
+
+# net "s_uart_rx" loc = d1;
+# net "s_uart_rx" iostandard = lvcmos33;
+# net "s_uart_tx" loc = c2;
+# net "s_uart_tx" iostandard = lvcmos33;
+
+# net "s_sfp0_c0" loc = p3;
+# net "s_sfp0_c0" iostandard = lvcmos33;
+# net "s_sfp0_c1" loc = k3;
+# net "s_sfp0_c1" iostandard = lvcmos33;
+# net "s_sfp0_c2" loc = f1;
+# net "s_sfp0_c2" iostandard = lvcmos33;
+
+# net "s_sfp1_c0" loc = l1;
+# net "s_sfp1_c0" iostandard = lvcmos33;
+# net "s_sfp1_c1" loc = h3;
+# net "s_sfp1_c1" iostandard = lvcmos33;
+# net "s_sfp1_c2" loc = l2;
+# net "s_sfp1_c2" iostandard = lvcmos33;
+
+# net "s_sfp0_rx_n" loc = c5;
+# net "s_sfp0_rx_p" loc = d5;
+# net "s_sfp0_tx_n" loc = a4;
+# net "s_sfp0_tx_p" loc = b4;
+
+# net "s_sfp1_rx_n" loc = c7;
+# net "s_sfp1_rx_p" loc = d7;
+# net "s_sfp1_tx_n" loc = a6;
+# net "s_sfp1_tx_p" loc = b6;
+
+#---------------------------------------------------------------------------------------------
+# clock period information 
+#---------------------------------------------------------------------------------------------
+# net "clk25m" tnm_net = "clk25m";
+# timespec ts_clk25m = period "clk25m" 40 ns high 50 %;
+
+net "fpga_clk_i" tnm_net = "fpga_clk_i";
+timespec ts_fpga_clk_i = period "fpga_clk_i" 8 ns high 50 %;
+
+net "*clk_sfp*_i" tnm_net = "clk_sfp_i";
+timespec ts_clk_sfp_i = period "clk_sfp_i" 8 ns high 50 %;
+
+net "u_wr_core/cmp_xwrc_board_mini/cmp_board_common/phy*8_i_rx_clk" tnm_net = "phy_rx_clk";
+timespec ts_phy_rx_clk = period "phy_rx_clk" 8 ns high 50 %;
+
+net "u_wr_core/cmp_xwrc_board_mini/*u_gtp*/ch*_rx_divclk" tnm_net = "ch_rx_divclk";
+timespec ts_ch_rx_divclk = period "ch_rx_divclk" 8 ns high 50 %;
+
+net "u_wr_core/cmp_xwrc_board_mini/*u_gtp*/ch*_gtp_clkout_int[1]" tnm_net = "ch_gtp_clkout_int";
+timespec ts_ch_gtp_clkout_int = period "ch_gtp_clkout_int" 8 ns high 50 %;
+
+inst "m_clk_125_o_p" iob = true;inst "m_clk_125_o_n" iob = true;
+inst "m_pps_o_p" iob = true;inst "m_pps_o_n" iob = true;
+# inst "m_clk_o_p" iob = true;inst "m_clk_o_n" iob = true;
+# inst "m_pdata_tx_0_7_dat[0]" iob = true;inst "m_pdata_tx_0_7_dat[0]" iob = true;
+# inst "m_pdata_tx_0_7_dat[1]" iob = true;inst "m_pdata_tx_0_7_dat[1]" iob = true;
+# inst "m_pdata_tx_0_7_dat[2]" iob = true;inst "m_pdata_tx_0_7_dat[2]" iob = true;
+# inst "m_pdata_tx_0_7_dat[3]" iob = true;inst "m_pdata_tx_0_7_dat[3]" iob = true;
+# inst "m_pdata_tx_0_7_dat[4]" iob = true;inst "m_pdata_tx_0_7_dat[4]" iob = true;
+# inst "m_pdata_tx_0_7_dat[5]" iob = true;inst "m_pdata_tx_0_7_dat[5]" iob = true;
+# inst "m_pdata_tx_0_7_dat[6]" iob = true;inst "m_pdata_tx_0_7_dat[6]" iob = true;
+# inst "m_pdata_tx_0_7_dat[7]" iob = true;inst "m_pdata_tx_0_7_dat[7]" iob = true;
+# inst "m_pdata_tx_8_valid" iob = true;inst "m_pdata_tx_8_valid" iob = true;
+# inst "m_pdata_tx_9_cts" iob = true;inst "m_pdata_tx_9_cts" iob = true;
+# inst "m_pdata_rx_0_7_dat[0]" iob = true;inst "m_pdata_rx_0_7_dat[0]" iob = true;
+# inst "m_pdata_rx_0_7_dat[1]" iob = true;inst "m_pdata_rx_0_7_dat[1]" iob = true;
+# inst "m_pdata_rx_0_7_dat[2]" iob = true;inst "m_pdata_rx_0_7_dat[2]" iob = true;
+# inst "m_pdata_rx_0_7_dat[3]" iob = true;inst "m_pdata_rx_0_7_dat[3]" iob = true;
+# inst "m_pdata_rx_0_7_dat[4]" iob = true;inst "m_pdata_rx_0_7_dat[4]" iob = true;
+# inst "m_pdata_rx_0_7_dat[5]" iob = true;inst "m_pdata_rx_0_7_dat[5]" iob = true;
+# inst "m_pdata_rx_0_7_dat[6]" iob = true;inst "m_pdata_rx_0_7_dat[6]" iob = true;
+# inst "m_pdata_rx_0_7_dat[7]" iob = true;inst "m_pdata_rx_0_7_dat[7]" iob = true;
+# inst "m_pdata_rx_8_9_ctl[0]" iob = true;inst "m_pdata_rx_8_9_ctl[0]" iob = true;
+# inst "m_pdata_rx_8_9_ctl[1]" iob = true;inst "m_pdata_rx_8_9_ctl[1]" iob = true;
+
+
+
