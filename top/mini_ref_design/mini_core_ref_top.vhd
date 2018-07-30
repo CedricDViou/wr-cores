@@ -21,7 +21,7 @@ entity mini_core_ref_top is
     (
       -- set to 1 to speed up some initialization processes during simulation
       g_simulation                : integer              := 0;
-      g_dpram_initf               : string :=   "../../bin/wrpc/wrc_phy8.bram";
+      g_dpram_initf               : string :=   "../../bin/wrpc/wrc_mini_phy8.bram";
       g_sfp0_enable               : boolean:= true;
       g_sfp1_enable               : boolean:= false;
       g_aux_sdb                   : t_sdb_device  := c_xwb_tcpip_sdb;
