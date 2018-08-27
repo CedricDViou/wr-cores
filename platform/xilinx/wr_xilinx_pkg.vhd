@@ -45,6 +45,7 @@ package wr_xilinx_pkg is
       g_use_default_plls          : boolean := TRUE;
       g_gtp_enable_ch0            : integer := 0;
       g_gtp_enable_ch1            : integer := 1;
+      g_phy_refclk_sel            : integer range 0 to 7 := 0;
       g_simulation                : integer := 0);
     port (
       areset_n_i            : in  std_logic             := '1';

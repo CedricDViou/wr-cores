@@ -41,6 +41,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library work;
 use work.endpoint_pkg.all;
@@ -63,6 +64,8 @@ entity xwrc_platform_xilinx is
       -- Select GTP channel to use (only one can be active)
       g_gtp_enable_ch0            : integer := 0;
       g_gtp_enable_ch1            : integer := 1;
+      -- Select PHY reference clock
+      g_phy_refclk_sel            : integer range 0 to 7 := 0;
       -- Set to TRUE will speed up some initialization processes
       g_simulation                : integer := 0
       );
@@ -892,6 +895,7 @@ begin  -- architecture rtl
         ch0_loopen_vec_i   => phy8_i.loopen_vec,
         ch0_tx_prbs_sel_i  => phy8_i.tx_prbs_sel,
         ch0_rdy_o          => ch0_phy8_out.rdy,
+        ch0_ref_sel_pll    => std_logic_vector(to_unsigned(g_phy_refclk_sel, 3)),
         gtp1_clk_i         => clk_125m_gtp1_buf,
         ch1_ref_clk_i      => clk_125m_pllref_buf,
         ch1_tx_data_i      => phy8_i.tx_data,
@@ -908,6 +912,7 @@ begin  -- architecture rtl
         ch1_loopen_vec_i   => phy8_i.loopen_vec,
         ch1_tx_prbs_sel_i  => phy8_i.tx_prbs_sel,
         ch1_rdy_o          => ch1_phy8_out.rdy,
+        ch1_ref_sel_pll    => std_logic_vector(to_unsigned(g_phy_refclk_sel, 3)),
         pad_txn0_o         => ch0_sfp_txn,
         pad_txp0_o         => ch0_sfp_txp,
         pad_rxn0_i         => ch0_sfp_rxn,
