@@ -168,6 +168,7 @@ architecture rtl of xrx_streamer is
 
   signal tx_tag_cycles, rx_tag_cycles : std_logic_vector(27 downto 0);
   signal tx_tag_valid, rx_tag_valid   : std_logic;
+  signal rx_tag_valid_stored          : std_logic;
 
   signal got_next_subframe : std_logic;
   signal is_frame_seq_id : std_logic;
@@ -290,7 +291,8 @@ begin  -- rtl
       tm_time_valid_i => tm_time_valid_i,
       tm_tai_i        => tm_tai_i,
       tm_cycles_i     => tm_cycles_i,
-      tag_cycles_o    => rx_tag_cycles);
+      tag_cycles_o    => rx_tag_cycles,
+      tag_valid_o     => rx_tag_valid);
 
   -------------------------------------------------------------------------------------------
   -- fixed latency implementation
@@ -298,7 +300,7 @@ begin  -- rtl
 
   -- mask rx_dreq to prevent reception
   rx_dreq                           <= rx_dreq_i and rx_dreq_allow;
-  -- produce a pulse when SOF is timestamped, this pulse starts counter in clk_sys clock 
+  -- produce a pulse when SOF is timestamped, this pulse starts counter in clk_sys clock
   -- domain
   U_sync_with_clk : gc_sync_ffs
     port map (
@@ -334,6 +336,7 @@ begin  -- rtl
               delay_state       <= DELAY;
             end if;
             if(timestamped = '1') then
+--             if(rx_tag_valid= '1') then
               delay_cnt         <= c_timestamper_delay;
             else
               delay_cnt <= delay_cnt + 2;
@@ -383,6 +386,7 @@ begin  -- rtl
         blocks_lost            <= '0';
         pack_data              <= (others=>'0');
         is_vlan                <= '0';
+        rx_tag_valid_stored    <= '0';
       else
         case state is
           when IDLE =>
@@ -406,7 +410,7 @@ begin  -- rtl
             rx_latency           <= (others=>'0');
             rx_latency_valid     <= '0';
             is_vlan              <= '0';
-
+            rx_tag_valid_stored  <= '0';
             if(fsm_in.sof = '1') then
               state            <= HEADER;
             end if;
@@ -477,7 +481,26 @@ begin  -- rtl
                   tx_tag_cycles(27 downto 16)<= fsm_in.data(11 downto 0);
                    count <= count + 1;
                 when x"0A" =>
-                  tx_tag_cycles(15 downto 0) <= fsm_in.data;
+                  -- In some applications, e.g. RF distribution, the important
+                  -- characteristic is the frequency of reception and they use
+                  -- the fixed-latency of streamers to ensure it. In such case,
+                  -- if the receiving clock is 62.5MHz and the transmitting clock
+                  -- is 125MHz, when the tag of transmission is odd, the reception
+                  -- will happen in the next cycle, i.e. 16ns later. If we look at
+                  -- the latency, this is OK: due to granularity, we expect jitter of
+                  -- 16ns, however, if we look at the frequency of reception, this
+                  -- gives unnecessary jitter of 16ns. If we truncate the LSB of the
+                  -- transmission timestamp, the frequency should be maintained while
+                  -- the jitter of latency should be still as expected...
+                  if(g_clk_ref_rate = 125000000) then
+                    tx_tag_cycles(15 downto 0) <= fsm_in.data;
+                  elsif(g_clk_ref_rate = 62500000) then
+                    tx_tag_cycles(15 downto 0) <= fsm_in.data(15 downto 1) & "0";
+                  else
+                    assert FALSE report
+                    "The only ref_clk_rate supported: 62.5MHz and 125MHz"
+                    severity FAILURE;
+                  end if;
                   count                      <= count + 1;
                   crc_en                     <= '1';
                   detect_escapes             <= '1';
@@ -487,11 +510,17 @@ begin  -- rtl
                 when others => null;
               end case;
             end if;
+            -- the tag should be produced while receiving the HEADER,
+            -- remember if a valid tag is produced
+            if(rx_tag_valid = '1') then
+              rx_tag_valid_stored <= rx_tag_valid;
+            end if;
 
           when FRAME_SEQ_ID =>
-            rx_frame_p1_o            <= '0';
+            rx_frame_p1_o         <= '0';
             if(fsm_in.eof = '1') then
-              state <= IDLE;
+              state               <= IDLE;
+              rx_tag_valid_stored <= '0';
             elsif(fsm_in.dvalid = '1') then
               count               <= "000" & x"001"; -- use as subframe seq_no
               state               <= PAYLOAD;
@@ -500,7 +529,7 @@ begin  -- rtl
               ser_count           <= (others => '0');
               word_count          <= word_count + 1; -- count words, increment in advance
               got_next_subframe   <= '1';
-              if(tx_tag_valid = '1') then
+              if(tx_tag_valid = '1' and rx_tag_valid_stored = '1') then
                 rx_latency_valid <= '1';
                 if(unsigned(tx_tag_cycles) > unsigned(rx_tag_cycles)) then
                   rx_latency <= unsigned(rx_tag_cycles) - unsigned(tx_tag_cycles) + to_unsigned(125000000, 28);
@@ -511,6 +540,7 @@ begin  -- rtl
               else
                 rx_latency_valid <= '0';
               end if;
+              rx_tag_valid_stored <= '0';
 
               if(std_logic_vector(seq_no) /= fsm_in.data(14 downto 0)) then
                 seq_no    <= unsigned(fsm_in.data(14 downto 0))+1;
