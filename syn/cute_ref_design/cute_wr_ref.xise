@@ -688,7 +688,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="132"/>
     </file>
     <file xil_pn:name="../../board/cute/xwrc_board_cute.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="Implementation" xil_pn:seqID="166"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="167"/>
     </file>
     <file xil_pn:name="../../modules/timing/pulse_stamper.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="119"/>
@@ -778,7 +778,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="../../top/cute_ref_design/cute_wr_ref_top.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="Implementation" xil_pn:seqID="167"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="168"/>
     </file>
     <file xil_pn:name="../../ip_cores/general-cores/modules/wishbone/wb_vic/wb_vic.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
@@ -1346,6 +1346,10 @@
     </file>
     <file xil_pn:name="../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_fifo.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="107"/>
+    </file>
+    <file xil_pn:name="../../modules/timing/oserdes_4_to_1.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="390"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="166"/>
     </file>
   </files>
 

@@ -126,6 +126,7 @@ entity xwrc_platform_xilinx is
     -- PLL outputs
     clk_62m5_sys_o        : out std_logic;
     clk_125m_ref_o        : out std_logic;
+    clk_500m_o            : out std_logic;
     clk_ref_locked_o      : out std_logic;
     clk_62m5_dmtd_o       : out std_logic;
     pll_locked_o          : out std_logic;
@@ -211,14 +212,18 @@ begin  -- architecture rtl
           DIVCLK_DIVIDE      => 1,
           CLKFBOUT_MULT      => 8,
           CLKFBOUT_PHASE     => 0.000,
-          CLKOUT0_DIVIDE     => 16,
+          CLKOUT0_DIVIDE     => 2,
           CLKOUT0_PHASE      => 0.000,
           CLKOUT0_DUTY_CYCLE => 0.500,
+          CLKOUT1_DIVIDE     => 16,
+          CLKOUT1_PHASE      => 0.000,
+          CLKOUT1_DUTY_CYCLE => 0.500,
           CLKIN_PERIOD       => 8.0,
           REF_JITTER         => 0.016)
         port map (
           CLKFBOUT => clk_sys_fb,
-          CLKOUT0  => clk_sys,
+          CLKOUT0  => clk_500m_o,
+          CLKOUT1  => clk_sys,
           LOCKED   => pll_sys_locked,
           RST      => pll_arst,
           CLKFBIN  => clk_sys_fb,
@@ -238,7 +243,8 @@ begin  -- architecture rtl
 
       clk_62m5_sys_o <= clk_sys_out;
       clk_125m_ref_o <= clk_125m_pllref_buf;
-      pll_locked_o   <= pll_sys_locked and pll_dmtd_locked;
+      --pll_locked_o   <= pll_sys_locked and pll_dmtd_locked;
+      pll_locked_o   <= pll_sys_locked;
       clk_ref_locked_o <= '1';
 
       -- DMTD PLL

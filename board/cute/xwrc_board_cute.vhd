@@ -113,6 +113,8 @@ entity xwrc_board_cute is
     clk_sys_62m5_o      : out std_logic;
     -- 125MHz ref clock output
     clk_ref_125m_o      : out std_logic;
+    -- 500MHz clock output
+    clk_500m_o          : out std_logic;
     -- active low reset outputs, synchronous to 62m5 and 125m clocks
     rst_sys_62m5_n_o    : out std_logic;
     rst_ref_125m_n_o    : out std_logic;
@@ -276,6 +278,7 @@ entity xwrc_board_cute is
     pps_p_o    : out std_logic;
     pps_led_o  : out std_logic;
     pps_csync_o: out std_logic;
+    pll_locked_o : out std_logic;
     -- Link ok indication
     link_ok_o  : out std_logic
     );
@@ -319,6 +322,7 @@ architecture struct of xwrc_board_cute is
   signal clk_125m_gtp_n : std_logic;
   signal clk_pll_62m5 : std_logic;
   signal clk_pll_125m : std_logic;
+  signal clk_pll_500m : std_logic;
   signal clk_pll_dmtd : std_logic;
   signal pll_locked   : std_logic;
   signal clk_10m_ext  : std_logic;
@@ -417,6 +421,7 @@ begin  -- architecture struct
       sfp_tx_disable_o      => sfp_tx_disable_out,
       clk_62m5_sys_o        => clk_pll_62m5,
       clk_125m_ref_o        => clk_pll_125m,
+      clk_500m_o            => clk_pll_500m,
       clk_62m5_dmtd_o       => clk_pll_dmtd,
       pll_locked_o          => pll_locked,
       clk_10m_ext_o         => clk_10m_ext,
@@ -429,6 +434,7 @@ begin  -- architecture struct
 
   clk_sys_62m5_o <= clk_pll_62m5;
   clk_ref_125m_o <= clk_pll_125m;
+  clk_500m_o     <= clk_pll_500m;
 
   -----------------------------------------------------------------------------
   -- SFP0/1 selection
@@ -667,6 +673,7 @@ begin  -- architecture struct
 
   tm_time_valid_o <= tm_time_valid;
   pps_valid_o     <= tm_time_valid;
+  pll_locked_o    <= pll_locked;
 
   onewire_oen_o <= onewire_en(0);
   onewire_in(0) <= onewire_i;
