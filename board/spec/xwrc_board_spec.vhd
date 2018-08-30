@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2018-07-25
+-- Last update: 2018-08-28
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
@@ -79,7 +79,8 @@ entity xwrc_board_spec is
     g_diag_rw_size              : integer              := 0;
 
     -- DDR clock divider setting
-    g_ddr_clock_divider :integer := 3
+    g_ddr_clock_divider         : integer := 3;
+    g_enable_wr_core            : boolean := true
     );
   port (
     ---------------------------------------------------------------------------
@@ -419,6 +420,8 @@ begin  -- architecture struct
       dac_sclk_o    => plldac_sclk_o,
       dac_din_o     => plldac_din_o);
 
+  gen_wr_core_enabled : if g_enable_wr_core generate
+  
   -----------------------------------------------------------------------------
   -- The WR PTP core with optional fabric interface attached
   -----------------------------------------------------------------------------
@@ -535,6 +538,17 @@ begin  -- architecture struct
       pps_led_o            => pps_led_o,
       link_ok_o            => link_ok_o);
 
+  end generate gen_wr_core_enabled;
+
+  gen_wr_core_disabled: if not g_enable_wr_core generate
+    wb_slave_o.err <= '0';
+    wb_slave_o.rty <= '0';
+    wb_slave_o.stall <= '0';
+    wb_slave_o.ack <= '1';
+    wb_slave_o.dat <= x"deadbeef";
+  end generate gen_wr_core_disabled;
+  
+  
   sfp_rate_select_o <= '1';
 
   onewire_oen_o <= onewire_en(0);

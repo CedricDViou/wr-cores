@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2018-07-25
+-- Last update: 2018-08-28
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Copyright (c) 2017 CERN
@@ -59,7 +59,8 @@ package wr_spec_pkg is
       g_diag_ver                  : integer              := 0;
       g_diag_ro_size              : integer              := 0;
       g_diag_rw_size              : integer              := 0;
-      g_ddr_clock_divider : integer := 3);
+      g_ddr_clock_divider         : integer              := 3;
+      g_enable_wr_core            : boolean              := true);
     port (
       areset_n_i           : in  std_logic;
       areset_edge_n_i      : in  std_logic := '1';
