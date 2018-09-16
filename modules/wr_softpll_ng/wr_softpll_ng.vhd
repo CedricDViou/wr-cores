@@ -325,7 +325,7 @@ architecture rtl of wr_softpll_ng is
 
   signal aligner_sample_valid, aligner_sample_ack : std_logic_vector(g_num_outputs downto 0);
   signal aligner_sample_cref, aligner_sample_cin  : t_aligner_sample_array;
-
+  
   -- necessary to be able to relax timing from spll_aligner outputs cref and
   -- cin (driven by ref clock) to the registers (driven by sys clock). The two
   -- sides are already sychronized via a gc_pulse_synchronizer, which makes
@@ -334,6 +334,8 @@ architecture rtl of wr_softpll_ng is
   attribute keep of aligner_sample_cref : signal is "true";
   attribute keep of aligner_sample_cin  : signal is "true";
 
+  signal f_meas_clks : std_logic_vector(g_num_outputs + g_num_ref_inputs + 1 downto 0);
+  signal f_meas_value_valid : std_logic;
 begin  -- rtl
 
   U_Adapter : wb_slave_adapter
@@ -359,18 +361,20 @@ begin  -- rtl
       sl_ack_o   => wb_ack_o,
       sl_stall_o => wb_stall_o);
 
-  U_Meas_DMTD_Freq: gc_frequency_meter
+  U_Freq_Meter : gc_multichannel_frequency_meter
     generic map (
       g_with_internal_timebase => true,
       g_clk_sys_freq           => g_sys_clock_rate,
-      g_counter_bits           => 28)
+      g_counter_bits           => 28,
+      g_channels               => g_num_outputs + g_num_ref_inputs + 2)
     port map (
       clk_sys_i    => clk_sys_i,
-      clk_in_i     => clk_dmtd_i,
+      clk_in_i      => f_meas_clks,
       rst_n_i      => rst_n_i,
       pps_p1_i     => pps_ext_a_i,
-      freq_o       => regs_out.f_dmtd_freq_i,
-      freq_valid_o => open);            -- fixme
+      channel_sel_i => regs_in.f_meas_cr_chan_sel_o,
+      freq_o        => regs_out.f_meas_value_freq_i,
+      freq_valid_o  => f_meas_value_valid);
 
   U_Meas_REF_Freq: gc_frequency_meter
     generic map (
@@ -385,18 +389,21 @@ begin  -- rtl
       freq_o       => regs_out.f_ref_freq_i,
       freq_valid_o => open);            -- fixme
 
-  U_Meas_EXT_Freq: gc_frequency_meter
-    generic map (
-      g_with_internal_timebase => false,
-      g_clk_sys_freq           => 1,
-      g_counter_bits           => 28)
-    port map (
-      clk_sys_i    => clk_sys_i,
-      clk_in_i     => clk_ext_i,
-      rst_n_i      => rst_n_i,
-      pps_p1_i     => pps_ext_a_i,
-      freq_o       => regs_out.f_ext_freq_i,
-      freq_valid_o => open);            -- fixme
+  f_meas_clks(g_num_outputs-1 downto 0)                                <= clk_fb_i;
+  f_meas_clks(g_num_ref_inputs-1 + g_num_outputs downto g_num_outputs) <= clk_ref_i;
+  f_meas_clks(g_num_ref_inputs + g_num_outputs)                        <= clk_dmtd_i;
+  f_meas_clks(g_num_ref_inputs + g_num_outputs + 1)                    <= clk_ext_i;
+
+  p_latch_fmeas_valid_flag : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' or (regs_in.f_meas_value_valid_o = '1' and regs_in.f_meas_value_valid_load_o = '1') then
+        regs_out.f_meas_value_valid_i <= '0';
+      elsif(f_meas_value_valid = '1') then
+        regs_out.f_meas_value_valid_i <= '1';
+      end if;
+    end if;
+  end process;
   
 
   gen_ref_dmtds : for i in 0 to g_num_ref_inputs-1 generate
@@ -806,9 +813,6 @@ begin  -- rtl
 
   regs_out.al_cr_required_i    <= (others => '0');
   regs_out.csr_dbg_supported_i <= '0';
-  regs_out.f_dmtd_valid_i      <= '0';
-  regs_out.f_ref_valid_i       <= '0';
-  regs_out.f_ext_valid_i       <= '0';
   regs_out.trr_disc_i          <= '0';
 
 end rtl;
