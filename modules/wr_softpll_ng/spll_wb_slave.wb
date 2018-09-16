@@ -153,8 +153,8 @@ peripheral {
    };
   
 	 reg {
-			name = "DMTD VCO Frequency";
-			prefix = "F_DMTD";
+			name = "Frequency Measurement";
+			prefix = "F_MEAS_VALUE";
 			
 			field {
 				 name = "FREQ";
@@ -176,48 +176,30 @@ peripheral {
 	 };
 
 	 reg {
-			name = "REF VCO Frequency";
-			prefix = "F_REF";
+			name = "Frequency Measurement Control Register";
+			prefix = "F_MEAS_CR";
 			
 			field {
-				 name = "FREQ";
-				 prefix = "FREQ";
+				 name = "Channel select";
+				 prefix = "CHAN_SEL";
 				 type = SLV;
-				 size = 28;
-				 access_bus = READ_ONLY;
-				 access_dev = WRITE_ONLY;
-			};
-
-			field {
-				 name = "VALID";
-				 prefix = "VALID";
-				 type = BIT;
+				 size = 4;
 				 access_bus = READ_WRITE;
-				 access_dev = READ_WRITE;
-				 load = LOAD_EXT;
+				 access_dev = READ_ONLY;
 			};
 	 };
 
 	 reg {
-			name = "EXT VCO Frequency";
-			prefix = "F_EXT";
+			name = "Placeholder";
+			prefix = "PLACEHOLDER0";
 			
 			field {
-				 name = "FREQ";
-				 prefix = "FREQ";
+				 name = "PLACEHOLDER";
+				 prefix = "PLACEHOLDER";
 				 type = SLV;
 				 size = 28;
 				 access_bus = READ_ONLY;
 				 access_dev = WRITE_ONLY;
-			};
-
-			field {
-				 name = "VALID";
-				 prefix = "VALID";
-				 type = BIT;
-				 access_bus = READ_WRITE;
-				 access_dev = READ_WRITE;
-				 load = LOAD_EXT;
 			};
 	 };
 
