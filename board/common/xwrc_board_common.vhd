@@ -66,6 +66,7 @@ entity xwrc_board_common is
     g_softpll_enable_debugger   : boolean                        := FALSE;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := FALSE;
+    g_with_dualport             : boolean                        := FALSE;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
@@ -121,6 +122,14 @@ entity xwrc_board_common is
     phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
 
     ---------------------------------------------------------------------------
+    -- Another PHY I/f for dualport
+    ---------------------------------------------------------------------------
+    dp_phy8_o  : out t_phy_8bits_from_wrc;
+    dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+    dp_phy16_o : out t_phy_16bits_from_wrc;
+    dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+
+    ---------------------------------------------------------------------------
     -- I2C EEPROM
     ---------------------------------------------------------------------------
     scl_o : out std_logic;
@@ -136,6 +145,15 @@ entity xwrc_board_common is
     sfp_sda_o : out std_logic;
     sfp_sda_i : in  std_logic := '1';
     sfp_det_i : in  std_logic;
+
+    ---------------------------------------------------------------------------
+    -- Another SFP management info
+    ---------------------------------------------------------------------------
+    dp_sfp_scl_o : out std_logic;
+    dp_sfp_scl_i : in  std_logic := '1';
+    dp_sfp_sda_o : out std_logic;
+    dp_sfp_sda_i : in  std_logic := '1';
+    dp_sfp_det_i : in  std_logic;
 
     ---------------------------------------------------------------------------
     -- Flash memory SPI interface
@@ -174,6 +192,14 @@ entity xwrc_board_common is
     wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
     wrf_snk_o : out t_wrf_sink_out;
     wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
+
+    ---------------------------------------------------------------------------
+    -- Another External Fabric I/F (when g_fabric_iface = PLAIN)
+    ---------------------------------------------------------------------------
+    dp_wrf_src_o : out t_wrf_source_out;
+    dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
+    dp_wrf_snk_o : out t_wrf_sink_out;
+    dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
 
     ---------------------------------------------------------------------------
     -- WR streamers (when g_fabric_iface = STREAMERS)
@@ -291,6 +317,12 @@ architecture struct of xwrc_board_common is
   signal wrf_snk_out : t_wrf_sink_out;
   signal wrf_snk_in  : t_wrf_sink_in;
 
+  -- WR fabric interface
+  signal dp_wrf_src_out : t_wrf_source_out;
+  signal dp_wrf_src_in  : t_wrf_source_in;
+  signal dp_wrf_snk_out : t_wrf_sink_out;
+  signal dp_wrf_snk_in  : t_wrf_sink_in;
+
   -- Aux WB interface
   signal aux_master_out : t_wishbone_master_out;
   signal aux_master_in  : t_wishbone_master_in;
@@ -356,6 +388,7 @@ begin  -- architecture struct
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
+      g_with_dualport             => g_with_dualport,
       g_records_for_phy           => TRUE,
       g_diag_id                   => c_diag_id,
       g_diag_ver                  => c_diag_ver,
@@ -399,17 +432,21 @@ begin  -- architecture struct
       phy8_i               => phy8_i,
       phy16_o              => phy16_o,
       phy16_i              => phy16_i,
+      dp_phy8_o            => dp_phy8_o,
+      dp_phy8_i            => dp_phy8_i,
+      dp_phy16_o           => dp_phy16_o,
+      dp_phy16_i           => dp_phy16_i,
       led_act_o            => led_act_o,
       led_link_o           => led_link_o,
       scl_o                => scl_o,
       scl_i                => scl_i,
       sda_o                => sda_o,
       sda_i                => sda_i,
-      sfp_scl_o            => sfp_scl_o,
-      sfp_scl_i            => sfp_scl_i,
-      sfp_sda_o            => sfp_sda_o,
-      sfp_sda_i            => sfp_sda_i,
-      sfp_det_i            => sfp_det_i,
+      dp_sfp_scl_o         => dp_sfp_scl_o,
+      dp_sfp_scl_i         => dp_sfp_scl_i,
+      dp_sfp_sda_o         => dp_sfp_sda_o,
+      dp_sfp_sda_i         => dp_sfp_sda_i,
+      dp_sfp_det_i         => dp_sfp_det_i,
       btn1_i               => btn1_i,
       btn2_i               => btn2_i,
       spi_sclk_o           => spi_sclk_o,
@@ -429,6 +466,10 @@ begin  -- architecture struct
       wrf_src_i            => wrf_src_in,
       wrf_snk_o            => wrf_snk_out,
       wrf_snk_i            => wrf_snk_in,
+      dp_wrf_src_o         => dp_wrf_src_out,
+      dp_wrf_src_i         => dp_wrf_src_in,
+      dp_wrf_snk_o         => dp_wrf_snk_out,
+      dp_wrf_snk_i         => dp_wrf_snk_in,
       timestamps_o         => timestamps_o,
       timestamps_ack_i     => timestamps_ack_i,
       abscal_txts_o        => abscal_txts_o,
@@ -498,6 +539,12 @@ begin  -- architecture struct
     -- unused output ports
     wrf_src_o <= c_dummy_snk_in;
     wrf_snk_o <= c_dummy_src_in;
+    
+    dp_wrf_src_o <= dp_wrf_src_out;
+    dp_wrf_snk_o <= dp_wrf_snk_out;
+
+    dp_wrf_src_in <= dp_wrf_src_i;
+    dp_wrf_snk_in <= dp_wrf_snk_i;
 
     aux_master_o    <= cc_dummy_master_out;
     wb_eth_master_o <= cc_dummy_master_out;
@@ -527,6 +574,12 @@ begin  -- architecture struct
     -- unused output ports
     wrf_src_o <= c_dummy_snk_in;
     wrf_snk_o <= c_dummy_src_in;
+    
+    dp_wrf_src_o <= dp_wrf_src_out;
+    dp_wrf_snk_o <= dp_wrf_snk_out;
+
+    dp_wrf_src_in <= dp_wrf_src_i;
+    dp_wrf_snk_in <= dp_wrf_snk_i;
 
     wrs_tx_dreq_o  <= '0';
     wrs_rx_first_o <= '0';
@@ -549,7 +602,13 @@ begin  -- architecture struct
 
     wrf_src_in <= wrf_src_i;
     wrf_snk_in <= wrf_snk_i;
+    
+    dp_wrf_src_o <= dp_wrf_src_out;
+    dp_wrf_snk_o <= dp_wrf_snk_out;
 
+    dp_wrf_src_in <= dp_wrf_src_i;
+    dp_wrf_snk_in <= dp_wrf_snk_i;
+    
     -- unused output ports
     wrs_tx_dreq_o  <= '0';
     wrs_rx_first_o <= '0';

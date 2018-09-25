@@ -3,8 +3,8 @@
 #  http://ohwr.org/projects/hdl-make/  #
 ########################################
 
-PROJECT := cute_wr_ref.xise
-ISE_CRAP := *.b cute_wr_ref_top_summary.html *.tcl cute_wr_ref_top.bld cute_wr_ref_top.cmd_log *.drc cute_wr_ref_top.lso *.ncd cute_wr_ref_top.ngc cute_wr_ref_top.ngd cute_wr_ref_top.ngr cute_wr_ref_top.pad cute_wr_ref_top.par cute_wr_ref_top.pcf cute_wr_ref_top.prj cute_wr_ref_top.ptwx cute_wr_ref_top.stx cute_wr_ref_top.syr cute_wr_ref_top.twr cute_wr_ref_top.twx cute_wr_ref_top.gise $(PROJECT).gise cute_wr_ref_top.bgn cute_wr_ref_top.unroutes cute_wr_ref_top.ut cute_wr_ref_top.xpi cute_wr_ref_top.xst cute_wr_ref_top_bitgen.xwbt cute_wr_ref_top_envsettings.html cute_wr_ref_top_guide.ncd cute_wr_ref_top_map.map cute_wr_ref_top_map.mrp cute_wr_ref_top_map.ncd cute_wr_ref_top_map.ngm cute_wr_ref_top_map.xrpt cute_wr_ref_top_ngdbuild.xrpt cute_wr_ref_top_pad.csv cute_wr_ref_top_pad.txt cute_wr_ref_top_par.xrpt cute_wr_ref_top_summary.xml cute_wr_ref_top_usage.xml cute_wr_ref_top_xst.xrpt usage_statistics_webtalk.html par_usage_statistics.html webtalk.log webtalk_pn.xml run.tcl
+PROJECT := cute_ref_design.xise
+ISE_CRAP := *.b cute_ref_top_summary.html *.tcl cute_ref_top.bld cute_ref_top.cmd_log *.drc cute_ref_top.lso *.ncd cute_ref_top.ngc cute_ref_top.ngd cute_ref_top.ngr cute_ref_top.pad cute_ref_top.par cute_ref_top.pcf cute_ref_top.prj cute_ref_top.ptwx cute_ref_top.stx cute_ref_top.syr cute_ref_top.twr cute_ref_top.twx cute_ref_top.gise $(PROJECT).gise cute_ref_top.bgn cute_ref_top.unroutes cute_ref_top.ut cute_ref_top.xpi cute_ref_top.xst cute_ref_top_bitgen.xwbt cute_ref_top_envsettings.html cute_ref_top_guide.ncd cute_ref_top_map.map cute_ref_top_map.mrp cute_ref_top_map.ncd cute_ref_top_map.ngm cute_ref_top_map.xrpt cute_ref_top_ngdbuild.xrpt cute_ref_top_pad.csv cute_ref_top_pad.txt cute_ref_top_par.xrpt cute_ref_top_summary.xml cute_ref_top_usage.xml cute_ref_top_xst.xrpt usage_statistics_webtalk.html par_usage_statistics.html webtalk.log webtalk_pn.xml run.tcl
 
 #target for performing local synthesis
 local: syn_pre_cmd check_tool generate_tcl synthesis syn_post_cmd
@@ -43,7 +43,7 @@ mrproper:
 USER:=$(HDLMAKE_RSYNTH_USER)# take the value from the environment
 SERVER:=$(HDLMAKE_RSYNTH_SERVER)# take the value from the environment
 ISE_PATH:=$(HDLMAKE_RSYNTH_ISE_PATH)
-R_NAME:=greg/cute_wr_ref
+R_NAME:=greg/cute_ref
 PORT:=22
 
 __test_for_remote_synthesis_variables:
@@ -60,7 +60,7 @@ endif
 CWD := $(shell pwd)
 
 FILES := ../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_commit_fifo.vhd \
-../../top/cute_ref_design/cute_wr_ref_top.ucf \
+../../top/cute_ref_design/cute_ref_top.ucf \
 ../../modules/wr_si57x_interface/xwr_si57x_interface.vhd \
 ../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_wbm_fifo.vhd \
 ../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_stream_widen.vhd \
@@ -148,7 +148,7 @@ FILES := ../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_commit_fifo.vhd \
 ../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_eth_rx.vhd \
 ../../modules/wr_softpll_ng/xwr_softpll_ng.vhd \
 ../../modules/wr_eca/eca_tlu.vhd \
-cute_wr_ref.xise \
+cute_ref_design.xise \
 ../../ip_cores/etherbone-core/hdl/eb_usb_core/ez_usb_pkg.vhd \
 ../../ip_cores/etherbone-core/hdl/eb_usb_core/ez_usb_fifos.vhd \
 ../../modules/wr_mini_nic/minic_wb_slave.vhd \
@@ -204,7 +204,7 @@ run.tcl \
 ../../ip_cores/general-cores/modules/common/gc_single_reset_gen.vhd \
 ../../modules/wr_tlu/tlu.vhd \
 ../../ip_cores/general-cores/modules/wishbone/wb_clock_crossing/xwb_clock_crossing.vhd \
-../../top/cute_ref_design/cute_wr_ref_top.vhd \
+../../top/cute_ref_design/cute_ref_top.vhd \
 ../../ip_cores/general-cores/modules/wishbone/wb_vic/wb_vic.vhd \
 ../../modules/wr_eca/eca_piso_fifo.vhd \
 ../../ip_cores/etherbone-core/hdl/eb_master_core/eb_master_top.vhd \

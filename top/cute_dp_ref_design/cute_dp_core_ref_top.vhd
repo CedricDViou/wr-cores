@@ -3,7 +3,7 @@
 -- Project    : WR PTP Core
 -- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
 -------------------------------------------------------------------------------
--- File       : cute_wr_ref_top.vhd
+-- File       : cute_core_ref_top.vhd
 -- Author(s)  : Hongming Li <lihm.thu@foxmail.com>
 --              Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : Tsinghua Univ. (DEP), CERN
@@ -58,7 +58,7 @@ use work.wr_cute_pkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity cute_wr_ref_top is
+entity cute_core_ref_top is
   generic (
     g_dpram_initf : string := "../../bin/wrpc/wrc_phy8.bram";
     g_sfp0_enable : integer:= 1;
@@ -102,8 +102,10 @@ entity cute_wr_ref_top is
     sfp0_rx_p          : in    std_logic;
     sfp0_rx_n          : in    std_logic;
     sfp0_det           : in    std_logic;  -- sfp detect
-    sfp0_scl           : inout std_logic;  -- scl
-    sfp0_sda           : inout std_logic;  -- sda
+    sfp0_scl_i         : in    std_logic;  -- scl
+    sfp0_scl_o         : out   std_logic;  -- scl
+    sfp0_sda_i         : in    std_logic;  -- sda
+    sfp0_sda_o         : out   std_logic;  -- sda
     sfp0_tx_fault      : in    std_logic;
     sfp0_tx_disable    : out   std_logic;
     sfp0_los           : in    std_logic;  
@@ -112,8 +114,10 @@ entity cute_wr_ref_top is
     --sfp1_rx_p          : in    std_logic;
     --sfp1_rx_n          : in    std_logic;
     --sfp1_det           : in    std_logic;  -- sfp detect
-    --sfp1_scl           : inout std_logic;  -- scl
-    --sfp1_sda           : inout std_logic;  -- sda
+    --sfp1_scl_i         : in    std_logic;  -- scl
+    --sfp1_scl_o         : out   std_logic;  -- scl
+    --sfp1_sda_i         : in    std_logic;  -- sda
+    --sfp1_sda_o         : out   std_logic;  -- sda
     --sfp1_tx_fault      : in    std_logic;
     --sfp1_tx_disable    : out   std_logic;
     --sfp1_tx_los        : in    std_logic;
@@ -121,8 +125,9 @@ entity cute_wr_ref_top is
     ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
+    onewire_oen_o      : out std_logic;
+    onewire_i          : in  std_logic;        -- 1-wire interface to ds18b20
 
-    one_wire           : inout std_logic;      -- 1-wire interface to ds18b20
     ---------------------------------------------------------------------------
     -- UART
     ---------------------------------------------------------------------------
@@ -132,8 +137,10 @@ entity cute_wr_ref_top is
     ---------------------------------------------------------------------------
     -- I2C configuration EEPROM interface
     ---------------------------------------------------------------------------
-    eeprom_scl         : inout std_logic;
-    eeprom_sda         : inout std_logic;
+    eeprom_scl_i       : in  std_logic;
+    eeprom_scl_o       : out std_logic;
+    eeprom_sda_i       : in  std_logic;
+    eeprom_sda_o       : out std_logic;
 
     ---------------------------------------------------------------------------
     -- Flash memory SPI interface
@@ -156,9 +163,9 @@ entity cute_wr_ref_top is
     usr_led2           : out std_logic;
     pps_out            : out std_logic
   );
-end cute_wr_ref_top;
+end cute_core_ref_top;
 
-architecture rtl of cute_wr_ref_top is
+architecture rtl of cute_core_ref_top is
   
   component oserdes_4_to_1 is
     generic(
@@ -194,26 +201,6 @@ architecture rtl of cute_wr_ref_top is
   signal clk_realign  : std_logic;
   signal new_freq     : std_logic;
 
-  -- I2C EEPROM
-  signal eeprom_scl_o      : std_logic;
-  signal eeprom_scl_i      : std_logic;
-  signal eeprom_sda_o      : std_logic;
-  signal eeprom_sda_i      : std_logic;
-
-  -- OneWire
-  signal onewire_i         : std_logic;
-  signal onewire_oen_o     : std_logic;
-
-  -- SFP
-  signal sfp0_scl_i        : std_logic;
-  signal sfp0_scl_o        : std_logic;
-  signal sfp0_sda_i        : std_logic;
-  signal sfp0_sda_o        : std_logic;
-  signal sfp1_scl_i        : std_logic;
-  signal sfp1_scl_o        : std_logic;
-  signal sfp1_sda_i        : std_logic;
-  signal sfp1_sda_o        : std_logic;
-  
   signal pps               : std_logic;
   signal pps_csync         : std_logic;
   attribute maxdelay       : string;
@@ -333,26 +320,6 @@ begin
   cnx_slave_in <= cnx_master_out;
   cnx_master_in <= cnx_slave_out;
 
-  -- Tristates for configuration EEPROM
-  eeprom_scl  <= '0' when eeprom_scl_o = '0' else 'Z';
-  eeprom_sda  <= '0' when eeprom_sda_o = '0' else 'Z';
-  eeprom_scl_i  <= eeprom_scl;
-  eeprom_sda_i  <= eeprom_sda;
-
-  -- Tristates for SFP EEPROM
-  sfp0_scl <= '0' when sfp0_scl_o = '0' else 'Z';
-  sfp0_sda <= '0' when sfp0_sda_o = '0' else 'Z';
-  sfp0_scl_i <= sfp0_scl;
-  sfp0_sda_i <= sfp0_sda;
-  --sfp1_scl <= '0' when sfp1_scl_o = '0' else 'Z';
-  --sfp1_sda <= '0' when sfp1_sda_o = '0' else 'Z';
-  --sfp1_scl_i <= sfp1_scl;
-  --sfp1_sda_i <= sfp1_sda;
-  
-  -- Tristates for Onewire
-  one_wire <= '0' when onewire_oen_o = '1' else 'Z';
-  onewire_i  <= one_wire;
-  
   aux_half_high <= to_unsigned(c_HALF, aux_half_high'length);
   aux_half_low  <= to_unsigned(c_HALF, aux_half_low'length);
   aux_shift     <= to_unsigned(11, aux_half_low'length);

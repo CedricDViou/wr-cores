@@ -41,6 +41,7 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
+use ieee.numeric_std.all;
 
 library work;
 use work.endpoint_pkg.all;
@@ -245,7 +246,8 @@ begin  -- architecture rtl
 
       clk_62m5_sys_o <= clk_sys_out;
       clk_125m_ref_o <= clk_125m_pllref_buf;
-      pll_locked_o   <= pll_sys_locked and pll_dmtd_locked;
+      --pll_locked_o   <= pll_sys_locked and pll_dmtd_locked;
+      pll_locked_o   <= pll_sys_locked;
       clk_ref_locked_o <= '1';
 
       -- DMTD PLL

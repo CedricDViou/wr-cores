@@ -77,6 +77,7 @@ package wr_xilinx_pkg is
       sfp_tx_disable_o      : out std_logic;
       clk_62m5_sys_o        : out std_logic;
       clk_125m_ref_o        : out std_logic;
+      clk_500m_o            : out std_logic;
       clk_ref_locked_o      : out std_logic;
       clk_62m5_dmtd_o       : out std_logic;
       pll_locked_o          : out std_logic;

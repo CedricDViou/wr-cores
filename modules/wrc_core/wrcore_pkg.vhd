@@ -378,6 +378,7 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
+      g_with_dualport             : boolean                        := false;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -429,6 +430,11 @@ package wrcore_pkg is
       phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
       phy16_o : out t_phy_16bits_from_wrc;
       phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+      
+      dp_phy8_o  : out t_phy_8bits_from_wrc;
+      dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+      dp_phy16_o : out t_phy_16bits_from_wrc;
+      dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
 
       led_act_o  : out std_logic;
       led_link_o : out std_logic;
@@ -441,6 +447,13 @@ package wrcore_pkg is
       sfp_sda_o  : out std_logic;
       sfp_sda_i  : in  std_logic := 'H';
       sfp_det_i  : in  std_logic := '1';
+
+      dp_sfp_scl_o  : out std_logic;
+      dp_sfp_scl_i  : in  std_logic := 'H';
+      dp_sfp_sda_o  : out std_logic;
+      dp_sfp_sda_i  : in  std_logic := 'H';
+      dp_sfp_det_i  : in  std_logic := '1';
+
       btn1_i     : in  std_logic := 'H';
       btn2_i     : in  std_logic := 'H';
       spi_sclk_o : out std_logic;
@@ -465,6 +478,11 @@ package wrcore_pkg is
       wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
       wrf_snk_o : out t_wrf_sink_out;
       wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
+
+      dp_wrf_src_o : out t_wrf_source_out;
+      dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
+      dp_wrf_snk_o : out t_wrf_sink_out;
+      dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
 
       timestamps_o     : out t_txtsu_timestamp;
       timestamps_ack_i : in  std_logic := '1';
@@ -521,6 +539,7 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
+      g_with_dualport             : boolean                        := false;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -597,6 +616,11 @@ package wrcore_pkg is
       phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
       phy16_o : out t_phy_16bits_from_wrc;
       phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+      
+      dp_phy8_o  : out t_phy_8bits_from_wrc;
+      dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+      dp_phy16_o : out t_phy_16bits_from_wrc;
+      dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
 
       -----------------------------------------
       --GPIO
@@ -612,6 +636,13 @@ package wrcore_pkg is
       sfp_sda_o  : out std_logic;
       sfp_sda_i  : in  std_logic := '1';
       sfp_det_i  : in  std_logic := '1';
+
+      dp_sfp_scl_o  : out std_logic;
+      dp_sfp_scl_i  : in  std_logic := '1';
+      dp_sfp_sda_o  : out std_logic;
+      dp_sfp_sda_i  : in  std_logic := '1';
+      dp_sfp_det_i  : in  std_logic := '1';
+
       btn1_i     : in  std_logic := '1';
       btn2_i     : in  std_logic := '1';
       spi_sclk_o : out std_logic;
@@ -682,6 +713,29 @@ package wrcore_pkg is
       ext_src_ack_i   : in  std_logic := '1';
       ext_src_err_i   : in  std_logic := '0';
       ext_src_stall_i : in  std_logic := '0';
+
+      -----------------------------------------
+      -- Another External Fabric I/F
+      -----------------------------------------
+      dp_ext_snk_adr_i   : in  std_logic_vector(1 downto 0)  := "00";
+      dp_ext_snk_dat_i   : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_ext_snk_sel_i   : in  std_logic_vector(1 downto 0)  := "00";
+      dp_ext_snk_cyc_i   : in  std_logic                     := '0';
+      dp_ext_snk_we_i    : in  std_logic                     := '0';
+      dp_ext_snk_stb_i   : in  std_logic                     := '0';
+      dp_ext_snk_ack_o   : out std_logic;
+      dp_ext_snk_err_o   : out std_logic;
+      dp_ext_snk_stall_o : out std_logic;
+
+      dp_ext_src_adr_o   : out std_logic_vector(1 downto 0);
+      dp_ext_src_dat_o   : out std_logic_vector(15 downto 0);
+      dp_ext_src_sel_o   : out std_logic_vector(1 downto 0);
+      dp_ext_src_cyc_o   : out std_logic;
+      dp_ext_src_stb_o   : out std_logic;
+      dp_ext_src_we_o    : out std_logic;
+      dp_ext_src_ack_i   : in  std_logic := '1';
+      dp_ext_src_err_i   : in  std_logic := '0';
+      dp_ext_src_stall_i : in  std_logic := '0';
 
       ------------------------------------------
       -- External TX Timestamp I/F

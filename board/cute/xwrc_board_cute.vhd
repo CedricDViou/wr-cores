@@ -440,7 +440,7 @@ begin  -- architecture struct
   -- SFP0/1 selection
   -----------------------------------------------------------------------------
   
-  GEN_GTP0: if g_sfp0_enable = 1 generate
+  GEN_GTP0: if (g_sfp0_enable = 1) and (g_sfp1_enable = 0) generate
     clk_125m_gtp_p  <= clk_125m_gtp0_p_i;
     clk_125m_gtp_n  <= clk_125m_gtp0_n_i;
 
@@ -458,7 +458,7 @@ begin  -- architecture struct
     sfp_los_in         <= sfp0_los_i;
   end generate;
 
-  GEN_GTP1: if g_sfp1_enable = 1 generate
+  GEN_GTP1: if (g_sfp0_enable = 0) and (g_sfp1_enable = 1) generate
     clk_125m_gtp_p <= clk_125m_gtp1_p_i;
     clk_125m_gtp_n <= clk_125m_gtp1_n_i;
 
@@ -474,6 +474,50 @@ begin  -- architecture struct
     sfp_scl_in         <= sfp1_scl_i;
     sfp_tx_fault_in    <= sfp1_tx_fault_i;
     sfp_los_in         <= sfp1_los_i;
+  end generate;
+  
+  GEN_GTP0_and_GTP1 : if (g_sfp0_enable = 1) and (g_sfp1_enable = 1) generate
+    
+    clk_125m_gtp_p  <= clk_125m_gtp0_p_i;
+    clk_125m_gtp_n  <= clk_125m_gtp0_n_i;
+
+    sfp0_txp_o         <= sfp_txp_out;
+    sfp0_txn_o         <= sfp_txn_out;
+    sfp0_sda_o         <= sfp_sda_out;
+    sfp0_scl_o         <= sfp_scl_out;
+    sfp0_tx_disable_o  <= sfp_tx_disable_out;
+    sfp_rxp_in         <= sfp0_rxp_i;
+    sfp_rxn_in         <= sfp0_rxn_i;
+    sfp_det_in         <= sfp0_det_i;
+    sfp_sda_in         <= sfp0_sda_i;
+    sfp_scl_in         <= sfp0_scl_i;
+    sfp_tx_fault_in    <= sfp0_tx_fault_i;
+    sfp_los_in         <= sfp0_los_i;
+
+    cmp_xwrc_platform_dp : xwrc_platform_xilinx
+      generic map (
+        g_fpga_family               => "spartan6",
+        g_with_external_clock_input => false,
+        g_use_default_plls          => false,
+        g_gtp_enable_ch0            => 0,
+        g_gtp_enable_ch1            => 1,
+        g_phy_refclk_sel            => g_phy_refclk_sel,
+        g_simulation                => g_simulation)
+      port map (
+        areset_n_i            => areset_n_i,
+        clk_125m_gtp_p_i      => clk_125m_gtp1_p_i,
+        clk_125m_gtp_n_i      => clk_125m_gtp1_n_i,
+        clk_125m_ref_i        => clk_pll_125m,
+        sfp_txn_o             => sfp1_txn_o,
+        sfp_txp_o             => sfp1_txp_o,
+        sfp_rxn_i             => sfp1_rxn_i,
+        sfp_rxp_i             => sfp1_rxp_i,
+        sfp_tx_fault_i        => sfp1_tx_fault_i,
+        sfp_los_i             => sfp1_los_i,
+        sfp_tx_disable_o      => sfp1_tx_disable_o,
+        phy8_o                => phy8_to_wrc,
+        phy8_i                => phy8_from_wrc);
+
   end generate;
 
   sfp0_rate_select_o <= '1';
