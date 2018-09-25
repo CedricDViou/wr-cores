@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2018-03-19
+-- Last update: 2018-07-30
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -324,7 +324,15 @@ architecture rtl of wr_softpll_ng is
 
   signal aligner_sample_valid, aligner_sample_ack : std_logic_vector(g_num_outputs downto 0);
   signal aligner_sample_cref, aligner_sample_cin  : t_aligner_sample_array;
-  
+
+  -- necessary to be able to relax timing from spll_aligner outputs cref and
+  -- cin (driven by ref clock) to the registers (driven by sys clock). The two
+  -- sides are already sychronized via a gc_pulse_synchronizer, which makes
+  -- sure that cref and cin are stable when sampled by the sys clock.
+  attribute keep : string;
+  attribute keep of aligner_sample_cref : signal is "true";
+  attribute keep of aligner_sample_cin  : signal is "true";
+
 begin  -- rtl
 
   U_Adapter : wb_slave_adapter

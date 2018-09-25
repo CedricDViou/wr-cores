@@ -46,7 +46,9 @@ package wr_xilinx_pkg is
       g_gtp_enable_ch0            : integer := 0;
       g_gtp_enable_ch1            : integer := 1;
       g_phy_refclk_sel            : integer range 0 to 7 := 0;
-      g_simulation                : integer := 0);
+      g_simulation                : integer := 0;
+      g_ddr_clock_divider : integer := 3
+      );
     port (
       areset_n_i            : in  std_logic             := '1';
       clk_10m_ext_i         : in  std_logic             := '0';
@@ -65,6 +67,7 @@ package wr_xilinx_pkg is
       clk_ext_locked_i      : in  std_logic             := '1';
       clk_ext_stopped_i     : in  std_logic             := '0';
       clk_ext_rst_o         : out std_logic;
+      clk_ddr_o : out std_logic;
       sfp_txn_o             : out std_logic;
       sfp_txp_o             : out std_logic;
       sfp_rxn_i             : in  std_logic;
@@ -74,7 +77,6 @@ package wr_xilinx_pkg is
       sfp_tx_disable_o      : out std_logic;
       clk_62m5_sys_o        : out std_logic;
       clk_125m_ref_o        : out std_logic;
-      clk_500m_o            : out std_logic;
       clk_ref_locked_o      : out std_logic;
       clk_62m5_dmtd_o       : out std_logic;
       pll_locked_o          : out std_logic;

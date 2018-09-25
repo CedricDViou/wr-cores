@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2018-07-04
+-- Last update: 2018-07-25
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
@@ -76,7 +76,10 @@ entity xwrc_board_spec is
     g_diag_ver                  : integer              := 0;
     -- size the generic diag interface
     g_diag_ro_size              : integer              := 0;
-    g_diag_rw_size              : integer              := 0
+    g_diag_rw_size              : integer              := 0;
+
+    -- DDR clock divider setting
+    g_ddr_clock_divider :integer := 3
     );
   port (
     ---------------------------------------------------------------------------
@@ -103,6 +106,8 @@ entity xwrc_board_spec is
     clk_sys_62m5_o      : out std_logic;
     -- 125MHz ref clock output
     clk_ref_125m_o      : out std_logic;
+    -- Programmable frequency DDR controller clock output (divider set in g_ddr3_clock_divider)
+    clk_ddr_o : out std_logic;
     -- active low reset outputs, synchronous to 62m5 and 125m clocks
     rst_sys_62m5_n_o    : out std_logic;
     rst_ref_125m_n_o    : out std_logic;
@@ -268,6 +273,7 @@ architecture struct of xwrc_board_spec is
   -- PLLs, clocks
   signal clk_pll_62m5 : std_logic;
   signal clk_pll_125m : std_logic;
+  signal clk_pll_ddr : std_logic;
   signal clk_pll_dmtd : std_logic;
   signal pll_locked   : std_logic;
   signal clk_10m_ext  : std_logic;
@@ -320,7 +326,8 @@ begin  -- architecture struct
       g_fpga_family               => "spartan6",
       g_with_external_clock_input => g_with_external_clock_input,
       g_use_default_plls          => TRUE,
-      g_simulation                => g_simulation)
+      g_simulation                => g_simulation,
+      g_ddr_clock_divider => g_ddr_clock_divider)
     port map (
       areset_n_i            => areset_n_i,
       clk_10m_ext_i         => clk_10m_ext_i,
@@ -338,6 +345,7 @@ begin  -- architecture struct
       clk_62m5_sys_o        => clk_pll_62m5,
       clk_125m_ref_o        => clk_pll_125m,
       clk_62m5_dmtd_o       => clk_pll_dmtd,
+      clk_ddr_o => clk_pll_ddr,
       pll_locked_o          => pll_locked,
       clk_10m_ext_o         => clk_10m_ext,
       phy8_o                => phy8_to_wrc,
@@ -349,6 +357,7 @@ begin  -- architecture struct
 
   clk_sys_62m5_o <= clk_pll_62m5;
   clk_ref_125m_o <= clk_pll_125m;
+  clk_ddr_o <= clk_pll_ddr;
 
   -----------------------------------------------------------------------------
   -- Reset logic

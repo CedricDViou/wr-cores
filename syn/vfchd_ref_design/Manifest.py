@@ -1,3 +1,4 @@
+board  = "vfchd"
 target = "altera"
 action = "synthesis"
 

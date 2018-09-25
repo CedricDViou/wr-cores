@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2018-03-20
+-- Last update: 2018-07-25
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Copyright (c) 2017 CERN
@@ -58,7 +58,8 @@ package wr_spec_pkg is
       g_diag_id                   : integer              := 0;
       g_diag_ver                  : integer              := 0;
       g_diag_ro_size              : integer              := 0;
-      g_diag_rw_size              : integer              := 0);
+      g_diag_rw_size              : integer              := 0;
+      g_ddr_clock_divider : integer := 3);
     port (
       areset_n_i           : in  std_logic;
       areset_edge_n_i      : in  std_logic := '1';
@@ -74,6 +75,7 @@ package wr_spec_pkg is
       clk_ref_125m_o       : out std_logic;
       rst_sys_62m5_n_o     : out std_logic;
       rst_ref_125m_n_o     : out std_logic;
+      clk_ddr_o : out std_logic;
       plldac_sclk_o        : out std_logic;
       plldac_din_o         : out std_logic;
       pll25dac_cs_n_o      : out std_logic;

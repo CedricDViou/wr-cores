@@ -1,3 +1,4 @@
+board  = "svec"
 target = "xilinx"
 action = "synthesis"
 

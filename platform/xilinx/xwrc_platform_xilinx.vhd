@@ -41,7 +41,6 @@
 
 library ieee;
 use ieee.std_logic_1164.all;
-use ieee.numeric_std.all;
 
 library work;
 use work.endpoint_pkg.all;
@@ -67,7 +66,8 @@ entity xwrc_platform_xilinx is
       -- Select PHY reference clock
       g_phy_refclk_sel            : integer range 0 to 7 := 0;
       -- Set to TRUE will speed up some initialization processes
-      g_simulation                : integer := 0
+      g_simulation                : integer := 0;
+      g_ddr_clock_divider : integer := 3
       );
   port (
     ---------------------------------------------------------------------------
@@ -129,6 +129,7 @@ entity xwrc_platform_xilinx is
     clk_500m_o            : out std_logic;
     clk_ref_locked_o      : out std_logic;
     clk_62m5_dmtd_o       : out std_logic;
+    clk_ddr_o : out std_logic;
     pll_locked_o          : out std_logic;
     clk_10m_ext_o         : out std_logic;
     -- PHY
@@ -200,6 +201,7 @@ begin  -- architecture rtl
       signal clk_dmtd_fb      : std_logic;
       signal pll_dmtd_locked  : std_logic;
       signal clk_20m_vcxo_buf : std_logic;
+      signal clk_ddr : std_logic;
 
     begin  --gen_spartan6_default_plls
 
@@ -243,8 +245,7 @@ begin  -- architecture rtl
 
       clk_62m5_sys_o <= clk_sys_out;
       clk_125m_ref_o <= clk_125m_pllref_buf;
-      --pll_locked_o   <= pll_sys_locked and pll_dmtd_locked;
-      pll_locked_o   <= pll_sys_locked;
+      pll_locked_o   <= pll_sys_locked and pll_dmtd_locked;
       clk_ref_locked_o <= '1';
 
       -- DMTD PLL
@@ -855,7 +856,8 @@ begin  -- architecture rtl
 
   gen_phy_spartan6 : if(g_fpga_family = "spartan6") generate
 
-    signal clk_125m_gtp_buf  : std_logic;
+    signal clk_125m_gtp_buf : std_logic;
+
     signal clk_125m_gtp1_buf : std_logic;
     signal clk_125m_gtp0_buf : std_logic;
 

@@ -8,7 +8,6 @@ files = [
 modules = {
     "local" : [
         "../../",
-        "../../board/svec",
     ],
     "git" : [
         "git://ohwr.org/hdl-core-lib/general-cores.git",

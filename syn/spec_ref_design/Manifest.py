@@ -1,3 +1,4 @@
+board  = "spec"
 target = "xilinx"
 action = "synthesis"
 

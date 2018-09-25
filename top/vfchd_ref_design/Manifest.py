@@ -11,7 +11,6 @@ files = [
 modules = {
     "local" : [
         "../../",
-        "../../board/vfchd",
     ],
     "git" : [
         "git://ohwr.org/hdl-core-lib/general-cores.git",
