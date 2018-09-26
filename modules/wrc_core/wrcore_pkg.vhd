@@ -276,8 +276,8 @@ package wrcore_pkg is
       rst_n_i     : in  std_logic;
       rst_net_n_o : out std_logic;
       rst_wrc_n_o : out std_logic;
-      led_red_o   : out std_logic;
-      led_green_o : out std_logic;
+      led_link_o  : out std_logic;
+      led_stat_o  : out std_logic;
       scl_o       : out std_logic;
       scl_i       : in  std_logic;
       sda_o       : out std_logic;
@@ -294,6 +294,13 @@ package wrcore_pkg is
       spi_ncs_o   : out std_logic;
       spi_mosi_o  : out std_logic;
       spi_miso_i  : in  std_logic;
+      dp_led_link_o  : out std_logic;
+      dp_led_stat_o  : out std_logic;
+      dp_sfp_scl_o   : out std_logic;
+      dp_sfp_scl_i   : in  std_logic := '1';
+      dp_sfp_sda_o   : out std_logic;
+      dp_sfp_sda_i   : in  std_logic := '1';
+      dp_sfp_det_i   : in  std_logic := '1';
       slave_i     : in  t_wishbone_slave_in_array(0 to 3);
       slave_o     : out t_wishbone_slave_out_array(0 to 3);
       uart_rxd_i  : in  std_logic;

@@ -67,8 +67,8 @@ entity wrc_periph is
     rst_net_n_o : out std_logic;
     rst_wrc_n_o : out std_logic;
 
-    led_red_o   : out std_logic;
-    led_green_o : out std_logic;
+    led_link_o  : out std_logic;
+    led_stat_o  : out std_logic;
     scl_o       : out std_logic;
     scl_i       : in  std_logic;
     sda_o       : out std_logic;
@@ -85,6 +85,14 @@ entity wrc_periph is
     spi_ncs_o   : out std_logic;
     spi_mosi_o  : out std_logic;
     spi_miso_i  : in  std_logic;
+
+    dp_led_link_o  : out std_logic;
+    dp_led_stat_o  : out std_logic;
+    dp_sfp_scl_o   : out std_logic;
+    dp_sfp_scl_i   : in  std_logic := '1';
+    dp_sfp_sda_o   : out std_logic;
+    dp_sfp_sda_i   : in  std_logic := '1';
+    dp_sfp_det_i   : in  std_logic := '1';
 
     slave_i : in  t_wishbone_slave_in_array(0 to 3);
     slave_o : out t_wishbone_slave_out_array(0 to 3);
@@ -167,15 +175,32 @@ begin
   begin
     if rising_edge(clk_sys_i) then
       if(sysc_regs_o.gpsr_led_link_o = '1') then
-        led_red_o <= '1';
+        led_link_o <= '1';
       elsif(sysc_regs_o.gpcr_led_link_o = '1') then
-        led_red_o <= '0';
+        led_link_o <= '0';
       end if;
 
       if(sysc_regs_o.gpsr_led_stat_o = '1') then
-        led_green_o <= '1';
+        led_stat_o  <= '1';
       elsif(sysc_regs_o.gpcr_led_stat_o = '1') then
-        led_green_o <= '0';
+        led_stat_o  <= '0';
+      end if;
+    end if;
+  end process;
+
+  process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if(sysc_regs_o.gpsr_dp_led_link_o = '1') then
+        dp_led_link_o <= '1';
+      elsif(sysc_regs_o.gpcr_dp_led_link_o = '1') then
+        dp_led_link_o <= '0';
+      end if;
+
+      if(sysc_regs_o.gpsr_dp_led_stat_o = '1') then
+        dp_led_stat_o  <= '1';
+      elsif(sysc_regs_o.gpcr_dp_led_stat_o = '1') then
+        dp_led_stat_o  <= '0';
       end if;
     end if;
   end process;
@@ -292,6 +317,33 @@ begin
   sysc_regs_i.gpsr_sfp_scl_i <= sfp_scl_i;
 
   sysc_regs_i.gpsr_sfp_det_i <= sfp_det_i;
+  
+  p_drive_dp_sfpi2c : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        dp_sfp_scl_o <= '1';
+        dp_sfp_sda_o <= '1';
+      else
+        if(sysc_regs_o.gpsr_dp_sfp_sda_load_o = '1' and sysc_regs_o.gpsr_dp_sfp_sda_o = '1') then
+          dp_sfp_sda_o <= '1';
+        elsif(sysc_regs_o.gpcr_dp_sfp_sda_o = '1') then
+          dp_sfp_sda_o <= '0';
+        end if;
+
+        if(sysc_regs_o.gpsr_dp_sfp_scl_load_o = '1' and sysc_regs_o.gpsr_dp_sfp_scl_o = '1') then
+          dp_sfp_scl_o <= '1';
+        elsif(sysc_regs_o.gpcr_dp_sfp_scl_o = '1') then
+          dp_sfp_scl_o <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  sysc_regs_i.gpsr_dp_sfp_sda_i <= dp_sfp_sda_i;
+  sysc_regs_i.gpsr_dp_sfp_scl_i <= dp_sfp_scl_i;
+
+  sysc_regs_i.gpsr_dp_sfp_det_i <= dp_sfp_det_i;
 
   -------------------------------------
   -- SPI - Flash
