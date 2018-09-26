@@ -3,7 +3,7 @@
 -- Project    : WR PTP Core
 -- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
 -------------------------------------------------------------------------------
--- File       : cute_core_ref_top.vhd
+-- File       : cute_dp_core_ref_top.vhd
 -- Author(s)  : Hongming Li <lihm.thu@foxmail.com>
 --              Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : Tsinghua Univ. (DEP), CERN
@@ -58,13 +58,11 @@ use work.wr_cute_pkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity cute_core_ref_top is
+entity cute_dp_core_ref_top is
   generic (
     g_dpram_initf : string := "../../bin/wrpc/wrc_phy8.bram";
-    g_sfp0_enable : integer:= 1;
-    g_sfp1_enable : integer:= 0;
     g_cute_version       : string:= "2.2";
-    g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
+    g_aux_sdb            : t_sdb_device  := c_xwb_tcpip_sdb;
     g_multiboot_enable   : boolean:= false
   );
   port (
@@ -163,9 +161,9 @@ entity cute_core_ref_top is
     usr_led2           : out std_logic;
     pps_out            : out std_logic
   );
-end cute_core_ref_top;
+end cute_dp_core_ref_top;
 
-architecture rtl of cute_core_ref_top is
+architecture rtl of cute_dp_core_ref_top is
   
   component oserdes_4_to_1 is
     generic(
@@ -227,8 +225,8 @@ begin
   u_wr_core : xwrc_board_cute
     generic map(
       g_dpram_initf      => g_dpram_initf,
-      g_sfp0_enable      => g_sfp0_enable,
-      g_sfp1_enable      => g_sfp1_enable,
+      g_sfp0_enable      => 1,
+      g_sfp1_enable      => 1,
       g_aux_sdb          => g_aux_sdb,
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,

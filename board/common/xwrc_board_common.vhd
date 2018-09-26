@@ -74,11 +74,15 @@ entity xwrc_board_common is
     g_streamers_op_mode         : t_streamers_op_mode            := TX_AND_RX;
     g_tx_streamer_params        : t_tx_streamer_params           := c_tx_streamer_params_defaut;
     g_rx_streamer_params        : t_rx_streamer_params           := c_rx_streamer_params_defaut;
-    g_fabric_iface              : t_board_fabric_iface           := PLAIN);
+    g_fabric_iface              : t_board_fabric_iface           := PLAIN;
+    g_multiboot_enable          : boolean                        := FALSE);
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
     ---------------------------------------------------------------------------
+    -- 20m clock for multiboot module
+    clk_20m_i : in std_logic := '0';
+
     -- system reference clock (any frequency <= f(clk_ref_i))
     clk_sys_i : in std_logic;
 
@@ -122,14 +126,6 @@ entity xwrc_board_common is
     phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
 
     ---------------------------------------------------------------------------
-    -- Another PHY I/f for dualport
-    ---------------------------------------------------------------------------
-    dp_phy8_o  : out t_phy_8bits_from_wrc;
-    dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
-    dp_phy16_o : out t_phy_16bits_from_wrc;
-    dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-
-    ---------------------------------------------------------------------------
     -- I2C EEPROM
     ---------------------------------------------------------------------------
     scl_o : out std_logic;
@@ -145,15 +141,6 @@ entity xwrc_board_common is
     sfp_sda_o : out std_logic;
     sfp_sda_i : in  std_logic := '1';
     sfp_det_i : in  std_logic;
-
-    ---------------------------------------------------------------------------
-    -- Another SFP management info
-    ---------------------------------------------------------------------------
-    dp_sfp_scl_o : out std_logic;
-    dp_sfp_scl_i : in  std_logic := '1';
-    dp_sfp_sda_o : out std_logic;
-    dp_sfp_sda_i : in  std_logic := '1';
-    dp_sfp_det_i : in  std_logic;
 
     ---------------------------------------------------------------------------
     -- Flash memory SPI interface
@@ -192,14 +179,6 @@ entity xwrc_board_common is
     wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
     wrf_snk_o : out t_wrf_sink_out;
     wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
-
-    ---------------------------------------------------------------------------
-    -- Another External Fabric I/F (when g_fabric_iface = PLAIN)
-    ---------------------------------------------------------------------------
-    dp_wrf_src_o : out t_wrf_source_out;
-    dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
-    dp_wrf_snk_o : out t_wrf_sink_out;
-    dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
 
     ---------------------------------------------------------------------------
     -- WR streamers (when g_fabric_iface = STREAMERS)
@@ -276,7 +255,36 @@ entity xwrc_board_common is
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
     -- Link ok indication
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+
+    ---------------------------------------------------------------------------
+    -- Another SFP management info
+    ---------------------------------------------------------------------------
+    dp_sfp_scl_o : out std_logic;
+    dp_sfp_scl_i : in  std_logic := '1';
+    dp_sfp_sda_o : out std_logic;
+    dp_sfp_sda_i : in  std_logic := '1';
+    dp_sfp_det_i : in  std_logic := '1';
+    ---------------------------------------------------------------------------
+    -- Another PHY I/f for dualport
+    ---------------------------------------------------------------------------
+    dp_phy8_o  : out t_phy_8bits_from_wrc;
+    dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+    dp_phy16_o : out t_phy_16bits_from_wrc;
+    dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+    ---------------------------------------------------------------------------
+    -- Another External Fabric I/F (when g_fabric_iface = PLAIN)
+    ---------------------------------------------------------------------------
+    dp_wrf_src_o : out t_wrf_source_out;
+    dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
+    dp_wrf_snk_o : out t_wrf_sink_out;
+    dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
+    
+    dp_timestamps_o         : out t_txtsu_timestamp;
+    dp_timestamps_ack_i     : in  std_logic := '1';
+    dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+    dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_fc_tx_pause_ready_o  : out std_logic
     );
 
 end entity xwrc_board_common;
@@ -393,106 +401,132 @@ begin  -- architecture struct
       g_diag_id                   => c_diag_id,
       g_diag_ver                  => c_diag_ver,
       g_diag_ro_size              => c_diag_ro_size,
-      g_diag_rw_size              => c_diag_rw_size)
+      g_diag_rw_size              => c_diag_rw_size,
+      g_multiboot_enable          => g_multiboot_enable)
     port map (
-      clk_sys_i            => clk_sys_i,
-      clk_dmtd_i           => clk_dmtd_i,
-      clk_ref_i            => clk_ref_i,
-      clk_aux_i            => clk_aux_i,
-      clk_ext_i            => clk_10m_ext_i,
-      clk_ext_mul_i        => clk_ext_mul_i,
-      clk_ext_mul_locked_i => clk_ext_mul_locked_i,
-      clk_ext_stopped_i    => clk_ext_stopped_i,
-      clk_ext_rst_o        => clk_ext_rst_o,
-      pps_ext_i            => pps_ext_i,
-      rst_n_i              => rst_n_i,
-      dac_hpll_load_p1_o   => dac_hpll_load_p1_o,
-      dac_hpll_data_o      => dac_hpll_data_o,
-      dac_dpll_load_p1_o   => dac_dpll_load_p1_o,
-      dac_dpll_data_o      => dac_dpll_data_o,
-      phy_ref_clk_i        => '0',
-      phy_tx_data_o        => open,
-      phy_tx_k_o           => open,
-      phy_tx_disparity_i   => '0',
-      phy_tx_enc_err_i     => '0',
-      phy_rx_data_i        => (others => '0'),
-      phy_rx_rbclk_i       => '0',
-      phy_rx_k_i           => (others => '0'),
-      phy_rx_enc_err_i     => '0',
-      phy_rx_bitslide_i    => (others => '0'),
-      phy_rst_o            => open,
-      phy_rdy_i            => '1',
-      phy_loopen_o         => open,
-      phy_loopen_vec_o     => open,
-      phy_tx_prbs_sel_o    => open,
-      phy_sfp_tx_fault_i   => '0',
-      phy_sfp_los_i        => '0',
-      phy_sfp_tx_disable_o => open,
-      phy8_o               => phy8_o,
-      phy8_i               => phy8_i,
-      phy16_o              => phy16_o,
-      phy16_i              => phy16_i,
-      dp_phy8_o            => dp_phy8_o,
-      dp_phy8_i            => dp_phy8_i,
-      dp_phy16_o           => dp_phy16_o,
-      dp_phy16_i           => dp_phy16_i,
-      led_act_o            => led_act_o,
-      led_link_o           => led_link_o,
-      scl_o                => scl_o,
-      scl_i                => scl_i,
-      sda_o                => sda_o,
-      sda_i                => sda_i,
-      dp_sfp_scl_o         => dp_sfp_scl_o,
-      dp_sfp_scl_i         => dp_sfp_scl_i,
-      dp_sfp_sda_o         => dp_sfp_sda_o,
-      dp_sfp_sda_i         => dp_sfp_sda_i,
-      dp_sfp_det_i         => dp_sfp_det_i,
-      btn1_i               => btn1_i,
-      btn2_i               => btn2_i,
-      spi_sclk_o           => spi_sclk_o,
-      spi_ncs_o            => spi_ncs_o,
-      spi_mosi_o           => spi_mosi_o,
-      spi_miso_i           => spi_miso_i,
-      uart_rxd_i           => uart_rxd_i,
-      uart_txd_o           => uart_txd_o,
-      owr_pwren_o          => owr_pwren_o,
-      owr_en_o             => owr_en_o,
-      owr_i                => owr_i,
-      slave_i              => wb_slave_i,
-      slave_o              => wb_slave_o,
-      aux_master_o         => aux_master_out,
-      aux_master_i         => aux_master_in,
-      wrf_src_o            => wrf_src_out,
-      wrf_src_i            => wrf_src_in,
-      wrf_snk_o            => wrf_snk_out,
-      wrf_snk_i            => wrf_snk_in,
-      dp_wrf_src_o         => dp_wrf_src_out,
-      dp_wrf_src_i         => dp_wrf_src_in,
-      dp_wrf_snk_o         => dp_wrf_snk_out,
-      dp_wrf_snk_i         => dp_wrf_snk_in,
-      timestamps_o         => timestamps_o,
-      timestamps_ack_i     => timestamps_ack_i,
-      abscal_txts_o        => abscal_txts_o,
-      abscal_rxts_o        => abscal_rxts_o,
-      fc_tx_pause_req_i    => fc_tx_pause_req_i,
-      fc_tx_pause_delay_i  => fc_tx_pause_delay_i,
-      fc_tx_pause_ready_o  => fc_tx_pause_ready_o,
-      tm_link_up_o         => tm_link_up_o,
-      tm_dac_value_o       => tm_dac_value_o,
-      tm_dac_wr_o          => tm_dac_wr_o,
-      tm_clk_aux_lock_en_i => tm_clk_aux_lock_en_i,
-      tm_clk_aux_locked_o  => tm_clk_aux_locked_o,
-      tm_time_valid_o      => tm_time_valid,
-      tm_tai_o             => tm_tai,
-      tm_cycles_o          => tm_cycles,
-      pps_valid_o          => pps_valid_o,
-      pps_csync_o          => pps_csync_o,
-      pps_p_o              => pps_p_o,
-      pps_led_o            => pps_led_o,
-      rst_aux_n_o          => aux_rst_n,
-      aux_diag_i           => aux_diag_in,
-      aux_diag_o           => aux_diag_out,
-      link_ok_o            => link_ok);
+      clk_20m_i               => clk_20m_i,
+      clk_sys_i               => clk_sys_i,
+      clk_dmtd_i              => clk_dmtd_i,
+      clk_ref_i               => clk_ref_i,
+      clk_aux_i               => clk_aux_i,
+      clk_ext_i               => clk_10m_ext_i,
+      clk_ext_mul_i           => clk_ext_mul_i,
+      clk_ext_mul_locked_i    => clk_ext_mul_locked_i,
+      clk_ext_stopped_i       => clk_ext_stopped_i,
+      clk_ext_rst_o           => clk_ext_rst_o,
+      pps_ext_i               => pps_ext_i,
+      rst_n_i                 => rst_n_i,
+      dac_hpll_load_p1_o      => dac_hpll_load_p1_o,
+      dac_hpll_data_o         => dac_hpll_data_o,
+      dac_dpll_load_p1_o      => dac_dpll_load_p1_o,
+      dac_dpll_data_o         => dac_dpll_data_o,
+      phy_ref_clk_i           => '0',
+      phy_tx_data_o           => open,
+      phy_tx_k_o              => open,
+      phy_tx_disparity_i      => '0',
+      phy_tx_enc_err_i        => '0',
+      phy_rx_data_i           => (others => '0'),
+      phy_rx_rbclk_i          => '0',
+      phy_rx_k_i              => (others => '0'),
+      phy_rx_enc_err_i        => '0',
+      phy_rx_bitslide_i       => (others => '0'),
+      phy_rst_o               => open,
+      phy_rdy_i               => '1',
+      phy_loopen_o            => open,
+      phy_loopen_vec_o        => open,
+      phy_tx_prbs_sel_o       => open,
+      phy_sfp_tx_fault_i      => '0',
+      phy_sfp_los_i           => '0',
+      phy_sfp_tx_disable_o    => open,
+      phy8_o                  => phy8_o,
+      phy8_i                  => phy8_i,
+      phy16_o                 => phy16_o,
+      phy16_i                 => phy16_i,
+      led_act_o               => led_act_o,
+      led_link_o              => led_link_o,
+      scl_o                   => scl_o,
+      scl_i                   => scl_i,
+      sda_o                   => sda_o,
+      sda_i                   => sda_i,
+      btn1_i                  => btn1_i,
+      btn2_i                  => btn2_i,
+      spi_sclk_o              => spi_sclk_o,
+      spi_ncs_o               => spi_ncs_o,
+      spi_mosi_o              => spi_mosi_o,
+      spi_miso_i              => spi_miso_i,
+      uart_rxd_i              => uart_rxd_i,
+      uart_txd_o              => uart_txd_o,
+      owr_pwren_o             => owr_pwren_o,
+      owr_en_o                => owr_en_o,
+      owr_i                   => owr_i,
+      slave_i                 => wb_slave_i,
+      slave_o                 => wb_slave_o,
+      aux_master_o            => aux_master_out,
+      aux_master_i            => aux_master_in,
+      wrf_src_o               => wrf_src_out,
+      wrf_src_i               => wrf_src_in,
+      wrf_snk_o               => wrf_snk_out,
+      wrf_snk_i               => wrf_snk_in,
+      timestamps_o            => timestamps_o,
+      timestamps_ack_i        => timestamps_ack_i,
+      abscal_txts_o           => abscal_txts_o,
+      abscal_rxts_o           => abscal_rxts_o,
+      fc_tx_pause_req_i       => fc_tx_pause_req_i,
+      fc_tx_pause_delay_i     => fc_tx_pause_delay_i,
+      fc_tx_pause_ready_o     => fc_tx_pause_ready_o,
+      tm_link_up_o            => tm_link_up_o,
+      tm_dac_value_o          => tm_dac_value_o,
+      tm_dac_wr_o             => tm_dac_wr_o,
+      tm_clk_aux_lock_en_i    => tm_clk_aux_lock_en_i,
+      tm_clk_aux_locked_o     => tm_clk_aux_locked_o,
+      tm_time_valid_o         => tm_time_valid,
+      tm_tai_o                => tm_tai,
+      tm_cycles_o             => tm_cycles,
+      pps_valid_o             => pps_valid_o,
+      pps_csync_o             => pps_csync_o,
+      pps_p_o                 => pps_p_o,
+      pps_led_o               => pps_led_o,
+      rst_aux_n_o             => aux_rst_n,
+      aux_diag_i              => aux_diag_in,
+      aux_diag_o              => aux_diag_out,
+      link_ok_o               => link_ok,
+      dp_phy8_o               => dp_phy8_o,
+      dp_phy8_i               => dp_phy8_i,
+      dp_phy16_o              => dp_phy16_o,
+      dp_phy16_i              => dp_phy16_i,
+      dp_sfp_scl_o            => dp_sfp_scl_o,
+      dp_sfp_scl_i            => dp_sfp_scl_i,
+      dp_sfp_sda_o            => dp_sfp_sda_o,
+      dp_sfp_sda_i            => dp_sfp_sda_i,
+      dp_sfp_det_i            => dp_sfp_det_i,
+      dp_wrf_src_o            => dp_wrf_src_out,
+      dp_wrf_src_i            => dp_wrf_src_in,
+      dp_wrf_snk_o            => dp_wrf_snk_out,
+      dp_wrf_snk_i            => dp_wrf_snk_in,
+      dp_phy_ref_clk_i        => '0',
+      dp_phy_tx_data_o        => open,
+      dp_phy_tx_k_o           => open,
+      dp_phy_tx_disparity_i   => '0',
+      dp_phy_tx_enc_err_i     => '0',
+      dp_phy_rx_data_i        => (others => '0'),
+      dp_phy_rx_rbclk_i       => '0',
+      dp_phy_rx_k_i           => (others => '0'),
+      dp_phy_rx_enc_err_i     => '0',
+      dp_phy_rx_bitslide_i    => (others => '0'),
+      dp_phy_rst_o            => open,
+      dp_phy_rdy_i            => '1',
+      dp_phy_loopen_o         => open,
+      dp_phy_loopen_vec_o     => open,
+      dp_phy_tx_prbs_sel_o    => open,
+      dp_phy_sfp_tx_fault_i   => '0',
+      dp_phy_sfp_los_i        => '0',
+      dp_phy_sfp_tx_disable_o => open,
+      dp_timestamps_o         => dp_timestamps_o,
+      dp_timestamps_ack_i     => dp_timestamps_ack_i,
+      dp_fc_tx_pause_req_i    => dp_fc_tx_pause_req_i,
+      dp_fc_tx_pause_delay_i  => dp_fc_tx_pause_delay_i,
+      dp_fc_tx_pause_ready_o  => dp_fc_tx_pause_ready_o
+      );
 
   link_ok_o       <= link_ok;
   tm_time_valid_o <= tm_time_valid;

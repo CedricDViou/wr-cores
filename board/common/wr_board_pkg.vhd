@@ -119,8 +119,10 @@ package wr_board_pkg is
       g_streamers_op_mode         : t_streamers_op_mode            := TX_AND_RX;
       g_tx_streamer_params        : t_tx_streamer_params           := c_tx_streamer_params_defaut;
       g_rx_streamer_params        : t_rx_streamer_params           := c_rx_streamer_params_defaut;
-      g_fabric_iface              : t_board_fabric_iface           := PLAIN);
+      g_fabric_iface              : t_board_fabric_iface           := PLAIN;
+      g_multiboot_enable          : boolean                        := false);
     port (
+      clk_20m_i            : in std_logic := '0';
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic;
       clk_ref_i            : in  std_logic;
@@ -205,7 +207,26 @@ package wr_board_pkg is
       pps_csync_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic);
+      link_ok_o            : out std_logic;
+      dp_phy8_o            : out t_phy_8bits_from_wrc;
+      dp_phy8_i            : in  t_phy_8bits_to_wrc                               := c_dummy_phy8_to_wrc;
+      dp_phy16_o           : out t_phy_16bits_from_wrc;
+      dp_phy16_i           : in  t_phy_16bits_to_wrc                              := c_dummy_phy16_to_wrc;
+      dp_sfp_scl_o         : out std_logic;
+      dp_sfp_scl_i         : in  std_logic                                        := '1';
+      dp_sfp_sda_o         : out std_logic;
+      dp_sfp_sda_i         : in  std_logic                                        := '1';
+      dp_sfp_det_i         : in  std_logic                                        := '1';
+      dp_wrf_src_o         : out t_wrf_source_out;
+      dp_wrf_src_i         : in  t_wrf_source_in                                  := c_dummy_src_in;
+      dp_wrf_snk_o         : out t_wrf_sink_out;
+      dp_wrf_snk_i         : in  t_wrf_sink_in                                    := c_dummy_snk_in;
+      dp_timestamps_o         : out t_txtsu_timestamp;
+      dp_timestamps_ack_i     : in  std_logic := '1';
+      dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+      dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_fc_tx_pause_ready_o  : out std_logic
+      );
   end component xwrc_board_common;
 
 end wr_board_pkg;

@@ -113,6 +113,22 @@ package wrcore_pkg is
         version   => x"00000001",
         date      => x"20120305",
         name      => "WR-Mini-NIC        ")));
+  
+  constant c_dp_xwr_mini_nic_sdb : t_sdb_device := (
+    abi_class     => x"0000",              -- undocumented device
+    abi_ver_major => x"01",
+    abi_ver_minor => x"01",
+    wbd_endian    => c_sdb_endian_big,
+    wbd_width     => x"7",                 -- 8/16/32-bit port granularity
+    sdb_component => (
+      addr_first  => x"0000000000000000",
+      addr_last   => x"00000000000000ff",
+      product     => (
+        vendor_id => x"000000000000CE42",  -- CERN
+        device_id => x"a224633b",
+        version   => x"00000001",
+        date      => x"20120305",
+        name      => "WR-Mini-NIC-DP     ")));
 
   component xwr_mini_nic
     generic (
@@ -383,8 +399,10 @@ package wrcore_pkg is
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
-      g_diag_rw_size              : integer                        := 0);
+      g_diag_rw_size              : integer                        := 0;
+      g_multiboot_enable          : boolean                        := FALSE);
     port(
+      clk_20m_i            : in std_logic := '0';
       clk_sys_i            : in std_logic;
       clk_dmtd_i           : in std_logic := '0';
       clk_ref_i            : in std_logic;
@@ -430,12 +448,6 @@ package wrcore_pkg is
       phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
       phy16_o : out t_phy_16bits_from_wrc;
       phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-      
-      dp_phy8_o  : out t_phy_8bits_from_wrc;
-      dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
-      dp_phy16_o : out t_phy_16bits_from_wrc;
-      dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-
       led_act_o  : out std_logic;
       led_link_o : out std_logic;
       scl_o      : out std_logic;
@@ -447,13 +459,6 @@ package wrcore_pkg is
       sfp_sda_o  : out std_logic;
       sfp_sda_i  : in  std_logic := 'H';
       sfp_det_i  : in  std_logic := '1';
-
-      dp_sfp_scl_o  : out std_logic;
-      dp_sfp_scl_i  : in  std_logic := 'H';
-      dp_sfp_sda_o  : out std_logic;
-      dp_sfp_sda_i  : in  std_logic := 'H';
-      dp_sfp_det_i  : in  std_logic := '1';
-
       btn1_i     : in  std_logic := 'H';
       btn2_i     : in  std_logic := 'H';
       spi_sclk_o : out std_logic;
@@ -478,11 +483,6 @@ package wrcore_pkg is
       wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
       wrf_snk_o : out t_wrf_sink_out;
       wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
-
-      dp_wrf_src_o : out t_wrf_source_out;
-      dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
-      dp_wrf_snk_o : out t_wrf_sink_out;
-      dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
 
       timestamps_o     : out t_txtsu_timestamp;
       timestamps_ack_i : in  std_logic := '1';
@@ -511,6 +511,42 @@ package wrcore_pkg is
 
       link_ok_o : out std_logic;
 
+      dp_phy8_o               : out t_phy_8bits_from_wrc;
+      dp_phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+      dp_phy16_o              : out t_phy_16bits_from_wrc;
+      dp_phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+      dp_sfp_scl_o            : out std_logic;
+      dp_sfp_scl_i            : in  std_logic := 'H';
+      dp_sfp_sda_o            : out std_logic;
+      dp_sfp_sda_i            : in  std_logic := 'H';
+      dp_sfp_det_i            : in  std_logic := '1';
+      dp_wrf_src_o            : out t_wrf_source_out;
+      dp_wrf_src_i            : in  t_wrf_source_in := c_dummy_src_in;
+      dp_wrf_snk_o            : out t_wrf_sink_out;
+      dp_wrf_snk_i            : in  t_wrf_sink_in   := c_dummy_snk_in;
+      dp_phy_ref_clk_i        : in  std_logic;
+      dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_disparity_i   : in  std_logic;
+      dp_phy_tx_enc_err_i     : in  std_logic;
+      dp_phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_rbclk_i       : in  std_logic;
+      dp_phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_enc_err_i     : in  std_logic;
+      dp_phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rst_o            : out std_logic;
+      dp_phy_rdy_i            : in  std_logic := '1';
+      dp_phy_loopen_o         : out std_logic;
+      dp_phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
+      dp_phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
+      dp_phy_sfp_tx_fault_i   : in  std_logic := '0';
+      dp_phy_sfp_los_i        : in  std_logic := '0';
+      dp_phy_sfp_tx_disable_o : out std_logic;
+      dp_timestamps_o         : out t_txtsu_timestamp;
+      dp_timestamps_ack_i     : in  std_logic := '1';
+      dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+      dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_fc_tx_pause_ready_o  : out std_logic;
       aux_diag_i : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others=>(others=>'0'));
       aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0)
       );
@@ -544,12 +580,15 @@ package wrcore_pkg is
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
-      g_diag_rw_size              : integer                        := 0);
+      g_diag_rw_size              : integer                        := 0;
+      g_multiboot_enable          : boolean                        := FALSE);
     port(
       ---------------------------------------------------------------------------
       -- Clocks/resets
       ---------------------------------------------------------------------------
-
+      -- 20m clock for multiboot module
+      clk_20m_i : in std_logic := '0';
+      
       -- system reference clock (any frequency <= f(clk_ref_i))
       clk_sys_i : in std_logic;
 
@@ -616,11 +655,6 @@ package wrcore_pkg is
       phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
       phy16_o : out t_phy_16bits_from_wrc;
       phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-      
-      dp_phy8_o  : out t_phy_8bits_from_wrc;
-      dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
-      dp_phy16_o : out t_phy_16bits_from_wrc;
-      dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
 
       -----------------------------------------
       --GPIO
@@ -636,12 +670,6 @@ package wrcore_pkg is
       sfp_sda_o  : out std_logic;
       sfp_sda_i  : in  std_logic := '1';
       sfp_det_i  : in  std_logic := '1';
-
-      dp_sfp_scl_o  : out std_logic;
-      dp_sfp_scl_i  : in  std_logic := '1';
-      dp_sfp_sda_o  : out std_logic;
-      dp_sfp_sda_i  : in  std_logic := '1';
-      dp_sfp_det_i  : in  std_logic := '1';
 
       btn1_i     : in  std_logic := '1';
       btn2_i     : in  std_logic := '1';
@@ -714,29 +742,6 @@ package wrcore_pkg is
       ext_src_err_i   : in  std_logic := '0';
       ext_src_stall_i : in  std_logic := '0';
 
-      -----------------------------------------
-      -- Another External Fabric I/F
-      -----------------------------------------
-      dp_ext_snk_adr_i   : in  std_logic_vector(1 downto 0)  := "00";
-      dp_ext_snk_dat_i   : in  std_logic_vector(15 downto 0) := x"0000";
-      dp_ext_snk_sel_i   : in  std_logic_vector(1 downto 0)  := "00";
-      dp_ext_snk_cyc_i   : in  std_logic                     := '0';
-      dp_ext_snk_we_i    : in  std_logic                     := '0';
-      dp_ext_snk_stb_i   : in  std_logic                     := '0';
-      dp_ext_snk_ack_o   : out std_logic;
-      dp_ext_snk_err_o   : out std_logic;
-      dp_ext_snk_stall_o : out std_logic;
-
-      dp_ext_src_adr_o   : out std_logic_vector(1 downto 0);
-      dp_ext_src_dat_o   : out std_logic_vector(15 downto 0);
-      dp_ext_src_sel_o   : out std_logic_vector(1 downto 0);
-      dp_ext_src_cyc_o   : out std_logic;
-      dp_ext_src_stb_o   : out std_logic;
-      dp_ext_src_we_o    : out std_logic;
-      dp_ext_src_ack_i   : in  std_logic := '1';
-      dp_ext_src_err_i   : in  std_logic := '0';
-      dp_ext_src_stall_i : in  std_logic := '0';
-
       ------------------------------------------
       -- External TX Timestamp I/F
       ------------------------------------------
@@ -785,6 +790,60 @@ package wrcore_pkg is
 
       link_ok_o : out std_logic;
 
+      dp_phy8_o               : out t_phy_8bits_from_wrc;
+      dp_phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+      dp_phy16_o              : out t_phy_16bits_from_wrc;
+      dp_phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+      dp_sfp_scl_o            : out std_logic;
+      dp_sfp_scl_i            : in  std_logic := '1';
+      dp_sfp_sda_o            : out std_logic;
+      dp_sfp_sda_i            : in  std_logic := '1';
+      dp_sfp_det_i            : in  std_logic := '1';
+      dp_ext_snk_adr_i        : in  std_logic_vector(1 downto 0)  := "00";
+      dp_ext_snk_dat_i        : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_ext_snk_sel_i        : in  std_logic_vector(1 downto 0)  := "00";
+      dp_ext_snk_cyc_i        : in  std_logic                     := '0';
+      dp_ext_snk_we_i         : in  std_logic                     := '0';
+      dp_ext_snk_stb_i        : in  std_logic                     := '0';
+      dp_ext_snk_ack_o        : out std_logic;
+      dp_ext_snk_err_o        : out std_logic;
+      dp_ext_snk_stall_o      : out std_logic;
+      dp_ext_src_adr_o        : out std_logic_vector(1 downto 0);
+      dp_ext_src_dat_o        : out std_logic_vector(15 downto 0);
+      dp_ext_src_sel_o        : out std_logic_vector(1 downto 0);
+      dp_ext_src_cyc_o        : out std_logic;
+      dp_ext_src_stb_o        : out std_logic;
+      dp_ext_src_we_o         : out std_logic;
+      dp_ext_src_ack_i        : in  std_logic := '1';
+      dp_ext_src_err_i        : in  std_logic := '0';
+      dp_ext_src_stall_i      : in  std_logic := '0';
+      dp_phy_ref_clk_i        : in  std_logic;
+      dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_disparity_i   : in  std_logic;
+      dp_phy_tx_enc_err_i     : in  std_logic;
+      dp_phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_rbclk_i       : in  std_logic;
+      dp_phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_enc_err_i     : in  std_logic;
+      dp_phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rst_o            : out std_logic;
+      dp_phy_rdy_i            : in  std_logic := '1';
+      dp_phy_loopen_o         : out std_logic;
+      dp_phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
+      dp_phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
+      dp_phy_sfp_tx_fault_i   : in  std_logic := '0';
+      dp_phy_sfp_los_i        : in  std_logic := '0';
+      dp_phy_sfp_tx_disable_o : out std_logic;
+      dp_txtsu_port_id_o      : out std_logic_vector(4 downto 0);
+      dp_txtsu_frame_id_o     : out std_logic_vector(15 downto 0);
+      dp_txtsu_ts_value_o     : out std_logic_vector(31 downto 0);
+      dp_txtsu_ts_incorrect_o : out std_logic;
+      dp_txtsu_stb_o          : out std_logic;
+      dp_txtsu_ack_i          : in  std_logic := '1';
+      dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+      dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_fc_tx_pause_ready_o  : out std_logic;
       -------------------------------------
       -- DIAG to/from external modules
       -------------------------------------

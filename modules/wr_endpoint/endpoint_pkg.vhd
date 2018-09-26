@@ -422,6 +422,22 @@ package endpoint_pkg is
         date      => x"20121116",
         name      => "WR-Endpoint        ")));
 
+  constant c_dp_xwr_endpoint_sdb : t_sdb_device := (
+    abi_class     => x"0000",              -- undocumented device
+    abi_ver_major => x"01",
+    abi_ver_minor => x"01",
+    wbd_endian    => c_sdb_endian_big,
+    wbd_width     => x"7",                 -- 8/16/32-bit port granularity
+    sdb_component => (
+      addr_first  => x"0000000000000000",
+      addr_last   => x"00000000000000ff",
+      product     => (
+        vendor_id => x"000000000000CE42",  -- CERN
+        device_id => x"650c2d4e",
+        version   => x"00000002",
+        date      => x"20121116",
+        name      => "WR-Endpoint        ")));
+
 end endpoint_pkg;
 
 package body endpoint_pkg is

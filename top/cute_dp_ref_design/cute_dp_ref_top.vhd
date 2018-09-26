@@ -3,7 +3,7 @@
 -- Project    : WR PTP Core
 -- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
 -------------------------------------------------------------------------------
--- File       : cute_wr_ref_top.vhd
+-- File       : cute_dp_ref_top.vhd
 -- Author(s)  : Hongming Li <lihm.thu@foxmail.com>
 --              Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : Tsinghua Univ. (DEP), CERN
@@ -58,12 +58,11 @@ use work.wr_cute_pkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
-entity cute_wr_ref_top is
+entity cute_dp_ref_top is
   generic (
     g_dpram_initf : string := "../../bin/wrpc/wrc_dp_phy8.bram";
     g_cute_version       : string:= "2.2";
-    g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
-    g_multiboot_enable   : boolean:= false
+    g_multiboot_enable   : boolean:= true
   );
   port (
     ---------------------------------------------------------------------------
@@ -104,7 +103,8 @@ entity cute_wr_ref_top is
     sfp0_sda           : inout std_logic;  -- sda
     sfp0_tx_fault      : in    std_logic;
     sfp0_tx_disable    : out   std_logic;
-    sfp0_los           : in    std_logic;  
+    sfp0_los           : in    std_logic;
+
     sfp1_tx_p          : out   std_logic;
     sfp1_tx_n          : out   std_logic;
     sfp1_rx_p          : in    std_logic;
@@ -114,7 +114,7 @@ entity cute_wr_ref_top is
     sfp1_sda           : inout std_logic;  -- sda
     sfp1_tx_fault      : in    std_logic;
     sfp1_tx_disable    : out   std_logic;
-    sfp1_tx_los        : in    std_logic;
+    sfp1_los           : in    std_logic;
   
     ---------------------------------------------------------------------------
     -- Onewire interface
@@ -154,9 +154,9 @@ entity cute_wr_ref_top is
     usr_led2           : out std_logic;
     pps_out            : out std_logic
   );
-end cute_wr_ref_top;
+end cute_dp_ref_top;
 
-architecture rtl of cute_wr_ref_top is
+architecture rtl of cute_dp_ref_top is
   
   component oserdes_4_to_1 is
     generic(
@@ -238,9 +238,9 @@ begin
   u_wr_core : xwrc_board_cute
     generic map(
       g_dpram_initf      => g_dpram_initf,
-      g_sfp0_enable      => g_sfp0_enable,
-      g_sfp1_enable      => g_sfp1_enable,
-      g_aux_sdb          => g_aux_sdb,
+      g_sfp0_enable      => 1,
+      g_sfp1_enable      => 1,
+      g_aux_sdb          => c_xwb_tcpip_sdb,
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,
       g_multiboot_enable => g_multiboot_enable)
@@ -290,7 +290,7 @@ begin
       sfp1_rate_select_o  => open,
       sfp1_tx_fault_i     => sfp1_tx_fault,
       sfp1_tx_disable_o   => sfp1_tx_disable,
-      sfp1_los_i          => sfp1_tx_los,
+      sfp1_los_i          => sfp1_los,
   
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,

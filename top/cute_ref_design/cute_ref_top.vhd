@@ -64,8 +64,8 @@ entity cute_ref_top is
     g_sfp0_enable : integer:= 1;
     g_sfp1_enable : integer:= 0;
     g_cute_version       : string:= "2.2";
-    g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
-    g_multiboot_enable   : boolean:= false
+    g_aux_sdb            : t_sdb_device  := c_xwb_tcpip_sdb;
+    g_multiboot_enable   : boolean:= true
   );
   port (
     ---------------------------------------------------------------------------

@@ -279,8 +279,18 @@ entity xwrc_board_cute is
     pps_led_o  : out std_logic;
     pps_csync_o: out std_logic;
     pll_locked_o : out std_logic;
-    -- Link ok indication
-    link_ok_o  : out std_logic
+    link_ok_o  : out std_logic;
+
+    dp_wrf_src_o : out t_wrf_source_out;
+    dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
+    dp_wrf_snk_o : out t_wrf_sink_out;
+    dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
+
+    dp_timestamps_o     : out t_txtsu_timestamp;
+    dp_timestamps_ack_i : in  std_logic := '1';
+    dp_fc_tx_pause_req_i   : in  std_logic                     := '0';
+    dp_fc_tx_pause_delay_i : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_fc_tx_pause_ready_o : out std_logic
     );
 
 end entity xwrc_board_cute;
@@ -320,12 +330,13 @@ architecture struct of xwrc_board_cute is
   -- PLLs, clocks
   signal clk_125m_gtp_p : std_logic;
   signal clk_125m_gtp_n : std_logic;
-  signal clk_pll_62m5 : std_logic;
-  signal clk_pll_125m : std_logic;
-  signal clk_pll_500m : std_logic;
-  signal clk_pll_dmtd : std_logic;
-  signal pll_locked   : std_logic;
-  signal clk_10m_ext  : std_logic;
+  signal clk_pll_20m    : std_logic;
+  signal clk_pll_62m5   : std_logic;
+  signal clk_pll_125m   : std_logic;
+  signal clk_pll_500m   : std_logic;
+  signal clk_pll_dmtd   : std_logic;
+  signal pll_locked     : std_logic;
+  signal clk_10m_ext    : std_logic;
 
   -- Reset logic
   signal areset_edge_ppulse : std_logic;
@@ -371,14 +382,24 @@ architecture struct of xwrc_board_cute is
   signal sfp_tx_fault_in     : std_logic;
   signal sfp_tx_disable_out  : std_logic;
   signal sfp_los_in          : std_logic;
+  
+  signal dp_sfp_txp_out         : std_logic;
+  signal dp_sfp_txn_out         : std_logic;
+  signal dp_sfp_rxp_in          : std_logic;
+  signal dp_sfp_rxn_in          : std_logic;
+  signal dp_sfp_det_in          : std_logic;
+  signal dp_sfp_sda_in          : std_logic;
+  signal dp_sfp_sda_out         : std_logic;
+  signal dp_sfp_scl_in          : std_logic;
+  signal dp_sfp_scl_out         : std_logic;
+  signal dp_sfp_tx_fault_in     : std_logic;
+  signal dp_sfp_tx_disable_out  : std_logic;
+  signal dp_sfp_los_in          : std_logic;
+
+  signal dp_phy8_to_wrc   : t_phy_8bits_to_wrc;
+  signal dp_phy8_from_wrc : t_phy_8bits_from_wrc;
 
   signal tm_time_valid : std_logic;
- 
-  signal aux_master_out  :  t_wishbone_master_out;
-  signal aux_master_in   :  t_wishbone_master_in := cc_dummy_master_in;
-
-  signal multiboot_slave_out : t_wishbone_slave_out;
-  signal multiboot_slave_in  : t_wishbone_slave_in := cc_dummy_slave_in;
 
 begin  -- architecture struct
 
@@ -422,6 +443,7 @@ begin  -- architecture struct
       clk_62m5_sys_o        => clk_pll_62m5,
       clk_125m_ref_o        => clk_pll_125m,
       clk_500m_o            => clk_pll_500m,
+      clk_20m_o             => clk_pll_20m,
       clk_62m5_dmtd_o       => clk_pll_dmtd,
       pll_locked_o          => pll_locked,
       clk_10m_ext_o         => clk_10m_ext,
@@ -493,8 +515,21 @@ begin  -- architecture struct
     sfp_scl_in         <= sfp0_scl_i;
     sfp_tx_fault_in    <= sfp0_tx_fault_i;
     sfp_los_in         <= sfp0_los_i;
+    
+    sfp1_txp_o         <= dp_sfp_txp_out;
+    sfp1_txn_o         <= dp_sfp_txn_out;
+    sfp1_sda_o         <= dp_sfp_sda_out;
+    sfp1_scl_o         <= dp_sfp_scl_out;
+    sfp1_tx_disable_o  <= dp_sfp_tx_disable_out;
+    dp_sfp_rxp_in      <= sfp1_rxp_i;
+    dp_sfp_rxn_in      <= sfp1_rxn_i;
+    dp_sfp_det_in      <= sfp1_det_i;
+    dp_sfp_sda_in      <= sfp1_sda_i;
+    dp_sfp_scl_in      <= sfp1_scl_i;
+    dp_sfp_tx_fault_in <= sfp1_tx_fault_i;
+    dp_sfp_los_in      <= sfp1_los_i;
 
-    cmp_xwrc_platform_dp : xwrc_platform_xilinx
+    dp_cmp_xwrc_platform : xwrc_platform_xilinx
       generic map (
         g_fpga_family               => "spartan6",
         g_with_external_clock_input => false,
@@ -508,15 +543,15 @@ begin  -- architecture struct
         clk_125m_gtp_p_i      => clk_125m_gtp1_p_i,
         clk_125m_gtp_n_i      => clk_125m_gtp1_n_i,
         clk_125m_ref_i        => clk_pll_125m,
-        sfp_txn_o             => sfp1_txn_o,
-        sfp_txp_o             => sfp1_txp_o,
-        sfp_rxn_i             => sfp1_rxn_i,
-        sfp_rxp_i             => sfp1_rxp_i,
-        sfp_tx_fault_i        => sfp1_tx_fault_i,
-        sfp_los_i             => sfp1_los_i,
-        sfp_tx_disable_o      => sfp1_tx_disable_o,
-        phy8_o                => phy8_to_wrc,
-        phy8_i                => phy8_from_wrc);
+        sfp_txn_o             => dp_sfp_txn_out,
+        sfp_txp_o             => dp_sfp_txp_out,
+        sfp_rxn_i             => dp_sfp_rxn_in,
+        sfp_rxp_i             => dp_sfp_rxp_in,
+        sfp_tx_fault_i        => dp_sfp_tx_fault_in,
+        sfp_los_i             => dp_sfp_los_in,
+        sfp_tx_disable_o      => dp_sfp_tx_disable_out,
+        phy8_o                => dp_phy8_to_wrc,
+        phy8_i                => dp_phy8_from_wrc);
 
   end generate;
 
@@ -629,9 +664,11 @@ begin  -- architecture struct
       g_streamers_op_mode         => g_streamers_op_mode,
       g_tx_streamer_params        => g_tx_streamer_params,
       g_rx_streamer_params        => g_rx_streamer_params,
-      g_fabric_iface              => g_fabric_iface
+      g_fabric_iface              => g_fabric_iface,
+      g_multiboot_enable          => g_multiboot_enable
       )
     port map (
+      clk_20m_i            => clk_pll_20m,
       clk_sys_i            => clk_pll_62m5,
       clk_dmtd_i           => clk_pll_dmtd,
       clk_ref_i            => clk_pll_125m,
@@ -669,8 +706,8 @@ begin  -- architecture struct
       owr_i                => onewire_in,
       wb_slave_i           => wb_slave_i,
       wb_slave_o           => wb_slave_o,
-      aux_master_o         => aux_master_out,
-      aux_master_i         => aux_master_in,
+      aux_master_o         => aux_master_o,
+      aux_master_i         => aux_master_i,
       wrf_src_o            => wrf_src_o,
       wrf_src_i            => wrf_src_i,
       wrf_snk_o            => wrf_snk_o,
@@ -713,7 +750,24 @@ begin  -- architecture struct
       pps_p_o              => pps_p_o,
       pps_csync_o          => pps_csync_o,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o);
+      link_ok_o            => link_ok_o,
+      dp_phy8_o            => dp_phy8_from_wrc,
+      dp_phy8_i            => dp_phy8_to_wrc,
+      dp_sfp_scl_o         => dp_sfp_scl_out,
+      dp_sfp_scl_i         => dp_sfp_scl_in,
+      dp_sfp_sda_o         => dp_sfp_sda_out,
+      dp_sfp_sda_i         => dp_sfp_sda_in,
+      dp_sfp_det_i         => dp_sfp_det_in,
+      dp_wrf_src_o         => dp_wrf_src_o,
+      dp_wrf_src_i         => dp_wrf_src_i,
+      dp_wrf_snk_o         => dp_wrf_snk_o,
+      dp_wrf_snk_i         => dp_wrf_snk_i,
+      dp_timestamps_o         => dp_timestamps_o,
+      dp_timestamps_ack_i     => dp_timestamps_ack_i,
+      dp_fc_tx_pause_req_i    => dp_fc_tx_pause_req_i,
+      dp_fc_tx_pause_delay_i  => dp_fc_tx_pause_delay_i,
+      dp_fc_tx_pause_ready_o  => dp_fc_tx_pause_ready_o
+      );
 
   tm_time_valid_o <= tm_time_valid;
   pps_valid_o     <= tm_time_valid;
@@ -722,29 +776,5 @@ begin  -- architecture struct
   onewire_oen_o <= onewire_en(0);
   onewire_in(0) <= onewire_i;
   onewire_in(1) <= '1';
-
-U_WRPC_MULTIBOOT: if (g_multiboot_enable = true) generate
-
-  multiboot_slave_in   <= aux_master_out;
-  aux_master_in        <= multiboot_slave_out;
-  aux_master_o         <= cc_dummy_master_out;
-
-  u_multiboot: xwb_xil_multiboot
-    port map (
-      clk_i   => clk_pll_62m5,
-      rst_n_i => rst_62m5_n,
-      wbs_i   => multiboot_slave_in,
-      wbs_o   => multiboot_slave_out,
-      spi_cs_n_o => open,
-      spi_sclk_o => open,
-      spi_mosi_o => open,
-      spi_miso_i => '0');
-
-end generate;
-
-U_WRPC_NO_MULTIBOOT: if (g_multiboot_enable = false) generate
-  aux_master_o   <= aux_master_out;
-  aux_master_in  <= aux_master_i;
-end generate;
 
 end architecture struct;

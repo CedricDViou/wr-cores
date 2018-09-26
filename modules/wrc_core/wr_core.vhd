@@ -92,16 +92,20 @@ entity wr_core is
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
+    g_with_dualport             : boolean                        := false;
     g_records_for_phy           : boolean                        := false;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
-    g_diag_rw_size              : integer                        := 0);
+    g_diag_rw_size              : integer                        := 0;
+    g_multiboot_enable          : boolean                        := FALSE);
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
     ---------------------------------------------------------------------------
-
+    -- 20m clock for multiboot module
+    clk_20m_i : in std_logic;
+    
     -- system reference clock (any frequency <= f(clk_ref_i))
     clk_sys_i : in std_logic;
 
@@ -299,6 +303,60 @@ entity wr_core is
 
     link_ok_o : out std_logic;
 
+    dp_phy8_o               : out t_phy_8bits_from_wrc;
+    dp_phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+    dp_phy16_o              : out t_phy_16bits_from_wrc;
+    dp_phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+    dp_sfp_scl_o            : out std_logic;
+    dp_sfp_scl_i            : in  std_logic := '1';
+    dp_sfp_sda_o            : out std_logic;
+    dp_sfp_sda_i            : in  std_logic := '1';
+    dp_sfp_det_i            : in  std_logic := '1';
+    dp_ext_snk_adr_i        : in  std_logic_vector(1 downto 0)  := "00";
+    dp_ext_snk_dat_i        : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_ext_snk_sel_i        : in  std_logic_vector(1 downto 0)  := "00";
+    dp_ext_snk_cyc_i        : in  std_logic                     := '0';
+    dp_ext_snk_we_i         : in  std_logic                     := '0';
+    dp_ext_snk_stb_i        : in  std_logic                     := '0';
+    dp_ext_snk_ack_o        : out std_logic;
+    dp_ext_snk_err_o        : out std_logic;
+    dp_ext_snk_stall_o      : out std_logic;
+    dp_ext_src_adr_o        : out std_logic_vector(1 downto 0);
+    dp_ext_src_dat_o        : out std_logic_vector(15 downto 0);
+    dp_ext_src_sel_o        : out std_logic_vector(1 downto 0);
+    dp_ext_src_cyc_o        : out std_logic;
+    dp_ext_src_stb_o        : out std_logic;
+    dp_ext_src_we_o         : out std_logic;
+    dp_ext_src_ack_i        : in  std_logic := '1';
+    dp_ext_src_err_i        : in  std_logic := '0';
+    dp_ext_src_stall_i      : in  std_logic := '0';
+    dp_phy_ref_clk_i        : in  std_logic;
+    dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_tx_disparity_i   : in  std_logic;
+    dp_phy_tx_enc_err_i     : in  std_logic;
+    dp_phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_rx_rbclk_i       : in  std_logic;
+    dp_phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_rx_enc_err_i     : in  std_logic;
+    dp_phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_rst_o            : out std_logic;
+    dp_phy_rdy_i            : in  std_logic := '1';
+    dp_phy_loopen_o         : out std_logic;
+    dp_phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
+    dp_phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
+    dp_phy_sfp_tx_fault_i   : in  std_logic := '0';
+    dp_phy_sfp_los_i        : in  std_logic := '0';
+    dp_phy_sfp_tx_disable_o : out std_logic;
+    dp_txtsu_port_id_o      : out std_logic_vector(4 downto 0);
+    dp_txtsu_frame_id_o     : out std_logic_vector(15 downto 0);
+    dp_txtsu_ts_value_o     : out std_logic_vector(31 downto 0);
+    dp_txtsu_ts_incorrect_o : out std_logic;
+    dp_txtsu_stb_o          : out std_logic;
+    dp_txtsu_ack_i          : in  std_logic := '1';
+    dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+    dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_fc_tx_pause_ready_o  : out std_logic;
     -------------------------------------
     -- DIAG to/from external modules
     -------------------------------------
@@ -406,7 +464,8 @@ architecture struct of wr_core is
   -----------------------------------------------------------------------------
   --WB Secondary Crossbar
   -----------------------------------------------------------------------------
-  constant c_secbar_layout : t_sdb_record_array(8 downto 0) :=
+  constant c_nr_slaves_secbar : natural := 12;
+  constant c_secbar_layout : t_sdb_record_array(c_nr_slaves_secbar-1 downto 0) :=
     (0 => f_sdb_embed_device(c_xwr_mini_nic_sdb, x"00000000"),
      1 => f_sdb_embed_device(c_xwr_endpoint_sdb, x"00000100"),
      2 => f_sdb_embed_device(c_xwr_softpll_ng_sdb, x"00000200"),
@@ -414,16 +473,19 @@ architecture struct of wr_core is
      4 => f_sdb_embed_device(c_wrc_periph0_sdb, x"00000400"),  -- Syscon
      5 => f_sdb_embed_device(c_wrc_periph1_sdb, x"00000500"),  -- UART
      6 => f_sdb_embed_device(c_wrc_periph2_sdb, x"00000600"),  -- 1-Wire
-     7 => f_sdb_embed_device(g_aux_sdb,         x"00000700"),  -- aux WB bus
-     8 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800")   -- WRPC diag registers
+     7 => f_sdb_embed_device(g_aux_sdb,        x"00000700"),   -- aux WB bus
+     8 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800"),  -- WRPC diag registers     
+     9 => f_sdb_embed_device(c_dp_xwr_mini_nic_sdb, x"00000900"), -- dualport nic
+     10=> f_sdb_embed_device(c_dp_xwr_endpoint_sdb, x"00000A00"), -- dualport endpoint
+     11=> f_sdb_embed_device(c_xwb_xil_multiboot_sdb, x"00000B00")-- multiboot
      );
 
-  constant c_secbar_sdb_address : t_wishbone_address := x"00000C00";
+  constant c_secbar_sdb_address : t_wishbone_address := x"00001000";
   constant c_secbar_bridge_sdb  : t_sdb_bridge       :=
     f_xwb_bridge_layout_sdb(true, c_secbar_layout, c_secbar_sdb_address);
 
-  signal secbar_master_i : t_wishbone_master_in_array(8 downto 0);
-  signal secbar_master_o : t_wishbone_master_out_array(8 downto 0);
+  signal secbar_master_i : t_wishbone_master_in_array(c_nr_slaves_secbar-1 downto 0);
+  signal secbar_master_o : t_wishbone_master_out_array(c_nr_slaves_secbar-1 downto 0);
 
   -----------------------------------------------------------------------------
   --WB intercon
@@ -476,7 +538,6 @@ architecture struct of wr_core is
   signal ep_snk_out : t_wrf_sink_out;
   signal ep_snk_in  : t_wrf_sink_in;
 
-
   signal mux_src_out : t_wrf_source_out_array(1 downto 0);
   signal mux_src_in  : t_wrf_source_in_array(1 downto 0);
   signal mux_snk_out : t_wrf_sink_out_array(1 downto 0);
@@ -491,6 +552,43 @@ architecture struct of wr_core is
 
   signal clk_fb     : std_logic_vector(g_aux_clks downto 0);
   signal out_enable : std_logic_vector(g_aux_clks downto 0);
+  
+  signal multiboot_slave_out : t_wishbone_slave_out;
+  signal multiboot_slave_in  : t_wishbone_slave_in := cc_dummy_slave_in;
+  
+  signal multiboot_wb_out  : t_wishbone_master_out;
+  signal multiboot_wb_in   : t_wishbone_master_in;
+
+  signal dp_phy_rst                : std_logic;
+  signal dp_phy_rx_clk             : std_logic;
+  signal dp_phy_tx_clk             : std_logic;
+  signal dp_ep_txtsu_port_id       : std_logic_vector(4 downto 0);
+  signal dp_ep_txtsu_frame_id      : std_logic_vector(15 downto 0);
+  signal dp_ep_txtsu_ts_value      : std_logic_vector(31 downto 0);
+  signal dp_ep_txtsu_ts_incorrect  : std_logic;
+  signal dp_ep_txtsu_stb           : std_logic;
+  signal dp_ep_txtsu_ack           : std_logic;
+  signal dp_ep_led_link            : std_logic;
+  signal dp_mnic_mem_data_o        : std_logic_vector(31 downto 0);
+  signal dp_mnic_mem_addr_o        : std_logic_vector(c_mnic_memsize_log2-1 downto 0);
+  signal dp_mnic_mem_wr_o          : std_logic;
+  signal dp_mnic_txtsu_ack         : std_logic;
+  signal dp_mnic_txtsu_stb         : std_logic;
+  signal dp_ep_wb_in               : t_wishbone_slave_in;
+  signal dp_ep_wb_out              : t_wishbone_slave_out;
+  signal dp_minic_wb_in            : t_wishbone_slave_in;
+  signal dp_minic_wb_out           : t_wishbone_slave_out;
+  signal dp_ep_src_out             : t_wrf_source_out;
+  signal dp_ep_src_in              : t_wrf_source_in;
+  signal dp_ep_snk_out             : t_wrf_sink_out;
+  signal dp_ep_snk_in              : t_wrf_sink_in;
+  signal dp_mux_src_out            : t_wrf_source_out_array(1 downto 0);
+  signal dp_mux_src_in             : t_wrf_source_in_array(1 downto 0);
+  signal dp_mux_snk_out            : t_wrf_sink_out_array(1 downto 0);
+  signal dp_mux_snk_in             : t_wrf_sink_in_array(1 downto 0);
+  signal dp_mux_class              : t_wrf_mux_class(1 downto 0);
+
+
 
   --component chipscope_ila
   --  port (
@@ -522,16 +620,28 @@ begin
   GEN_16BIT_PHY_IF: if g_pcs_16bit and g_records_for_phy generate
     phy_rx_clk <= phy16_i.rx_clk;
     phy_tx_clk <= phy16_i.ref_clk;
+
+    dp_phy_rx_clk <= dp_phy16_i.rx_clk;
+    dp_phy_tx_clk <= dp_phy16_i.ref_clk;
+
   end generate;
 
   GEN_8BIT_PHY_IF: if not g_pcs_16bit and g_records_for_phy generate
     phy_rx_clk <= phy8_i.rx_clk;
     phy_tx_clk <= phy8_i.ref_clk;
+
+    dp_phy_rx_clk <= dp_phy8_i.rx_clk;
+    dp_phy_tx_clk <= dp_phy8_i.ref_clk;
+
   end generate;
 
   GEN_STD_PHY_IF: if not g_records_for_phy generate
     phy_rx_clk <= phy_rx_rbclk_i;
     phy_tx_clk <= phy_ref_clk_i;
+
+    dp_phy_rx_clk <= phy_rx_rbclk_i;
+    dp_phy_tx_clk <= phy_ref_clk_i;
+
   end generate;
 
   -----------------------------------------------------------------------------
@@ -1027,7 +1137,7 @@ begin
   WB_SECONDARY_CON : xwb_sdb_crossbar
     generic map(
       g_num_masters => 1,
-      g_num_slaves  => 9,
+      g_num_slaves  => c_nr_slaves_secbar,
       g_registered  => true,
       g_wraparound  => true,
       g_layout      => c_secbar_layout,
@@ -1048,6 +1158,12 @@ begin
   minic_wb_in        <= secbar_master_o(0);
   secbar_master_i(1) <= ep_wb_out;
   ep_wb_in           <= secbar_master_o(1);
+
+  secbar_master_i(9) <= dp_minic_wb_out;
+  dp_minic_wb_in     <= secbar_master_o(9);
+  secbar_master_i(10) <= dp_ep_wb_out;
+  dp_ep_wb_in        <= secbar_master_o(10);
+
   secbar_master_i(2) <= spll_wb_out;
   spll_wb_in         <= secbar_master_o(2);
   secbar_master_i(3) <= ppsg_wb_out;
@@ -1061,7 +1177,9 @@ begin
   periph_slave_i(1)  <= secbar_master_o(5);
   periph_slave_i(2)  <= secbar_master_o(6);
   periph_slave_i(3)  <= secbar_master_o(8);
-
+  
+  secbar_master_i(11) <= multiboot_slave_out;
+  multiboot_slave_in <= secbar_master_o(11);
 
   aux_adr_o <= secbar_master_o(7).adr;
   aux_dat_o <= secbar_master_o(7).dat;
@@ -1154,5 +1272,194 @@ begin
                           '0';
 
   ep_txtsu_ack <= txtsu_ack_i or mnic_txtsu_ack;
+
+  --------------------------------------------------------------------
+  ------------------  Dual Port Part ---------------------------------
+  --------------------------------------------------------------------
+
+  GEN_DUALPORT : if (g_with_dualport = True) generate
+    
+    dp_phy_rst_o <= dp_phy_rst;
+
+    DP_U_Endpoint : xwr_endpoint
+      generic map (
+        g_interface_mode      => PIPELINED,
+        g_address_granularity => BYTE,
+        g_simulation          => f_int2bool(g_simulation),
+        g_tx_runt_padding     => g_tx_runt_padding,
+        g_pcs_16bit           => g_pcs_16bit,
+        g_records_for_phy     => g_records_for_phy,
+        g_rx_buffer_size      => g_rx_buffer_size,
+        g_with_rx_buffer      => true,
+        g_with_flow_control   => false,
+        g_with_timestamper    => true,
+        g_with_dpi_classifier => true,
+        g_with_vlans          => false,
+        g_with_rtu            => false,
+        g_with_leds           => true,
+        g_with_packet_injection => false,
+        g_use_new_rxcrc       => true,
+        g_use_new_txcrc       => false)
+      port map (
+        clk_ref_i            => clk_ref_i,
+        clk_sys_i            => clk_sys_i,
+        clk_dmtd_i           => clk_dmtd_i,
+        rst_sys_n_i          => rst_net_n,
+        rst_ref_n_i          => rst_net_resync_ref_n,
+        rst_dmtd_n_i         => rst_net_resync_dmtd_n,
+        rst_txclk_n_i        => rst_net_resync_txclk_n,
+        rst_rxclk_n_i        => rst_net_resync_rxclk_n,
+        pps_csync_p1_i       => s_pps_csync,
+        pps_valid_i          => pps_valid,
+        phy_rst_o            => dp_phy_rst,
+        phy_rdy_i            => dp_phy_rdy_i,
+        phy_loopen_o         => dp_phy_loopen_o,
+        phy_loopen_vec_o     => dp_phy_loopen_vec_o,
+        phy_tx_prbs_sel_o    => dp_phy_tx_prbs_sel_o,
+        phy_sfp_tx_fault_i   => dp_phy_sfp_tx_fault_i,
+        phy_sfp_los_i        => dp_phy_sfp_los_i,
+        phy_sfp_tx_disable_o => dp_phy_sfp_tx_disable_o,
+        phy_ref_clk_i        => dp_phy_ref_clk_i,
+        phy_tx_data_o        => dp_phy_tx_data_o,
+        phy_tx_k_o           => dp_phy_tx_k_o,
+        phy_tx_disparity_i   => dp_phy_tx_disparity_i,
+        phy_tx_enc_err_i     => dp_phy_tx_enc_err_i,
+        phy_rx_data_i        => dp_phy_rx_data_i,
+        phy_rx_clk_i         => dp_phy_rx_rbclk_i,
+        phy_rx_k_i           => dp_phy_rx_k_i,
+        phy_rx_enc_err_i     => dp_phy_rx_enc_err_i,
+        phy_rx_bitslide_i    => dp_phy_rx_bitslide_i,
+        phy8_o               => dp_phy8_o,
+        phy8_i               => dp_phy8_i,
+        phy16_o              => dp_phy16_o,
+        phy16_i              => dp_phy16_i,
+        src_o                => dp_ep_src_out,
+        src_i                => dp_ep_src_in,
+        snk_o                => dp_ep_snk_out,
+        snk_i                => dp_ep_snk_in,
+        txtsu_port_id_o      => dp_ep_txtsu_port_id,
+        txtsu_frame_id_o     => dp_ep_txtsu_frame_id,
+        txtsu_ts_value_o     => dp_ep_txtsu_ts_value,
+        txtsu_ts_incorrect_o => dp_ep_txtsu_ts_incorrect,
+        txtsu_stb_o          => dp_ep_txtsu_stb,
+        txtsu_ack_i          => dp_ep_txtsu_ack,
+        wb_i                 => dp_ep_wb_in,
+        wb_o                 => dp_ep_wb_out,
+        -- rmon_events_o        => open,
+        -- txts_o               => abscal_txts_o,
+        -- rxts_o               => abscal_rxts_o,
+        fc_tx_pause_req_i    => dp_fc_tx_pause_req_i,
+        fc_tx_pause_delay_i  => dp_fc_tx_pause_delay_i,
+        fc_tx_pause_ready_o  => dp_fc_tx_pause_ready_o,
+        led_link_o           => dp_ep_led_link,
+        led_act_o            => open
+        );
+
+    dp_mini_nic : xwr_mini_nic
+      generic map (
+        g_interface_mode       => pipelined,
+        g_address_granularity  => byte,
+        g_tx_fifo_size         => 1024,
+        g_rx_fifo_size         => 2048,
+        g_buffer_little_endian => false)
+      port map (
+        clk_sys_i              => clk_sys_i,
+        rst_n_i                => rst_net_n,
+        src_o                  => dp_mux_snk_in(0),
+        src_i                  => dp_mux_snk_out(0),
+        snk_o                  => dp_mux_src_in(0),
+        snk_i                  => dp_mux_src_out(0),
+        txtsu_port_id_i        => dp_ep_txtsu_port_id,
+        txtsu_frame_id_i       => dp_ep_txtsu_frame_id,
+        txtsu_tsval_i          => dp_ep_txtsu_ts_value,
+        txtsu_tsincorrect_i    => dp_ep_txtsu_ts_incorrect,
+        txtsu_stb_i            => dp_mnic_txtsu_stb,
+        txtsu_ack_o            => dp_mnic_txtsu_ack,
+        wb_i                   => dp_minic_wb_in,
+        wb_o                   => dp_minic_wb_out
+        );
+    
+    DP_U_WBP_Mux : xwrf_mux
+      generic map(
+        g_muxed_ports => 2)
+      port map (
+        clk_sys_i   => clk_sys_i,
+        rst_n_i     => rst_net_n,
+        ep_src_o    => dp_ep_snk_in,
+        ep_src_i    => dp_ep_snk_out,
+        ep_snk_o    => dp_ep_src_in,
+        ep_snk_i    => dp_ep_src_out,
+        mux_src_o   => dp_mux_src_out,
+        mux_src_i   => dp_mux_src_in,
+        mux_snk_o   => dp_mux_snk_out,
+        mux_snk_i   => dp_mux_snk_in,
+        mux_class_i => dp_mux_class);
+
+    dp_mux_class(0)  <= x"0f";
+    dp_mux_class(1)  <= x"f0";
+    dp_ext_src_adr_o <= dp_mux_src_out(1).adr;
+    dp_ext_src_dat_o <= dp_mux_src_out(1).dat;
+    dp_ext_src_stb_o <= dp_mux_src_out(1).stb;
+    dp_ext_src_cyc_o <= dp_mux_src_out(1).cyc;
+    dp_ext_src_sel_o <= dp_mux_src_out(1).sel;
+    dp_ext_src_we_o  <= '1';
+
+    dp_mux_src_in(1).ack   <= dp_ext_src_ack_i;
+    dp_mux_src_in(1).stall <= dp_ext_src_stall_i;
+    dp_mux_src_in(1).err   <= dp_ext_src_err_i;
+    dp_mux_src_in(1).rty   <= '0';
+
+    dp_mux_snk_in(1).adr <= dp_ext_snk_adr_i;
+    dp_mux_snk_in(1).dat <= dp_ext_snk_dat_i;
+    dp_mux_snk_in(1).stb <= dp_ext_snk_stb_i;
+    dp_mux_snk_in(1).cyc <= dp_ext_snk_cyc_i;
+    dp_mux_snk_in(1).sel <= dp_ext_snk_sel_i;
+    dp_mux_snk_in(1).we  <= dp_ext_snk_we_i;
+
+    dp_ext_snk_ack_o   <= dp_mux_snk_out(1).ack;
+    dp_ext_snk_err_o   <= dp_mux_snk_out(1).err;
+    dp_ext_snk_stall_o <= dp_mux_snk_out(1).stall;
+    
+    dp_txtsu_port_id_o      <= dp_ep_txtsu_port_id;
+    dp_txtsu_frame_id_o     <= dp_ep_txtsu_frame_id;
+    dp_txtsu_ts_value_o     <= dp_ep_txtsu_ts_value;
+    dp_txtsu_ts_incorrect_o <= dp_ep_txtsu_ts_incorrect;
+
+    -- ts goes to external I/F
+    dp_txtsu_stb_o          <= '1' when (dp_ep_txtsu_stb = '1' and (dp_ep_txtsu_frame_id /= x"0000")) else
+                            '0';
+    -- ts goes to minic
+    dp_mnic_txtsu_stb      <=  '1' when (dp_ep_txtsu_stb = '1' and (dp_ep_txtsu_frame_id  = x"0000")) else
+                            '0';
+
+    dp_ep_txtsu_ack <= dp_txtsu_ack_i or dp_mnic_txtsu_ack;    
+
+  end generate;
+  
+  GEN_MULTIBOOT : if (g_multiboot_enable = true) generate
+      
+      cmp_clock_crossing: xwb_clock_crossing
+        port map (
+          slave_clk_i     => clk_sys_i,
+          slave_rst_n_i   => rst_n_i,
+          slave_i         => multiboot_slave_in,
+          slave_o         => multiboot_slave_out,
+          master_clk_i    => clk_20m_i,
+          master_rst_n_i  => '1',
+          master_i        => multiboot_wb_in,
+          master_o        => multiboot_wb_out);
+
+      u_multiboot: xwb_xil_multiboot
+        port map (
+          clk_i   => clk_20m_i,
+          rst_n_i => '1',
+          wbs_i   => multiboot_wb_out,
+          wbs_o   => multiboot_wb_in,
+          spi_cs_n_o => open,
+          spi_sclk_o => open,
+          spi_mosi_o => open,
+          spi_miso_i => '0');
+
+  end generate;
 
 end struct;
