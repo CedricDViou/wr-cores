@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-05-11
--- Last update: 2017-05-29
+-- Last update: 2018-08-14
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -380,12 +380,15 @@ package wrcore_pkg is
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
-      g_diag_rw_size              : integer                        := 0);
+      g_diag_rw_size              : integer                        := 0;
+      g_extra_rx_clocks : integer := 0);
     port(
       clk_sys_i            : in std_logic;
       clk_dmtd_i           : in std_logic := '0';
       clk_ref_i            : in std_logic;
       clk_aux_i            : in std_logic_vector(g_aux_clks-1 downto 0) := (others => '0');
+      clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0) := (others => '0');
+
       clk_ext_mul_i        : in std_logic := '0';
       clk_ext_mul_locked_i : in std_logic := '1';
       clk_ext_stopped_i    : in std_logic := '0';
@@ -491,7 +494,8 @@ package wrcore_pkg is
       link_ok_o : out std_logic;
 
       aux_diag_i : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others=>(others=>'0'));
-      aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0)
+      aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0);
+      debug_o : out std_logic_vector(31 downto 0)
       );
   end component;
 
@@ -522,7 +526,8 @@ package wrcore_pkg is
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
-      g_diag_rw_size              : integer                        := 0);
+      g_diag_rw_size              : integer                        := 0;
+      g_extra_rx_clocks : integer := 0);
     port(
       ---------------------------------------------------------------------------
       -- Clocks/resets
@@ -539,6 +544,8 @@ package wrcore_pkg is
 
       -- Aux clocks (i.e. the FMC clock), which can be disciplined by the WR Core
       clk_aux_i : in std_logic_vector(g_aux_clks-1 downto 0) := (others => '0');
+
+      clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0) := (others => '0');
 
       -- External 10 MHz reference (cesium, GPSDO, etc.), used in Grandmaster mode
       clk_ext_i : in std_logic := '0';
@@ -731,7 +738,8 @@ package wrcore_pkg is
       -- DIAG to/from external modules
       -------------------------------------
       aux_diag_i : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others=>(others=>'0'));
-      aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0)
+      aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0);
+      debug_o : out std_logic_vector(31 downto 0)
       );
   end component;
 

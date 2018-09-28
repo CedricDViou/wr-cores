@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2017-05-29
+-- Last update: 2018-08-14
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -96,7 +96,8 @@ entity wr_core is
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
-    g_diag_rw_size              : integer                        := 0);
+    g_diag_rw_size              : integer                        := 0;
+    g_extra_rx_clocks : integer := 0);
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
@@ -113,6 +114,8 @@ entity wr_core is
 
     -- Aux clocks (i.e. the FMC clock), which can be disciplined by the WR Core
     clk_aux_i : in std_logic_vector(g_aux_clks-1 downto 0) := (others => '0');
+
+    clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0) := (others => '0');
 
     clk_ext_mul_i : in std_logic := '0';
     clk_ext_mul_locked_i  : in  std_logic := '1';
@@ -302,7 +305,9 @@ entity wr_core is
     -- DIAG to/from external modules
     -------------------------------------
     aux_diag_i : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others=>(others=>'0'));
-    aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0)
+    aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0);
+
+    debug_o : out std_logic_vector(31 downto 0)
     );
 end wr_core;
 
@@ -512,6 +517,8 @@ architecture struct of wr_core is
   --signal TRIG1   : std_logic_vector(31 downto 0);
   --signal TRIG2   : std_logic_vector(31 downto 0);
   --signal TRIG3   : std_logic_vector(31 downto 0);
+
+  signal softpll_clk_ref : std_logic_vector(g_extra_rx_clocks downto 0);
 begin
 
   -----------------------------------------------------------------------------
@@ -627,13 +634,13 @@ begin
   U_SOFTPLL : xwr_softpll_ng
     generic map(
       g_with_ext_clock_input => g_with_external_clock_input,
-      g_reverse_dmtds        => false,
-      g_divide_input_by_2    => not g_pcs_16bit,
+      g_reverse_dmtds        => true,
+      g_divide_input_by_2    => false,
       g_with_debug_fifo      => g_softpll_enable_debugger,
       g_tag_bits             => 22,
       g_interface_mode       => PIPELINED,
       g_address_granularity  => BYTE,
-      g_num_ref_inputs       => 1,
+      g_num_ref_inputs       => 1 + g_extra_rx_clocks,
       g_num_outputs          => 1 + g_aux_clks,
       g_ref_clock_rate       => f_refclk_rate(g_pcs_16bit),
       g_ext_clock_rate       => 10000000)
@@ -645,7 +652,8 @@ begin
       rst_dmtd_n_i => rst_net_resync_dmtd_n,
 
       -- Reference inputs (i.e. the RX clocks recovered by the PHYs)
-      clk_ref_i(0) => phy_rx_clk,
+      clk_ref_i => softpll_clk_ref,
+      
       -- Feedback clocks (i.e. the outputs of the main or aux oscillator)
       clk_fb_i     => clk_fb,
       -- DMTD Offset clock
@@ -677,8 +685,14 @@ begin
       slave_i => spll_wb_in,
       slave_o => spll_wb_out,
 
-      debug_o => open);
+      debug_o => debug_o(5 downto 0));
 
+  softpll_clk_ref(0) <= phy_rx_clk;
+
+  gen_with_extra_ref_clocks: if g_extra_rx_clocks > 0 generate
+    softpll_clk_ref(g_extra_rx_clocks downto 1) <= clk_rx_extra_i;
+  end generate gen_with_extra_ref_clocks;
+  
   clk_fb(0)                       <= clk_ref_i;
   clk_fb(g_aux_clks downto 1)     <= clk_aux_i;
   out_enable(0)                   <= '1';

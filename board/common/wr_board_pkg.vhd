@@ -118,12 +118,14 @@ package wr_board_pkg is
       g_streamers_op_mode         : t_streamers_op_mode            := TX_AND_RX;
       g_tx_streamer_params        : t_tx_streamer_params           := c_tx_streamer_params_defaut;
       g_rx_streamer_params        : t_rx_streamer_params           := c_rx_streamer_params_defaut;
-      g_fabric_iface              : t_board_fabric_iface           := PLAIN);
+      g_fabric_iface              : t_board_fabric_iface           := PLAIN;
+      g_extra_rx_clocks : integer := 0);
     port (
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic;
       clk_ref_i            : in  std_logic;
       clk_aux_i            : in  std_logic_vector(g_aux_clks-1 downto 0)          := (others => '0');
+      clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0) := (others => '0');
       clk_10m_ext_i        : in  std_logic                                        := '0';
       clk_ext_mul_i        : in  std_logic                                        := '0';
       clk_ext_mul_locked_i : in  std_logic                                        := '1';
@@ -203,7 +205,9 @@ package wr_board_pkg is
       pps_csync_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic);
+      link_ok_o            : out std_logic;
+      debug_o : out std_logic_vector(31 downto 0)
+      );
   end component xwrc_board_common;
 
 end wr_board_pkg;

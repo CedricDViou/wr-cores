@@ -81,6 +81,7 @@
     <property xil_pn:name="Enable Cyclic Redundancy Checking (CRC) spartan6" xil_pn:value="true" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Debugging of Serial Mode BitStream" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable External Master Clock spartan6" xil_pn:value="false" xil_pn:valueState="default"/>
+    <property xil_pn:name="Enable Hardware Co-Simulation" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Internal Done Pipe" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Message Filtering" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Enable Multi-Pin Wake-Up Suspend Mode spartan6" xil_pn:value="false" xil_pn:valueState="default"/>
@@ -132,9 +133,9 @@
     <property xil_pn:name="ISim UUT Instance Name" xil_pn:value="UUT" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Map" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Ignore User Timing Constraints Par" xil_pn:value="false" xil_pn:valueState="default"/>
-    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|spec_wr_ref_top|top" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top File" xil_pn:value="../../top/spec_ref_design/spec_wr_ref_top.vhd" xil_pn:valueState="non-default"/>
-    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/spec_wr_ref_top" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top" xil_pn:value="Architecture|spec_phasebox_top|top" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top File" xil_pn:value="../../top/spec_phasebox/spec_phasebox.vhd" xil_pn:valueState="non-default"/>
+    <property xil_pn:name="Implementation Top Instance Path" xil_pn:value="/spec_phasebox_top" xil_pn:valueState="non-default"/>
     <property xil_pn:name="Include 'uselib Directive in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include SIMPRIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Include UNISIM Models in Verilog File" xil_pn:value="false" xil_pn:valueState="default"/>
@@ -196,7 +197,7 @@
     <property xil_pn:name="Other XPWR Command Line Options" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="Other XST Command Line Options" xil_pn:value="" xil_pn:valueState="default"/>
     <property xil_pn:name="Output Extended Identifiers" xil_pn:value="false" xil_pn:valueState="default"/>
-    <property xil_pn:name="Output File Name" xil_pn:value="spec_wr_ref_top" xil_pn:valueState="default"/>
+    <property xil_pn:name="Output File Name" xil_pn:value="spec_phasebox_top" xil_pn:valueState="default"/>
     <property xil_pn:name="Overwrite Compiled Libraries" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Pack I/O Registers into IOBs" xil_pn:value="Auto" xil_pn:valueState="default"/>
     <property xil_pn:name="Pack I/O Registers/Latches into IOBs" xil_pn:value="For Outputs Only" xil_pn:valueState="non-default"/>
@@ -210,10 +211,10 @@
     <property xil_pn:name="Placer Effort Level Map" xil_pn:value="High" xil_pn:valueState="default"/>
     <property xil_pn:name="Placer Extra Effort Map" xil_pn:value="None" xil_pn:valueState="default"/>
     <property xil_pn:name="Port to be used" xil_pn:value="Auto - default" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Map Simulation Model Name" xil_pn:value="spec_wr_ref_top_map.v" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Place &amp; Route Simulation Model Name" xil_pn:value="spec_wr_ref_top_timesim.v" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Synthesis Simulation Model Name" xil_pn:value="spec_wr_ref_top_synthesis.v" xil_pn:valueState="default"/>
-    <property xil_pn:name="Post Translate Simulation Model Name" xil_pn:value="spec_wr_ref_top_translate.v" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Map Simulation Model Name" xil_pn:value="spec_phasebox_top_map.v" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Place &amp; Route Simulation Model Name" xil_pn:value="spec_phasebox_top_timesim.v" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Synthesis Simulation Model Name" xil_pn:value="spec_phasebox_top_synthesis.v" xil_pn:valueState="default"/>
+    <property xil_pn:name="Post Translate Simulation Model Name" xil_pn:value="spec_phasebox_top_translate.v" xil_pn:valueState="default"/>
     <property xil_pn:name="Power Reduction Map spartan6" xil_pn:value="Off" xil_pn:valueState="default"/>
     <property xil_pn:name="Power Reduction Par" xil_pn:value="false" xil_pn:valueState="default"/>
     <property xil_pn:name="Power Reduction Xst" xil_pn:value="false" xil_pn:valueState="default"/>
@@ -342,7 +343,7 @@
 
   <files>
     <file xil_pn:name="../../platform/xilinx/chipscope/chipscope_icon.ngc" xil_pn:type="FILE_NGC">
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="178"/>
     </file>
     <file xil_pn:name="../../top/spec_ref_design/spec_wr_ref_top.ucf" xil_pn:type="FILE_UCF">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
@@ -351,7 +352,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="154"/>
     </file>
     <file xil_pn:name="../../platform/xilinx/chipscope/chipscope_ila.ngc" xil_pn:type="FILE_NGC">
-      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="177"/>
     </file>
     <file xil_pn:name="../../modules/wr_pps_gen/wr_pps_gen.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="97"/>
@@ -603,7 +604,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="114"/>
     </file>
     <file xil_pn:name="../../board/spec/xwrc_board_spec.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="Implementation" xil_pn:seqID="177"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
     <file xil_pn:name="../../modules/wr_eca/eca_tlu.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
@@ -1200,7 +1201,7 @@
       <association xil_pn:name="Implementation" xil_pn:seqID="160"/>
     </file>
     <file xil_pn:name="../../ip_cores/gn4124-core/hdl/gn4124core/rtl/spartan6/gn4124_core.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="Implementation" xil_pn:seqID="176"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="179"/>
     </file>
     <file xil_pn:name="../../ip_cores/general-cores/platform/xilinx/wb_xil_multiboot/xwb_xil_multiboot.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
@@ -1274,9 +1275,6 @@
     <file xil_pn:name="../../ip_cores/gn4124-core/hdl/gn4124core/rtl/dma_controller_wb_slave.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="159"/>
     </file>
-    <file xil_pn:name="../../top/spec_ref_design/spec_wr_ref_top.vhd" xil_pn:type="FILE_VHDL">
-      <association xil_pn:name="Implementation" xil_pn:seqID="178"/>
-    </file>
     <file xil_pn:name="../../modules/wr_eca/eca_wr_time.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
     </file>
@@ -1334,10 +1332,22 @@
     <file xil_pn:name="../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_fifo.vhd" xil_pn:type="FILE_VHDL">
       <association xil_pn:name="Implementation" xil_pn:seqID="107"/>
     </file>
+    <file xil_pn:name="../../top/spec_phasebox/spec_phasebox.ucf" xil_pn:type="FILE_UCF">
+      <association xil_pn:name="Implementation" xil_pn:seqID="0"/>
+    </file>
+    <file xil_pn:name="../../top/spec_phasebox/spec_phasebox.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="385"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="180"/>
+    </file>
+    <file xil_pn:name="../../top/spec_phasebox/xwrc_board_phasebox.vhd" xil_pn:type="FILE_VHDL">
+      <association xil_pn:name="BehavioralSimulation" xil_pn:seqID="386"/>
+      <association xil_pn:name="Implementation" xil_pn:seqID="176"/>
+    </file>
   </files>
 
   <bindings>
     <binding xil_pn:location="/spec_wr_ref_top" xil_pn:name="../../top/spec_ref_design/spec_wr_ref_top.ucf"/>
+    <binding xil_pn:location="/spec_phasebox_top" xil_pn:name="../../top/spec_phasebox/spec_phasebox.ucf"/>
   </bindings>
 
   <version xil_pn:ise_version="14.7" xil_pn:schema_version="2"/>

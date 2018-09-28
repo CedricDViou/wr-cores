@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2017-05-29
+-- Last update: 2018-08-14
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -95,7 +95,8 @@ entity xwr_core is
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
-    g_diag_rw_size              : integer                        := 0);
+    g_diag_rw_size              : integer                        := 0;
+    g_extra_rx_clocks : integer := 0);
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
@@ -116,6 +117,8 @@ entity xwr_core is
     -- External 10 MHz reference (cesium, GPSDO, etc.), used in Grandmaster mode
     clk_ext_i : in std_logic := '0';
 
+    clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0) := (others => '0');
+    
     clk_ext_mul_i : in std_logic := '0';
     clk_ext_mul_locked_i : in std_logic := '1';
     clk_ext_stopped_i    : in  std_logic := '0';
@@ -264,7 +267,9 @@ entity xwr_core is
     aux_diag_i    : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
     aux_diag_o    : out t_generic_word_array(g_diag_rw_size-1 downto 0);
 
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+
+    debug_o : out std_logic_vector(31 downto 0)
     );
 end xwr_core;
 
@@ -273,6 +278,7 @@ begin
 
   WRPC : wr_core
     generic map(
+      g_extra_rx_clocks => g_extra_rx_clocks,
       g_simulation                => g_simulation,
       g_board_name                => g_board_name,
       g_flash_secsz_kb            => g_flash_secsz_kb,
@@ -307,6 +313,7 @@ begin
       clk_ext_mul_locked_i  => clk_ext_mul_locked_i,
       clk_ext_stopped_i => clk_ext_stopped_i,
       clk_ext_rst_o     => clk_ext_rst_o,
+      clk_rx_extra_i => clk_rx_extra_i,
       pps_ext_i     => pps_ext_i,
       rst_n_i       => rst_n_i,
 
@@ -436,7 +443,9 @@ begin
       link_ok_o => link_ok_o,
 
       aux_diag_i => aux_diag_i,
-      aux_diag_o => aux_diag_o
+      aux_diag_o => aux_diag_o,
+
+      debug_o => debug_o
       );
 
   timestamps_o.port_id(5) <= '0';

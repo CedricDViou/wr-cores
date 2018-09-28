@@ -74,7 +74,7 @@ peripheral {
          name = "Network AP reset";
          description = "write 1: resets the networking subsystem";
          prefix = "Net_RST";
-         type = MONOSTABLE;
+         type = BIT;
       };
 
       field {

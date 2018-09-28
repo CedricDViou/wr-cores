@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-Co-HT
 -- Created    : 2010-02-25
--- Last update: 2014-07-15
+-- Last update: 2018-08-14
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -106,6 +106,7 @@ entity dmtd_with_deglitcher is
     -- with a 125 MHz clock, but it's possible with a 5 MHz reference, obtained
     -- by asserting clk_dmtd_en_i every 25 clk_dmtd_i cycles.
 
+    
     clk_dmtd_en_i : in std_logic := '1';
 
     -- [clk_dmtd_i] deglitcher threshold
@@ -153,17 +154,13 @@ architecture rtl of dmtd_with_deglitcher is
 
   signal resync_start_p_dmtd, resync_done_dmtd, resync_p_int : std_logic;
   
+
+  signal rst_dmtd, rst_dmtd_synced_p : std_logic;
 begin  -- rtl
 
-  U_Sync_Resync_Pulse : gc_sync_ffs
-    generic map (
-      g_sync_edge => "positive")
-    port map (
-      clk_i    => clk_dmtd_i,
-      rst_n_i  => rst_n_dmtdclk_i,
-      data_i   => resync_p_a_i,
-      synced_o => resync_p_dmtd);
+  rst_dmtd_synced_p <= not rst_n_dmtdclk_i;
 
+  
   U_Sync_Start_Pulse : gc_pulse_synchronizer
     port map (
       clk_in_i  => clk_sys_i,
@@ -243,7 +240,7 @@ begin  -- rtl
 
     if rising_edge(clk_dmtd_i) then     -- rising clock edge
 
-      if (rst_n_dmtdclk_i = '0' or (resync_p_dmtd = '1' and resync_done_dmtd = '0')) then  -- synchronous reset (active low)
+      if (rst_dmtd_synced_p = '1') then -- or (resync_p_dmtd = '1' and resync_done_dmtd = '0')) then  -- synchronous reset (active low)
         stab_cntr     <= (others => '0');
         state         <= WAIT_STABLE_0;
         free_cntr     <= (others => '0');
@@ -314,7 +311,7 @@ begin  -- rtl
   p_resync_pulse_trigger : process(clk_dmtd_i)
   begin
     if rising_edge(clk_dmtd_i) then
-      if rst_n_dmtdclk_i = '0' then
+      if rst_dmtd_synced_p = '1' then
         resync_done_dmtd <= '1';
       else
         if(resync_start_p_dmtd = '1') then
@@ -348,6 +345,6 @@ begin  -- rtl
       pulse_i    => new_edge_p,
       extended_o => dbg_dmtdout_o);
 
-	dbg_clk_d3_o <= clk_i_d3;
+  dbg_clk_d3_o <= clk_i_d3;
 
 end rtl;

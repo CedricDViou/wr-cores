@@ -49,6 +49,7 @@ use work.wr_board_pkg.all;
 
 entity xwrc_board_common is
   generic(
+    g_extra_rx_clocks : integer := 0;
     g_simulation                : integer                        := 0;
     g_with_external_clock_input : boolean                        := TRUE;
     g_board_name                : string                         := "NA  ";
@@ -93,6 +94,8 @@ entity xwrc_board_common is
 
     -- External 10 MHz reference (cesium, GPSDO, etc.), used in Grandmaster mode
     clk_10m_ext_i : in std_logic := '0';
+
+    clk_rx_extra_i : in std_logic_vector(g_extra_rx_clocks-1 downto 0);
 
     clk_ext_mul_i        : in  std_logic := '0';
     clk_ext_mul_locked_i : in  std_logic := '1';
@@ -250,7 +253,8 @@ entity xwrc_board_common is
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
     -- Link ok indication
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+    debug_o : out std_logic_vector(31 downto 0)
     );
 
 end entity xwrc_board_common;
@@ -320,6 +324,7 @@ begin  -- architecture struct
 
   cmp_xwr_core : xwr_core
     generic map (
+      g_extra_rx_clocks => g_extra_rx_clocks,
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => g_board_name,
@@ -353,6 +358,7 @@ begin  -- architecture struct
       clk_ext_mul_locked_i => clk_ext_mul_locked_i,
       clk_ext_stopped_i    => clk_ext_stopped_i,
       clk_ext_rst_o        => clk_ext_rst_o,
+      clk_rx_extra_i => clk_rx_extra_i,
       pps_ext_i            => pps_ext_i,
       rst_n_i              => rst_n_i,
       dac_hpll_load_p1_o   => dac_hpll_load_p1_o,
@@ -432,7 +438,8 @@ begin  -- architecture struct
       rst_aux_n_o          => aux_rst_n,
       aux_diag_i           => aux_diag_in,
       aux_diag_o           => aux_diag_out,
-      link_ok_o            => link_ok);
+      link_ok_o            => link_ok,
+      debug_o => debug_o);
 
   link_ok_o       <= link_ok;
   tm_time_valid_o <= tm_time_valid;
