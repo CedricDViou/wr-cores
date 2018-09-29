@@ -62,7 +62,8 @@ entity cute_dp_ref_top is
   generic (
     g_dpram_initf : string := "../../bin/wrpc/wrc_dp_phy8.bram";
     g_cute_version       : string:= "2.2";
-    g_multiboot_enable   : boolean:= true
+    g_multiboot_enable   : boolean:= true;
+    g_with_dualport      : boolean:= true
   );
   port (
     ---------------------------------------------------------------------------
@@ -243,7 +244,8 @@ begin
       g_aux_sdb          => c_xwb_tcpip_sdb,
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,
-      g_multiboot_enable => g_multiboot_enable)
+      g_multiboot_enable => g_multiboot_enable,
+      g_with_dualport    => g_with_dualport)
     port map (
       areset_n_i          => usr_button,
       clk_20m_vcxo_i      => clk20m_vcxo_i,

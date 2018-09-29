@@ -60,10 +60,9 @@ use unisim.vcomponents.all;
 
 entity cute_dp_core_ref_top is
   generic (
-    g_dpram_initf : string := "../../bin/wrpc/wrc_phy8.bram";
+    g_dpram_initf : string := "../../bin/wrpc/wrc_dp_phy8.bram";
     g_cute_version       : string:= "2.2";
-    g_aux_sdb            : t_sdb_device  := c_xwb_tcpip_sdb;
-    g_multiboot_enable   : boolean:= false
+    g_multiboot_enable   : boolean:= true
   );
   port (
     ---------------------------------------------------------------------------
@@ -107,18 +106,19 @@ entity cute_dp_core_ref_top is
     sfp0_tx_fault      : in    std_logic;
     sfp0_tx_disable    : out   std_logic;
     sfp0_los           : in    std_logic;  
-    --sfp1_tx_p          : out   std_logic;
-    --sfp1_tx_n          : out   std_logic;
-    --sfp1_rx_p          : in    std_logic;
-    --sfp1_rx_n          : in    std_logic;
-    --sfp1_det           : in    std_logic;  -- sfp detect
-    --sfp1_scl_i         : in    std_logic;  -- scl
-    --sfp1_scl_o         : out   std_logic;  -- scl
-    --sfp1_sda_i         : in    std_logic;  -- sda
-    --sfp1_sda_o         : out   std_logic;  -- sda
-    --sfp1_tx_fault      : in    std_logic;
-    --sfp1_tx_disable    : out   std_logic;
-    --sfp1_tx_los        : in    std_logic;
+
+    sfp1_tx_p          : out   std_logic;
+    sfp1_tx_n          : out   std_logic;
+    sfp1_rx_p          : in    std_logic;
+    sfp1_rx_n          : in    std_logic;
+    sfp1_det           : in    std_logic;  -- sfp detect
+    sfp1_scl_i         : in    std_logic;  -- scl
+    sfp1_scl_o         : out   std_logic;  -- scl
+    sfp1_sda_i         : in    std_logic;  -- sda
+    sfp1_sda_o         : out   std_logic;  -- sda
+    sfp1_tx_fault      : in    std_logic;
+    sfp1_tx_disable    : out   std_logic;
+    sfp1_los           : in    std_logic;
   
     ---------------------------------------------------------------------------
     -- Onewire interface
@@ -227,7 +227,7 @@ begin
       g_dpram_initf      => g_dpram_initf,
       g_sfp0_enable      => 1,
       g_sfp1_enable      => 1,
-      g_aux_sdb          => g_aux_sdb,
+      g_aux_sdb          => c_xwb_tcpip_sdb,
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,
       g_multiboot_enable => g_multiboot_enable)
@@ -265,19 +265,19 @@ begin
       sfp0_tx_fault_i     => sfp0_tx_fault,
       sfp0_tx_disable_o   => sfp0_tx_disable,
       sfp0_los_i          => sfp0_los,
-      --sfp1_txp_o          => sfp1_tx_p,
-      --sfp1_txn_o          => sfp1_tx_n,
-      --sfp1_rxp_i          => sfp1_rx_p,
-      --sfp1_rxn_i          => sfp1_rx_n,
-      --sfp1_det_i          => sfp1_det,
-      --sfp1_scl_i          => sfp1_scl_i,
-      --sfp1_scl_o          => sfp1_scl_o,
-      --sfp1_sda_i          => sfp1_sda_i,
-      --sfp1_sda_o          => sfp1_sda_o,
-      --sfp1_rate_select_o  => open,
-      --sfp1_tx_fault_i     => sfp1_tx_fault,
-      --sfp1_tx_disable_o   => sfp1_tx_disable,
-      --sfp1_los_i          => sfp1_tx_los,
+      sfp1_txp_o          => sfp1_tx_p,
+      sfp1_txn_o          => sfp1_tx_n,
+      sfp1_rxp_i          => sfp1_rx_p,
+      sfp1_rxn_i          => sfp1_rx_n,
+      sfp1_det_i          => sfp1_det,
+      sfp1_scl_i          => sfp1_scl_i,
+      sfp1_scl_o          => sfp1_scl_o,
+      sfp1_sda_i          => sfp1_sda_i,
+      sfp1_sda_o          => sfp1_sda_o,
+      sfp1_rate_select_o  => open,
+      sfp1_tx_fault_i     => sfp1_tx_fault,
+      sfp1_tx_disable_o   => sfp1_tx_disable,
+      sfp1_los_i          => sfp1_los,
   
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
