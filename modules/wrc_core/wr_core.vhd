@@ -92,7 +92,7 @@ entity wr_core is
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
-    g_with_dualport             : boolean                        := false;
+    g_num_ports                 : integer                        := 1;
     g_records_for_phy           : boolean                        := false;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
@@ -550,7 +550,8 @@ architecture struct of wr_core is
   signal dac_dpll_sel     : std_logic_vector(3 downto 0);
   signal dac_dpll_load_p1 : std_logic;
 
-  signal clk_fb     : std_logic_vector(g_aux_clks downto 0);
+  signal softpll_refclk : std_logic_vector(g_num_ports-1 downto 0);
+  signal softpll_clk_fb : std_logic_vector(g_aux_clks downto 0);
   signal out_enable : std_logic_vector(g_aux_clks downto 0);
   
   signal multiboot_slave_out : t_wishbone_slave_out;
@@ -745,7 +746,7 @@ begin
       g_tag_bits             => 22,
       g_interface_mode       => PIPELINED,
       g_address_granularity  => BYTE,
-      g_num_ref_inputs       => 1,
+      g_num_ref_inputs       => g_num_ports,
       g_num_outputs          => 1 + g_aux_clks,
       g_ref_clock_rate       => f_refclk_rate(g_pcs_16bit),
       g_ext_clock_rate       => 10000000)
@@ -757,9 +758,9 @@ begin
       rst_dmtd_n_i => rst_net_resync_dmtd_n,
 
       -- Reference inputs (i.e. the RX clocks recovered by the PHYs)
-      clk_ref_i(0) => phy_rx_clk,
+      clk_ref_i    => softpll_refclk,
       -- Feedback clocks (i.e. the outputs of the main or aux oscillator)
-      clk_fb_i     => clk_fb,
+      clk_fb_i     => softpll_clk_fb,
       -- DMTD Offset clock
       clk_dmtd_i   => clk_dmtd_i,
 
@@ -793,8 +794,9 @@ begin
 
       debug_o => open);
 
-  clk_fb(0)                       <= clk_ref_i;
-  clk_fb(g_aux_clks downto 1)     <= clk_aux_i;
+  softpll_refclk(0)                       <= phy_rx_clk;
+  softpll_clk_fb(0)                       <= clk_ref_i;
+  softpll_clk_fb(g_aux_clks downto 1)     <= clk_aux_i;
   out_enable(0)                   <= '1';
   out_enable(g_aux_clks downto 1) <= tm_clk_aux_lock_en_i;
 
@@ -1284,8 +1286,10 @@ begin
   ------------------  Dual Port Part ---------------------------------
   --------------------------------------------------------------------
 
-  GEN_DUALPORT : if (g_with_dualport = True) generate
+  GEN_DUALPORT : if (g_num_ports = 2) generate
     
+    softpll_refclk(1)  <= dp_phy_rx_clk;
+
     dp_phy_rst_o <= dp_phy_rst;
 
     DP_U_Endpoint : xwr_endpoint

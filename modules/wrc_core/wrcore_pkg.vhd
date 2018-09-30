@@ -401,7 +401,7 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
-      g_with_dualport             : boolean                        := false;
+      g_num_ports                 : integer                        := 1;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -582,7 +582,7 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
-      g_with_dualport             : boolean                        := false;
+      g_num_ports                 : integer                        := 1;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;

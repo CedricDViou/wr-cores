@@ -66,7 +66,7 @@ entity xwrc_board_common is
     g_softpll_enable_debugger   : boolean                        := FALSE;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := FALSE;
-    g_with_dualport             : boolean                        := FALSE;
+    g_num_ports                 : integer                        := 1;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
@@ -396,7 +396,7 @@ begin  -- architecture struct
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
-      g_with_dualport             => g_with_dualport,
+      g_num_ports                 => g_num_ports,
       g_records_for_phy           => TRUE,
       g_diag_id                   => c_diag_id,
       g_diag_ver                  => c_diag_ver,

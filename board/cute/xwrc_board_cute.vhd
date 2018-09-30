@@ -85,7 +85,7 @@ entity xwrc_board_cute is
     g_sfp1_enable               : integer              := 0;
     g_phy_refclk_sel            : integer              := 0;
     g_multiboot_enable          : boolean              := false;
-    g_with_dualport             : boolean              := false
+    g_num_ports                 : integer              := 1
     );
   port (
     ---------------------------------------------------------------------------
@@ -667,7 +667,7 @@ begin  -- architecture struct
       g_rx_streamer_params        => g_rx_streamer_params,
       g_fabric_iface              => g_fabric_iface,
       g_multiboot_enable          => g_multiboot_enable,
-      g_with_dualport             => g_with_dualport
+      g_num_ports                 => g_num_ports
       )
     port map (
       clk_20m_i            => clk_pll_20m,

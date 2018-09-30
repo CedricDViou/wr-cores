@@ -111,7 +111,7 @@ package wr_board_pkg is
       g_softpll_enable_debugger   : boolean                        := FALSE;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := FALSE;
-      g_with_dualport             : boolean                        := FALSE;
+      g_num_ports                 : integer                        := 1;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
