@@ -348,7 +348,7 @@ begin  -- behavioral
   -- sniff wb access to generate rx_fifo_rd every time the RX_FIFO register is
   -- read
   -- fix the range of wb_out.adr, hongming
-  rx_fifo_rd <= '1' when(wb_out.cyc='1' and wb_out.stb='1' and wb_out.adr(4 downto 0)=x"02" and wb_in.ack='1') else
+  rx_fifo_rd <= '1' when(wb_out.cyc='1' and wb_out.stb='1' and wb_out.adr(4 downto 0)=b"00010" and wb_in.ack='1') else
                 '0';
 
 -------------------------------------------------------------------------------
