@@ -259,22 +259,6 @@ peripheral {
                         read : returns the current status of the SCL line.";
          type = MONOSTABLE;
       };
-
-      field {
-           name = "DP Status LED";
-           description = "Write 1: turn on the DP Status LED";
-           prefix = "dp_led_stat";
-           type = MONOSTABLE;
-           align = 4;
-        };
-
-      field {
-           name = "DP Link LED";
-           description = "Write 1: turn on the DP Link LED";
-           prefix = "dp_led_link";
-           type = MONOSTABLE;
-           align = 5;
-        };
         
       field {
          name = "SFP I2C bitbanged SCL";
@@ -317,11 +301,27 @@ peripheral {
       };
 
       field {
+           name = "DP Status LED";
+           description = "Write 1: turn on the DP Status LED";
+           prefix = "dp_led_stat";
+           type = MONOSTABLE;
+           align = 14;
+        };
+
+      field {
+           name = "DP Link LED";
+           description = "Write 1: turn on the DP Link LED";
+           prefix = "dp_led_link";
+           type = MONOSTABLE;
+           align = 15;
+        };
+
+      field {
          name = "DP SFP I2C bitbanged SCL";
          prefix = "dp_sfp_scl";
          description = "write 1: Set DP SFP SCL line to 0.";
          type = MONOSTABLE;
-         align = 13;
+         align = 17;
       };
 
       field {
@@ -329,7 +329,7 @@ peripheral {
          prefix = "dp_sfp_sda";
          description = "write 1: Set DP SFP SDA line to 0.";
          type = MONOSTABLE;
-         align = 14;
+         align = 18;
       };
 
    };
