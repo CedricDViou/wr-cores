@@ -1,52 +1,47 @@
 onerror {resume}
 quietly WaveActivateNextPane {} 0
-add wave -position end  sim:/main/current_test
-add wave -noupdate /main/U_TX_Streamer/tx_valid_i
-add wave -noupdate /main/U_TX_Streamer/tx_data_i
-add wave -noupdate /main/U_TX_Streamer/tx_last_p1_i
-add wave -noupdate /main/U_TX_Streamer/tx_flush_p1_i
-add wave -position end  sim:/main/U_TX_Streamer/U_Wrapped_Streamer/fab_src.sof
-add wave -position end  sim:/main/U_TX_Streamer/U_Wrapped_Streamer/fab_src.eof
-add wave -noupdate /main/U_TX_Streamer/tx_frame_p1_o
-add wave -noupdate /main/U_TX_Streamer/tx_dreq_o
-#add wave -noupdate /main/U_TX_Streamer/tx_reset_seq_i
-add wave -noupdate /main/U_RX_Streamer/rx_frame_p1_o
-add wave -noupdate /main/U_RX_Streamer/rx_dreq_i
-add wave -noupdate /main/U_RX_Streamer/rx_valid_o
-add wave -noupdate /main/U_RX_Streamer/rx_data_o
-add wave -noupdate /main/U_RX_Streamer/rx_first_p1_o
-add wave -noupdate /main/U_RX_Streamer/rx_last_p1_o
-add wave -noupdate /main/U_RX_Streamer/rx_lost_p1_o
-add wave -position end  sim:/main/drop_frm
-add wave -position end  sim:/main/rx_streamer_lost_frm
-add wave -position end  sim:/main/rx_streamer_lost_frm_cnt
-add wave -noupdate /main/U_RX_Streamer/rx_latency_o
-add wave -noupdate /main/U_RX_Streamer/rx_latency_valid_o
-add wave -position end  sim:/main/rx_streamer_lost_blks
-add wave -position end  sim:/main/fab_data_from_tx
-add wave -position end  sim:/main/fab_data_to_rx
-add wave -noupdate /main/mac/adr
-#add wave -noupdate /main/mac/dat_o
-#add wave -noupdate /main/mac/dat_i
-#add wave -noupdate /main/mac/sel
-#add wave -noupdate /main/mac/ack
-#add wave -noupdate /main/mac/stall
-add wave -noupdate /main/mac/err
-add wave -noupdate /main/mac/rty
-#add wave -noupdate /main/mac/cyc
-#add wave -noupdate /main/mac/stb
-#add wave -noupdate /main/mac/we
-add wave -position end  sim:/main/delay_link
-add wave -position end  sim:/main/tx_wb_cyc
-add wave -position end  sim:/main/rx_wb_cyc
-add wave -position end  sim:/main/tx_wb_ack
-add wave -position end  sim:/main/rx_wb_ack
-add wave -position end  sim:/main/rx_wb_stall
-add wave -position end  sim:/main/tx_wb_stall
-add wave -position end  sim:/main/tx_wb_stb
-add wave -position end  sim:/main/rx_wb_stb
+add wave -noupdate -expand -group CH0 /main/DUT/clk_sys_i
+add wave -noupdate -expand -group CH0 /main/DUT/rst_sys_n_i
+add wave -noupdate -expand -group CH0 /main/DUT/clk_tdc_i
+add wave -noupdate -expand -group CH0 /main/DUT/rst_tdc_n_i
+add wave -noupdate -expand -group CH0 /main/DUT/clk_cal_i
+add wave -noupdate -expand -group CH0 /main/DUT/coarse_i
+add wave -noupdate -expand -group CH0 /main/DUT/signal_i
+add wave -noupdate -expand -group CH0 /main/DUT/slave_i
+add wave -noupdate -expand -group CH0 /main/DUT/slave_o
+add wave -noupdate -expand -group CH0 /main/DUT/calib_sel_d
+add wave -noupdate -expand -group CH0 /main/DUT/muxed_signal
+add wave -noupdate -expand -group CH0 /main/DUT/tdc_inv_input_signal
+add wave -noupdate -expand -group CH0 /main/DUT/taps
+add wave -noupdate -expand -group CH0 /main/DUT/taps_latched
+add wave -noupdate -expand -group CH0 /main/DUT/ipolarity
+add wave -noupdate -expand -group CH0 /main/DUT/polarity
+add wave -noupdate -expand -group CH0 /main/DUT/polarity_d1
+add wave -noupdate -expand -group CH0 /main/DUT/polarity_d2
+add wave -noupdate -expand -group CH0 /main/DUT/detect_d1
+add wave -noupdate -expand -group CH0 /main/DUT/raw
+add wave -noupdate -expand -group CH0 /main/DUT/raw_d1
+add wave -noupdate -expand -group CH0 /main/DUT/raw_d2
+add wave -noupdate -expand -group CH0 /main/DUT/lut_rvalue
+add wave -noupdate -expand -group CH0 /main/DUT/ro_en
+add wave -noupdate -expand -group CH0 /main/DUT/count
+add wave -noupdate -expand -group CH0 /main/DUT/tdc_slave_out
+add wave -noupdate -expand -group CH0 /main/DUT/tdc_slave_in
+add wave -noupdate -expand -group CH0 /main/DUT/regs_in
+add wave -noupdate -expand -group CH0 /main/DUT/regs_out
+add wave -noupdate -expand -group CH0 /main/DUT/calib_next_sample
+add wave -noupdate -expand -group CH0 /main/DUT/calib_cur_sample
+add wave -noupdate -expand -group CH0 /main/DUT/calib_step_d
+add wave -noupdate -expand -group CH0 /main/DUT/calib_offset_d
+add wave -noupdate -expand -group CH0 /main/DUT/calib_p
+add wave -noupdate -expand -group CH0 /main/DUT/calib_rst_n
+add wave -noupdate -expand -group CH0 /main/DUT/rst_tdc
+add wave -noupdate -expand -group CH0 /main/DUT/ro_clk
+add wave -noupdate -expand -group CH0 /main/DUT/detect
+add wave -noupdate -expand -group CH0 /main/DUT/prev_taps_zero
+add wave -noupdate -expand -group CH0 /main/DUT/taps_latched_ready
 TreeUpdate [SetDefaultTree]
-WaveRestoreCursors {{Cursor 1} {867 ns} 0}
+WaveRestoreCursors {{Cursor 1} {11994963738 fs} 0}
 configure wave -namecolwidth 150
 configure wave -valuecolwidth 100
 configure wave -justifyvalue left
@@ -61,4 +56,4 @@ configure wave -griddelta 40
 configure wave -timeline 0
 configure wave -timelineunits ns
 update
-WaveRestoreZoom {0 ns} {915 ns}
+WaveRestoreZoom {0 fs} {70811648 ps}
