@@ -214,7 +214,20 @@ architecture rtl of xtx_streamer is
   constant c_link_ok_rst_delay     : unsigned(25 downto 0) := to_unsigned(62500000, 26);  -- 1s
   constant c_link_ok_rst_delay_sim : unsigned(25 downto 0) := to_unsigned(g_sim_startup_cnt, 26);
 
+  signal rst_int_n : std_logic;
+  
 begin  -- rtl
+
+  p_software_reset : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        rst_int_n <= '0';
+      else
+        rst_int_n <= not tx_streamer_cfg_i.sw_reset;
+      end if;
+    end if;
+  end process;
 
   -------------------------------------------------------------------------------------------
   -- check sanity of input generics
@@ -252,7 +265,7 @@ begin  -- rtl
   U_Fab_Source : xwb_fabric_source
     port map (
       clk_i     => clk_sys_i,
-      rst_n_i   => rst_n_i,
+      rst_n_i   => rst_int_n,
       src_i     => src_i,
       src_o     => src_o,
       addr_i    => c_WRF_DATA,
@@ -275,7 +288,7 @@ begin  -- rtl
         g_escape_code => x"cafe")
       port map (
         clk_i             => clk_sys_i,
-        rst_n_i           => rst_n_i,
+        rst_n_i           => rst_int_n,
         d_i               => fsm_out.data,
         d_insert_enable_i => fsm_escape_enable,
         d_escape_i        => fsm_escape,
@@ -307,7 +320,7 @@ begin  -- rtl
         g_almost_full_threshold  => g_tx_buffer_size - 2,
         g_show_ahead             => true)
       port map (
-        rst_n_i        => rst_n_i,
+        rst_n_i        => rst_int_n,
         clk_i          => clk_sys_i,
         d_i            => tx_fifo_d,
         we_i           => tx_fifo_we,
@@ -338,7 +351,7 @@ begin  -- rtl
         g_almost_full_threshold  => g_tx_buffer_size - 2,
         g_show_ahead             => false)
       port map (
-        rst_n_i           => rst_n_i,
+        rst_n_i           => rst_int_n,
         clk_wr_i          => clk_ref_i,
         clk_rd_i          => clk_sys_i,
         d_i               => tx_fifo_d,
@@ -359,7 +372,7 @@ begin  -- rtl
         g_width => g_data_width + 1)
       port map (
         clk_i        => clk_sys_i,
-        rst_n_i      => rst_n_i,
+        rst_n_i      => rst_int_n,
         fifo_q_i     => tx_fifo_q_int,
         fifo_empty_i => tx_fifo_empty_int,
         fifo_rd_o    => tx_fifo_rd_int,
@@ -407,7 +420,7 @@ begin  -- rtl
     port map (
       clk_ref_i       => clk_ref_i,
       clk_sys_i       => clk_sys_i,
-      rst_n_i         => rst_n_i,
+      rst_n_i         => rst_int_n,
       pulse_a_i       => stamper_pulse_a,
       tm_time_valid_i => tm_time_valid_i,
       tm_tai_i        => tm_tai_i,
@@ -424,7 +437,7 @@ begin  -- rtl
       g_bits         => 5,
       g_output_clock => "dec")
     port map (
-      rst_n_i   => rst_n_i,
+      rst_n_i   => rst_int_n,
       clk_inc_i => clk_data,
       clk_dec_i => clk_sys_i,
       inc_i     => buf_frame_count_inc_ref,
@@ -435,7 +448,7 @@ begin  -- rtl
   p_tx_timeout : process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i) then
-      if rst_n_i = '0' then
+      if rst_int_n = '0' then
         timeout_counter <= (others => '0');
         tx_timeout_hit  <= '0';
       else
@@ -457,7 +470,7 @@ begin  -- rtl
   p_latch_timestamp : process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i)    then
-      if rst_n_i = '0' or state = IDLE then
+      if rst_int_n = '0' or state = IDLE then
         tag_valid_latched <= '0';
       elsif tag_valid = '1' then
         tag_valid_latched <= '1';
@@ -469,7 +482,7 @@ begin  -- rtl
   p_fsm : process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i) then
-      if rst_n_i = '0' then
+      if rst_int_n = '0' then
         state             <= IDLE;
         fsm_out.sof       <= '0';
         fsm_out.eof       <= '0';
@@ -748,7 +761,7 @@ begin  -- rtl
     port map (
       clk_i    => clk_ref_i,
       rst_n_i  => '1',
-      data_i   => rst_n_i,
+      data_i   => rst_int_n,
       synced_o => rst_n_ref);
 
   U_SyncLinkOK_to_RefClk : gc_sync_ffs

@@ -194,8 +194,20 @@ architecture rtl of xrx_streamer is
 
   signal fifo_last_int : std_logic;
 
-
+  signal rst_int_n : std_logic;
+  
 begin  -- rtl
+
+  p_software_reset : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        rst_int_n <= '0';
+      else
+        rst_int_n <= not rx_streamer_cfg_i.sw_reset;
+      end if;
+    end if;
+  end process;
 
   U_rx_crc_generator : gc_crc_gen
     generic map (
@@ -220,7 +232,7 @@ begin  -- rtl
   U_Fabric_Sink : xwb_fabric_sink
     port map (
       clk_i     => clk_sys_i,
-      rst_n_i   => rst_n_i,
+      rst_n_i   => rst_int_n,
       snk_i     => snk_i,
       snk_o     => snk_o,
       addr_o    => fab.addr,
@@ -240,7 +252,7 @@ begin  -- rtl
         g_escape_code => x"cafe")
       port map (
         clk_i             => clk_sys_i,
-        rst_n_i           => rst_n_i,
+        rst_n_i           => rst_int_n,
         d_i               => fab.data,
         d_detect_enable_i => detect_escapes,
         d_valid_i         => fab.dvalid,
@@ -266,7 +278,7 @@ begin  -- rtl
     port map (
       clk_ref_i       => clk_ref_i,
       clk_sys_i       => clk_sys_i,
-      rst_n_i         => rst_n_i,
+      rst_n_i         => rst_int_n,
       pulse_a_i       => fsm_in.sof,
       tm_time_valid_i => tm_time_valid_i,
       tm_tai_i        => tm_tai_i,
@@ -285,7 +297,7 @@ begin  -- rtl
       g_sim_cycle_counter_range => g_sim_cycle_counter_range,
       g_simulation => g_simulation)
     port map (
-      rst_n_i           => rst_n_i,
+      rst_n_i           => rst_int_n,
       clk_sys_i         => clk_sys_i,
       clk_ref_i         => clk_ref_i,
       tm_time_valid_i   => tm_time_valid_i,
@@ -311,7 +323,7 @@ begin  -- rtl
   p_fsm : process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i) then
-      if rst_n_i = '0' then
+      if rst_int_n = '0' then
         state                <= IDLE;
         count                <= (others => '0');
         seq_no               <= (others => '1');
@@ -662,6 +674,6 @@ begin  -- rtl
   rx_lost_frames_p1_o <= frames_lost;
   rx_latency_o        <= std_logic_vector(rx_latency);
   rx_latency_valid_o  <= rx_latency_valid;
-  crc_restart         <= '1' when (state = FRAME_SEQ_ID or (is_escape = '1' and fsm_in.data(15) = '1')) else not rst_n_i;
+  crc_restart         <= '1' when (state = FRAME_SEQ_ID or (is_escape = '1' and fsm_in.data(15) = '1')) else not rst_int_n;
 
 end rtl;
