@@ -78,6 +78,10 @@ entity xrx_streamer is
     -- in the future, more frequences might be supported..
     g_clk_ref_rate : integer := 125000000;
 
+    g_simulation : integer := 0;
+
+    g_sim_cycle_counter_range : integer := 125000000;
+
     g_use_ref_clock_for_data : integer := 0
     );
 
@@ -277,78 +281,32 @@ begin  -- rtl
       g_data_width             => g_data_width,
       g_buffer_size            => 32,
       g_use_ref_clock_for_data => g_use_ref_clock_for_data,
-      g_clk_ref_rate => g_clk_ref_rate)
+      g_clk_ref_rate           => g_clk_ref_rate,
+      g_sim_cycle_counter_range => g_sim_cycle_counter_range,
+      g_simulation => g_simulation)
     port map (
-      rst_n_i          => rst_n_i,
-      clk_sys_i        => clk_sys_i,
-      clk_ref_i        => clk_ref_i,
-      tm_time_valid_i  => tm_time_valid_i,
-      tm_tai_i => tm_tai_i,
-      tm_cycles_i      => tm_cycles_i,
-      d_data_i         => fifo_data,
-      d_last_i         => fifo_last_int,
-      d_sync_i         => fifo_sync,
-      d_target_ts_en_i => fifo_target_ts_en,
-      d_target_ts_i    => std_logic_vector(fifo_target_ts),
-      d_valid_i        => fifo_dvalid,
-      d_drop_i         => fifo_drop,
-      d_accept_i       => fifo_accept_d0,
-      d_req_o          => fsm_in.dreq,
-      rx_first_p1_o    => rx_first_p1_o,
-      rx_last_p1_o     => rx_last_p1_o,
-      rx_data_o        => rx_data_o,
-      rx_valid_o       => rx_valid_o,
-      rx_dreq_i        => rx_dreq_i,
+      rst_n_i           => rst_n_i,
+      clk_sys_i         => clk_sys_i,
+      clk_ref_i         => clk_ref_i,
+      tm_time_valid_i   => tm_time_valid_i,
+      tm_tai_i          => tm_tai_i,
+      tm_cycles_i       => tm_cycles_i,
+      d_data_i          => fifo_data,
+      d_last_i          => fifo_last_int,
+      d_sync_i          => fifo_sync,
+      d_target_ts_en_i  => fifo_target_ts_en,
+      d_target_ts_i     => std_logic_vector(fifo_target_ts),
+      d_valid_i         => fifo_dvalid,
+      d_drop_i          => fifo_drop,
+      d_accept_i        => fifo_accept_d0,
+      d_req_o           => fsm_in.dreq,
+      rx_first_p1_o     => rx_first_p1_o,
+      rx_last_p1_o      => rx_last_p1_o,
+      rx_data_o         => rx_data_o,
+      rx_valid_o        => rx_valid_o,
+      rx_dreq_i         => rx_dreq_i,
       rx_streamer_cfg_i => rx_streamer_cfg_i);
 
--- introduce fixed latency, if configured to do so
-  -- p_fixed_latency_fsm : process(clk_sys_i)
-  -- begin
-  --   if rising_edge(clk_sys_i) then
-  --     if rst_n_i = '0' then
-  --       delay_state       <= DISABLED;
-  --       rx_latency_stored <= (others => '0');
-  --       rx_dreq_allow     <= '1';
-  --       delay_cnt         <= c_timestamper_delay;
-  --     else
-  --       case delay_state is
-  --         when DISABLED =>
-  --           if unsigned(rx_streamer_cfg_i.fixed_latency) /= c_fixed_latency_zero then
-  --             delay_state <= ALLOW;
-  --           end if;
-  --           rx_latency_stored <= (others => '0');
-  --           delay_cnt         <= c_timestamper_delay;
-  --           rx_dreq_allow     <= '1';
-  --         when ALLOW =>
-  --           if unsigned(rx_streamer_cfg_i.fixed_latency) = c_fixed_latency_zero then
-  --             delay_state <= DISABLED;
-  --           elsif(rx_latency_valid = '1') then
-  --             rx_dreq_allow     <= '0';
-  --             rx_latency_stored <= rx_latency;
-  --             delay_state       <= DELAY;
-  --           end if;
-  --           if(timestamped = '1') then
-  --           if(rx_tag_valid= '1') then
-  --             delay_cnt <= c_timestamper_delay;
-  --           else
-  --             delay_cnt <= delay_cnt + 2;
-  --           end if;
-  --         when DELAY =>
-  --           if unsigned(rx_streamer_cfg_i.fixed_latency) <= delay_cnt + rx_latency_stored then
-  --             rx_latency_stored <= (others => '0');
-  --             rx_dreq_allow     <= '1';
-  --             delay_state       <= ALLOW;
-  --           else
-  --             delay_cnt <= delay_cnt + 2;
-  --           end if;
-  --       end case;
-  --     end if;
-  --   end if;
-  -- end process;
-
-  -------------------------------------------------------------------------------------------
-  -- end of fixed latency implementation
-  -- ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
 
   p_fsm : process(clk_sys_i)
   begin
@@ -500,12 +458,12 @@ begin  -- rtl
 
 
               fifo_target_ts <= unsigned(tx_tag_cycles);
-              
+
               if(tx_tag_valid = '1' and unsigned(rx_streamer_cfg_i.fixed_latency) /= 0) then
                 fifo_target_ts_en <= '1';
               end if;
-            
-              
+
+
               -- latency measurement
               if(tx_tag_valid = '1' and rx_tag_valid_stored = '1') then
                 rx_latency_valid <= '1';
@@ -542,7 +500,7 @@ begin  -- rtl
             if fifo_dvalid = '1' then
               fifo_target_ts_en <= '0';
             end if;
-            
+
             fifo_drop   <= '0';
             fifo_accept <= '0';
             ser_count   <= (others => '0');
@@ -568,7 +526,7 @@ begin  -- rtl
             if fifo_dvalid = '1' then
               fifo_target_ts_en <= '0';
             end if;
-            
+
             frames_lost          <= '0';
             rx_lost_frames_cnt_o <= (others => '0');
             rx_latency_valid     <= '0';
@@ -602,10 +560,10 @@ begin  -- rtl
 
                   state <= PAYLOAD;
 
-                  fifo_accept   <= crc_match;      --_latched;
-                  fifo_drop     <= not crc_match;  --_latched;
-                  fifo_dvalid   <= pending_write and not fifo_dvalid;
-                  
+                  fifo_accept <= crc_match;      --_latched;
+                  fifo_drop   <= not crc_match;  --_latched;
+                  fifo_dvalid <= pending_write and not fifo_dvalid;
+
                   pending_write <= '0';
 
                 elsif fsm_in.data = x"0bad" then
@@ -645,8 +603,8 @@ begin  -- rtl
                     fifo_data(g_data_width-16-1 downto 0)            <= pack_data(g_data_width-16-1 downto 0);
                     fifo_data(g_data_width-1 downto g_data_width-16) <= fsm_in.data;
                     fifo_dvalid                                      <= '0';
-                    
-                    pending_write                                    <= '1';
+
+                    pending_write <= '1';
                   end if;
                   if(word_count = g_expected_words_number) then
                     state       <= EOF;
