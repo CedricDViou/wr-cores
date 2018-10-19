@@ -390,7 +390,7 @@ begin
       master_i   => wb_regs_slave_out,
       master_o   => wb_regs_slave_in);
 
-  U_WB:  wr_streamers_wb
+  U_WB: entity work.wr_streamers_wb
     port map (
       rst_n_i      => rst_n_i,
       clk_sys_i    => clk_sys_i,
@@ -490,7 +490,7 @@ begin
                                        rx_streamer_cfg_i.fixed_latency;
 
 
-  rx_streamer_cfg.reset_sw <= from_wb.rstr_rst_sw_o;
-  tx_streamer_cfg.reset_sw <= from_wb.rstr_rst_sw_o;
+  rx_streamer_cfg.sw_reset <= from_wb.rstr_rst_sw_o;
+  tx_streamer_cfg.sw_reset <= from_wb.rstr_rst_sw_o;
 
 end rtl;
