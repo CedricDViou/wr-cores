@@ -41,7 +41,6 @@ library work;
 use work.gencores_pkg.all;
 use work.wrcore_pkg.all;
 use work.wishbone_pkg.all;
-use work.etherbone_pkg.all;
 use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.streamers_pkg.all;
