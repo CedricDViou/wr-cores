@@ -72,6 +72,7 @@ module main;
    // word.
    parameter g_record_size = 64;
    parameter g_wr_cycles_per_second = 10000;
+   parameter g_fixed_latency_pipeline_delay = 96 / 8;
    
 
    
@@ -299,18 +300,21 @@ module main;
 	       if( rx_streamer_data != qe.data )
 		 begin
 		    $error("Failure: got rec %x, should be %x", rx_streamer_data, qe.data);
+		    $stop;
 		 end
 
 
 	       //$display("Tx ts %t rx ts %t", qe.ts, ts_rx);
 	       
-	       delta = ts_rx - qe.ts - rx_streamer_cfg.fixed_latency * 8ns;
+	       delta = ts_rx - qe.ts - rx_streamer_cfg.fixed_latency * 8ns - g_fixed_latency_pipeline_delay * 8ns;
 	       
+
+	       if (delta != 0)
+		 begin
+		    $error("Failure: delta latency != 0 (%t)", delta);
+//		    $stop;
+		 end
 	       
-	       
-	       
-               $display("delta: %t", delta);
-               
             end // if (rx_streamer_dvalid)
        end // else: !if(!rst)
 
