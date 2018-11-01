@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-20
--- Last update: 2018-08-23
+-- Last update: 2018-11-01
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level file for the WRPC reference design on the SPEC.
@@ -221,42 +221,13 @@ architecture top of spec_phasebox_top is
   -- Constants
   -----------------------------------------------------------------------------
 
-  -- Number of masters on the wishbone crossbar
-  constant c_NUM_WB_MASTERS : integer := 2;
-
-  -- Number of slaves on the primary wishbone crossbar
-  constant c_NUM_WB_SLAVES : integer := 1;
-
-  -- Primary Wishbone master(s) offsets
-  constant c_WB_MASTER_PCIE    : integer := 0;
-  constant c_WB_MASTER_ETHBONE : integer := 1;
-
-  -- Primary Wishbone slave(s) offsets
-  constant c_WB_SLAVE_WRC : integer := 0;
-
-  -- sdb header address on primary crossbar
-  constant c_SDB_ADDRESS : t_wishbone_address := x"00040000";
-
-  -- f_xwb_bridge_manual_sdb(size, sdb_addr)
-  -- Note: sdb_addr is the sdb records address relative to the bridge base address
-  constant c_wrc_bridge_sdb : t_sdb_bridge :=
-    f_xwb_bridge_manual_sdb(x"0003ffff", x"00030000");
-
-  -- Primary wishbone crossbar layout
-  constant c_WB_LAYOUT : t_sdb_record_array(c_NUM_WB_SLAVES - 1 downto 0) := (
-    c_WB_SLAVE_WRC => f_sdb_embed_bridge(c_wrc_bridge_sdb, x"00000000"));
-
-  -----------------------------------------------------------------------------
-  -- Signals
-  -----------------------------------------------------------------------------
-
+  constant c_NUM_WB_MASTERS : integer := 1;
+  constant c_WB_MASTER_PCIE : integer := 0;
+  
   -- Wishbone buse(s) from masters attached to crossbar
   signal cnx_master_out : t_wishbone_master_out_array(c_NUM_WB_MASTERS-1 downto 0);
   signal cnx_master_in  : t_wishbone_master_in_array(c_NUM_WB_MASTERS-1 downto 0);
 
-  -- Wishbone buse(s) to slaves attached to crossbar
-  signal cnx_slave_out : t_wishbone_slave_out_array(c_NUM_WB_SLAVES-1 downto 0);
-  signal cnx_slave_in  : t_wishbone_slave_in_array(c_NUM_WB_SLAVES-1 downto 0);
 
   -- Gennum signals
   signal gn_wbadr : std_logic_vector(31 downto 0);
@@ -320,25 +291,6 @@ architecture top of spec_phasebox_top is
 
 begin  -- architecture top
 
-  -----------------------------------------------------------------------------
-  -- Primary wishbone Crossbar
-  -----------------------------------------------------------------------------
-
-  cmp_sdb_crossbar : xwb_sdb_crossbar
-    generic map (
-      g_num_masters => c_NUM_WB_MASTERS,
-      g_num_slaves  => c_NUM_WB_SLAVES,
-      g_registered  => true,
-      g_wraparound  => true,
-      g_layout      => c_WB_LAYOUT,
-      g_sdb_addr    => c_SDB_ADDRESS)
-    port map (
-      clk_sys_i => clk_sys_62m5,
-      rst_n_i   => rst_sys_62m5_n,
-      slave_i   => cnx_master_out,
-      slave_o   => cnx_master_in,
-      master_i  => cnx_slave_out,
-      master_o  => cnx_slave_in);
 
   -----------------------------------------------------------------------------
   -- GN4124, PCIe bridge core
@@ -426,8 +378,7 @@ begin  -- architecture top
 
   -- "translating" word addressing of Gennum module into byte addressing
   cnx_master_out(c_WB_MASTER_PCIE).adr(1 downto 0)   <= (others => '0');
-  cnx_master_out(c_WB_MASTER_PCIE).adr(18 downto 2)  <= gn_wbadr(16 downto 0);
-  cnx_master_out(c_WB_MASTER_PCIE).adr(31 downto 19) <= (others => '0');
+  cnx_master_out(c_WB_MASTER_PCIE).adr(31 downto 2)  <= gn_wbadr(29 downto 0);
 
 
   -----------------------------------------------------------------------------
@@ -456,7 +407,7 @@ begin  -- architecture top
       rst_ref_125m_n_o    => rst_ref_125m_n,
 
       clk_inputs_i => dio_in,
-      clk_dmtd_10m_o => trig0(5),
+--      clk_dmtd_10m_o => trig0(5),
 
       plldac_sclk_o   => plldac_sclk_o,
       plldac_din_o    => plldac_din_o,
@@ -493,11 +444,8 @@ begin  -- architecture top
       flash_mosi_o  => flash_mosi_o,
       flash_miso_i  => flash_miso_i,
 
-      wb_slave_o => cnx_slave_out(c_WB_SLAVE_WRC),
-      wb_slave_i => cnx_slave_in(c_WB_SLAVE_WRC),
-
-      wb_eth_master_o => cnx_master_out(c_WB_MASTER_ETHBONE),
-      wb_eth_master_i => cnx_master_in(c_WB_MASTER_ETHBONE),
+     wb_slave_o => cnx_master_in(c_WB_MASTER_PCIE),
+     wb_slave_i => cnx_master_out(c_WB_MASTER_PCIE),
 
       abscal_txts_o => wrc_abscal_txts_out,
       abscal_rxts_o => wrc_abscal_rxts_out,
@@ -580,14 +528,24 @@ begin  -- architecture top
   CS_ILA : chipscope_ila
     port map (
       CONTROL => CONTROL0,
-      CLK     => clk_ref_125m,
+      CLK     => clk_sys_62m5,
       TRIG0   => TRIG0,
       TRIG1   => TRIG1,
       TRIG2   => TRIG2,
       TRIG3   => TRIG3);
 
-  trig0(4 downto 0) <= dio_in;
-
+  trig0 <= cnx_master_out(c_WB_MASTER_PCIE).adr;
+  trig1 <= cnx_master_out(c_WB_MASTER_PCIE).dat;
+  trig2 <= cnx_master_in(c_WB_MASTER_PCIE).dat;
+  trig3(0) <= cnx_master_out(c_WB_MASTER_PCIE).cyc;
+  trig3(1) <= cnx_master_out(c_WB_MASTER_PCIE).stb;
+  trig3(2) <= cnx_master_out(c_WB_MASTER_PCIE).we;
+  trig3(3) <= cnx_master_in(c_WB_MASTER_PCIE).ack;
+  trig3(4) <= cnx_master_in(c_WB_MASTER_PCIE).err;
+  trig3(5) <= cnx_master_in(c_WB_MASTER_PCIE).stall;
+  trig3(6) <= cnx_master_in(c_WB_MASTER_PCIE).rty;
+  
+  
   dio_out(3) <= wrc_debug(0);
   dio_out(4) <= wrc_debug(1);
   

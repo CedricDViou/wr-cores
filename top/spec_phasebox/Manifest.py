@@ -1,8 +1,9 @@
 fetchto = "../../ip_cores"
 
 files = [
-    "spec_wr_ref_top.vhd",
-    "spec_wr_ref_top.ucf",
+    "spec_phasebox.vhd",
+    "spec_phasebox.ucf",
+    "xwrc_board_phasebox.vhd",
 ]
 
 modules = {
