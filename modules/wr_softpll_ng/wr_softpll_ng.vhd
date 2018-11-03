@@ -376,19 +376,6 @@ begin  -- rtl
       freq_o        => regs_out.f_meas_value_freq_i,
       freq_valid_o  => f_meas_value_valid);
 
-  U_Meas_REF_Freq: gc_frequency_meter
-    generic map (
-      g_with_internal_timebase => true,
-      g_clk_sys_freq           => g_sys_clock_rate,
-      g_counter_bits           => 28)
-    port map (
-      clk_sys_i    => clk_sys_i,
-      clk_in_i     => clk_fb_i(0),
-      rst_n_i      => rst_n_i,
-      pps_p1_i     => pps_ext_a_i,
-      freq_o       => regs_out.f_ref_freq_i,
-      freq_valid_o => open);            -- fixme
-
   f_meas_clks(g_num_outputs-1 downto 0)                                <= clk_fb_i;
   f_meas_clks(g_num_ref_inputs-1 + g_num_outputs downto g_num_outputs) <= clk_ref_i;
   f_meas_clks(g_num_ref_inputs + g_num_outputs)                        <= clk_dmtd_i;
