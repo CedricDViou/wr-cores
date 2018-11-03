@@ -364,7 +364,6 @@ begin  -- architecture top
       csr_stall_i => cnx_master_in(c_WB_MASTER_PCIE).stall,
       csr_err_i   => cnx_master_in(c_WB_MASTER_PCIE).err,
       csr_rty_i   => cnx_master_in(c_WB_MASTER_PCIE).rty,
-      csr_int_i   => cnx_master_in(c_WB_MASTER_PCIE).int,
 
       ---------------------------------------------------------
       -- L2P DMA Interface (Pipelined Wishbone master)
@@ -390,7 +389,7 @@ begin  -- architecture top
       g_simulation                => g_simulation,
       g_with_external_clock_input => true,
       g_dpram_initf               => g_dpram_initf,
-      g_fabric_iface              => ETHERBONE,
+      g_fabric_iface              => PLAIN,
       g_input_count => 5)
     port map (
       areset_n_i          => button1_i,

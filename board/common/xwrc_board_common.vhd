@@ -41,7 +41,6 @@ library work;
 use work.gencores_pkg.all;
 use work.wrcore_pkg.all;
 use work.wishbone_pkg.all;
-use work.etherbone_pkg.all;
 use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.streamers_pkg.all;
@@ -261,6 +260,22 @@ end entity xwrc_board_common;
 
 
 architecture struct of xwrc_board_common is
+
+  component eb_ethernet_slave is
+    generic (
+      g_sdb_address    : std_logic_vector(63 downto 0));
+    port (
+      clk_i       : in  std_logic;
+      nRst_i      : in  std_logic;
+      snk_i       : in  t_wrf_sink_in;
+      snk_o       : out t_wrf_sink_out;
+      src_o       : out t_wrf_source_out;
+      src_i       : in  t_wrf_source_in;
+      cfg_slave_o : out t_wishbone_slave_out;
+      cfg_slave_i : in  t_wishbone_slave_in;
+      master_o    : out t_wishbone_master_out;
+      master_i    : in  t_wishbone_master_in);
+  end component eb_ethernet_slave;
 
   -----------------------------------------------------------------------------
   -- Signals

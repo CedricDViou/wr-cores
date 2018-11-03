@@ -5,6 +5,7 @@ syn_grade = "-3"
 syn_package = "fgg484"
 sim_tool = "modelsim"
 top_module = "main"
+sim_top="main"
 fetchto = "../../ip_cores"
 vlog_opt="+incdir+../../sim +incdir+gn4124_bfm"
 
