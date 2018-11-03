@@ -267,7 +267,8 @@ entity xwr_core is
     aux_diag_i    : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
     aux_diag_o    : out t_generic_word_array(g_diag_rw_size-1 downto 0);
 
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+    debug_o : out std_logic_vector(31 downto 0)
     );
 end xwr_core;
 

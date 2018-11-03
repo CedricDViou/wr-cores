@@ -382,7 +382,8 @@ package wrcore_pkg is
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
-      g_diag_rw_size              : integer                        := 0);
+      g_diag_rw_size              : integer                        := 0;
+      g_extra_rx_clocks : integer := 0);
     port(
       clk_sys_i            : in std_logic;
       clk_dmtd_i           : in std_logic := '0';
