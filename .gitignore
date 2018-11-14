@@ -19,3 +19,8 @@ doc/
 Makefile
 *.xml
 xgui/
+*.jou
+*.log
+*.pb
+*.str
+*.orig

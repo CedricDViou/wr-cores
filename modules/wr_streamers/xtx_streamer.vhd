@@ -72,7 +72,7 @@ entity xtx_streamer is
     -- DO NOT USE unless you know what you are doing
     -- legacy stuff: the streamers initially used in Btrain did not check/insert the escape
     -- code. This is justified if only one block of a known number of words is sent/expected
-    g_escape_code_disable : boolean := FALSE;
+    g_escape_code_disable : boolean := false;
 
     -- simulation mode: it is set to override the startaup-timer, the value with which 
     -- the timer is overriden is set in the second generic 
@@ -167,12 +167,12 @@ architecture rtl of xtx_streamer is
   signal tx_threshold_hit : std_logic;
   signal tx_timeout_hit   : std_logic;
   signal tx_flush_latched : std_logic;
-  signal tx_idle : std_logic;
+  signal tx_idle          : std_logic;
 
   signal tx_fifo_last, tx_fifo_we, tx_fifo_full, tx_fifo_empty, tx_fifo_rd : std_logic;
-  signal tx_fifo_empty_int, tx_fifo_rd_int, tx_fifo_rd_int_d : std_logic;
-  signal tx_fifo_q_int, tx_fifo_q_reg : std_logic_vector(g_data_width downto 0);
-  signal tx_fifo_q_valid : std_logic;
+  signal tx_fifo_empty_int, tx_fifo_rd_int, tx_fifo_rd_int_d               : std_logic;
+  signal tx_fifo_q_int, tx_fifo_q_reg                                      : std_logic_vector(g_data_width downto 0);
+  signal tx_fifo_q_valid                                                   : std_logic;
   signal tx_fifo_q, tx_fifo_d                                              : std_logic_vector(g_data_width downto 0);
   signal state                                                             : t_tx_state;
   signal seq_no, count                                                     : unsigned(14 downto 0);
@@ -194,28 +194,38 @@ architecture rtl of xtx_streamer is
 
   signal buf_frame_count_inc_ref : std_logic;
   signal buf_frame_count_dec_sys : std_logic;
-  
+
   signal buf_frame_count : std_logic_vector(5 downto 0);
 
 
   signal tag_cycles                   : std_logic_vector(27 downto 0);
   signal tag_valid, tag_valid_latched : std_logic;
+  signal tag_error                    : std_logic;
 
   signal link_ok_delay_cnt         : unsigned(25 downto 0);
-  signal link_ok_delay_expired : std_logic;
+  signal link_ok_delay_expired     : std_logic;
   signal link_ok_delay_expired_ref : std_logic;
-  signal link_ok_ref : std_logic;
-  
-  signal clk_data : std_logic;
+  signal link_ok_ref               : std_logic;
+
+
+  attribute mark_debug : string;
+
+  attribute mark_debug of link_ok_delay_cnt         : signal is "true";
+  attribute mark_debug of link_ok_delay_expired_ref : signal is "true";
+  attribute mark_debug of link_ok_delay_expired     : signal is "true";
+  attribute mark_debug of link_ok_ref               : signal is "true";
+
+
+  signal clk_data  : std_logic;
   signal rst_n_ref : std_logic;
 
   signal stamper_pulse_a : std_logic;
-  
+
   constant c_link_ok_rst_delay     : unsigned(25 downto 0) := to_unsigned(62500000, 26);  -- 1s
   constant c_link_ok_rst_delay_sim : unsigned(25 downto 0) := to_unsigned(g_sim_startup_cnt, 26);
 
   signal rst_int_n : std_logic;
-  
+
 begin  -- rtl
 
   p_software_reset : process(clk_sys_i)
@@ -332,7 +342,7 @@ begin  -- rtl
         almost_full_o  => tx_almost_full
         );
 
-    clk_data <= clk_sys_i;
+    clk_data        <= clk_sys_i;
     stamper_pulse_a <= fsm_out.sof;
 
   end generate gen_use_sys_clock_for_data;
@@ -343,10 +353,10 @@ begin  -- rtl
       generic map (
         g_data_width             => g_data_width + 1,
         g_size                   => g_tx_buffer_size,
-        g_with_rd_empty => true,
-        g_with_wr_full => true,
-        g_with_wr_almost_full       => true,
-        g_with_rd_almost_empty      => true,
+        g_with_rd_empty          => true,
+        g_with_wr_full           => true,
+        g_with_wr_almost_full    => true,
+        g_with_rd_almost_empty   => true,
         g_almost_empty_threshold => g_tx_threshold,
         g_almost_full_threshold  => g_tx_buffer_size - 2,
         g_show_ahead             => false)
@@ -381,14 +391,14 @@ begin  -- rtl
         rd_i         => tx_fifo_rd);
 
     tx_fifo_empty <= not tx_fifo_q_valid;
-    
+
     clk_data <= clk_ref_i;
 
     p_detect_sof : process(clk_ref_i)
     begin
       if rising_edge(clk_ref_i) then
         if rst_n_ref = '0' then
-          tx_idle <= '1';
+          tx_idle         <= '1';
           stamper_pulse_a <= '0';
         else
           if tx_last_p1_i = '1' and tx_valid_i = '1' then
@@ -411,28 +421,29 @@ begin  -- rtl
 
   -- sys clock domain
   tx_threshold_hit <= '1' when tx_almost_empty = '0' and (signed(buf_frame_count) > 0) else '0';
-  
-  tx_fifo_last     <= tx_fifo_q(g_data_width);
 
-  U_Timestamper : pulse_stamper
+  tx_fifo_last <= tx_fifo_q(g_data_width);
+
+  U_Timestamper : entity work.pulse_stamper_sync
     generic map(
       g_ref_clk_rate => g_clk_ref_rate)
     port map (
       clk_ref_i       => clk_ref_i,
       clk_sys_i       => clk_sys_i,
       rst_n_i         => rst_int_n,
-      pulse_a_i       => stamper_pulse_a,
+      pulse_i       => stamper_pulse_a,
       tm_time_valid_i => tm_time_valid_i,
       tm_tai_i        => tm_tai_i,
       tm_cycles_i     => tm_cycles_i,
       tag_tai_o       => open,
       tag_cycles_o    => tag_cycles,
-      tag_valid_o     => tag_valid);
+      tag_valid_o     => tag_valid,
+      tag_error_o     => tag_error);
 
   buf_frame_count_inc_ref <= tx_fifo_we and tx_last_p1_i;
   buf_frame_count_dec_sys <= tx_fifo_rd and tx_fifo_last;
 
-  U_FrameCounter: entity work.gc_async_counter_diff
+  U_FrameCounter : entity work.gc_async_counter_diff
     generic map (
       g_bits         => 5,
       g_output_clock => "dec")
@@ -443,7 +454,7 @@ begin  -- rtl
       inc_i     => buf_frame_count_inc_ref,
       dec_i     => buf_frame_count_dec_sys,
       counter_o => buf_frame_count);
-  
+
 
   p_tx_timeout : process(clk_sys_i)
   begin
@@ -469,7 +480,7 @@ begin  -- rtl
 
   p_latch_timestamp : process(clk_sys_i)
   begin
-    if rising_edge(clk_sys_i)    then
+    if rising_edge(clk_sys_i) then
       if rst_int_n = '0' or state = IDLE then
         tag_valid_latched <= '0';
       elsif tag_valid = '1' then
@@ -477,8 +488,8 @@ begin  -- rtl
       end if;
     end if;
   end process;
-  
-  
+
+
   p_fsm : process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i) then
@@ -505,19 +516,19 @@ begin  -- rtl
         end if;
 
         if tx_flush_p1_i = '1' or tx_timeout_hit = '1' then
-          tx_flush_latched  <= '1';
+          tx_flush_latched <= '1';
         end if;
 
         case state is
           when IDLE =>
-            
-            
-            crc_en            <= '0';
-            crc_reset         <= '0';
-            fsm_out.eof       <= '0';
-            tx_frame_p1_o     <= '0';
 
-            if(fsm_out.dreq = '1' and tx_fifo_empty = '0' and ( tx_flush_latched = '1' or tx_threshold_hit = '1')) then
+
+            crc_en        <= '0';
+            crc_reset     <= '0';
+            fsm_out.eof   <= '0';
+            tx_frame_p1_o <= '0';
+
+            if(fsm_out.dreq = '1' and tx_fifo_empty = '0' and (tx_flush_latched = '1' or tx_threshold_hit = '1')) then
               state       <= SOF;
               fsm_out.sof <= '1';
             end if;
@@ -554,7 +565,7 @@ begin  -- rtl
                 when x"04" =>
                   fsm_out.data <= tx_streamer_cfg_i.mac_local(31 downto 16);
 
-                  count        <= count + 1;
+                  count <= count + 1;
                 when x"05" =>
                   fsm_out.data <= tx_streamer_cfg_i.mac_local(15 downto 0);
                   count        <= count + 1;
@@ -568,16 +579,21 @@ begin  -- rtl
                 when x"07" =>
                   if(tx_streamer_cfg_i.qtag_ena = '0') then
 
-                    fsm_out.data <= "1000" & tag_cycles(27 downto 16);
+                    if tag_error = '1' then
+                      fsm_out.data <= x"ffff";
+                    else
+                      fsm_out.data <= "1000" & tag_cycles(27 downto 16);
+                    end if;
+
                     if tag_valid_latched = '1' then
-                      count <= count + 1;
+                      count          <= count + 1;
                       fsm_out.dvalid <= '1';
                     else
-                      fsm_out.dvalid <= '0'; 
+                      fsm_out.dvalid <= '0';
                     end if;
                   else
                     fsm_out.data <= tx_streamer_cfg_i.qtag_prio & '0' & tx_streamer_cfg_i.qtag_vid;
-                    count <= count + 1;
+                    count        <= count + 1;
                   end if;
                 when x"08" =>
                   if(tx_streamer_cfg_i.qtag_ena = '0') then
@@ -588,13 +604,19 @@ begin  -- rtl
                   end if;
                   count <= count + 1;
                 when x"09" =>
-                    if tag_valid_latched = '1' then
-                      count <= count + 1;
-                      fsm_out.dvalid <= '1';
-                    else
-                      fsm_out.dvalid <= '0'; 
-                    end if;
-                  fsm_out.data <= "1000" & tag_cycles(27 downto 16);
+                  if tag_valid_latched = '1' then
+                    count          <= count + 1;
+                    fsm_out.dvalid <= '1';
+                  else
+                    fsm_out.dvalid <= '0';
+                  end if;
+
+                  if tag_error = '1' then
+                    fsm_out.data <= x"ffff";
+                  else
+                    fsm_out.data <= "1000" & tag_cycles(27 downto 16);
+                  end if;
+
                 when x"0A" =>
                   fsm_out.data <= tag_cycles(15 downto 0);
                   state        <= FRAME_SEQ_ID;
@@ -740,7 +762,7 @@ begin  -- rtl
         end if;
 
         link_ok_delay_expired <= '0';
-        
+
       else
         -- first initial moments of link_ok_i high are ignored
         if(link_ok_i = '1' and link_ok_delay_cnt > 0) then
@@ -752,7 +774,7 @@ begin  -- rtl
         else
           link_ok_delay_expired <= '1';
         end if;
-        
+
       end if;
     end if;
   end process;
