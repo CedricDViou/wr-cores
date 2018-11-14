@@ -99,7 +99,8 @@ entity xwr_streamers is
     -----------------------------------------------------------------------------------------
     g_slave_mode               : t_wishbone_interface_mode      := CLASSIC;
     g_slave_granularity        : t_wishbone_address_granularity := BYTE;
-    g_simulation               : integer := 0
+    g_simulation               : integer := 0;
+    g_sim_cycle_counter_range : integer := 125000
     );
 
   port (
@@ -227,7 +228,7 @@ begin
   -- Instantiate transmission streamer, if configured to do so
   -------------------------------------------------------------------------------------------
   gen_tx: if(g_streamers_op_mode=TX_ONLY OR g_streamers_op_mode=TX_AND_RX) generate
-    U_TX: xtx_streamer
+    U_TX: entity work.xtx_streamer
       generic map(
         g_data_width             => g_tx_streamer_params.data_width,
         g_tx_buffer_size         => g_tx_streamer_params.buffer_size,
@@ -268,13 +269,16 @@ begin
   -- -- Instantiate reception streamer, if configured to do so
   -------------------------------------------------------------------------------------------
   gen_rx: if(g_streamers_op_mode=RX_ONLY OR g_streamers_op_mode=TX_AND_RX) generate
-    U_RX: xrx_streamer
+    U_RX: entity work.xrx_streamer
       generic map(
         g_data_width             => g_rx_streamer_params.data_width,
         g_buffer_size            => g_rx_streamer_params.buffer_size,
         g_escape_code_disable    => g_rx_streamer_params.escape_code_disable,
         g_expected_words_number  => g_rx_streamer_params.expected_words_number,
-        g_clk_ref_rate           => g_clk_ref_rate
+        g_clk_ref_rate           => g_clk_ref_rate,
+        g_simulation => g_simulation,
+        g_sim_cycle_counter_range => g_sim_cycle_counter_range,
+        g_use_ref_clock_for_data => g_use_ref_clock_for_data
         )
       port map(
         clk_sys_i                => clk_sys_i,
