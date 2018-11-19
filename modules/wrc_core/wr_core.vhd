@@ -77,7 +77,7 @@ entity wr_core is
     g_with_external_clock_input : boolean                        := true;
     --
     g_board_name                : string                         := "NA  ";
-    g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+    g_flash_secsz_KB            : integer                        := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart                 : boolean                        := true;
     g_virtual_uart              : boolean                        := true;
@@ -991,7 +991,7 @@ begin
   PERIPH : wrc_periph
     generic map(
       g_board_name      => g_board_name,
-      g_flash_secsz_kb  => g_flash_secsz_kb,
+      g_flash_secsz_KB  => g_flash_secsz_KB,
       g_flash_sdbfs_baddr => g_flash_sdbfs_baddr,
       g_phys_uart       => g_phys_uart,
       g_virtual_uart    => g_virtual_uart,

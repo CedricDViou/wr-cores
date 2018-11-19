@@ -51,7 +51,7 @@ entity xwrc_board_common is
     g_simulation                : integer                        := 0;
     g_with_external_clock_input : boolean                        := TRUE;
     g_board_name                : string                         := "NA  ";
-    g_flash_secsz_kb            : integer                        := 256;        -- default for M25P128
+    g_flash_secsz_KB            : integer                        := 256;        -- default for M25P128
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for M25P128
     g_phys_uart                 : boolean                        := TRUE;
     g_virtual_uart              : boolean                        := TRUE;
@@ -381,7 +381,7 @@ begin  -- architecture struct
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => g_board_name,
-      g_flash_secsz_kb            => g_flash_secsz_kb,
+      g_flash_secsz_KB            => g_flash_secsz_KB,
       g_flash_sdbfs_baddr         => g_flash_sdbfs_baddr,
       g_phys_uart                 => g_phys_uart,
       g_virtual_uart              => g_virtual_uart,

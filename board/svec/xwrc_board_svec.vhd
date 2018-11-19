@@ -425,7 +425,7 @@ begin  -- architecture struct
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => "SVEC",
-      g_flash_secsz_kb            => 256,        -- default for M25P128
+      g_flash_secsz_KB            => 256,        -- default for M25P128
       g_flash_sdbfs_baddr         => 16#600000#, -- default for M25P128
       g_phys_uart                 => TRUE,
       g_virtual_uart              => TRUE,
