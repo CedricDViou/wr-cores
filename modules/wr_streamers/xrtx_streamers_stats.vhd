@@ -50,14 +50,14 @@
 -------------------------------------------------------------------------------
 
 library IEEE;
-use IEEE.STD_LOGIC_1164.ALL;
-use IEEE.NUMERIC_STD.ALL;
+use IEEE.STD_LOGIC_1164.all;
+use IEEE.NUMERIC_STD.all;
 
 library work;
-use work.wishbone_pkg.all;  -- needed for t_wishbone_slave_in, etc
-use work.streamers_pkg.all; -- needed for streamers
-use work.wr_fabric_pkg.all; -- neede for :t_wrf_source_in, etc
-use work.wrcore_pkg.all;    -- needed for t_generic_word_array
+use work.wishbone_pkg.all;              -- needed for t_wishbone_slave_in, etc
+use work.streamers_pkg.all;             -- needed for streamers
+use work.wr_fabric_pkg.all;             -- neede for :t_wrf_source_in, etc
+use work.wrcore_pkg.all;                -- needed for t_generic_word_array
 use work.streamers_priv_pkg.all;
 
 entity xrtx_streamers_stats is
@@ -65,53 +65,61 @@ entity xrtx_streamers_stats is
     -- Indicates whether this module instantiates both streamers (rx and tx) or only one
     -- of them. An application that only receives or only transmits might want to use
     -- RX_ONLY or TX_ONLY mode to save resources.
-    g_streamers_op_mode    : t_streamers_op_mode  := TX_AND_RX;
+    g_streamers_op_mode : t_streamers_op_mode := TX_AND_RX;
     -- Width of frame counters
-    g_cnt_width            : integer := 50; -- min:15, max:64, 50 bits should be ok for 50 years
-    g_acc_width            : integer := 64;  -- max value 64
+    g_cnt_width         : integer             := 50;  -- min:15, max:64, 50 bits should be ok for 50 years
+    g_acc_width         : integer             := 64;  -- max value 64
     -- rate fo the White Rabbit referene clock. By default, this clock is
     -- 125MHz for WR Nodes. There are some WR Nodes that work with 62.5MHz.
-    g_clk_ref_rate         : integer := 125000000
+    g_clk_ref_rate      : integer             := 125000000
     );
   port (
-    clk_i                  : in std_logic;
-    rst_n_i                : in std_logic;
+    clk_i   : in std_logic;
+    rst_n_i : in std_logic;
 
     -- input signals from streamers
-    sent_frame_i           : in std_logic;
-    rcvd_frame_i           : in std_logic;
-    lost_block_i           : in std_logic;
-    lost_frame_i           : in std_logic;
-    lost_frames_cnt_i      : in std_logic_vector(14 downto 0);
-    rcvd_latency_i         : in  std_logic_vector(27 downto 0);
-    rcvd_latency_valid_i   : in  std_logic;
+    sent_frame_i         : in std_logic;
+    rcvd_frame_i         : in std_logic;
+    lost_block_i         : in std_logic;
+    lost_frame_i         : in std_logic;
+    lost_frames_cnt_i    : in std_logic_vector(14 downto 0);
+    rcvd_latency_i       : in std_logic_vector(27 downto 0);
+    rcvd_latency_valid_i : in std_logic;
 
-    clk_ref_i              : in std_logic;
-    tm_time_valid_i        : in std_logic := '0';
-    tm_tai_i               : in std_logic_vector(39 downto 0) := x"0000000000";
-    tm_cycles_i            : in std_logic_vector(27 downto 0) := x"0000000";
+    rx_stat_match_p1_i   : in std_logic;
+    rx_stat_late_p1_i    : in std_logic;
+    rx_stat_timeout_p1_i : in std_logic;
+
+    clk_ref_i       : in std_logic;
+    tm_time_valid_i : in std_logic                     := '0';
+    tm_tai_i        : in std_logic_vector(39 downto 0) := x"0000000000";
+    tm_cycles_i     : in std_logic_vector(27 downto 0) := x"0000000";
 
     -- statistic control
-    reset_stats_i          : in std_logic;
-    snapshot_ena_i         : in std_logic := '0';
+    reset_stats_i         : in  std_logic;
+    snapshot_ena_i        : in  std_logic                     := '0';
     ----------------------- statistics ----------------------------------------
     -- output statistics: time of last reset of statistics
-    reset_time_tai_o       : out std_logic_vector(39 downto 0) := x"0000000000";
-    reset_time_cycles_o    : out std_logic_vector(27 downto 0) := x"0000000";
+    reset_time_tai_o      : out std_logic_vector(39 downto 0) := x"0000000000";
+    reset_time_cycles_o   : out std_logic_vector(27 downto 0) := x"0000000";
     -- output statistics: tx/rx counters
-    sent_frame_cnt_o       : out std_logic_vector(g_cnt_width-1 downto 0);
-    rcvd_frame_cnt_o       : out std_logic_vector(g_cnt_width-1 downto 0);
-    lost_frame_cnt_o       : out std_logic_vector(g_cnt_width-1 downto 0);
-    lost_block_cnt_o       : out std_logic_vector(g_cnt_width-1 downto 0);
+    sent_frame_cnt_o      : out std_logic_vector(g_cnt_width-1 downto 0);
+    rcvd_frame_cnt_o      : out std_logic_vector(g_cnt_width-1 downto 0);
+    lost_frame_cnt_o      : out std_logic_vector(g_cnt_width-1 downto 0);
+    lost_block_cnt_o      : out std_logic_vector(g_cnt_width-1 downto 0);
+    rx_stat_match_cnt_o   : out std_logic_vector(g_cnt_width-1 downto 0);
+    rx_stat_late_cnt_o    : out std_logic_vector(g_cnt_width-1 downto 0);
+    rx_stat_timeout_cnt_o : out std_logic_vector(g_cnt_width-1 downto 0);
+
     -- output statistics: latency
     latency_cnt_o          : out std_logic_vector(g_cnt_width-1 downto 0);
     latency_acc_overflow_o : out std_logic;
-    latency_acc_o          : out std_logic_vector(g_acc_width-1  downto 0);
-    latency_max_o          : out std_logic_vector(27  downto 0);
-    latency_min_o          : out std_logic_vector(27  downto 0);
+    latency_acc_o          : out std_logic_vector(g_acc_width-1 downto 0);
+    latency_max_o          : out std_logic_vector(27 downto 0);
+    latency_min_o          : out std_logic_vector(27 downto 0);
 
-    snmp_array_o           : out t_generic_word_array(c_WRS_STATS_ARR_SIZE_OUT-1 downto 0);
-    snmp_array_i           : in  t_generic_word_array(c_WRS_STATS_ARR_SIZE_IN -1 downto 0)
+    snmp_array_o : out t_generic_word_array(c_WRS_STATS_ARR_SIZE_OUT-1 downto 0);
+    snmp_array_i : in  t_generic_word_array(c_WRS_STATS_ARR_SIZE_IN -1 downto 0)
     );
 
 end xrtx_streamers_stats;
@@ -121,39 +129,47 @@ architecture rtl of xrtx_streamers_stats is
   signal reset_time_tai    : std_logic_vector(39 downto 0);
   signal reset_time_cycles : std_logic_vector(27 downto 0);
 
-  signal sent_frame_cnt    : unsigned(g_cnt_width-1  downto 0);
-  signal rcvd_frame_cnt    : unsigned(g_cnt_width-1  downto 0);
-  signal lost_frame_cnt    : unsigned(g_cnt_width-1  downto 0);
-  signal lost_block_cnt    : unsigned(g_cnt_width-1  downto 0);
-  signal latency_cnt       : unsigned(g_cnt_width-1  downto 0);
+--  signal sent_frame_cnt    : unsigned(g_cnt_width-1  downto 0);
+--  signal rcvd_frame_cnt    : unsigned(g_cnt_width-1  downto 0);
+--  signal lost_frame_cnt    : unsigned(g_cnt_width-1  downto 0);
+--  signal lost_block_cnt    : unsigned(g_cnt_width-1  downto 0);
+  signal rx_stat_match_cnt_out   : std_logic_vector(g_cnt_width-1 downto 0);
+  signal rx_stat_timeout_cnt_out : std_logic_vector(g_cnt_width-1 downto 0);
+  signal rx_stat_late_cnt_out    : std_logic_vector(g_cnt_width-1 downto 0);
+--  signal latency_cnt       : unsigned(g_cnt_width-1  downto 0);
 
-  signal latency_max       : std_logic_vector(27  downto 0);
-  signal latency_min       : std_logic_vector(27  downto 0);
-  signal latency_acc       : unsigned(g_acc_width-1+1  downto 0);
-  signal latency_acc_overflow: std_logic;
+  signal latency_max          : std_logic_vector(27 downto 0);
+  signal latency_min          : std_logic_vector(27 downto 0);
+  signal latency_acc          : unsigned(g_acc_width-1+1 downto 0);
+  signal latency_acc_overflow : std_logic;
 
-  signal sent_frame_cnt_out       : std_logic_vector(g_cnt_width-1 downto 0);
-  signal rcvd_frame_cnt_out       : std_logic_vector(g_cnt_width-1 downto 0);
-  signal lost_frame_cnt_out       : std_logic_vector(g_cnt_width-1 downto 0);
-  signal lost_block_cnt_out       : std_logic_vector(g_cnt_width-1 downto 0);
+  signal sent_frame_cnt_out : std_logic_vector(g_cnt_width-1 downto 0);
+  signal rcvd_frame_cnt_out : std_logic_vector(g_cnt_width-1 downto 0);
+  signal lost_frame_cnt_out : std_logic_vector(g_cnt_width-1 downto 0);
+  signal lost_block_cnt_out : std_logic_vector(g_cnt_width-1 downto 0);
+
+  signal rx_match_frame_cnt_out   : std_logic_vector(g_cnt_width-1 downto 0);
+  signal rx_late_frame_cnt_out    : std_logic_vector(g_cnt_width-1 downto 0);
+  signal rx_timeout_frame_cnt_out : std_logic_vector(g_cnt_width-1 downto 0);
+
   signal latency_cnt_out          : std_logic_vector(g_cnt_width-1 downto 0);
   signal latency_acc_overflow_out : std_logic;
-  signal latency_acc_out          : std_logic_vector(g_acc_width-1  downto 0);
-  signal latency_max_out          : std_logic_vector(27  downto 0);
-  signal latency_min_out          : std_logic_vector(27  downto 0);
+  signal latency_acc_out          : std_logic_vector(g_acc_width-1 downto 0);
+  signal latency_max_out          : std_logic_vector(27 downto 0);
+  signal latency_min_out          : std_logic_vector(27 downto 0);
 
   --- statistics resets:
-  signal reset_stats_remote: std_logic;
-  signal reset_stats       : std_logic;
-  signal reset_stats_d1    : std_logic;
-  signal reset_stats_p     : std_logic;
-  signal snapshot_remote_ena  : std_logic;
-  signal snapshot_ena      : std_logic;
-  signal snapshot_ena_d1   : std_logic;
-  
+  signal reset_stats_remote  : std_logic;
+  signal reset_stats         : std_logic;
+  signal reset_stats_d1      : std_logic;
+  signal reset_stats_p       : std_logic;
+  signal snapshot_remote_ena : std_logic;
+  signal snapshot_ena        : std_logic;
+  signal snapshot_ena_d1     : std_logic;
+
   -- for code cleanness
-  constant c_cw              : integer := g_cnt_width;
-  constant c_aw              : integer := g_acc_width;
+  constant c_cw : integer := g_cnt_width;
+  constant c_aw : integer := g_acc_width;
 begin
 
   -- reset statistics when receiving signal from SNMP or Wishbone
@@ -169,12 +185,12 @@ begin
   -- 4. start acqusition
   -------------------------------------------------------------------------------------------
   -- when exiting the reset, produce pulse for the timestamper
-  p_stats_reset: process(clk_i)
+  p_stats_reset : process(clk_i)
   begin
     if rising_edge(clk_i) then
       if (rst_n_i = '0') then
-         reset_stats_p  <= '0';
-         reset_stats_d1 <= '0';
+        reset_stats_p  <= '0';
+        reset_stats_d1 <= '0';
       else
         reset_stats_d1 <= reset_stats;
         reset_stats_p  <= reset_stats xor reset_stats_d1;
@@ -188,7 +204,7 @@ begin
   -- process that timestamps the reset so that we can make statistics over time
   U_Reset_Timestamper : pulse_stamper
     generic map(
-      g_ref_clk_rate  => g_clk_ref_rate)
+      g_ref_clk_rate => g_clk_ref_rate)
     port map (
       clk_ref_i       => clk_ref_i,
       clk_sys_i       => clk_i,
@@ -213,51 +229,59 @@ begin
   snapshot_ena <= snapshot_ena_i or snapshot_remote_ena;
   -- snapshot
 
-  gen_tx_stats: if(g_streamers_op_mode=TX_ONLY OR g_streamers_op_mode=TX_AND_RX) generate
-    U_TX_STATS: xtx_streamers_stats
+  gen_tx_stats : if(g_streamers_op_mode = TX_ONLY or g_streamers_op_mode = TX_AND_RX) generate
+    U_TX_STATS : xtx_streamers_stats
       generic map (
-        g_cnt_width            => g_cnt_width
+        g_cnt_width => g_cnt_width
         )
       port map(
-        clk_i                  => clk_i,
-        rst_n_i                => rst_n_i,
-        sent_frame_i           => sent_frame_i,
-        reset_stats_i          => reset_stats,
-        snapshot_ena_i         => snapshot_ena,
-        sent_frame_cnt_o       => sent_frame_cnt_out);
+        clk_i            => clk_i,
+        rst_n_i          => rst_n_i,
+        sent_frame_i     => sent_frame_i,
+        reset_stats_i    => reset_stats,
+        snapshot_ena_i   => snapshot_ena,
+        sent_frame_cnt_o => sent_frame_cnt_out);
   end generate gen_tx_stats;
-  gen_not_tx_stats: if(g_streamers_op_mode=RX_ONLY) generate
+  gen_not_tx_stats : if(g_streamers_op_mode = RX_ONLY) generate
     sent_frame_cnt_out <= (others => '0');
   end generate gen_not_tx_stats;
 
-  gen_rx_stats: if(g_streamers_op_mode=RX_ONLY OR g_streamers_op_mode=TX_AND_RX) generate
-    U_RX_STATS: xrx_streamers_stats
+  gen_rx_stats : if(g_streamers_op_mode = RX_ONLY or g_streamers_op_mode = TX_AND_RX) generate
+    U_RX_STATS : entity work.xrx_streamers_stats
       generic map(
-        g_cnt_width            => g_cnt_width,
-        g_acc_width            => g_acc_width
+        g_cnt_width => g_cnt_width,
+        g_acc_width => g_acc_width
         )
       port map(
-        clk_i                  => clk_i,
-        rst_n_i                => rst_n_i,
-        rcvd_frame_i           => rcvd_frame_i,
-        lost_block_i           => lost_block_i,
-        lost_frame_i           => lost_frame_i,
-        lost_frames_cnt_i      => lost_frames_cnt_i,
-        rcvd_latency_i         => rcvd_latency_i,
-        rcvd_latency_valid_i   => rcvd_latency_valid_i,
-        tm_time_valid_i        => tm_time_valid_i,
-        snapshot_ena_i         => snapshot_ena,
-        reset_stats_i          => reset_stats,
-        rcvd_frame_cnt_o       => rcvd_frame_cnt_out,
-        lost_frame_cnt_o       => lost_frame_cnt_out,
-        lost_block_cnt_o       => lost_block_cnt_out,
+        clk_i                => clk_i,
+        rst_n_i              => rst_n_i,
+        rcvd_frame_i         => rcvd_frame_i,
+        lost_block_i         => lost_block_i,
+        lost_frame_i         => lost_frame_i,
+        lost_frames_cnt_i    => lost_frames_cnt_i,
+        rcvd_latency_i       => rcvd_latency_i,
+        rcvd_latency_valid_i => rcvd_latency_valid_i,
+        rx_stat_timeout_p1_i => rx_stat_timeout_p1_i,
+        rx_stat_match_p1_i   => rx_stat_match_p1_i,
+        rx_stat_late_p1_i    => rx_stat_late_p1_i,
+
+        tm_time_valid_i       => tm_time_valid_i,
+        snapshot_ena_i        => snapshot_ena,
+        reset_stats_i         => reset_stats,
+        rcvd_frame_cnt_o      => rcvd_frame_cnt_out,
+        lost_frame_cnt_o      => lost_frame_cnt_out,
+        lost_block_cnt_o      => lost_block_cnt_out,
+        rx_stat_match_cnt_o   => rx_stat_match_cnt_out,
+        rx_stat_late_cnt_o    => rx_stat_late_cnt_out,
+        rx_stat_timeout_cnt_o => rx_stat_timeout_cnt_out,
+
         latency_cnt_o          => latency_cnt_out,
         latency_acc_overflow_o => latency_acc_overflow_out,
         latency_acc_o          => latency_acc_out,
         latency_max_o          => latency_max_out,
         latency_min_o          => latency_min_out);
   end generate gen_rx_stats;
-  gen_not_rx_stats: if(g_streamers_op_mode=TX_ONLY) generate
+  gen_not_rx_stats : if(g_streamers_op_mode = TX_ONLY) generate
     rcvd_frame_cnt_out       <= (others => '0');
     lost_frame_cnt_out       <= (others => '0');
     lost_block_cnt_out       <= (others => '0');
@@ -270,15 +294,21 @@ begin
   -------------------------------------------------------------------------------------------
   -- wishbone local output
   -------------------------------------------------------------------------------------------
-  sent_frame_cnt_o         <= sent_frame_cnt_out;
-  rcvd_frame_cnt_o         <= rcvd_frame_cnt_out;
-  lost_frame_cnt_o         <= lost_frame_cnt_out;
-  lost_block_cnt_o         <= lost_block_cnt_out;
-  latency_max_o            <= latency_max_out;
-  latency_min_o            <= latency_min_out;
-  latency_acc_o            <= latency_acc_out;
-  latency_cnt_o            <= latency_cnt_out;
-  latency_acc_overflow_o   <= latency_acc_overflow_out;
+  sent_frame_cnt_o       <= sent_frame_cnt_out;
+  rcvd_frame_cnt_o       <= rcvd_frame_cnt_out;
+  lost_frame_cnt_o       <= lost_frame_cnt_out;
+  lost_block_cnt_o       <= lost_block_cnt_out;
+  latency_max_o          <= latency_max_out;
+  latency_min_o          <= latency_min_out;
+  latency_acc_o          <= latency_acc_out;
+  latency_cnt_o          <= latency_cnt_out;
+  latency_acc_overflow_o <= latency_acc_overflow_out;
+  rx_stat_timeout_cnt_o  <= rx_stat_timeout_cnt_out;
+  rx_stat_late_cnt_o     <= rx_stat_late_cnt_out;
+  rx_stat_match_cnt_o    <= rx_stat_match_cnt_out;
+
+
+  -- fixme: add rx late/miss/match stats to SNMP array
 
   -------------------------------------------------------------------------------------------
   -- SNMP remote output
@@ -287,80 +317,80 @@ begin
   -- to be made available to the user of SNMP
   -------------------------------------------------------------------------------------------
   -- check sanity of values
-  assert (c_cw <= 64) 
+  assert (c_cw <= 64)
     report "g_cnt_width value not suppported by f_pack_streamers_statistics" severity error;
-  assert (c_aw <= 64) 
+  assert (c_aw <= 64)
     report "g_acc_width value not suppported by f_pack_streamers_statistics" severity error;
 
   -- translate generic input vectors to meaningful signals
-  reset_stats_remote                  <= snmp_array_i(0)(0);
-  snapshot_remote_ena                 <= snmp_array_i(0)(1);
+  reset_stats_remote  <= snmp_array_i(0)(0);
+  snapshot_remote_ena <= snmp_array_i(0)(1);
 
-  snmp_array_o(0)(             0)     <= reset_stats;                   -- loop back for diagnostics
-  snmp_array_o(0)(             1)     <= latency_acc_overflow_out;
-  snmp_array_o(0) (31   downto 2)     <= (others => '0');
+  snmp_array_o(0)(0)            <= reset_stats;  -- loop back for diagnostics
+  snmp_array_o(0)(1)            <= latency_acc_overflow_out;
+  snmp_array_o(0) (31 downto 2) <= (others => '0');
 
-  snmp_array_o(1)(   31 downto 0)     <= x"0" & reset_time_cycles( 27 downto 0);
-  snmp_array_o(2)(   31 downto 0)     <= reset_time_tai(    31 downto 0);
-  snmp_array_o(3)(   31 downto 0)     <= x"000000" & reset_time_tai(    39 downto 32);
+  snmp_array_o(1)(31 downto 0) <= x"0" & reset_time_cycles(27 downto 0);
+  snmp_array_o(2)(31 downto 0) <= reset_time_tai(31 downto 0);
+  snmp_array_o(3)(31 downto 0) <= x"000000" & reset_time_tai(39 downto 32);
 
   -- translate meaningful signals (statistics values) to generic output vectors
-  snmp_array_o(4 )(31   downto 0)     <= x"0" & latency_max_out(27 downto 0);
-  snmp_array_o(5 )(31   downto 0)     <= x"0" & latency_min_out(27 downto 0); 
+  snmp_array_o(4)(31 downto 0) <= x"0" & latency_max_out(27 downto 0);
+  snmp_array_o(5)(31 downto 0) <= x"0" & latency_min_out(27 downto 0);
 
-  CNT_SINGLE_WORD_gen: if(c_cw < 33) generate
-    snmp_array_o(6 )(c_cw-1    downto       0) <= sent_frame_cnt_out;
-    snmp_array_o(6 )(31        downto    c_cw) <= (others => '0');
-    snmp_array_o(7 )(31        downto       0) <= (others => '0');
+  CNT_SINGLE_WORD_gen : if(c_cw < 33) generate
+    snmp_array_o(6)(c_cw-1 downto 0) <= sent_frame_cnt_out;
+    snmp_array_o(6)(31 downto c_cw)  <= (others => '0');
+    snmp_array_o(7)(31 downto 0)     <= (others => '0');
 
-    snmp_array_o(8 )(c_cw-1    downto       0) <= rcvd_frame_cnt_out;
-    snmp_array_o(8 )(31        downto    c_cw) <= (others => '0');
-    snmp_array_o(9 )(31        downto       0) <= (others => '0');
+    snmp_array_o(8)(c_cw-1 downto 0) <= rcvd_frame_cnt_out;
+    snmp_array_o(8)(31 downto c_cw)  <= (others => '0');
+    snmp_array_o(9)(31 downto 0)     <= (others => '0');
 
-    snmp_array_o(10)(c_cw-1    downto       0) <= lost_frame_cnt_out;
-    snmp_array_o(10)(31        downto    c_cw) <= (others => '0');
-    snmp_array_o(11)(31        downto       0) <= (others => '0');
+    snmp_array_o(10)(c_cw-1 downto 0) <= lost_frame_cnt_out;
+    snmp_array_o(10)(31 downto c_cw)  <= (others => '0');
+    snmp_array_o(11)(31 downto 0)     <= (others => '0');
 
-    snmp_array_o(12)(c_cw-1    downto       0) <= lost_block_cnt_out;
-    snmp_array_o(12)(31        downto    c_cw) <= (others => '0');
-    snmp_array_o(13)(31        downto       0) <= (others => '0');
+    snmp_array_o(12)(c_cw-1 downto 0) <= lost_block_cnt_out;
+    snmp_array_o(12)(31 downto c_cw)  <= (others => '0');
+    snmp_array_o(13)(31 downto 0)     <= (others => '0');
 
-    snmp_array_o(14)(c_cw-1    downto       0) <= latency_cnt_out;
-    snmp_array_o(14)(31        downto    c_cw) <= (others => '0');
-    snmp_array_o(15)(31        downto       0) <= (others => '0');
+    snmp_array_o(14)(c_cw-1 downto 0) <= latency_cnt_out;
+    snmp_array_o(14)(31 downto c_cw)  <= (others => '0');
+    snmp_array_o(15)(31 downto 0)     <= (others => '0');
   end generate;
-  ACC_SINGLE_WORD_gen: if(c_aw < 33) generate
-    snmp_array_o(16)(c_aw-1    downto       0) <= latency_acc_out;
-    snmp_array_o(16)(31        downto    c_aw) <= (others => '0');
-    snmp_array_o(17)(31        downto       0) <= (others => '0');
+  ACC_SINGLE_WORD_gen : if(c_aw < 33) generate
+    snmp_array_o(16)(c_aw-1 downto 0) <= latency_acc_out;
+    snmp_array_o(16)(31 downto c_aw)  <= (others => '0');
+    snmp_array_o(17)(31 downto 0)     <= (others => '0');
   end generate;
 
   ---
-  CNT_TWO_WORDs_gen:  if(c_cw > 32)  generate
-    snmp_array_o(6 )(31        downto       0) <= sent_frame_cnt_out(31     downto 0);
-    snmp_array_o(7 )(c_cw-32-1 downto       0) <= sent_frame_cnt_out(c_cw-1 downto 32);
-    snmp_array_o(7 )(31        downto c_cw-32) <= (others => '0');
+  CNT_TWO_WORDs_gen : if(c_cw > 32) generate
+    snmp_array_o(6)(31 downto 0)        <= sent_frame_cnt_out(31 downto 0);
+    snmp_array_o(7)(c_cw-32-1 downto 0) <= sent_frame_cnt_out(c_cw-1 downto 32);
+    snmp_array_o(7)(31 downto c_cw-32)  <= (others => '0');
 
-    snmp_array_o(8 )(31        downto       0) <= rcvd_frame_cnt_out(31     downto 0);
-    snmp_array_o(9 )(c_cw-32-1 downto       0) <= rcvd_frame_cnt_out(c_cw-1 downto 32);
-    snmp_array_o(9 )(31        downto c_cw-32) <= (others => '0');
+    snmp_array_o(8)(31 downto 0)        <= rcvd_frame_cnt_out(31 downto 0);
+    snmp_array_o(9)(c_cw-32-1 downto 0) <= rcvd_frame_cnt_out(c_cw-1 downto 32);
+    snmp_array_o(9)(31 downto c_cw-32)  <= (others => '0');
 
-    snmp_array_o(10)(31        downto       0) <= lost_frame_cnt_out(31     downto 0);
-    snmp_array_o(11)(c_cw-32-1 downto       0) <= lost_frame_cnt_out(c_cw-1 downto 32);
-    snmp_array_o(11 )(31       downto c_cw-32) <= (others => '0');
+    snmp_array_o(10)(31 downto 0)        <= lost_frame_cnt_out(31 downto 0);
+    snmp_array_o(11)(c_cw-32-1 downto 0) <= lost_frame_cnt_out(c_cw-1 downto 32);
+    snmp_array_o(11)(31 downto c_cw-32)  <= (others => '0');
 
-    snmp_array_o(12)(31        downto       0) <= lost_block_cnt_out(31     downto 0);
-    snmp_array_o(13)(c_cw-32-1 downto       0) <= lost_block_cnt_out(c_cw-1 downto 32);
-    snmp_array_o(13 )(31       downto c_cw-32) <= (others => '0');
+    snmp_array_o(12)(31 downto 0)        <= lost_block_cnt_out(31 downto 0);
+    snmp_array_o(13)(c_cw-32-1 downto 0) <= lost_block_cnt_out(c_cw-1 downto 32);
+    snmp_array_o(13)(31 downto c_cw-32)  <= (others => '0');
 
-    snmp_array_o(14)(31        downto       0) <= latency_cnt_out(31     downto 0);
-    snmp_array_o(15)(c_cw-32-1 downto       0) <= latency_cnt_out(c_cw-1 downto 32);
-    snmp_array_o(15 )(31       downto c_cw-32) <= (others => '0');
+    snmp_array_o(14)(31 downto 0)        <= latency_cnt_out(31 downto 0);
+    snmp_array_o(15)(c_cw-32-1 downto 0) <= latency_cnt_out(c_cw-1 downto 32);
+    snmp_array_o(15)(31 downto c_cw-32)  <= (others => '0');
   end generate;
-  ACC_TWO_WORDs_gen:   if(c_aw > 32) generate
-    snmp_array_o(16)(31        downto       0) <= latency_acc_out(31     downto 0);
-    snmp_array_o(17)(c_aw-32-1 downto       0) <= latency_acc_out(c_aw-1 downto 32) ;
-    snmp_array_o(17)(31        downto c_aw-32) <= (others => '0'); 
+  ACC_TWO_WORDs_gen : if(c_aw > 32) generate
+    snmp_array_o(16)(31 downto 0)        <= latency_acc_out(31 downto 0);
+    snmp_array_o(17)(c_aw-32-1 downto 0) <= latency_acc_out(c_aw-1 downto 32);
+    snmp_array_o(17)(31 downto c_aw-32)  <= (others => '0');
   end generate;
 
 end rtl;
