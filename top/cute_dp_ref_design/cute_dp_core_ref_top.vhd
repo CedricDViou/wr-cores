@@ -61,7 +61,7 @@ use unisim.vcomponents.all;
 entity cute_dp_core_ref_top is
   generic (
     g_dpram_initf : string := "../../bin/wrpc/wrc_dp_phy8.bram";
-    g_cute_version       : string  := "2.2";
+    g_cute_version       : string  := "2.1";
     g_multiboot_enable   : boolean := true;
     g_num_ports          : integer := 2
   );

@@ -276,6 +276,8 @@ package wrcore_pkg is
       rst_n_i     : in  std_logic;
       rst_net_n_o : out std_logic;
       rst_wrc_n_o : out std_logic;
+      rst_minic_n_o : out std_logic;
+      rst_minic_dp_n_o : out std_logic;
       led_link_o  : out std_logic;
       led_stat_o  : out std_logic;
       scl_o       : out std_logic;

@@ -397,6 +397,8 @@ architecture struct of wr_core is
   -----------------------------------------------------------------------------
   signal rst_wrc_n : std_logic;
   signal rst_net_n : std_logic;
+  signal rst_minic_n : std_logic;
+  signal rst_minic_dp_n : std_logic;
 
   -----------------------------------------------------------------------------
   --Local resets (resynced)
@@ -846,7 +848,7 @@ begin
       clk_ref_i      => clk_ref_i,
       clk_sys_i      => clk_sys_i,
       clk_dmtd_i     => clk_dmtd_i,
-      rst_sys_n_i    => rst_net_n,
+      rst_sys_n_i    => rst_minic_n,
       rst_ref_n_i    => rst_net_resync_ref_n,
       rst_dmtd_n_i   => rst_net_resync_dmtd_n,
       rst_txclk_n_i  => rst_net_resync_txclk_n,
@@ -905,7 +907,7 @@ begin
 
   tm_link_up_o <= ep_led_link;
 
-  phy_rst_o <= phy_rst;
+  phy_rst_o <= phy_rst or (not rst_minic_n);
 
   -----------------------------------------------------------------------------
   -- Mini-NIC
@@ -919,7 +921,7 @@ begin
       g_buffer_little_endian => false)
     port map (
       clk_sys_i => clk_sys_i,
-      rst_n_i   => rst_net_n,
+      rst_n_i   => rst_minic_n,
 
       src_o => mux_snk_in(0),
       src_i => mux_snk_out(0),
@@ -1006,6 +1008,8 @@ begin
       rst_n_i     => rst_n_i,
       rst_net_n_o => rst_net_n,
       rst_wrc_n_o => rst_wrc_n,
+      rst_minic_n_o => rst_minic_n,
+      rst_minic_dp_n_o => rst_minic_dp_n,
 
       led_link_o  => open,              --led_red_o,
       led_stat_o  => open,              --led_green_o,
@@ -1290,7 +1294,7 @@ begin
     
     softpll_refclk(1)  <= dp_phy_rx_clk;
 
-    dp_phy_rst_o <= dp_phy_rst;
+    dp_phy_rst_o <= dp_phy_rst or (not rst_minic_dp_n);
 
     DP_U_Endpoint : xwr_endpoint
       generic map (
@@ -1315,7 +1319,7 @@ begin
         clk_ref_i            => clk_ref_i,
         clk_sys_i            => clk_sys_i,
         clk_dmtd_i           => clk_dmtd_i,
-        rst_sys_n_i          => rst_net_n,
+        rst_sys_n_i          => rst_minic_dp_n,
         rst_ref_n_i          => rst_net_resync_ref_n,
         rst_dmtd_n_i         => rst_net_resync_dmtd_n,
         rst_txclk_n_i        => rst_net_resync_txclk_n,
@@ -1375,7 +1379,7 @@ begin
         g_buffer_little_endian => false)
       port map (
         clk_sys_i              => clk_sys_i,
-        rst_n_i                => rst_net_n,
+        rst_n_i                => rst_minic_dp_n,
         src_o                  => dp_mux_snk_in(0),
         src_i                  => dp_mux_snk_out(0),
         snk_o                  => dp_mux_src_in(0),

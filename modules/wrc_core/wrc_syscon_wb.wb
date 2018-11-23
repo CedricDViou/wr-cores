@@ -224,6 +224,20 @@ peripheral {
          load = LOAD_EXT;
          align = 18;
       };
+
+      field {
+         name = "MINIC reset";
+         description = "write 1: test reset";
+         prefix = "minic_RST";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "MINIC DP reset";
+         description = "write 1: test reset";
+         prefix = "minic_DP_RST";
+         type = MONOSTABLE;
+      };
    };
 
    reg {

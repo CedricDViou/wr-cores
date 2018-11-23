@@ -66,6 +66,8 @@ entity wrc_periph is
 
     rst_net_n_o : out std_logic;
     rst_wrc_n_o : out std_logic;
+    rst_minic_n_o : out std_logic;
+    rst_minic_dp_n_o : out std_logic;
 
     led_link_o  : out std_logic;
     led_stat_o  : out std_logic;
@@ -156,6 +158,8 @@ begin
     if rising_edge(clk_sys_i) then
       if(rst_n_i = '0') then
         rst_net_n_o <= '0';
+        rst_minic_n_o <= '0';
+        rst_minic_dp_n_o <= '0';
         rst_wrc_n_o_reg <= '1';
       else
 
@@ -164,6 +168,8 @@ begin
         end if; 
             
         rst_net_n_o <= not sysc_regs_o.gpsr_net_rst_o;
+        rst_minic_n_o <= not sysc_regs_o.gpsr_minic_rst_o;
+        rst_minic_dp_n_o <= not sysc_regs_o.gpsr_minic_dp_rst_o;
       end if; 
     end if; 
   end process;
