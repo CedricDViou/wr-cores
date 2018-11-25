@@ -192,6 +192,7 @@ package endpoint_pkg is
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic                     := '0';
       rst_sys_n_i          : in  std_logic;
+      rst_test_n_i         : in  std_logic;
       rst_ref_n_i          : in  std_logic;
       rst_dmtd_n_i         : in  std_logic;
       rst_txclk_n_i        : in  std_logic;
@@ -303,6 +304,7 @@ package endpoint_pkg is
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic;
       rst_sys_n_i          : in  std_logic;
+      rst_test_n_i         : in std_logic;
       rst_ref_n_i          : in  std_logic;
       rst_dmtd_n_i         : in  std_logic;
       rst_txclk_n_i        : in  std_logic;

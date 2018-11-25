@@ -83,6 +83,7 @@ entity xwr_endpoint is
 
 -- resets for various clock domains
     rst_sys_n_i   : in std_logic;
+    rst_rxpath_n_i: in std_logic;
     rst_ref_n_i   : in std_logic;
     rst_dmtd_n_i  : in std_logic;
     rst_txclk_n_i : in std_logic;
@@ -325,6 +326,7 @@ begin
       clk_sys_i            => clk_sys_i,
       clk_dmtd_i           => clk_dmtd_i,
       rst_sys_n_i          => rst_sys_n_i,
+      rst_rxpath_n_i       => rst_rxpath_n_i,
       rst_ref_n_i          => rst_ref_n_i,
       rst_dmtd_n_i         => rst_dmtd_n_i,
       rst_txclk_n_i        => rst_txclk_n_i,

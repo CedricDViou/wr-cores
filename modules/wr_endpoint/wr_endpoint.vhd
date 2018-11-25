@@ -93,6 +93,7 @@ entity wr_endpoint is
 
 -- resets for various clock domains
     rst_sys_n_i   : in std_logic;
+    rst_rxpath_n_i: in std_logic;
     rst_ref_n_i   : in std_logic;
     rst_dmtd_n_i  : in std_logic;
     rst_txclk_n_i : in std_logic;
@@ -609,7 +610,7 @@ begin
       clk_sys_i => clk_sys_i,
       clk_rx_i  => phy_rx_clk_i,
 
-      rst_n_sys_i => rst_sys_n_i,
+      rst_n_sys_i => rst_rxpath_n_i,
       rst_n_rx_i  => rst_n_rx,
 
       pcs_fab_i             => rxpath_fab,
