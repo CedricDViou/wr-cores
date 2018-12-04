@@ -160,7 +160,18 @@ entity cute_dp_core_ref_top is
     usr_button         : in  std_logic;
     usr_led1           : out std_logic;
     usr_led2           : out std_logic;
-    pps_out            : out std_logic
+    pps_out            : out std_logic;
+
+    gmii_tx_clk_o      : out std_logic := '0';
+    gmii_txd_o         : out std_logic_vector(7 downto 0);
+    gmii_tx_en_o       : out std_logic;
+    gmii_tx_er_o       : out std_logic;
+    gmii_rx_clk_i      : in  std_logic                    := '0';
+    gmii_rxd_i         : in  std_logic_vector(7 downto 0) := x"00";
+    gmii_rx_dv_i       : in  std_logic                    := '0';
+    gmii_rx_er_i       : in  std_logic                    := '0';
+    gmii_crs_i         : in  std_logic                    := '0';
+    gmii_col_i         : in  std_logic                    := '0'
   );
 end cute_dp_core_ref_top;
 
@@ -247,13 +258,11 @@ begin
       clk_500m_o          => clk_500m,
       rst_sys_62m5_n_o    => rst_sys_62m5_n,
       rst_ref_125m_n_o    => rst_ref_125m_n,
-  
       plldac_sclk_o       => plldac_sclk,
       plldac_din_o        => plldac_din,
       plldac_clr_n_o      => plldac_clr_n,
       plldac_load_n_o     => plldac_load_n,
       plldac_sync_n_o     => plldac_sync_n,
-  
       sfp0_txp_o          => sfp0_tx_p,
       sfp0_txn_o          => sfp0_tx_n,
       sfp0_rxp_i          => sfp0_rx_p,
@@ -280,34 +289,26 @@ begin
       sfp1_tx_fault_i     => sfp1_tx_fault,
       sfp1_tx_disable_o   => sfp1_tx_disable,
       sfp1_los_i          => sfp1_los,
-  
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
       eeprom_sda_i        => eeprom_sda_i,
       eeprom_sda_o        => eeprom_sda_o,
-  
       onewire_i           => onewire_i,
       onewire_oen_o       => onewire_oen_o,
-  
       uart_rxd_i          => uart_rx,
       uart_txd_o          => uart_tx,
-  
       flash_sclk_o        => flash_sclk_o,
       flash_ncs_o         => flash_ncs_o,
       flash_mosi_o        => flash_mosi_o,
       flash_miso_i        => flash_miso_i,
-
       wb_slave_o          => cnx_slave_out(0),
       wb_slave_i          => cnx_slave_in(0),
-
       wb_eth_master_o     => cnx_master_out(0),
       wb_eth_master_i     => cnx_master_in(0),
-  
       tm_link_up_o        => open,
       tm_time_valid_o     => tm_tai_valid,
       tm_tai_o            => tm_tai,
       tm_cycles_o         => open,
-  
       led_act_o           => sfp0_led,
       led_link_o          => sfp1_led,
       pps_p_o             => pps_out,
@@ -315,9 +316,18 @@ begin
       pps_valid_o         => pps_valid,
       pps_csync_o         => pps_csync,
       pll_locked_o        => pll_locked,
-      link_ok_o           => usr_led2);
+      link_ok_o           => usr_led2,
+      gmii_tx_clk_o       => gmii_tx_clk_o,
+      gmii_txd_o          => gmii_txd_o,
+      gmii_tx_en_o        => gmii_tx_en_o,
+      gmii_tx_er_o        => gmii_tx_er_o,
+      gmii_rx_clk_i       => gmii_rx_clk_i,
+      gmii_rxd_i          => gmii_rxd_i,
+      gmii_rx_dv_i        => gmii_rx_dv_i,
+      gmii_rx_er_i        => gmii_rx_er_i
+		);
   
-  cnx_slave_in <= cnx_master_out;
+  cnx_slave_in  <= cnx_master_out;
   cnx_master_in <= cnx_slave_out;
 
   aux_half_high <= to_unsigned(c_HALF, aux_half_high'length);

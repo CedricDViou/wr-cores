@@ -272,13 +272,6 @@ entity xwrc_board_common is
     dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
     dp_phy16_o : out t_phy_16bits_from_wrc;
     dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-    ---------------------------------------------------------------------------
-    -- Another External Fabric I/F (when g_fabric_iface = PLAIN)
-    ---------------------------------------------------------------------------
-    dp_wrf_src_o : out t_wrf_source_out;
-    dp_wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
-    dp_wrf_snk_o : out t_wrf_sink_out;
-    dp_wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
     
     dp_timestamps_o         : out t_txtsu_timestamp;
     dp_timestamps_ack_i     : in  std_logic := '1';
@@ -324,12 +317,6 @@ architecture struct of xwrc_board_common is
   signal wrf_src_in  : t_wrf_source_in;
   signal wrf_snk_out : t_wrf_sink_out;
   signal wrf_snk_in  : t_wrf_sink_in;
-
-  -- WR fabric interface
-  signal dp_wrf_src_out : t_wrf_source_out;
-  signal dp_wrf_src_in  : t_wrf_source_in;
-  signal dp_wrf_snk_out : t_wrf_sink_out;
-  signal dp_wrf_snk_in  : t_wrf_sink_in;
 
   -- Aux WB interface
   signal aux_master_out : t_wishbone_master_out;
@@ -504,10 +491,6 @@ begin  -- architecture struct
       dp_sfp_sda_o         => dp_sfp_sda_o,
       dp_sfp_sda_i         => dp_sfp_sda_i,
       dp_sfp_det_i         => dp_sfp_det_i,
-      dp_wrf_src_o         => dp_wrf_src_out,
-      dp_wrf_src_i         => dp_wrf_src_in,
-      dp_wrf_snk_o         => dp_wrf_snk_out,
-      dp_wrf_snk_i         => dp_wrf_snk_in,
       dp_phy_ref_clk_i     => '0',
       dp_phy_tx_data_o     => open,
       dp_phy_tx_k_o        => open,
@@ -579,12 +562,6 @@ begin  -- architecture struct
     wrf_src_o <= c_dummy_snk_in;
     wrf_snk_o <= c_dummy_src_in;
     
-    dp_wrf_src_o <= dp_wrf_src_out;
-    dp_wrf_snk_o <= dp_wrf_snk_out;
-
-    dp_wrf_src_in <= dp_wrf_src_i;
-    dp_wrf_snk_in <= dp_wrf_snk_i;
-
     aux_master_o    <= cc_dummy_master_out;
     wb_eth_master_o <= cc_dummy_master_out;
 
@@ -614,12 +591,6 @@ begin  -- architecture struct
     wrf_src_o <= c_dummy_snk_in;
     wrf_snk_o <= c_dummy_src_in;
     
-    dp_wrf_src_o <= dp_wrf_src_out;
-    dp_wrf_snk_o <= dp_wrf_snk_out;
-
-    dp_wrf_src_in <= dp_wrf_src_i;
-    dp_wrf_snk_in <= dp_wrf_snk_i;
-
     wrs_tx_dreq_o  <= '0';
     wrs_rx_first_o <= '0';
     wrs_rx_last_o  <= '0';
@@ -641,12 +612,6 @@ begin  -- architecture struct
 
     wrf_src_in <= wrf_src_i;
     wrf_snk_in <= wrf_snk_i;
-    
-    dp_wrf_src_o <= dp_wrf_src_out;
-    dp_wrf_snk_o <= dp_wrf_snk_out;
-
-    dp_wrf_src_in <= dp_wrf_src_i;
-    dp_wrf_snk_in <= dp_wrf_snk_i;
     
     -- unused output ports
     wrs_tx_dreq_o  <= '0';

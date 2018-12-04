@@ -529,10 +529,6 @@ package wrcore_pkg is
       dp_sfp_sda_o            : out std_logic;
       dp_sfp_sda_i            : in  std_logic := 'H';
       dp_sfp_det_i            : in  std_logic := '1';
-      dp_wrf_src_o            : out t_wrf_source_out;
-      dp_wrf_src_i            : in  t_wrf_source_in := c_dummy_src_in;
-      dp_wrf_snk_o            : out t_wrf_sink_out;
-      dp_wrf_snk_i            : in  t_wrf_sink_in   := c_dummy_snk_in;
       dp_phy_ref_clk_i        : in  std_logic;
       dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
       dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
@@ -731,25 +727,25 @@ package wrcore_pkg is
       -----------------------------------------
       -- External Fabric I/F
       -----------------------------------------
-      ext_snk_adr_i   : in  std_logic_vector(1 downto 0)  := "00";
-      ext_snk_dat_i   : in  std_logic_vector(15 downto 0) := x"0000";
-      ext_snk_sel_i   : in  std_logic_vector(1 downto 0)  := "00";
-      ext_snk_cyc_i   : in  std_logic                     := '0';
-      ext_snk_we_i    : in  std_logic                     := '0';
-      ext_snk_stb_i   : in  std_logic                     := '0';
-      ext_snk_ack_o   : out std_logic;
-      ext_snk_err_o   : out std_logic;
-      ext_snk_stall_o : out std_logic;
+      wrf_snk_adr_i   : in  std_logic_vector(1 downto 0)  := "00";
+      wrf_snk_dat_i   : in  std_logic_vector(15 downto 0) := x"0000";
+      wrf_snk_sel_i   : in  std_logic_vector(1 downto 0)  := "00";
+      wrf_snk_cyc_i   : in  std_logic                     := '0';
+      wrf_snk_we_i    : in  std_logic                     := '0';
+      wrf_snk_stb_i   : in  std_logic                     := '0';
+      wrf_snk_ack_o   : out std_logic;
+      wrf_snk_err_o   : out std_logic;
+      wrf_snk_stall_o : out std_logic;
 
-      ext_src_adr_o   : out std_logic_vector(1 downto 0);
-      ext_src_dat_o   : out std_logic_vector(15 downto 0);
-      ext_src_sel_o   : out std_logic_vector(1 downto 0);
-      ext_src_cyc_o   : out std_logic;
-      ext_src_stb_o   : out std_logic;
-      ext_src_we_o    : out std_logic;
-      ext_src_ack_i   : in  std_logic := '1';
-      ext_src_err_i   : in  std_logic := '0';
-      ext_src_stall_i : in  std_logic := '0';
+      wrf_src_adr_o   : out std_logic_vector(1 downto 0);
+      wrf_src_dat_o   : out std_logic_vector(15 downto 0);
+      wrf_src_sel_o   : out std_logic_vector(1 downto 0);
+      wrf_src_cyc_o   : out std_logic;
+      wrf_src_stb_o   : out std_logic;
+      wrf_src_we_o    : out std_logic;
+      wrf_src_ack_i   : in  std_logic := '1';
+      wrf_src_err_i   : in  std_logic := '0';
+      wrf_src_stall_i : in  std_logic := '0';
 
       ------------------------------------------
       -- External TX Timestamp I/F
@@ -808,24 +804,6 @@ package wrcore_pkg is
       dp_sfp_sda_o            : out std_logic;
       dp_sfp_sda_i            : in  std_logic := '1';
       dp_sfp_det_i            : in  std_logic := '1';
-      dp_ext_snk_adr_i        : in  std_logic_vector(1 downto 0)  := "00";
-      dp_ext_snk_dat_i        : in  std_logic_vector(15 downto 0) := x"0000";
-      dp_ext_snk_sel_i        : in  std_logic_vector(1 downto 0)  := "00";
-      dp_ext_snk_cyc_i        : in  std_logic                     := '0';
-      dp_ext_snk_we_i         : in  std_logic                     := '0';
-      dp_ext_snk_stb_i        : in  std_logic                     := '0';
-      dp_ext_snk_ack_o        : out std_logic;
-      dp_ext_snk_err_o        : out std_logic;
-      dp_ext_snk_stall_o      : out std_logic;
-      dp_ext_src_adr_o        : out std_logic_vector(1 downto 0);
-      dp_ext_src_dat_o        : out std_logic_vector(15 downto 0);
-      dp_ext_src_sel_o        : out std_logic_vector(1 downto 0);
-      dp_ext_src_cyc_o        : out std_logic;
-      dp_ext_src_stb_o        : out std_logic;
-      dp_ext_src_we_o         : out std_logic;
-      dp_ext_src_ack_i        : in  std_logic := '1';
-      dp_ext_src_err_i        : in  std_logic := '0';
-      dp_ext_src_stall_i      : in  std_logic := '0';
       dp_phy_ref_clk_i        : in  std_logic;
       dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
       dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);

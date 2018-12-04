@@ -234,25 +234,25 @@ entity wr_core is
     -----------------------------------------
     -- External Fabric I/F
     -----------------------------------------
-    ext_snk_adr_i   : in  std_logic_vector(1 downto 0)  := "00";
-    ext_snk_dat_i   : in  std_logic_vector(15 downto 0) := x"0000";
-    ext_snk_sel_i   : in  std_logic_vector(1 downto 0)  := "00";
-    ext_snk_cyc_i   : in  std_logic                     := '0';
-    ext_snk_we_i    : in  std_logic                     := '0';
-    ext_snk_stb_i   : in  std_logic                     := '0';
-    ext_snk_ack_o   : out std_logic;
-    ext_snk_err_o   : out std_logic;
-    ext_snk_stall_o : out std_logic;
+    wrf_snk_adr_i   : in  std_logic_vector(1 downto 0)  := "00";
+    wrf_snk_dat_i   : in  std_logic_vector(15 downto 0) := x"0000";
+    wrf_snk_sel_i   : in  std_logic_vector(1 downto 0)  := "00";
+    wrf_snk_cyc_i   : in  std_logic                     := '0';
+    wrf_snk_we_i    : in  std_logic                     := '0';
+    wrf_snk_stb_i   : in  std_logic                     := '0';
+    wrf_snk_ack_o   : out std_logic;
+    wrf_snk_err_o   : out std_logic;
+    wrf_snk_stall_o : out std_logic;
 
-    ext_src_adr_o   : out std_logic_vector(1 downto 0);
-    ext_src_dat_o   : out std_logic_vector(15 downto 0);
-    ext_src_sel_o   : out std_logic_vector(1 downto 0);
-    ext_src_cyc_o   : out std_logic;
-    ext_src_stb_o   : out std_logic;
-    ext_src_we_o    : out std_logic;
-    ext_src_ack_i   : in  std_logic := '1';
-    ext_src_err_i   : in  std_logic := '0';
-    ext_src_stall_i : in  std_logic := '0';
+    wrf_src_adr_o   : out std_logic_vector(1 downto 0);
+    wrf_src_dat_o   : out std_logic_vector(15 downto 0);
+    wrf_src_sel_o   : out std_logic_vector(1 downto 0);
+    wrf_src_cyc_o   : out std_logic;
+    wrf_src_stb_o   : out std_logic;
+    wrf_src_we_o    : out std_logic;
+    wrf_src_ack_i   : in  std_logic := '1';
+    wrf_src_err_i   : in  std_logic := '0';
+    wrf_src_stall_i : in  std_logic := '0';
 
     ------------------------------------------
     -- External TX Timestamp I/F
@@ -312,24 +312,6 @@ entity wr_core is
     dp_sfp_sda_o            : out std_logic;
     dp_sfp_sda_i            : in  std_logic := '1';
     dp_sfp_det_i            : in  std_logic := '1';
-    dp_ext_snk_adr_i        : in  std_logic_vector(1 downto 0)  := "00";
-    dp_ext_snk_dat_i        : in  std_logic_vector(15 downto 0) := x"0000";
-    dp_ext_snk_sel_i        : in  std_logic_vector(1 downto 0)  := "00";
-    dp_ext_snk_cyc_i        : in  std_logic                     := '0';
-    dp_ext_snk_we_i         : in  std_logic                     := '0';
-    dp_ext_snk_stb_i        : in  std_logic                     := '0';
-    dp_ext_snk_ack_o        : out std_logic;
-    dp_ext_snk_err_o        : out std_logic;
-    dp_ext_snk_stall_o      : out std_logic;
-    dp_ext_src_adr_o        : out std_logic_vector(1 downto 0);
-    dp_ext_src_dat_o        : out std_logic_vector(15 downto 0);
-    dp_ext_src_sel_o        : out std_logic_vector(1 downto 0);
-    dp_ext_src_cyc_o        : out std_logic;
-    dp_ext_src_stb_o        : out std_logic;
-    dp_ext_src_we_o         : out std_logic;
-    dp_ext_src_ack_i        : in  std_logic := '1';
-    dp_ext_src_err_i        : in  std_logic := '0';
-    dp_ext_src_stall_i      : in  std_logic := '0';
     dp_phy_ref_clk_i        : in  std_logic;
     dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
     dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
@@ -540,11 +522,11 @@ architecture struct of wr_core is
   signal ep_snk_out : t_wrf_sink_out;
   signal ep_snk_in  : t_wrf_sink_in;
 
-  signal mux_src_out : t_wrf_source_out_array(1 downto 0);
-  signal mux_src_in  : t_wrf_source_in_array(1 downto 0);
-  signal mux_snk_out : t_wrf_sink_out_array(1 downto 0);
-  signal mux_snk_in  : t_wrf_sink_in_array(1 downto 0);
-  signal mux_class   : t_wrf_mux_class(1 downto 0);
+  signal mux_src_out : t_wrf_source_out_array(2 downto 0);
+  signal mux_src_in  : t_wrf_source_in_array(2 downto 0);
+  signal mux_snk_out : t_wrf_sink_out_array(2 downto 0);
+  signal mux_snk_in  : t_wrf_sink_in_array(2 downto 0);
+  signal mux_class   : t_wrf_mux_class(2 downto 0);
 
   signal spll_out_locked : std_logic_vector(g_aux_clks downto 0);
 
@@ -1231,7 +1213,7 @@ begin
   -----------------------------------------------------------------------------
   U_WBP_Mux : xwrf_mux
     generic map(
-      g_muxed_ports => 2)
+      g_muxed_ports => 3)
     port map (
       clk_sys_i   => clk_sys_i,
       rst_n_i     => rst_net_n,
@@ -1246,29 +1228,30 @@ begin
       mux_class_i => mux_class);
 
   mux_class(0)  <= x"0f";
-  mux_class(1)  <= x"f0";
-  ext_src_adr_o <= mux_src_out(1).adr;
-  ext_src_dat_o <= mux_src_out(1).dat;
-  ext_src_stb_o <= mux_src_out(1).stb;
-  ext_src_cyc_o <= mux_src_out(1).cyc;
-  ext_src_sel_o <= mux_src_out(1).sel;
-  ext_src_we_o  <= '1';
+  mux_class(1)  <= x"30";
+  mux_class(2)  <= x"C0";
+  wrf_src_adr_o <= mux_src_out(1).adr;
+  wrf_src_dat_o <= mux_src_out(1).dat;
+  wrf_src_stb_o <= mux_src_out(1).stb;
+  wrf_src_cyc_o <= mux_src_out(1).cyc;
+  wrf_src_sel_o <= mux_src_out(1).sel;
+  wrf_src_we_o  <= '1';
 
-  mux_src_in(1).ack   <= ext_src_ack_i;
-  mux_src_in(1).stall <= ext_src_stall_i;
-  mux_src_in(1).err   <= ext_src_err_i;
+  mux_src_in(1).ack   <= wrf_src_ack_i;
+  mux_src_in(1).stall <= wrf_src_stall_i;
+  mux_src_in(1).err   <= wrf_src_err_i;
   mux_src_in(1).rty   <= '0';
 
-  mux_snk_in(1).adr <= ext_snk_adr_i;
-  mux_snk_in(1).dat <= ext_snk_dat_i;
-  mux_snk_in(1).stb <= ext_snk_stb_i;
-  mux_snk_in(1).cyc <= ext_snk_cyc_i;
-  mux_snk_in(1).sel <= ext_snk_sel_i;
-  mux_snk_in(1).we  <= ext_snk_we_i;
+  mux_snk_in(1).adr <= wrf_snk_adr_i;
+  mux_snk_in(1).dat <= wrf_snk_dat_i;
+  mux_snk_in(1).stb <= wrf_snk_stb_i;
+  mux_snk_in(1).cyc <= wrf_snk_cyc_i;
+  mux_snk_in(1).sel <= wrf_snk_sel_i;
+  mux_snk_in(1).we  <= wrf_snk_we_i;
 
-  ext_snk_ack_o   <= mux_snk_out(1).ack;
-  ext_snk_err_o   <= mux_snk_out(1).err;
-  ext_snk_stall_o <= mux_snk_out(1).stall;
+  wrf_snk_ack_o   <= mux_snk_out(1).ack;
+  wrf_snk_err_o   <= mux_snk_out(1).err;
+  wrf_snk_stall_o <= mux_snk_out(1).stall;
 
   -----------------------------------------------------------------------------
   -- External Tx Timestamping I/F
@@ -1414,28 +1397,6 @@ begin
 
     dp_mux_class(0)  <= x"0f";
     dp_mux_class(1)  <= x"f0";
-    dp_ext_src_adr_o <= dp_mux_src_out(1).adr;
-    dp_ext_src_dat_o <= dp_mux_src_out(1).dat;
-    dp_ext_src_stb_o <= dp_mux_src_out(1).stb;
-    dp_ext_src_cyc_o <= dp_mux_src_out(1).cyc;
-    dp_ext_src_sel_o <= dp_mux_src_out(1).sel;
-    dp_ext_src_we_o  <= '1';
-
-    dp_mux_src_in(1).ack   <= dp_ext_src_ack_i;
-    dp_mux_src_in(1).stall <= dp_ext_src_stall_i;
-    dp_mux_src_in(1).err   <= dp_ext_src_err_i;
-    dp_mux_src_in(1).rty   <= '0';
-
-    dp_mux_snk_in(1).adr <= dp_ext_snk_adr_i;
-    dp_mux_snk_in(1).dat <= dp_ext_snk_dat_i;
-    dp_mux_snk_in(1).stb <= dp_ext_snk_stb_i;
-    dp_mux_snk_in(1).cyc <= dp_ext_snk_cyc_i;
-    dp_mux_snk_in(1).sel <= dp_ext_snk_sel_i;
-    dp_mux_snk_in(1).we  <= dp_ext_snk_we_i;
-
-    dp_ext_snk_ack_o   <= dp_mux_snk_out(1).ack;
-    dp_ext_snk_err_o   <= dp_mux_snk_out(1).err;
-    dp_ext_snk_stall_o <= dp_mux_snk_out(1).stall;
     
     dp_txtsu_port_id_o      <= dp_ep_txtsu_port_id;
     dp_txtsu_frame_id_o     <= dp_ep_txtsu_frame_id;
@@ -1450,6 +1411,21 @@ begin
                             '0';
 
     dp_ep_txtsu_ack <= dp_txtsu_ack_i or dp_mnic_txtsu_ack;    
+
+    U_DP_SWITCH : xwrf_dp_switch
+      generic map (
+        g_num_ports     => 2)
+      port map (
+        clk_sys_i       => clk_sys_i,
+        rst_n_i         => rst_minic_n and rst_minic_dp_n,
+        port_wrf_snk_i(0)  => mux_src_out(2),
+        port_wrf_snk_i(1)  => dp_mux_src_out(1),
+        port_wrf_snk_o(0)  => mux_src_in(2),
+        port_wrf_snk_o(1)  => dp_mux_src_in(1),
+        port_wrf_src_o(0)  => mux_snk_in(2),
+        port_wrf_src_o(1)  => dp_mux_snk_in(1),
+        port_wrf_src_i(0)  => mux_snk_out(2),
+        port_wrf_src_i(1)  => dp_mux_snk_out(1));
 
   end generate;
   

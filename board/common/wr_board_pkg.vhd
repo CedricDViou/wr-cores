@@ -217,10 +217,6 @@ package wr_board_pkg is
       dp_sfp_sda_o         : out std_logic;
       dp_sfp_sda_i         : in  std_logic                                        := '1';
       dp_sfp_det_i         : in  std_logic                                        := '1';
-      dp_wrf_src_o         : out t_wrf_source_out;
-      dp_wrf_src_i         : in  t_wrf_source_in                                  := c_dummy_src_in;
-      dp_wrf_snk_o         : out t_wrf_sink_out;
-      dp_wrf_snk_i         : in  t_wrf_sink_in                                    := c_dummy_snk_in;
       dp_timestamps_o         : out t_txtsu_timestamp;
       dp_timestamps_ack_i     : in  std_logic := '1';
       dp_fc_tx_pause_req_i    : in  std_logic                     := '0';

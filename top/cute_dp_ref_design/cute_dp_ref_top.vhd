@@ -178,6 +178,11 @@ architecture rtl of cute_dp_ref_top is
   -----------------------------------------------------------------------------
   -- Signals
   -----------------------------------------------------------------------------
+  signal wrf_src_out : t_wrf_source_out_array(g_num_ports-1 downto 0);
+  signal wrf_src_in  : t_wrf_source_in_array(g_num_ports-1 downto 0);
+  signal wrf_snk_out : t_wrf_sink_out_array(g_num_ports-1 downto 0);
+  signal wrf_snk_in  : t_wrf_sink_in_array(g_num_ports-1 downto 0);
+
   -- ext 10M clock output
   constant c_DATA_W   : integer := 4; -- parallel data width going to serdes
   constant c_HALF     : integer := 25;-- default high/low width for 10MHz
@@ -293,7 +298,12 @@ begin
       sfp1_tx_fault_i     => sfp1_tx_fault,
       sfp1_tx_disable_o   => sfp1_tx_disable,
       sfp1_los_i          => sfp1_los,
-  
+
+      wrf_src_o           => wrf_src_out(0),
+      wrf_src_i           => wrf_src_in(0),
+      wrf_snk_o           => wrf_snk_out(0),
+      wrf_snk_i           => wrf_snk_in(0),
+
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
       eeprom_sda_i        => eeprom_sda_i,

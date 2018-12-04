@@ -187,7 +187,51 @@ package wr_fabric_pkg is
       bytesel_i : in  std_logic;
       dreq_o    : out std_logic);
   end component;
+  
+  component xwrf_dp_switch is
+    generic(
+      -- g_interface_mode        : t_wishbone_interface_mode      := CLASSIC;
+      -- g_address_granularity   : t_wishbone_address_granularity := WORD;
+      g_num_ports       : integer := 2 );
+    port(
+      clk_sys_i         : in  std_logic;
+      rst_n_i           : in  std_logic;
 
+      -- wb_i              : in  t_wishbone_slave_in;
+      -- wb_o              : out t_wishbone_slave_out;
+
+      port_wrf_snk_i   : in  t_wrf_sink_in_array(g_num_ports-1 downto 0);
+      port_wrf_snk_o   : out t_wrf_sink_out_array(g_num_ports-1 downto 0);
+      port_wrf_src_o   : out t_wrf_source_out_array(g_num_ports-1 downto 0);
+      port_wrf_src_i   : in  t_wrf_source_in_array(g_num_ports-1 downto 0)
+      );
+  end component;
+
+  component xwrf_to_gmii is
+  port (
+      clk_sys_i           : in  std_logic;
+      rst_sys_n_i         : in  std_logic;
+      clk_ref_i           : in  std_logic;
+      rst_ref_n_i         : in  std_logic;
+
+      wrf_src_i           : in  t_wrf_source_in;
+      wrf_src_o           : out t_wrf_source_out;
+      wrf_snk_i           : in  t_wrf_sink_in;
+      wrf_snk_o           : out t_wrf_sink_out;
+
+      gmii_tx_clk_o      : out std_logic := '0';
+      gmii_txd_o         : out std_logic_vector(7 downto 0);
+      gmii_tx_en_o       : out std_logic;
+      gmii_tx_er_o       : out std_logic;
+      gmii_rx_clk_i      : in  std_logic                    := '0';
+      gmii_rxd_i         : in  std_logic_vector(7 downto 0) := x"00";
+      gmii_rx_dv_i       : in  std_logic                    := '0';
+      gmii_rx_er_i       : in  std_logic                    := '0';
+      gmii_crs_i         : in  std_logic                    := '0';
+      gmii_col_i         : in  std_logic                    := '0'
+  );
+  end component;
+  
 end wr_fabric_pkg;
 
 package body wr_fabric_pkg is

@@ -133,22 +133,6 @@ package wr_cute_pkg is
       wb_slave_i           : in  t_wishbone_slave_in := cc_dummy_slave_in;
       aux_master_o         : out t_wishbone_master_out;
       aux_master_i         : in  t_wishbone_master_in := cc_dummy_master_in;
-      wrf_src_o            : out t_wrf_source_out;
-      wrf_src_i            : in  t_wrf_source_in := c_dummy_src_in;
-      wrf_snk_o            : out t_wrf_sink_out;
-      wrf_snk_i            : in  t_wrf_sink_in   := c_dummy_snk_in;
-      wrs_tx_data_i        : in  std_logic_vector(g_tx_streamer_params.data_width-1 downto 0) := (others => '0');
-      wrs_tx_valid_i       : in  std_logic                                        := '0';
-      wrs_tx_dreq_o        : out std_logic;
-      wrs_tx_last_i        : in  std_logic                                        := '1';
-      wrs_tx_flush_i       : in  std_logic                                        := '0';
-      wrs_tx_cfg_i         : in  t_tx_streamer_cfg                                := c_tx_streamer_cfg_default;
-      wrs_rx_first_o       : out std_logic;
-      wrs_rx_last_o        : out std_logic;
-      wrs_rx_data_o        : out std_logic_vector(g_rx_streamer_params.data_width-1 downto 0);
-      wrs_rx_valid_o       : out std_logic;
-      wrs_rx_dreq_i        : in  std_logic                                        := '0';
-      wrs_rx_cfg_i         : in t_rx_streamer_cfg                                 := c_rx_streamer_cfg_default;
       wb_eth_master_o      : out t_wishbone_master_out;
       wb_eth_master_i      : in  t_wishbone_master_in := cc_dummy_master_in;
       aux_diag_i           : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others => (others => '0'));
@@ -177,7 +161,17 @@ package wr_cute_pkg is
       pps_led_o            : out std_logic;
       pps_csync_o          : out std_logic;
       pll_locked_o         : out std_logic;
-      link_ok_o            : out std_logic);
+      link_ok_o            : out std_logic;
+      gmii_tx_clk_o        : out std_logic := '0';
+      gmii_txd_o           : out std_logic_vector(7 downto 0);
+      gmii_tx_en_o         : out std_logic;
+      gmii_tx_er_o         : out std_logic;
+      gmii_rx_clk_i        : in  std_logic                    := '0';
+      gmii_rxd_i           : in  std_logic_vector(7 downto 0) := x"00";
+      gmii_rx_dv_i         : in  std_logic                    := '0';
+      gmii_rx_er_i         : in  std_logic                    := '0';
+      gmii_crs_i           : in  std_logic                    := '0';
+      gmii_col_i           : in  std_logic                    := '0');
   end component xwrc_board_cute;
 
   constant c_xwb_tcpip_sdb : t_sdb_device := (

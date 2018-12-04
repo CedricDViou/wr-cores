@@ -279,10 +279,6 @@ entity xwr_core is
     dp_sfp_sda_o          : out std_logic;
     dp_sfp_sda_i          : in  std_logic := '1';
     dp_sfp_det_i          : in  std_logic;
-    dp_wrf_src_o          : out t_wrf_source_out;
-    dp_wrf_src_i          : in  t_wrf_source_in := c_dummy_src_in;
-    dp_wrf_snk_o          : out t_wrf_sink_out;
-    dp_wrf_snk_i          : in  t_wrf_sink_in   := c_dummy_snk_in;
     dp_phy_ref_clk_i        : in  std_logic;
     dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
     dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
@@ -429,25 +425,25 @@ begin
       aux_ack_i   => aux_master_i.ack,
       aux_dat_i   => aux_master_i.dat,
 
-      ext_snk_adr_i   => wrf_snk_i.adr,
-      ext_snk_dat_i   => wrf_snk_i.dat,
-      ext_snk_sel_i   => wrf_snk_i.sel,
-      ext_snk_cyc_i   => wrf_snk_i.cyc,
-      ext_snk_we_i    => wrf_snk_i.we,
-      ext_snk_stb_i   => wrf_snk_i.stb,
-      ext_snk_ack_o   => wrf_snk_o.ack,
-      ext_snk_err_o   => wrf_snk_o.err,
-      ext_snk_stall_o => wrf_snk_o.stall,
+      wrf_snk_adr_i   => wrf_snk_i.adr,
+      wrf_snk_dat_i   => wrf_snk_i.dat,
+      wrf_snk_sel_i   => wrf_snk_i.sel,
+      wrf_snk_cyc_i   => wrf_snk_i.cyc,
+      wrf_snk_we_i    => wrf_snk_i.we,
+      wrf_snk_stb_i   => wrf_snk_i.stb,
+      wrf_snk_ack_o   => wrf_snk_o.ack,
+      wrf_snk_err_o   => wrf_snk_o.err,
+      wrf_snk_stall_o => wrf_snk_o.stall,
 
-      ext_src_adr_o   => wrf_src_o.adr,
-      ext_src_dat_o   => wrf_src_o.dat,
-      ext_src_sel_o   => wrf_src_o.sel,
-      ext_src_cyc_o   => wrf_src_o.cyc,
-      ext_src_stb_o   => wrf_src_o.stb,
-      ext_src_we_o    => wrf_src_o.we,
-      ext_src_ack_i   => wrf_src_i.ack,
-      ext_src_err_i   => wrf_src_i.err,
-      ext_src_stall_i => wrf_src_i.stall,
+      wrf_src_adr_o   => wrf_src_o.adr,
+      wrf_src_dat_o   => wrf_src_o.dat,
+      wrf_src_sel_o   => wrf_src_o.sel,
+      wrf_src_cyc_o   => wrf_src_o.cyc,
+      wrf_src_stb_o   => wrf_src_o.stb,
+      wrf_src_we_o    => wrf_src_o.we,
+      wrf_src_ack_i   => wrf_src_i.ack,
+      wrf_src_err_i   => wrf_src_i.err,
+      wrf_src_stall_i => wrf_src_i.stall,
 
       txtsu_port_id_o      => timestamps_o.port_id(4 downto 0),
       txtsu_frame_id_o     => timestamps_o.frame_id,
@@ -492,24 +488,6 @@ begin
       dp_sfp_sda_o             => dp_sfp_sda_o,
       dp_sfp_sda_i             => dp_sfp_sda_i,
       dp_sfp_det_i             => dp_sfp_det_i,
-      dp_ext_snk_adr_i         => dp_wrf_snk_i.adr,
-      dp_ext_snk_dat_i         => dp_wrf_snk_i.dat,
-      dp_ext_snk_sel_i         => dp_wrf_snk_i.sel,
-      dp_ext_snk_cyc_i         => dp_wrf_snk_i.cyc,
-      dp_ext_snk_we_i          => dp_wrf_snk_i.we,
-      dp_ext_snk_stb_i         => dp_wrf_snk_i.stb,
-      dp_ext_snk_ack_o         => dp_wrf_snk_o.ack,
-      dp_ext_snk_err_o         => dp_wrf_snk_o.err,
-      dp_ext_snk_stall_o       => dp_wrf_snk_o.stall,
-      dp_ext_src_adr_o         => dp_wrf_src_o.adr,
-      dp_ext_src_dat_o         => dp_wrf_src_o.dat,
-      dp_ext_src_sel_o         => dp_wrf_src_o.sel,
-      dp_ext_src_cyc_o         => dp_wrf_src_o.cyc,
-      dp_ext_src_stb_o         => dp_wrf_src_o.stb,
-      dp_ext_src_we_o          => dp_wrf_src_o.we,
-      dp_ext_src_ack_i         => dp_wrf_src_i.ack,
-      dp_ext_src_err_i         => dp_wrf_src_i.err,
-      dp_ext_src_stall_i       => dp_wrf_src_i.stall,
       dp_phy_ref_clk_i         => dp_phy_ref_clk_i,
       dp_phy_tx_data_o         => dp_phy_tx_data_o,
       dp_phy_tx_k_o            => dp_phy_tx_k_o,
@@ -543,6 +521,5 @@ begin
   dp_timestamps_o.port_id(5) <= '0';
 
   wrf_snk_o.rty <= '0';
-  dp_wrf_snk_o.rty <= '0';
 
 end struct;
