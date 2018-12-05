@@ -122,7 +122,7 @@ package wr_board_pkg is
       g_fabric_iface              : t_board_fabric_iface           := PLAIN;
       g_multiboot_enable          : boolean                        := false);
     port (
-      clk_20m_i            : in std_logic := '0';
+      clk_20m_i            : in  std_logic := '0';
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic;
       clk_ref_i            : in  std_logic;
@@ -162,6 +162,7 @@ package wr_board_pkg is
       owr_i                : in  std_logic_vector(1 downto 0)                     := (others => '1');
       wb_slave_i           : in  t_wishbone_slave_in                              := cc_dummy_slave_in;
       wb_slave_o           : out t_wishbone_slave_out;
+      aux_rst_n_o          : out std_logic;
       aux_master_o         : out t_wishbone_master_out;
       aux_master_i         : in  t_wishbone_master_in                             := cc_dummy_master_in;
       wrf_src_o            : out t_wrf_source_out;
@@ -178,8 +179,8 @@ package wr_board_pkg is
       wrs_rx_data_o        : out std_logic_vector(g_rx_streamer_params.data_width-1 downto 0);
       wrs_rx_valid_o       : out std_logic;
       wrs_rx_dreq_i        : in  std_logic                                        := '0';
-      wrs_tx_cfg_i         : in t_tx_streamer_cfg := c_tx_streamer_cfg_default;
-      wrs_rx_cfg_i         : in t_rx_streamer_cfg := c_rx_streamer_cfg_default;
+      wrs_tx_cfg_i         : in  t_tx_streamer_cfg := c_tx_streamer_cfg_default;
+      wrs_rx_cfg_i         : in  t_rx_streamer_cfg := c_rx_streamer_cfg_default;
       wb_eth_master_o      : out t_wishbone_master_out;
       wb_eth_master_i      : in  t_wishbone_master_in                             := cc_dummy_master_in;
       aux_diag_i           : in  t_generic_word_array(g_diag_ro_size-1 downto 0)  := (others => (others => '0'));

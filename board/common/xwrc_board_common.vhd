@@ -169,6 +169,7 @@ entity xwrc_board_common is
     wb_slave_i : in  t_wishbone_slave_in := cc_dummy_slave_in;
     wb_slave_o : out t_wishbone_slave_out;
 
+    aux_rst_n_o  : out std_logic;
     aux_master_o : out t_wishbone_master_out;
     aux_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
 
@@ -520,6 +521,7 @@ begin  -- architecture struct
   tm_time_valid_o <= tm_time_valid;
   tm_tai_o        <= tm_tai;
   tm_cycles_o     <= tm_cycles;
+  aux_rst_n_o     <= aux_rst_n;
 
   gen_wr_streamers : if (g_fabric_iface = STREAMERS) generate
 

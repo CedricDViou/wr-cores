@@ -54,6 +54,7 @@ use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_cute_pkg.all;
+use work.wr_fabric_pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -153,7 +154,50 @@ entity cute_dp_ref_top is
     usr_button         : in  std_logic;
     usr_led1           : out std_logic;
     usr_led2           : out std_logic;
-    pps_out            : out std_logic
+    pps_out            : out std_logic;
+
+    la19_p             : out   std_logic;
+    la19_n             : out   std_logic;
+    la18_cc_p          : out   std_logic;
+    la18_cc_n          : out   std_logic;
+    la20_p             : out   std_logic;
+    la20_n             : out   std_logic;
+    la02_p             : out   std_logic;
+    la02_n             : out   std_logic;
+    la03_p             : out   std_logic;
+    la03_n             : out   std_logic;
+    la04_p             : out   std_logic;
+    la04_n             : out   std_logic;
+    la05_p             : out   std_logic;
+    la05_n             : out   std_logic;
+    la06_p             : out   std_logic;
+    la06_n             : out   std_logic;
+    la07_p             : out   std_logic;
+    la07_n             : out   std_logic;
+    la08_p             : out   std_logic;
+    la08_n             : out   std_logic;
+    la10_p             : in    std_logic;
+    la10_n             : in    std_logic;
+    la11_p             : in    std_logic;
+    la11_n             : in    std_logic;
+    la12_p             : in    std_logic;
+    la12_n             : in    std_logic;
+    la13_p             : in    std_logic;
+    la13_n             : in    std_logic;
+    la14_p             : in    std_logic;
+    la14_n             : in    std_logic;
+    la15_p             : in    std_logic;
+    la15_n             : in    std_logic;
+    la16_p             : in    std_logic;
+    la16_n             : in    std_logic;
+    la21_p             : in    std_logic;
+    la21_n             : in    std_logic;
+    la01_cc_p          : in    std_logic;
+    la01_cc_n          : in    std_logic;
+    la17_cc_p          : in    std_logic;
+    la17_cc_n          : in    std_logic;
+    la22_p             : in    std_logic;
+    la22_n             : in    std_logic
   );
 end cute_dp_ref_top;
 
@@ -178,10 +222,10 @@ architecture rtl of cute_dp_ref_top is
   -----------------------------------------------------------------------------
   -- Signals
   -----------------------------------------------------------------------------
-  signal wrf_src_out : t_wrf_source_out_array(g_num_ports-1 downto 0);
-  signal wrf_src_in  : t_wrf_source_in_array(g_num_ports-1 downto 0);
-  signal wrf_snk_out : t_wrf_sink_out_array(g_num_ports-1 downto 0);
-  signal wrf_snk_in  : t_wrf_sink_in_array(g_num_ports-1 downto 0);
+  signal wrf_src_out : t_wrf_source_out;
+  signal wrf_src_in  : t_wrf_source_in;
+  signal wrf_snk_out : t_wrf_sink_out;
+  signal wrf_snk_in  : t_wrf_sink_in;
 
   -- ext 10M clock output
   constant c_DATA_W   : integer := 4; -- parallel data width going to serdes
@@ -238,6 +282,31 @@ architecture rtl of cute_dp_ref_top is
   signal clk_500m       : std_logic;
   signal rst_sys_62m5_n : std_logic;
   signal rst_ref_125m_n : std_logic;
+
+  signal gmii_tx_clk_o     : std_logic;
+  signal gmii_txd_o        : std_logic_vector(7 downto 0);
+  signal gmii_tx_en_o      : std_logic;
+  signal gmii_tx_er_o      : std_logic;
+  signal gmii_rx_clk_i     : std_logic;
+  signal gmii_rx_clk_buf   : std_logic;
+  signal gmii_rxd_i        : std_logic_vector(7 downto 0);
+  signal gmii_rx_dv_i      : std_logic;
+  signal gmii_rx_er_i      : std_logic;
+
+  signal gmii_txd_p        : std_logic_vector(7 downto 0);
+  signal gmii_txd_n        : std_logic_vector(7 downto 0);
+  signal gmii_tx_en_p      : std_logic;
+  signal gmii_tx_en_n      : std_logic;
+  signal gmii_tx_er_p      : std_logic;
+  signal gmii_tx_er_n      : std_logic;
+  signal gmii_rx_clk_p     : std_logic;
+  signal gmii_rx_clk_n     : std_logic;
+  signal gmii_rxd_p        : std_logic_vector(7 downto 0);
+  signal gmii_rxd_n        : std_logic_vector(7 downto 0);
+  signal gmii_rx_dv_p      : std_logic;
+  signal gmii_rx_dv_n      : std_logic;
+  signal gmii_rx_er_p      : std_logic;
+  signal gmii_rx_er_n      : std_logic;
 
 begin
 
@@ -299,10 +368,10 @@ begin
       sfp1_tx_disable_o   => sfp1_tx_disable,
       sfp1_los_i          => sfp1_los,
 
-      wrf_src_o           => wrf_src_out(0),
-      wrf_src_i           => wrf_src_in(0),
-      wrf_snk_o           => wrf_snk_out(0),
-      wrf_snk_i           => wrf_snk_in(0),
+      wrf_src_o           => wrf_src_out,
+      wrf_src_i           => wrf_src_in,
+      wrf_snk_o           => wrf_snk_out,
+      wrf_snk_i           => wrf_snk_in,
 
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
@@ -422,5 +491,136 @@ begin
     pll_locked           => pll_locked,
     clk_div_in           => clk_ref_125m,
     io_reset             => rst_oserdes);
+
+  u_xwrf_to_gmii : xwrf_to_gmii
+  port map(
+      rst_sys_n_i         => rst_sys_62m5_n,
+      rst_ref_n_i         => rst_ref_125m_n,
+      clk_sys_i           => clk_sys_62m5,
+      clk_ref_i           => clk_ref_125m,
+      wrf_snk_i           => wrf_src_out,
+      wrf_snk_o           => wrf_src_in,
+      wrf_src_o           => wrf_snk_in,
+      wrf_src_i           => wrf_snk_out,
+      gmii_tx_clk_o       => gmii_tx_clk_o,
+      gmii_txd_o          => gmii_txd_o,
+      gmii_tx_en_o        => gmii_tx_en_o,
+      gmii_tx_er_o        => gmii_tx_er_o,
+      gmii_rx_clk_i       => gmii_rx_clk_i,
+      gmii_rxd_i          => gmii_rxd_i,
+      gmii_rx_dv_i        => gmii_rx_dv_i,
+      gmii_rx_er_i        => gmii_rx_er_i
+  );
+  
+  cmp_obuf_gmii_tx_en : OBUFDS
+    generic map (
+      IOSTANDARD   => "DEFAULT")
+    port map (
+      I  => gmii_tx_en_o,
+      O  => gmii_tx_en_p,
+      OB => gmii_tx_en_n);
+
+  cmp_obuf_gmii_tx_er : OBUFDS
+    generic map (
+      IOSTANDARD   => "DEFAULT")
+    port map (
+      I  => gmii_tx_er_o,
+      O  => gmii_tx_er_p,
+      OB => gmii_tx_er_n);
+
+  cmp_ibuf_gmii_rx_er : IBUFDS
+    generic map (
+      DIFF_TERM    => TRUE,
+      IOSTANDARD   => "DEFAULT")
+    port map (
+      O  => gmii_rx_er_i,
+      I  => gmii_rx_er_p,
+      IB => gmii_rx_er_n);
+
+  cmp_ibuf_gmii_rx_dv : IBUFDS
+    generic map (
+      DIFF_TERM    => TRUE,
+      IOSTANDARD   => "DEFAULT")
+    port map (
+      O  => gmii_rx_dv_i,
+      I  => gmii_rx_dv_p,
+      IB => gmii_rx_dv_n);
+
+  cmp_ibufgds_gmii_rx_clk : IBUFGDS
+    generic map (
+      DIFF_TERM    => TRUE,
+      IBUF_LOW_PWR => TRUE,
+      IOSTANDARD   => "DEFAULT")
+    port map (
+      O  => gmii_rx_clk_i,
+      I  => gmii_rx_clk_p,
+      IB => gmii_rx_clk_n);
+
+  cmp_clk_gmii_rx_buf_i : BUFG
+    port map (
+      O => gmii_rx_clk_buf,
+      I => gmii_rx_clk_i);
+
+  gen_gmii_data_iobufs: for I in 0 to 7 generate
+
+    U_ibuf: IBUFDS
+      generic map (
+        DIFF_TERM => true)
+      port map (
+        O  => gmii_rxd_i(i),
+        I  => gmii_rxd_p(i),
+        IB => gmii_rxd_n(i));
+
+    U_obuf : OBUFDS
+      port map (
+        I  => gmii_txd_o(i),
+        O  => gmii_txd_p(i),
+        OB => gmii_txd_n(i));
+
+  end generate;
+
+  la19_p <= gmii_tx_er_p;
+  la19_n <= gmii_tx_er_n;
+  la18_cc_p <= gmii_tx_en_p;
+  la18_cc_n <= gmii_tx_en_n;
+  la20_p <= gmii_txd_p(0);
+  la20_n <= gmii_txd_n(0);
+  la02_p <= gmii_txd_p(1);
+  la02_n <= gmii_txd_n(1);
+  la03_p <= gmii_txd_p(2);
+  la03_n <= gmii_txd_n(2);
+  la04_p <= gmii_txd_p(3);
+  la04_n <= gmii_txd_n(3);
+  la05_p <= gmii_txd_p(4);
+  la05_n <= gmii_txd_n(4);
+  la06_p <= gmii_txd_p(5);
+  la06_n <= gmii_txd_n(5);
+  la07_p <= gmii_txd_p(6);
+  la07_n <= gmii_txd_n(6);
+  la08_p <= gmii_txd_p(7);
+  la08_n <= gmii_txd_n(7);
+
+  gmii_rxd_p(0) <= la10_p;
+  gmii_rxd_n(0) <= la10_n;
+  gmii_rxd_p(1) <= la11_p;
+  gmii_rxd_n(1) <= la11_n;
+  gmii_rxd_p(2) <= la12_p;
+  gmii_rxd_n(2) <= la12_n;
+  gmii_rxd_p(3) <= la13_p;
+  gmii_rxd_n(3) <= la13_n;
+  gmii_rxd_p(4) <= la14_p;
+  gmii_rxd_n(4) <= la14_n;
+  gmii_rxd_p(5) <= la15_p;
+  gmii_rxd_n(5) <= la15_n;
+  gmii_rxd_p(6) <= la16_p;
+  gmii_rxd_n(6) <= la16_n;
+  gmii_rxd_p(7) <= la21_p;
+  gmii_rxd_n(7) <= la21_n;
+  gmii_rx_clk_p <= la01_cc_p;
+  gmii_rx_clk_n <= la01_cc_n;
+  gmii_rx_dv_p  <= la17_cc_p;
+  gmii_rx_dv_n  <= la17_cc_n;
+  gmii_rx_er_p  <= la22_p;
+  gmii_rx_er_n  <= la22_n;
 
 end rtl;

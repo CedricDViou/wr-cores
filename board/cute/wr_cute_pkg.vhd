@@ -131,8 +131,13 @@ package wr_cute_pkg is
       flash_miso_i         : in  std_logic:='1';
       wb_slave_o           : out t_wishbone_slave_out;
       wb_slave_i           : in  t_wishbone_slave_in := cc_dummy_slave_in;
+      aux_rst_n_o          : out std_logic;
       aux_master_o         : out t_wishbone_master_out;
       aux_master_i         : in  t_wishbone_master_in := cc_dummy_master_in;
+      wrf_src_o            : out t_wrf_source_out;
+      wrf_src_i            : in  t_wrf_source_in                                  := c_dummy_src_in;
+      wrf_snk_o            : out t_wrf_sink_out;
+      wrf_snk_i            : in  t_wrf_sink_in                                    := c_dummy_snk_in;
       wb_eth_master_o      : out t_wishbone_master_out;
       wb_eth_master_i      : in  t_wishbone_master_in := cc_dummy_master_in;
       aux_diag_i           : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others => (others => '0'));
@@ -161,17 +166,7 @@ package wr_cute_pkg is
       pps_led_o            : out std_logic;
       pps_csync_o          : out std_logic;
       pll_locked_o         : out std_logic;
-      link_ok_o            : out std_logic;
-      gmii_tx_clk_o        : out std_logic := '0';
-      gmii_txd_o           : out std_logic_vector(7 downto 0);
-      gmii_tx_en_o         : out std_logic;
-      gmii_tx_er_o         : out std_logic;
-      gmii_rx_clk_i        : in  std_logic                    := '0';
-      gmii_rxd_i           : in  std_logic_vector(7 downto 0) := x"00";
-      gmii_rx_dv_i         : in  std_logic                    := '0';
-      gmii_rx_er_i         : in  std_logic                    := '0';
-      gmii_crs_i           : in  std_logic                    := '0';
-      gmii_col_i           : in  std_logic                    := '0');
+      link_ok_o            : out std_logic);
   end component xwrc_board_cute;
 
   constant c_xwb_tcpip_sdb : t_sdb_device := (

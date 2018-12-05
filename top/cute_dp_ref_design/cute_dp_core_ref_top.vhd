@@ -53,6 +53,7 @@ library work;
 use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
+use work.wr_fabric_pkg.all;
 use work.wr_cute_pkg.all;
 
 library unisim;
@@ -120,7 +121,15 @@ entity cute_dp_core_ref_top is
     sfp1_tx_fault      : in    std_logic;
     sfp1_tx_disable    : out   std_logic;
     sfp1_los           : in    std_logic;
-  
+    
+    aux_rst_n_o        : out std_logic;
+    aux_master_o       : out t_wishbone_master_out;
+    aux_master_i       : in  t_wishbone_master_in := cc_dummy_master_in;
+    wrf_src_o          : out t_wrf_source_out;
+    wrf_src_i          : in  t_wrf_source_in:= c_dummy_src_in;
+    wrf_snk_o          : out t_wrf_sink_out;
+    wrf_snk_i          : in  t_wrf_sink_in:= c_dummy_snk_in;
+
     ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
@@ -154,24 +163,16 @@ entity cute_dp_core_ref_top is
     -- Miscellanous I/O pins
     ---------------------------------------------------------------------------
     -- user interface
-    sfp0_led           : out std_logic;
-    sfp1_led           : out std_logic;
-    ext_clk            : out std_logic;
-    usr_button         : in  std_logic;
-    usr_led1           : out std_logic;
-    usr_led2           : out std_logic;
-    pps_out            : out std_logic;
+    sfp0_led             : out std_logic;
+    sfp1_led             : out std_logic;
+    ext_clk              : out std_logic;
+    usr_button           : in  std_logic;
+    usr_led1             : out std_logic;
+    usr_led2             : out std_logic;
+    pps_out              : out std_logic;
 
-    gmii_tx_clk_o      : out std_logic := '0';
-    gmii_txd_o         : out std_logic_vector(7 downto 0);
-    gmii_tx_en_o       : out std_logic;
-    gmii_tx_er_o       : out std_logic;
-    gmii_rx_clk_i      : in  std_logic                    := '0';
-    gmii_rxd_i         : in  std_logic_vector(7 downto 0) := x"00";
-    gmii_rx_dv_i       : in  std_logic                    := '0';
-    gmii_rx_er_i       : in  std_logic                    := '0';
-    gmii_crs_i         : in  std_logic                    := '0';
-    gmii_col_i         : in  std_logic                    := '0'
+    usr_62m5_clk_o       : out std_logic;
+    usr_125m_clk_o       : out std_logic
   );
 end cute_dp_core_ref_top;
 
@@ -289,6 +290,13 @@ begin
       sfp1_tx_fault_i     => sfp1_tx_fault,
       sfp1_tx_disable_o   => sfp1_tx_disable,
       sfp1_los_i          => sfp1_los,
+      aux_rst_n_o         => aux_rst_n_o,
+      aux_master_o        => aux_master_o,
+      aux_master_i        => aux_master_i,
+      wrf_src_o           => wrf_src_o,
+      wrf_src_i           => wrf_src_i,
+      wrf_snk_o           => wrf_snk_o,
+      wrf_snk_i           => wrf_snk_i,
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
       eeprom_sda_i        => eeprom_sda_i,
@@ -316,15 +324,7 @@ begin
       pps_valid_o         => pps_valid,
       pps_csync_o         => pps_csync,
       pll_locked_o        => pll_locked,
-      link_ok_o           => usr_led2,
-      gmii_tx_clk_o       => gmii_tx_clk_o,
-      gmii_txd_o          => gmii_txd_o,
-      gmii_tx_en_o        => gmii_tx_en_o,
-      gmii_tx_er_o        => gmii_tx_er_o,
-      gmii_rx_clk_i       => gmii_rx_clk_i,
-      gmii_rxd_i          => gmii_rxd_i,
-      gmii_rx_dv_i        => gmii_rx_dv_i,
-      gmii_rx_er_i        => gmii_rx_er_i
+      link_ok_o           => usr_led2
 		);
   
   cnx_slave_in  <= cnx_master_out;
@@ -388,5 +388,8 @@ begin
     pll_locked           => pll_locked,
     clk_div_in           => clk_ref_125m,
     io_reset             => rst_oserdes);
+
+  usr_62m5_clk_o  <= clk_sys_62m5;
+  usr_125m_clk_o  <= clk_ref_125m;
 
 end rtl;

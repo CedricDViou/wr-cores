@@ -194,8 +194,14 @@ entity xwrc_board_cute is
     wb_slave_o : out t_wishbone_slave_out;
     wb_slave_i : in  t_wishbone_slave_in := cc_dummy_slave_in;
 
+    aux_rst_n_o  : out std_logic;
     aux_master_o : out t_wishbone_master_out;
     aux_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
+
+    wrf_src_o            : out t_wrf_source_out;
+    wrf_src_i            : in  t_wrf_source_in                                  := c_dummy_src_in;
+    wrf_snk_o            : out t_wrf_sink_out;
+    wrf_snk_i            : in  t_wrf_sink_in                                    := c_dummy_snk_in;
 
     ---------------------------------------------------------------------------
     -- Etherbone WB master interface (when g_fabric_iface = "etherbone")
@@ -263,18 +269,7 @@ entity xwrc_board_cute is
     dp_timestamps_ack_i : in  std_logic := '1';
     dp_fc_tx_pause_req_i   : in  std_logic                     := '0';
     dp_fc_tx_pause_delay_i : in  std_logic_vector(15 downto 0) := x"0000";
-    dp_fc_tx_pause_ready_o : out std_logic;
-
-    gmii_tx_clk_o      : out std_logic := '0';
-    gmii_txd_o         : out std_logic_vector(7 downto 0);
-    gmii_tx_en_o       : out std_logic;
-    gmii_tx_er_o       : out std_logic;
-    gmii_rx_clk_i      : in  std_logic                    := '0';
-    gmii_rxd_i         : in  std_logic_vector(7 downto 0) := x"00";
-    gmii_rx_dv_i       : in  std_logic                    := '0';
-    gmii_rx_er_i       : in  std_logic                    := '0';
-    gmii_crs_i         : in  std_logic                    := '0';
-    gmii_col_i         : in  std_logic                    := '0'
+    dp_fc_tx_pause_ready_o : out std_logic
     );
 
 end entity xwrc_board_cute;
@@ -385,12 +380,6 @@ architecture struct of xwrc_board_cute is
   signal dp_phy8_from_wrc : t_phy_8bits_from_wrc;
 
   signal tm_time_valid : std_logic;
-
-  -- WR fabric interface
-  signal wrf_src_out : t_wrf_source_out;
-  signal wrf_src_in  : t_wrf_source_in;
-  signal wrf_snk_out : t_wrf_sink_out;
-  signal wrf_snk_in  : t_wrf_sink_in;
 
 begin  -- architecture struct
 
@@ -699,12 +688,13 @@ begin  -- architecture struct
       owr_i                => onewire_in,
       wb_slave_i           => wb_slave_i,
       wb_slave_o           => wb_slave_o,
+      aux_rst_n_o          => aux_rst_n_o,
       aux_master_o         => aux_master_o,
       aux_master_i         => aux_master_i,
-      wrf_src_o            => wrf_src_out,
-      wrf_src_i            => wrf_src_in,
-      wrf_snk_o            => wrf_snk_out,
-      wrf_snk_i            => wrf_snk_in,
+      wrf_src_o            => wrf_src_o,
+      wrf_src_i            => wrf_src_i,
+      wrf_snk_o            => wrf_snk_o,
+      wrf_snk_i            => wrf_snk_i,
       wb_eth_master_o      => wb_eth_master_o,
       wb_eth_master_i      => wb_eth_master_i,
       aux_diag_i           => aux_diag_i,
@@ -753,27 +743,5 @@ begin  -- architecture struct
   onewire_oen_o <= onewire_en(0);
   onewire_in(0) <= onewire_i;
   onewire_in(1) <= '1';
-
-  u_xwrf_to_gmii : xwrf_to_gmii
-  port map(
-      rst_sys_n_i         => rst_62m5_n,
-      rst_ref_n_i         => rst_ref_125m_n,
-      clk_sys_i           => clk_pll_62m5,
-      clk_ref_i           => clk_pll_125m,
-      wrf_snk_i           => wrf_src_out,
-      wrf_snk_o           => wrf_src_in,
-      wrf_src_o           => wrf_snk_in,
-      wrf_src_i           => wrf_snk_out,
-      gmii_tx_clk_o       => gmii_tx_clk_o,
-      gmii_txd_o          => gmii_txd_o,
-      gmii_tx_en_o        => gmii_tx_en_o,
-      gmii_tx_er_o        => gmii_tx_er_o,
-      gmii_rx_clk_i       => gmii_rx_clk_i,
-      gmii_rxd_i          => gmii_rxd_i,
-      gmii_rx_dv_i        => gmii_rx_dv_i,
-      gmii_rx_er_i        => gmii_rx_er_i,
-      gmii_crs_i          => gmii_crs_i,
-      gmii_col_i          => gmii_col_i
-  );
 
 end architecture struct;
