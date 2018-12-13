@@ -49,6 +49,7 @@ package wr_xilinx_pkg is
     port (
       areset_n_i            : in  std_logic             := '1';
       clk_10m_ext_i         : in  std_logic             := '0';
+      clk_125m_pci_i : in std_logic := '0';
       clk_125m_gtp_p_i      : in  std_logic;
       clk_125m_gtp_n_i      : in  std_logic;
       clk_20m_vcxo_i        : in  std_logic             := '0';
@@ -187,5 +188,34 @@ package wr_xilinx_pkg is
       pad_rxp_i      : in  std_logic := '0';
       rdy_o          : out std_logic);
   end component;
+
+  component wr_gthe3_phy_family7 is
+    generic (
+      g_simulation : integer);
+    port (
+      clk_gth_p_i    : in  std_logic;
+      clk_gth_n_i    : in  std_logic;
+      clk_freerun_i  : in  std_logic;
+      tx_out_clk_o   : out std_logic;
+      tx_locked_o    : out std_logic;
+      tx_data_i      : in  std_logic_vector(15 downto 0);
+      tx_k_i         : in  std_logic_vector(1 downto 0);
+      tx_disparity_o : out std_logic;
+      tx_enc_err_o   : out std_logic;
+      rx_rbclk_o     : out std_logic;
+      rx_data_o      : out std_logic_vector(15 downto 0);
+      rx_k_o         : out std_logic_vector(1 downto 0);
+      rx_enc_err_o   : out std_logic;
+      rx_bitslide_o  : out std_logic_vector(4 downto 0);
+      rst_i          : in  std_logic;
+      loopen_i       : in  std_logic_vector(2 downto 0);
+      debug_i        : in  std_logic_vector(15 downto 0):=x"0000";
+      debug_o        : out std_logic_vector(15 downto 0);
+      pad_txn_o      : out std_logic;
+      pad_txp_o      : out std_logic;
+      pad_rxn_i      : in  std_logic := '0';
+      pad_rxp_i      : in  std_logic := '0';
+      rdy_o          : out std_logic);
+  end component wr_gthe3_phy_family7;
 
 end wr_xilinx_pkg;
