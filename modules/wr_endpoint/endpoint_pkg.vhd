@@ -447,7 +447,7 @@ package endpoint_pkg is
         device_id => x"650c2d4e",
         version   => x"00000002",
         date      => x"20121116",
-        name      => "WR-Endpoint-DP    ")));
+        name      => "WR-Endpoint-DP     ")));
   
 end endpoint_pkg;
 

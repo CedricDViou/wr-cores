@@ -3,7 +3,7 @@
 -- Project    : WR PTP Core
 -- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
 -------------------------------------------------------------------------------
--- File       : cute_wr_ref_top.vhd
+-- File       : cute_dp_core_ref_top.vhd
 -- Author(s)  : Hongming Li <lihm.thu@foxmail.com>
 --              Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : Tsinghua Univ. (DEP), CERN
@@ -53,16 +53,17 @@ library work;
 use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
+use work.wr_fabric_pkg.all;
 use work.wr_cute_pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
 
-entity cute_wr_ref_top is
+entity cute_dp_core_ref_top is
   generic (
-    g_dpram_initf : string := "../../bin/wrpc/wrc_phy8.bram";
+    g_dpram_initf : string := "../../bin/wrpc/wrc_dp_phy8.bram";
     g_sfp0_enable : integer:= 1;
-    g_sfp1_enable : integer:= 0;
+    g_sfp1_enable : integer:= 1;
     g_cute_version       : string:= "2.2";
     g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
     g_multiboot_enable   : boolean:= false
@@ -83,6 +84,10 @@ entity cute_wr_ref_top is
     sfp1_ref_clk_p     : in std_logic;  -- dedicated clock for xilinx gtp transceiver
     sfp1_ref_clk_n     : in std_logic;
 
+    clk_sys_62m5_o     : out std_logic;
+    clk_ref_125m_o     : out std_logic;
+    rst_ref_125m_n_o   : out std_logic;
+    rst_sys_62m5_n_o   : out std_logic;
     ---------------------------------------------------------------------------
     -- SPI interface to DACs
     ---------------------------------------------------------------------------
@@ -102,27 +107,41 @@ entity cute_wr_ref_top is
     sfp0_rx_p          : in    std_logic;
     sfp0_rx_n          : in    std_logic;
     sfp0_det           : in    std_logic;  -- sfp detect
-    sfp0_scl           : inout std_logic;  -- scl
-    sfp0_sda           : inout std_logic;  -- sda
+    sfp0_scl_i         : in    std_logic;  -- scl
+    sfp0_scl_o         : out   std_logic;  -- scl
+    sfp0_sda_i         : in    std_logic;  -- sda
+    sfp0_sda_o         : out   std_logic;  -- sda
     sfp0_tx_fault      : in    std_logic;
     sfp0_tx_disable    : out   std_logic;
     sfp0_los           : in    std_logic;  
-    --sfp1_tx_p          : out   std_logic;
-    --sfp1_tx_n          : out   std_logic;
-    --sfp1_rx_p          : in    std_logic;
-    --sfp1_rx_n          : in    std_logic;
-    --sfp1_det           : in    std_logic;  -- sfp detect
-    --sfp1_scl           : inout std_logic;  -- scl
-    --sfp1_sda           : inout std_logic;  -- sda
-    --sfp1_tx_fault      : in    std_logic;
-    --sfp1_tx_disable    : out   std_logic;
-    --sfp1_los           : in    std_logic;
-  
+
+    sfp1_tx_p          : out   std_logic;
+    sfp1_tx_n          : out   std_logic;
+    sfp1_rx_p          : in    std_logic;
+    sfp1_rx_n          : in    std_logic;
+    sfp1_det           : in    std_logic;  -- sfp detect
+    sfp1_scl_i         : in    std_logic;  -- scl
+    sfp1_scl_o         : out   std_logic;  -- scl
+    sfp1_sda_i         : in    std_logic;  -- sda
+    sfp1_sda_o         : out   std_logic;  -- sda
+    sfp1_tx_fault      : in    std_logic;
+    sfp1_tx_disable    : out   std_logic;
+    sfp1_los           : in    std_logic;
+
+    aux_master_o       : out t_wishbone_master_out;
+    aux_master_i       : in  t_wishbone_master_in := cc_dummy_master_in;
+
+    wrf_src_o          : out t_wrf_source_out;
+    wrf_src_i          : in  t_wrf_source_in:= c_dummy_src_in;
+    wrf_snk_o          : out t_wrf_sink_out;
+    wrf_snk_i          : in  t_wrf_sink_in:= c_dummy_snk_in;
+
     ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
+    onewire_oen_o      : out std_logic;
+    onewire_i          : in  std_logic;        -- 1-wire interface to ds18b20
 
-    one_wire           : inout std_logic;      -- 1-wire interface to ds18b20
     ---------------------------------------------------------------------------
     -- UART
     ---------------------------------------------------------------------------
@@ -132,8 +151,10 @@ entity cute_wr_ref_top is
     ---------------------------------------------------------------------------
     -- I2C configuration EEPROM interface
     ---------------------------------------------------------------------------
-    eeprom_scl         : inout std_logic;
-    eeprom_sda         : inout std_logic;
+    eeprom_scl_i       : in  std_logic;
+    eeprom_scl_o       : out std_logic;
+    eeprom_sda_i       : in  std_logic;
+    eeprom_sda_o       : out std_logic;
 
     ---------------------------------------------------------------------------
     -- Flash memory SPI interface
@@ -156,34 +177,14 @@ entity cute_wr_ref_top is
     usr_led2           : out std_logic;
     pps_out            : out std_logic
   );
-end cute_wr_ref_top;
+end cute_dp_core_ref_top;
 
-architecture rtl of cute_wr_ref_top is
+architecture rtl of cute_dp_core_ref_top is
   
 
   -----------------------------------------------------------------------------
   -- Signals
   -----------------------------------------------------------------------------
-  -- I2C EEPROM
-  signal eeprom_scl_o      : std_logic;
-  signal eeprom_scl_i      : std_logic;
-  signal eeprom_sda_o      : std_logic;
-  signal eeprom_sda_i      : std_logic;
-
-  -- OneWire
-  signal onewire_i         : std_logic;
-  signal onewire_oen_o     : std_logic;
-
-  -- SFP
-  signal sfp0_scl_i        : std_logic;
-  signal sfp0_scl_o        : std_logic;
-  signal sfp0_sda_i        : std_logic;
-  signal sfp0_sda_o        : std_logic;
-  signal sfp1_scl_i        : std_logic;
-  signal sfp1_scl_o        : std_logic;
-  signal sfp1_sda_i        : std_logic;
-  signal sfp1_sda_o        : std_logic;
-  
   signal pps               : std_logic;
   signal pps_csync         : std_logic;
   attribute maxdelay       : string;
@@ -217,7 +218,7 @@ begin
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,
       g_multiboot_enable => g_multiboot_enable,
-      g_num_ports        => 1)
+      g_num_ports        => 2)
     port map (
       areset_n_i          => usr_button,
       clk_20m_vcxo_i      => clk20m_vcxo_i,
@@ -252,19 +253,26 @@ begin
       sfp0_tx_fault_i     => sfp0_tx_fault,
       sfp0_tx_disable_o   => sfp0_tx_disable,
       sfp0_los_i          => sfp0_los,
-      --sfp1_txp_o          => sfp1_tx_p,
-      --sfp1_txn_o          => sfp1_tx_n,
-      --sfp1_rxp_i          => sfp1_rx_p,
-      --sfp1_rxn_i          => sfp1_rx_n,
-      --sfp1_det_i          => sfp1_det,
-      --sfp1_scl_i          => sfp1_scl_i,
-      --sfp1_scl_o          => sfp1_scl_o,
-      --sfp1_sda_i          => sfp1_sda_i,
-      --sfp1_sda_o          => sfp1_sda_o,
-      --sfp1_rate_select_o  => open,
-      --sfp1_tx_fault_i     => sfp1_tx_fault,
-      --sfp1_tx_disable_o   => sfp1_tx_disable,
-      --sfp1_los_i          => sfp1_los,
+      sfp1_txp_o          => sfp1_tx_p,
+      sfp1_txn_o          => sfp1_tx_n,
+      sfp1_rxp_i          => sfp1_rx_p,
+      sfp1_rxn_i          => sfp1_rx_n,
+      sfp1_det_i          => sfp1_det,
+      sfp1_scl_i          => sfp1_scl_i,
+      sfp1_scl_o          => sfp1_scl_o,
+      sfp1_sda_i          => sfp1_sda_i,
+      sfp1_sda_o          => sfp1_sda_o,
+      sfp1_rate_select_o  => open,
+      sfp1_tx_fault_i     => sfp1_tx_fault,
+      sfp1_tx_disable_o   => sfp1_tx_disable,
+      sfp1_los_i          => sfp1_los,
+
+      aux_master_o        => aux_master_o,
+      aux_master_i        => aux_master_i,
+      wrf_src_o           => wrf_src_o,
+      wrf_src_i           => wrf_src_i,
+      wrf_snk_o           => wrf_snk_o,
+      wrf_snk_i           => wrf_snk_i,
 
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
@@ -287,7 +295,7 @@ begin
 
       wb_eth_master_o     => cnx_master_out(0),
       wb_eth_master_i     => cnx_master_in(0),
-  
+
       tm_link_up_o        => tm_link_up,
       tm_time_valid_o     => tm_time_valid,
       tm_tai_o            => tm_tai,
@@ -300,34 +308,15 @@ begin
       pps_csync_o         => pps_csync,
       link_ok_o           => open);
   
-  cnx_slave_in <= cnx_master_out;
-  cnx_master_in <= cnx_slave_out;
-
-  -- Tristates for configuration EEPROM
-  eeprom_scl  <= '0' when eeprom_scl_o = '0' else 'Z';
-  eeprom_sda  <= '0' when eeprom_sda_o = '0' else 'Z';
-  eeprom_scl_i  <= eeprom_scl;
-  eeprom_sda_i  <= eeprom_sda;
-
-  -- Tristates for SFP EEPROM
-  sfp0_scl <= '0' when sfp0_scl_o = '0' else 'Z';
-  sfp0_sda <= '0' when sfp0_sda_o = '0' else 'Z';
-  sfp0_scl_i <= sfp0_scl;
-  sfp0_sda_i <= sfp0_sda;
-
-  --sfp1_scl <= '0' when sfp1_scl_o = '0' else 'Z';
-  --sfp1_sda <= '0' when sfp1_sda_o = '0' else 'Z';
-  --sfp1_scl_i <= sfp1_scl;
-  --sfp1_sda_i <= sfp1_sda;
-  
-  -- Tristates for Onewire
-  one_wire <= '0' when onewire_oen_o = '1' else 'Z';
-  onewire_i  <= one_wire;
-
   sfp0_led <= not led_act;
   sfp1_led <= not pps_led;
 
   usr_led1 <= not tm_time_valid;
   usr_led2 <= not tm_link_up;
+  
+  clk_sys_62m5_o   <= clk_sys_62m5;
+  clk_ref_125m_o   <= clk_ref_125m;
+  rst_sys_62m5_n_o <= rst_sys_62m5_n;
+  rst_ref_125m_n_o <= rst_ref_125m_n;
 
 end rtl;
