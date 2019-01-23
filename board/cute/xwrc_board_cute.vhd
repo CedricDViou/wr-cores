@@ -83,7 +83,8 @@ entity xwrc_board_cute is
     g_sfp0_enable               : integer              := 1;
     g_sfp1_enable               : integer              := 0;
     g_phy_refclk_sel            : integer              := 0;
-    g_multiboot_enable          : boolean              := false
+    g_multiboot_enable          : boolean              := false;
+    g_num_ports                 : integer              := 1
     );
   port (
     ---------------------------------------------------------------------------
@@ -277,7 +278,13 @@ entity xwrc_board_cute is
     pps_led_o  : out std_logic;
     pps_csync_o: out std_logic;
     -- Link ok indication
-    link_ok_o  : out std_logic
+    link_ok_o  : out std_logic;
+
+    dp_timestamps_o     : out t_txtsu_timestamp;
+    dp_timestamps_ack_i : in  std_logic := '1';
+    dp_fc_tx_pause_req_i   : in  std_logic                     := '0';
+    dp_fc_tx_pause_delay_i : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_fc_tx_pause_ready_o : out std_logic
     );
 
 end entity xwrc_board_cute;
@@ -401,6 +408,9 @@ architecture struct of xwrc_board_cute is
   signal sfp1_tx_fault_in     : std_logic;
   signal sfp1_tx_disable_out  : std_logic;
   signal sfp1_los_in          : std_logic;
+
+  signal dp_phy8_to_wrc   : t_phy_8bits_to_wrc;
+  signal dp_phy8_from_wrc : t_phy_8bits_from_wrc;
 
   signal tm_time_valid : std_logic;
 
@@ -557,6 +567,30 @@ begin  -- architecture struct
     sfp1_tx_fault_in   <= sfp1_tx_fault_i;
     sfp1_los_in        <= sfp1_los_i;
 
+    dp_cmp_xwrc_platform : xwrc_platform_xilinx
+      generic map (
+        g_fpga_family               => "spartan6",
+        g_with_external_clock_input => false,
+        g_use_default_plls          => false,
+        g_gtp_enable_ch0            => 0,
+        g_gtp_enable_ch1            => 1,
+        g_phy_refclk_sel            => g_phy_refclk_sel,
+        g_simulation                => g_simulation)
+      port map (
+        areset_n_i            => areset_n_i,
+        clk_125m_gtp_p_i      => clk_125m_gtp1_p_i,
+        clk_125m_gtp_n_i      => clk_125m_gtp1_n_i,
+        clk_125m_ref_i        => clk_pll_125m,
+        sfp_txn_o             => sfp1_txn_out,
+        sfp_txp_o             => sfp1_txp_out,
+        sfp_rxn_i             => sfp1_rxn_in,
+        sfp_rxp_i             => sfp1_rxp_in,
+        sfp_tx_fault_i        => sfp1_tx_fault_in,
+        sfp_los_i             => sfp1_los_in,
+        sfp_tx_disable_o      => sfp1_tx_disable_out,
+        phy8_o                => dp_phy8_to_wrc,
+        phy8_i                => dp_phy8_from_wrc);
+
   end generate;
 
   sfp0_rate_select_o <= '1';
@@ -668,7 +702,8 @@ begin  -- architecture struct
       g_streamers_op_mode         => g_streamers_op_mode,
       g_tx_streamer_params        => g_tx_streamer_params,
       g_rx_streamer_params        => g_rx_streamer_params,
-      g_fabric_iface              => g_fabric_iface
+      g_fabric_iface              => g_fabric_iface,
+      g_num_ports                 => g_num_ports
       )
     port map (
       clk_sys_i            => clk_pll_62m5,
@@ -757,7 +792,15 @@ begin  -- architecture struct
       pps_p_o              => pps_p_o,
       pps_csync_o          => pps_csync,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o);
+      link_ok_o            => link_ok_o,
+      dp_phy8_o            => dp_phy8_from_wrc,
+      dp_phy8_i            => dp_phy8_to_wrc,
+      dp_timestamps_o         => dp_timestamps_o,
+      dp_timestamps_ack_i     => dp_timestamps_ack_i,
+      dp_fc_tx_pause_req_i    => dp_fc_tx_pause_req_i,
+      dp_fc_tx_pause_delay_i  => dp_fc_tx_pause_delay_i,
+      dp_fc_tx_pause_ready_o  => dp_fc_tx_pause_ready_o
+      );
 
   tm_time_valid_o <= tm_time_valid;
   pps_csync_o     <= pps_csync;

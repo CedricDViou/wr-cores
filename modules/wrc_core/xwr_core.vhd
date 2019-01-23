@@ -91,6 +91,7 @@ entity xwr_core is
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
+    g_num_ports                 : integer                        := 1;
     g_records_for_phy           : boolean                        := false;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
@@ -269,7 +270,35 @@ entity xwr_core is
     aux_diag_i    : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
     aux_diag_o    : out t_generic_word_array(g_diag_rw_size-1 downto 0);
 
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+
+    dp_phy8_o               : out t_phy_8bits_from_wrc;
+    dp_phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+    dp_phy16_o              : out t_phy_16bits_from_wrc;
+    dp_phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+    dp_phy_ref_clk_i        : in  std_logic;
+    dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_tx_disparity_i   : in  std_logic;
+    dp_phy_tx_enc_err_i     : in  std_logic;
+    dp_phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_rx_rbclk_i       : in  std_logic;
+    dp_phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_rx_enc_err_i     : in  std_logic;
+    dp_phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+    dp_phy_rst_o            : out std_logic;
+    dp_phy_rdy_i            : in  std_logic := '1';
+    dp_phy_loopen_o         : out std_logic;
+    dp_phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
+    dp_phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
+    dp_phy_sfp_tx_fault_i   : in  std_logic := '0';
+    dp_phy_sfp_los_i        : in  std_logic := '0';
+    dp_phy_sfp_tx_disable_o : out std_logic;
+    dp_timestamps_o         : out t_txtsu_timestamp;
+    dp_timestamps_ack_i     : in  std_logic := '1';
+    dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+    dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_fc_tx_pause_ready_o  : out std_logic
     );
 end xwr_core;
 
@@ -296,6 +325,7 @@ begin
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
+      g_num_ports                 => g_num_ports,
       g_records_for_phy           => g_records_for_phy,
       g_diag_id                   => g_diag_id,
       g_diag_ver                  => g_diag_ver,
@@ -446,10 +476,43 @@ begin
       link_ok_o => link_ok_o,
 
       aux_diag_i => aux_diag_i,
-      aux_diag_o => aux_diag_o
+      aux_diag_o => aux_diag_o,
+
+      dp_phy8_o                => dp_phy8_o,
+      dp_phy8_i                => dp_phy8_i,
+      dp_phy16_o               => dp_phy16_o,
+      dp_phy16_i               => dp_phy16_i,
+      dp_phy_ref_clk_i         => dp_phy_ref_clk_i,
+      dp_phy_tx_data_o         => dp_phy_tx_data_o,
+      dp_phy_tx_k_o            => dp_phy_tx_k_o,
+      dp_phy_tx_disparity_i    => dp_phy_tx_disparity_i,
+      dp_phy_tx_enc_err_i      => dp_phy_tx_enc_err_i,
+      dp_phy_rx_data_i         => dp_phy_rx_data_i,
+      dp_phy_rx_rbclk_i        => dp_phy_rx_rbclk_i,
+      dp_phy_rx_k_i            => dp_phy_rx_k_i,
+      dp_phy_rx_enc_err_i      => dp_phy_rx_enc_err_i,
+      dp_phy_rx_bitslide_i     => dp_phy_rx_bitslide_i,
+      dp_phy_rst_o             => dp_phy_rst_o,
+      dp_phy_rdy_i             => dp_phy_rdy_i,
+      dp_phy_loopen_o          => dp_phy_loopen_o,
+      dp_phy_loopen_vec_o      => dp_phy_loopen_vec_o,
+      dp_phy_tx_prbs_sel_o     => dp_phy_tx_prbs_sel_o,
+      dp_phy_sfp_tx_fault_i    => dp_phy_sfp_tx_fault_i,
+      dp_phy_sfp_los_i         => dp_phy_sfp_los_i,
+      dp_phy_sfp_tx_disable_o  => dp_phy_sfp_tx_disable_o,
+      dp_txtsu_port_id_o       => dp_timestamps_o.port_id(4 downto 0),
+      dp_txtsu_frame_id_o      => dp_timestamps_o.frame_id,
+      dp_txtsu_ts_value_o      => dp_timestamps_o.tsval,
+      dp_txtsu_ts_incorrect_o  => dp_timestamps_o.incorrect,
+      dp_txtsu_stb_o           => dp_timestamps_o.stb,
+      dp_txtsu_ack_i           => dp_timestamps_ack_i,
+      dp_fc_tx_pause_req_i     => dp_fc_tx_pause_req_i,
+      dp_fc_tx_pause_delay_i   => dp_fc_tx_pause_delay_i,
+      dp_fc_tx_pause_ready_o   => dp_fc_tx_pause_ready_o
       );
 
   timestamps_o.port_id(5) <= '0';
+  dp_timestamps_o.port_id(5) <= '0';
 
   wrf_snk_o.rty <= '0';
 

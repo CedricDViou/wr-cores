@@ -65,7 +65,9 @@ package wr_cute_pkg is
       g_sfp0_enable               : integer              := 1;
       g_sfp1_enable               : integer              := 0;
       g_phy_refclk_sel            : integer              := 0;
-      g_multiboot_enable          : boolean              := false);
+      g_multiboot_enable          : boolean              := false;
+      g_num_ports                 : integer              := 1
+      );
     port (
       areset_n_i          : in  std_logic;
       areset_edge_n_i     : in  std_logic := '1';

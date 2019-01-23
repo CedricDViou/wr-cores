@@ -113,6 +113,22 @@ package wrcore_pkg is
         version   => x"00000001",
         date      => x"20120305",
         name      => "WR-Mini-NIC        ")));
+  
+  constant c_dp_xwr_mini_nic_sdb : t_sdb_device := (
+    abi_class     => x"0000",              -- undocumented device
+    abi_ver_major => x"01",
+    abi_ver_minor => x"01",
+    wbd_endian    => c_sdb_endian_big,
+    wbd_width     => x"7",                 -- 8/16/32-bit port granularity
+    sdb_component => (
+      addr_first  => x"0000000000000000",
+      addr_last   => x"00000000000000ff",
+      product     => (
+        vendor_id => x"000000000000CE42",  -- CERN
+        device_id => x"a224633b",
+        version   => x"00000001",
+        date      => x"20120305",
+        name      => "WR-Mini-NIC-DP     ")));
 
   component xwr_mini_nic
     generic (
@@ -383,6 +399,7 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
+      g_num_ports                 : integer                        := 1;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -502,6 +519,33 @@ package wrcore_pkg is
 
       link_ok_o : out std_logic;
 
+      dp_phy8_o               : out t_phy_8bits_from_wrc;
+      dp_phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+      dp_phy16_o              : out t_phy_16bits_from_wrc;
+      dp_phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+      dp_phy_ref_clk_i        : in  std_logic;
+      dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_disparity_i   : in  std_logic;
+      dp_phy_tx_enc_err_i     : in  std_logic;
+      dp_phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_rbclk_i       : in  std_logic;
+      dp_phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_enc_err_i     : in  std_logic;
+      dp_phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rst_o            : out std_logic;
+      dp_phy_rdy_i            : in  std_logic := '1';
+      dp_phy_loopen_o         : out std_logic;
+      dp_phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
+      dp_phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
+      dp_phy_sfp_tx_fault_i   : in  std_logic := '0';
+      dp_phy_sfp_los_i        : in  std_logic := '0';
+      dp_phy_sfp_tx_disable_o : out std_logic;
+      dp_timestamps_o         : out t_txtsu_timestamp;
+      dp_timestamps_ack_i     : in  std_logic := '1';
+      dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+      dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_fc_tx_pause_ready_o  : out std_logic;
       aux_diag_i : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others=>(others=>'0'));
       aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0)
       );
@@ -530,6 +574,7 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
+      g_num_ports                 : integer                        := 1;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -744,6 +789,37 @@ package wrcore_pkg is
 
       link_ok_o : out std_logic;
 
+      dp_phy8_o               : out t_phy_8bits_from_wrc;
+      dp_phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+      dp_phy16_o              : out t_phy_16bits_from_wrc;
+      dp_phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+      dp_phy_ref_clk_i        : in  std_logic;
+      dp_phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_tx_disparity_i   : in  std_logic;
+      dp_phy_tx_enc_err_i     : in  std_logic;
+      dp_phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_rbclk_i       : in  std_logic;
+      dp_phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rx_enc_err_i     : in  std_logic;
+      dp_phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+      dp_phy_rst_o            : out std_logic;
+      dp_phy_rdy_i            : in  std_logic := '1';
+      dp_phy_loopen_o         : out std_logic;
+      dp_phy_loopen_vec_o     : out std_logic_vector(2 downto 0);
+      dp_phy_tx_prbs_sel_o    : out std_logic_vector(2 downto 0);
+      dp_phy_sfp_tx_fault_i   : in  std_logic := '0';
+      dp_phy_sfp_los_i        : in  std_logic := '0';
+      dp_phy_sfp_tx_disable_o : out std_logic;
+      dp_txtsu_port_id_o      : out std_logic_vector(4 downto 0);
+      dp_txtsu_frame_id_o     : out std_logic_vector(15 downto 0);
+      dp_txtsu_ts_value_o     : out std_logic_vector(31 downto 0);
+      dp_txtsu_ts_incorrect_o : out std_logic;
+      dp_txtsu_stb_o          : out std_logic;
+      dp_txtsu_ack_i          : in  std_logic := '1';
+      dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+      dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_fc_tx_pause_ready_o  : out std_logic;
       -------------------------------------
       -- DIAG to/from external modules
       -------------------------------------

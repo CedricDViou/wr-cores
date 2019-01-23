@@ -66,6 +66,7 @@ entity xwrc_board_common is
     g_softpll_enable_debugger   : boolean                        := FALSE;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := FALSE;
+    g_num_ports                 : integer                        := 1;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
@@ -261,7 +262,21 @@ entity xwrc_board_common is
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
     -- Link ok indication
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+
+    ---------------------------------------------------------------------------
+    -- Another PHY I/f for dualport
+    ---------------------------------------------------------------------------
+    dp_phy8_o  : out t_phy_8bits_from_wrc;
+    dp_phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
+    dp_phy16_o : out t_phy_16bits_from_wrc;
+    dp_phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+    
+    dp_timestamps_o         : out t_txtsu_timestamp;
+    dp_timestamps_ack_i     : in  std_logic := '1';
+    dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+    dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+    dp_fc_tx_pause_ready_o  : out std_logic
     );
 
 end entity xwrc_board_common;
@@ -381,6 +396,7 @@ begin  -- architecture struct
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
+      g_num_ports                 => g_num_ports,
       g_records_for_phy           => TRUE,
       g_diag_id                   => c_diag_id,
       g_diag_ver                  => c_diag_ver,
@@ -480,7 +496,35 @@ begin  -- architecture struct
       rst_aux_n_o          => aux_rst_n,
       aux_diag_i           => aux_diag_in,
       aux_diag_o           => aux_diag_out,
-      link_ok_o            => link_ok);
+      link_ok_o            => link_ok,
+      dp_phy8_o            => dp_phy8_o,
+      dp_phy8_i            => dp_phy8_i,
+      dp_phy16_o           => dp_phy16_o,
+      dp_phy16_i           => dp_phy16_i,
+      dp_phy_ref_clk_i     => '0',
+      dp_phy_tx_data_o     => open,
+      dp_phy_tx_k_o        => open,
+      dp_phy_tx_disparity_i=> '0',
+      dp_phy_tx_enc_err_i  => '0',
+      dp_phy_rx_data_i     => (others => '0'),
+      dp_phy_rx_rbclk_i    => '0',
+      dp_phy_rx_k_i        => (others => '0'),
+      dp_phy_rx_enc_err_i  => '0',
+      dp_phy_rx_bitslide_i => (others => '0'),
+      dp_phy_rst_o         => open,
+      dp_phy_rdy_i         => '1',
+      dp_phy_loopen_o      => open,
+      dp_phy_loopen_vec_o  => open,
+      dp_phy_tx_prbs_sel_o => open,
+      dp_phy_sfp_tx_fault_i=> '0',
+      dp_phy_sfp_los_i     => '0',
+      dp_phy_sfp_tx_disable_o => open,
+      dp_timestamps_o         => dp_timestamps_o,
+      dp_timestamps_ack_i     => dp_timestamps_ack_i,
+      dp_fc_tx_pause_req_i    => dp_fc_tx_pause_req_i,
+      dp_fc_tx_pause_delay_i  => dp_fc_tx_pause_delay_i,
+      dp_fc_tx_pause_ready_o  => dp_fc_tx_pause_ready_o
+      );
 
   link_ok_o       <= link_ok;
   tm_time_valid_o <= tm_time_valid;

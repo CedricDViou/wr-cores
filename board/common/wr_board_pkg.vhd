@@ -111,6 +111,7 @@ package wr_board_pkg is
       g_softpll_enable_debugger   : boolean                        := FALSE;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := FALSE;
+      g_num_ports                 : integer                        := 1;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
       g_diag_ro_size              : integer                        := 0;
@@ -210,7 +211,17 @@ package wr_board_pkg is
       pps_csync_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic);
+      link_ok_o            : out std_logic;
+      dp_phy8_o            : out t_phy_8bits_from_wrc;
+      dp_phy8_i            : in  t_phy_8bits_to_wrc                               := c_dummy_phy8_to_wrc;
+      dp_phy16_o           : out t_phy_16bits_from_wrc;
+      dp_phy16_i           : in  t_phy_16bits_to_wrc                              := c_dummy_phy16_to_wrc;
+      dp_timestamps_o         : out t_txtsu_timestamp;
+      dp_timestamps_ack_i     : in  std_logic := '1';
+      dp_fc_tx_pause_req_i    : in  std_logic                     := '0';
+      dp_fc_tx_pause_delay_i  : in  std_logic_vector(15 downto 0) := x"0000";
+      dp_fc_tx_pause_ready_o  : out std_logic
+      );
   end component xwrc_board_common;
 
 end wr_board_pkg;

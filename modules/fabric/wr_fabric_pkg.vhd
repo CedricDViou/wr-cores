@@ -187,7 +187,26 @@ package wr_fabric_pkg is
       bytesel_i : in  std_logic;
       dreq_o    : out std_logic);
   end component;
+  
+  component xwrf_dp_switch is
+    generic(
+      -- g_interface_mode        : t_wishbone_interface_mode      := CLASSIC;
+      -- g_address_granularity   : t_wishbone_address_granularity := WORD;
+      g_num_ports       : integer := 2 );
+    port(
+      clk_sys_i         : in  std_logic;
+      rst_n_i           : in  std_logic;
 
+      -- wb_i              : in  t_wishbone_slave_in;
+      -- wb_o              : out t_wishbone_slave_out;
+
+      port_wrf_snk_i   : in  t_wrf_sink_in_array(g_num_ports-1 downto 0);
+      port_wrf_snk_o   : out t_wrf_sink_out_array(g_num_ports-1 downto 0);
+      port_wrf_src_o   : out t_wrf_source_out_array(g_num_ports-1 downto 0);
+      port_wrf_src_i   : in  t_wrf_source_in_array(g_num_ports-1 downto 0)
+      );
+  end component;
+  
 end wr_fabric_pkg;
 
 package body wr_fabric_pkg is
