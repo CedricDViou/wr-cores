@@ -51,7 +51,7 @@ entity xwrc_board_common is
     g_simulation                : integer                        := 0;
     g_with_external_clock_input : boolean                        := TRUE;
     g_board_name                : string                         := "NA  ";
-    g_flash_secsz_kb            : integer                        := 256;        -- default for M25P128
+    g_flash_secsz_kB            : integer                        := 256;        -- default for M25P128
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for M25P128
     g_phys_uart                 : boolean                        := TRUE;
     g_virtual_uart              : boolean                        := TRUE;
@@ -340,12 +340,12 @@ architecture struct of xwrc_board_common is
   signal sfp_sda_in   : std_logic;
   signal sfp_det_in   : std_logic;
 
-  -- ch1 - currently unconnected - not supported at the moment (TODO)
---   signal sfp1_scl_out : std_logic;
---   signal sfp1_scl_in  : std_logic;
---   signal sfp1_sda_out : std_logic;
---   signal sfp1_sda_in  : std_logic;
---   signal sfp1_det_in  : std_logic;
+  -- ch1 - currently unconnected
+  signal sfp1_scl_out : std_logic;
+  signal sfp1_scl_in  : std_logic;
+  signal sfp1_sda_out : std_logic;
+  signal sfp1_sda_in  : std_logic;
+  signal sfp1_det_in  : std_logic;
 
 begin  -- architecture struct
 
@@ -366,7 +366,7 @@ begin  -- architecture struct
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => g_board_name,
-      g_flash_secsz_kb            => g_flash_secsz_kb,
+      g_flash_secsz_kB            => g_flash_secsz_kB,
       g_flash_sdbfs_baddr         => g_flash_sdbfs_baddr,
       g_phys_uart                 => g_phys_uart,
       g_virtual_uart              => g_virtual_uart,
@@ -435,6 +435,11 @@ begin  -- architecture struct
       sfp_sda_o            => sfp_sda_out,
       sfp_sda_i            => sfp_sda_in,
       sfp_det_i            => sfp_det_in,
+      sfp1_scl_o           => sfp1_scl_out,
+      sfp1_scl_i           => sfp1_scl_in,
+      sfp1_sda_o           => sfp1_sda_out,
+      sfp1_sda_i           => sfp1_sda_in,
+      sfp1_det_i           => sfp1_det_in,
       btn1_i               => btn1_i,
       btn2_i               => btn2_i,
       spi_sclk_o           => spi_sclk_o,
@@ -634,12 +639,11 @@ begin  -- architecture struct
     sfp_sda_in <= sfp_sda_i;
     sfp_det_in <= sfp_det_i;
 
-    -- at the moment, only one channel si supported (TODO)
---     sfp1_scl_o <= sfp1_scl_out;
---     sfp1_scl_in<= sfp1_scl_i;
---     sfp1_sda_o <= sfp1_sda_out;
---     sfp1_sda_in<= sfp1_sda_i;
---     sfp1_det_in<= sfp1_det_i;
+    sfp1_scl_o <= sfp1_scl_out;
+    sfp1_scl_in<= sfp1_scl_i;
+    sfp1_sda_o <= sfp1_sda_out;
+    sfp1_sda_in<= sfp1_sda_i;
+    sfp1_det_in<= sfp1_det_i;
 
   end generate gen_sfp_i2c_dual;
 

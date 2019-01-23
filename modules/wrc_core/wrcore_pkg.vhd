@@ -243,7 +243,7 @@ package wrcore_pkg is
   component wrc_periph is
     generic(
       g_board_name      : string  := "NA  ";
-      g_flash_secsz_kb    : integer := 64;
+      g_flash_secsz_kB    : integer := 64;
       g_flash_sdbfs_baddr : integer := 16#2e0000#;
       g_phys_uart       : boolean := true;
       g_virtual_uart    : boolean := false;
@@ -278,6 +278,11 @@ package wrcore_pkg is
       spi_ncs_o   : out std_logic;
       spi_mosi_o  : out std_logic;
       spi_miso_i  : in  std_logic;
+      sfp1_scl_o  : out std_logic;
+      sfp1_scl_i  : in  std_logic := '1';
+      sfp1_sda_o  : out std_logic;
+      sfp1_sda_i  : in  std_logic := '1';
+      sfp1_det_i  : in  std_logic := '1';
       slave_i     : in  t_wishbone_slave_in_array(0 to 3);
       slave_o     : out t_wishbone_slave_out_array(0 to 3);
       uart_rxd_i  : in  std_logic;
@@ -362,7 +367,7 @@ package wrcore_pkg is
     generic(
       g_simulation                : integer                        := 0;
       g_board_name                : string                         := "NA  ";
-      g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+      g_flash_secsz_kB            : integer                        := 256;        -- default for SVEC (M25P128)
       g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
       g_phys_uart                 : boolean                        := true;
       g_virtual_uart              : boolean                        := true;
@@ -441,6 +446,11 @@ package wrcore_pkg is
       sfp_sda_o  : out std_logic;
       sfp_sda_i  : in  std_logic := 'H';
       sfp_det_i  : in  std_logic := '1';
+      sfp1_scl_o : out std_logic;
+      sfp1_scl_i : in  std_logic := '1';
+      sfp1_sda_o : out std_logic;
+      sfp1_sda_i : in  std_logic := '1';
+      sfp1_det_i : in  std_logic := '1';
       btn1_i     : in  std_logic := 'H';
       btn2_i     : in  std_logic := 'H';
       spi_sclk_o : out std_logic;
@@ -505,7 +515,7 @@ package wrcore_pkg is
       g_with_external_clock_input : boolean                        := true;
       --
       g_board_name                : string                         := "NA  ";
-      g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+      g_flash_secsz_kB            : integer                        := 256;        -- default for SVEC (M25P128)
       g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
       g_phys_uart                 : boolean                        := true;
       g_virtual_uart              : boolean                        := true;
@@ -611,6 +621,11 @@ package wrcore_pkg is
       sfp_sda_o  : out std_logic;
       sfp_sda_i  : in  std_logic := '1';
       sfp_det_i  : in  std_logic := '1';
+      sfp1_scl_o : out std_logic;
+      sfp1_scl_i : in  std_logic := '1';
+      sfp1_sda_o : out std_logic;
+      sfp1_sda_i : in  std_logic := '1';
+      sfp1_det_i : in  std_logic := '1';
       btn1_i     : in  std_logic := '1';
       btn2_i     : in  std_logic := '1';
       spi_sclk_o : out std_logic;

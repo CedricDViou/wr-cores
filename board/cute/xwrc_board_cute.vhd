@@ -388,6 +388,19 @@ architecture struct of xwrc_board_cute is
   signal sfp_tx_fault_in     : std_logic;
   signal sfp_tx_disable_out  : std_logic;
   signal sfp_los_in          : std_logic;
+  
+  signal sfp1_txp_out         : std_logic;
+  signal sfp1_txn_out         : std_logic;
+  signal sfp1_rxp_in          : std_logic;
+  signal sfp1_rxn_in          : std_logic;
+  signal sfp1_det_in          : std_logic;
+  signal sfp1_sda_in          : std_logic;
+  signal sfp1_sda_out         : std_logic;
+  signal sfp1_scl_in          : std_logic;
+  signal sfp1_scl_out         : std_logic;
+  signal sfp1_tx_fault_in     : std_logic;
+  signal sfp1_tx_disable_out  : std_logic;
+  signal sfp1_los_in          : std_logic;
 
   signal tm_time_valid : std_logic;
 
@@ -477,7 +490,7 @@ begin  -- architecture struct
   -- SFP0/1 selection
   -----------------------------------------------------------------------------
   
-  GEN_GTP0: if g_sfp0_enable = 1 generate
+  GEN_GTP0: if (g_sfp0_enable = 1) and (g_sfp1_enable = 0) generate
     clk_125m_gtp_p  <= clk_125m_gtp0_p_i;
     clk_125m_gtp_n  <= clk_125m_gtp0_n_i;
 
@@ -495,7 +508,7 @@ begin  -- architecture struct
     sfp_los_in         <= sfp0_los_i;
   end generate;
 
-  GEN_GTP1: if g_sfp1_enable = 1 generate
+  GEN_GTP1: if (g_sfp0_enable = 0) and (g_sfp1_enable = 1) generate
     clk_125m_gtp_p <= clk_125m_gtp1_p_i;
     clk_125m_gtp_n <= clk_125m_gtp1_n_i;
 
@@ -511,6 +524,39 @@ begin  -- architecture struct
     sfp_scl_in         <= sfp1_scl_i;
     sfp_tx_fault_in    <= sfp1_tx_fault_i;
     sfp_los_in         <= sfp1_los_i;
+  end generate;
+  
+  GEN_GTP0_and_GTP1 : if (g_sfp0_enable = 1) and (g_sfp1_enable = 1) generate
+    
+    clk_125m_gtp_p  <= clk_125m_gtp0_p_i;
+    clk_125m_gtp_n  <= clk_125m_gtp0_n_i;
+
+    sfp0_txp_o         <= sfp_txp_out;
+    sfp0_txn_o         <= sfp_txn_out;
+    sfp0_sda_o         <= sfp_sda_out;
+    sfp0_scl_o         <= sfp_scl_out;
+    sfp0_tx_disable_o  <= sfp_tx_disable_out;
+    sfp_rxp_in         <= sfp0_rxp_i;
+    sfp_rxn_in         <= sfp0_rxn_i;
+    sfp_det_in         <= sfp0_det_i;
+    sfp_sda_in         <= sfp0_sda_i;
+    sfp_scl_in         <= sfp0_scl_i;
+    sfp_tx_fault_in    <= sfp0_tx_fault_i;
+    sfp_los_in         <= sfp0_los_i;
+    
+    sfp1_txp_o         <= sfp1_txp_out;
+    sfp1_txn_o         <= sfp1_txn_out;
+    sfp1_sda_o         <= sfp1_sda_out;
+    sfp1_scl_o         <= sfp1_scl_out;
+    sfp1_tx_disable_o  <= sfp1_tx_disable_out;
+    sfp1_rxp_in        <= sfp1_rxp_i;
+    sfp1_rxn_in        <= sfp1_rxn_i;
+    sfp1_det_in        <= sfp1_det_i;
+    sfp1_sda_in        <= sfp1_sda_i;
+    sfp1_scl_in        <= sfp1_scl_i;
+    sfp1_tx_fault_in   <= sfp1_tx_fault_i;
+    sfp1_los_in        <= sfp1_los_i;
+
   end generate;
 
   sfp0_rate_select_o <= '1';
@@ -600,7 +646,7 @@ begin  -- architecture struct
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => "CUTE",
-      g_flash_secsz_kb            => 64,         -- sector size for M25P32
+      g_flash_secsz_kB            => 64,         -- sector size for M25P32
       g_flash_sdbfs_baddr         => 16#2e0000#, -- sdbfs after multiboot bitstream
       g_phys_uart                 => TRUE,
       g_virtual_uart              => TRUE,
@@ -651,6 +697,11 @@ begin  -- architecture struct
       sfp_sda_o            => sfp_sda_out,
       sfp_sda_i            => sfp_sda_in,
       sfp_det_i            => sfp_det_in,
+      sfp1_scl_o           => sfp1_scl_out,
+      sfp1_scl_i           => sfp1_scl_in,
+      sfp1_sda_o           => sfp1_sda_out,
+      sfp1_sda_i           => sfp1_sda_in,
+      sfp1_det_i           => sfp1_det_in,
       spi_sclk_o           => flash_sclk_o,
       spi_ncs_o            => flash_ncs_o,
       spi_mosi_o           => flash_mosi_o,

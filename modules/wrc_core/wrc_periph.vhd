@@ -48,7 +48,7 @@ use work.wrc_diags_wbgen2_pkg.all;
 entity wrc_periph is
   generic(
     g_board_name      : string  := "NA  ";
-    g_flash_secsz_kb    : integer := 256;        -- default for SVEC (M25P128)
+    g_flash_secsz_kB    : integer := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr : integer := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart       : boolean := true;
     g_virtual_uart    : boolean := false;
@@ -78,6 +78,11 @@ entity wrc_periph is
     sfp_sda_o   : out std_logic;
     sfp_sda_i   : in  std_logic;
     sfp_det_i   : in  std_logic;
+    sfp1_scl_o  : out std_logic;
+    sfp1_scl_i  : in  std_logic := '1';
+    sfp1_sda_o  : out std_logic;
+    sfp1_sda_i  : in  std_logic := '1';
+    sfp1_det_i  : in  std_logic := '1';
     memsize_i   : in  std_logic_vector(3 downto 0);
     btn1_i      : in  std_logic;
     btn2_i      : in  std_logic;
@@ -195,7 +200,7 @@ begin
   -- BOARD NAME and Flash info
   -------------------------------------
   sysc_regs_i.hwir_name_i         <= f_board_name_conv(g_board_name);
-  sysc_regs_i.hwfr_storage_sec_i  <= std_logic_vector(to_unsigned(g_flash_secsz_kb, 16));
+  sysc_regs_i.hwfr_storage_sec_i  <= std_logic_vector(to_unsigned(g_flash_secsz_kB, 16));
   sysc_regs_i.hwfr_storage_type_i <= "00";  -- for now these parameters are only for Flash
   sysc_regs_i.sdbfs_baddr_i       <= std_logic_vector(to_unsigned(g_flash_sdbfs_baddr, 32));
 
@@ -292,6 +297,33 @@ begin
   sysc_regs_i.gpsr_sfp_scl_i <= sfp_scl_i;
 
   sysc_regs_i.gpsr_sfp_det_i <= sfp_det_i;
+  
+  p_drive_sfp1i2c : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        sfp1_scl_o <= '1';
+        sfp1_sda_o <= '1';
+      else
+        if(sysc_regs_o.gpsr_sfp1_sda_load_o = '1' and sysc_regs_o.gpsr_sfp1_sda_o = '1') then
+          sfp1_sda_o <= '1';
+        elsif(sysc_regs_o.gpcr_sfp1_sda_o = '1') then
+          sfp1_sda_o <= '0';
+        end if;
+
+        if(sysc_regs_o.gpsr_sfp1_scl_load_o = '1' and sysc_regs_o.gpsr_sfp1_scl_o = '1') then
+          sfp1_scl_o <= '1';
+        elsif(sysc_regs_o.gpcr_sfp1_scl_o = '1') then
+          sfp1_scl_o <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  sysc_regs_i.gpsr_sfp1_sda_i <= sfp1_sda_i;
+  sysc_regs_i.gpsr_sfp1_scl_i <= sfp1_scl_i;
+
+  sysc_regs_i.gpsr_sfp1_det_i <= sfp1_det_i;
 
   -------------------------------------
   -- SPI - Flash

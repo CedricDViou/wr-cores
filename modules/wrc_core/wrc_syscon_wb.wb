@@ -175,6 +175,40 @@ peripheral {
         align = 13;
       };
 
+      field {
+         name = "SFP1 detect (MOD_DEF0 signal)";
+         prefix = "sfp1_det";
+         description = "read : returns the state of the SFP1's MOD_DEF0 line";
+         type = BIT;
+         align = 16;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SFP1 I2C bitbanged SCL";
+         prefix = "sfp1_scl";
+         description = "write 1: Set SFP1 SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+         align = 17;
+      };
+      
+      field {
+         name = "SFP1 I2C bitbanged SDA";
+         prefix = "sfp1_sda";
+         description = "write 1: Set SFP1 SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+         align = 18;
+      };
+
    };
 
    reg {
@@ -220,7 +254,7 @@ peripheral {
       };
 
       field {
-         name = "FMC I2C bitbanged SDA";
+         name = "SFP I2C bitbanged SDA";
          prefix = "sfp_sda";
          description = "write 1: Set SFP SDA line to 0.";
          type = MONOSTABLE;
@@ -249,6 +283,22 @@ peripheral {
         description = "write 1: Set SPI MOSI line to 0.";
         type = MONOSTABLE;
         align = 12;
+      };
+
+      field {
+         name = "SFP1 I2C bitbanged SCL";
+         prefix = "sfp1_scl";
+         description = "write 1: Set SFP1 SCL line to 0.";
+         type = MONOSTABLE;
+         align = 17;
+      };
+
+      field {
+         name = "SFP1 I2C bitbanged SDA";
+         prefix = "sfp1_sda";
+         description = "write 1: Set SFP1 SDA line to 0.";
+         type = MONOSTABLE;
+         align = 18;
       };
 
    };

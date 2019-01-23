@@ -77,7 +77,7 @@ entity wr_core is
     g_with_external_clock_input : boolean                        := true;
     --
     g_board_name                : string                         := "NA  ";
-    g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+    g_flash_secsz_kB            : integer                        := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart                 : boolean                        := true;
     g_virtual_uart              : boolean                        := true;
@@ -179,6 +179,11 @@ entity wr_core is
     sfp_sda_o  : out std_logic;
     sfp_sda_i  : in  std_logic := '1';
     sfp_det_i  : in  std_logic := '1';
+    sfp1_scl_o : out std_logic;
+    sfp1_scl_i : in  std_logic := '1';
+    sfp1_sda_o : out std_logic;
+    sfp1_sda_i : in  std_logic := '1';
+    sfp1_det_i : in  std_logic := '1';
     btn1_i     : in  std_logic := '1';
     btn2_i     : in  std_logic := '1';
     spi_sclk_o : out std_logic;
@@ -877,7 +882,7 @@ begin
   PERIPH : wrc_periph
     generic map(
       g_board_name      => g_board_name,
-      g_flash_secsz_kb  => g_flash_secsz_kb,
+      g_flash_secsz_kB  => g_flash_secsz_kB,
       g_flash_sdbfs_baddr => g_flash_sdbfs_baddr,
       g_phys_uart       => g_phys_uart,
       g_virtual_uart    => g_virtual_uart,
@@ -911,6 +916,11 @@ begin
       spi_ncs_o   => spi_ncs_o,
       spi_mosi_o  => spi_mosi_o,
       spi_miso_i  => spi_miso_i,
+      sfp1_scl_o  => sfp1_scl_o,
+      sfp1_scl_i  => sfp1_scl_i,
+      sfp1_sda_o  => sfp1_sda_o,
+      sfp1_sda_i  => sfp1_sda_i,
+      sfp1_det_i  => sfp1_det_i,
 
       slave_i => periph_slave_i,
       slave_o => periph_slave_o,
