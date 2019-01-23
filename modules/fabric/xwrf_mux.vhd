@@ -269,21 +269,22 @@ begin
     dmux_others(I) <= or_reduce(dmux_select(I-1 downto 0));
   end generate;
 
-
+  -- Modify the MUX to support multi output by hm
   GEN_DMUX_CONN : for I in 0 to g_muxed_ports-1 generate
-    mux_src_o(I).cyc <= ep_snk_i.cyc when(dmux_select(I) = '1' and dmux_others(I) = '0') else
+    mux_src_o(I).cyc <= ep_snk_i.cyc when(dmux_select(I) = '1') else
                         '0';
-    mux_src_o(I).stb <= '1' when(dmux_snd_stat(I) = '1' and dmux_others(I) = '0') else
+    mux_src_o(I).stb <= '1' when(dmux_snd_stat(I) = '1') else
                         ep_snk_i.stb when(dmux_select(I) = '1' and dmux_others(I) = '0') else
+                        (ep_snk_i.stb and not ep_snk_out_stall) when(dmux_select(I) = '1' and dmux_others(I) = '1') else
                         '0';
-    mux_src_o(I).adr <= c_WRF_STATUS when(dmux_snd_stat(I) = '1' and dmux_others(I) = '0') else
-                        ep_snk_i.adr when(dmux_select(I) = '1' and dmux_others(I) = '0') else
+    mux_src_o(I).adr <= c_WRF_STATUS when(dmux_snd_stat(I) = '1') else
+                        ep_snk_i.adr when(dmux_select(I) = '1') else
                         (others => '0');
-    mux_src_o(I).dat <= dmux_status_reg when(dmux_snd_stat(I) = '1' and dmux_others(I) = '0') else
-                        ep_snk_i.dat when(dmux_select(I) = '1' and dmux_others(I) = '0') else
+    mux_src_o(I).dat <= dmux_status_reg when(dmux_snd_stat(I) = '1') else
+                        ep_snk_i.dat when(dmux_select(I) = '1') else
                         (others => '0');
-    mux_src_o(I).sel <= (others => '1') when(dmux_snd_stat(I) = '1' and dmux_others(I) = '0') else
-                        ep_snk_i.sel when(dmux_select(I) = '1' and dmux_others(I) = '0') else
+    mux_src_o(I).sel <= (others => '1') when(dmux_snd_stat(I) = '1') else
+                        ep_snk_i.sel when(dmux_select(I) = '1') else
                         (others => '1');
     mux_src_o(I).we <= '1';
   end generate;
