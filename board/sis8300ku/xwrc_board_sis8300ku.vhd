@@ -67,7 +67,7 @@ entity xwrc_board_sis8300ku is
     g_tx_streamer_params       : t_tx_streamer_params := c_tx_streamer_params_defaut;
     g_rx_streamer_params       : t_rx_streamer_params := c_rx_streamer_params_defaut;
     -- memory initialisation file for embedded CPU
-    g_dpram_initf               : string               := "../../bin/wrpc/wrc_sis8300ku.bram";
+    g_dpram_initf               : string               := "../../bin/wrpc/wrc_phy16.bram";
     -- identification (id and ver) of the layout of words in the generic diag interface
     g_diag_id                   : integer              := 0;
     g_diag_ver                  : integer              := 0;
@@ -270,6 +270,7 @@ architecture struct of xwrc_board_sis8300ku is
   -- Reset logic
   signal areset_edge_ppulse : std_logic;
   signal rst_62m5_n         : std_logic;
+  signal rst_62m5         : std_logic;
   signal rstlogic_arst_n    : std_logic;
   signal rstlogic_clk_in    : std_logic_vector(1 downto 0);
   signal rstlogic_rst_out   : std_logic_vector(1 downto 0);
@@ -544,6 +545,7 @@ begin  -- architecture struct
   
 
   axi_int_o <= '0';
+  rst_62m5 <= not rst_62m5_n;
 
   U_Leds : entity work.sis8300ku_led_interface
     generic map (
@@ -551,7 +553,7 @@ begin  -- architecture struct
       BLINK_MS => 400)
     port map (
       clk_i           => clk_pll_62m5,
-      rst_i           => rst_62m5_n,
+      rst_i           => rst_62m5,
       frontpanel_a_i  => led_frontpanel_a,
       frontpanel_u_i  => led_frontpanel_u,
       frontpanel_l1_i => led_frontpanel_l1,
@@ -564,7 +566,5 @@ begin  -- architecture struct
   led_frontpanel_l1 <= '0' & led_link;
   led_frontpanel_u <= '0' & pps_led;
   led_frontpanel_l2 <= "00";
- 
-  
   
 end architecture struct;
