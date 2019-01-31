@@ -5,7 +5,6 @@
 
 virtual class CWishboneAccessor extends CBusAccessor;
 
-   static int _null  = 0;
    protected wb_cycle_type_t m_cycle_type;
 
    function new();
@@ -45,12 +44,12 @@ virtual class CWishboneAccessor extends CBusAccessor;
 
 
    // [slave only] gets a cycle from the queue
-   virtual task get(ref wb_cycle_t xfer);
+   virtual task get(inout wb_cycle_t xfer);
       
    endtask // get
 
    // [master only] executes a cycle and returns its result
-   virtual task put(ref wb_cycle_t xfer);
+   virtual task put(inout wb_cycle_t xfer);
 
    endtask // put
    
@@ -59,7 +58,7 @@ virtual class CWishboneAccessor extends CBusAccessor;
    endfunction // idle
    
    // [master only] generic write(s), blocking
-   virtual task writem(uint64_t addr[], uint64_t data[], int size = 4, ref int result = _null);
+   virtual task writem(uint64_t addr[], uint64_t data[], int size = 4, inout int result );
       wb_cycle_t cycle;
       int i;
 
@@ -84,7 +83,7 @@ virtual class CWishboneAccessor extends CBusAccessor;
    endtask // write
 
    // [master only] generic read(s), blocking
-   virtual task readm(uint64_t addr[], ref uint64_t data[],input int size = 4, ref int result = _null);
+   virtual task readm(uint64_t addr[], inout uint64_t data[], input int size = 4, inout int result);
       wb_cycle_t cycle;
       int i;
 
@@ -109,7 +108,8 @@ virtual class CWishboneAccessor extends CBusAccessor;
 
    endtask // readm
 
-   virtual task read(uint64_t addr, ref uint64_t data, input int size = 4, ref int result = _null);
+   virtual task read(uint64_t addr, output uint64_t data, input int size = 4);
+    int result;
       uint64_t aa[], da[];
       aa     = new[1];
       da     = new[1];
@@ -118,7 +118,8 @@ virtual class CWishboneAccessor extends CBusAccessor;
       data  = da[0];
    endtask
 
-   virtual task write(uint64_t addr, uint64_t data, int size = 4, ref int result = _null);
+   virtual task write(uint64_t addr, uint64_t data, int size = 4);
+    int result;
       uint64_t aa[], da[];
       aa     = new[1];
       da     = new[1];
