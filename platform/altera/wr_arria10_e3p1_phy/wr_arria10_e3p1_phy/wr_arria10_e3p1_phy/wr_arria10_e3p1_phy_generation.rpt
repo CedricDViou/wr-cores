@@ -1,0 +1,51 @@
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/alex/workspace/projects/r13/bel_projects/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_phy/wr_arria10_e3p1_phy.qsys --synthesis=VERILOG --output-directory=/home/alex/workspace/projects/r13/bel_projects/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_phy/wr_arria10_e3p1_phy --family="Arria 10" --part=10AX115S2F45I2SG
+Progress: Loading wr_arria10_e3p1_phy/wr_arria10_e3p1_phy.qsys
+Progress: Reading input file
+Progress: Adding xcvr_native_a10_0 [altera_xcvr_native_a10 18.1]
+Progress: Parameterizing module xcvr_native_a10_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: wr_arria10_e3p1_phy.xcvr_native_a10_0: Simplified data interface has been enabled. The Native PHY will present the data/control interface for the current configuration only. Dynamic reconfiguration of the data interface cannot be supported. The unused_tx_parallel_data and unused_tx_control ports should be connected to 0.
+Info: wr_arria10_e3p1_phy.xcvr_native_a10_0: The "rx_std_bitslip" port must be enabled if Standard PCS RX bitslip capability is desired.
+Info: wr_arria10_e3p1_phy.xcvr_native_a10_0: For the selected device(10AX115S2F45I2SG), transceiver speed grade is 2 and core speed grade is 2.
+Warning: wr_arria10_e3p1_phy.xcvr_native_a10_0: Note - For Arria10 GX/SX devices, 1_1V is not a valid option for supply voltage (VCCR_GXB and VCCT_GXB supply voltage for the Transceiver) 
+Info: wr_arria10_e3p1_phy.xcvr_native_a10_0: Note - The external TX PLL IP must be configured with an output clock frequency of 625.0 MHz.
+Warning: wr_arria10_e3p1_phy.xcvr_native_a10_0: The current value "1_1V" for parameter "VCCR_GXB and VCCT_GXB supply voltage for the Transceiver" (anlg_voltage) is invalid. Possible valid values are: "1_0V" "0_9V".  The parameter value is invalid under these current parameter settings:  "device" (device)="" (10AX115S2F45I2SG). Rule(s): pma_rx_buf_power_mode: pma_tx_buf_power_mode: pma_rx_buf_power_mode_rx.
+Info: wr_arria10_e3p1_phy: "Transforming system: wr_arria10_e3p1_phy"
+Info: wr_arria10_e3p1_phy: Running transform generation_view_transform
+Info: wr_arria10_e3p1_phy: Running transform generation_view_transform took 0.000s
+Info: xcvr_native_a10_0: Running transform generation_view_transform
+Info: xcvr_native_a10_0: Running transform generation_view_transform took 0.003s
+Info: wr_arria10_e3p1_phy: Running transform merlin_avalon_transform
+Info: wr_arria10_e3p1_phy: Running transform merlin_avalon_transform took 0.091s
+Info: wr_arria10_e3p1_phy: "Naming system components in system: wr_arria10_e3p1_phy"
+Info: wr_arria10_e3p1_phy: "Processing generation queue"
+Info: wr_arria10_e3p1_phy: "Generating: wr_arria10_e3p1_phy"
+Info: wr_arria10_e3p1_phy: "Generating: wr_arria10_e3p1_phy_altera_xcvr_native_a10_181_t6fhkiq"
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_resync.sv SYSTEM_VERILOG PATH ../../../../altera_xcvr_generic/ctrl/alt_xcvr_resync.sv
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_arbiter.sv SYSTEM_VERILOG PATH ../../../../altera_xcvr_generic/ctrl/alt_xcvr_arbiter.sv
+Info: xcvr_native_a10_0: add_fileset_file ./twentynm_pcs.sv SYSTEM_VERILOG PATH ../../../alt_xcvr_core/nf/twentynm_pcs.sv
+Info: xcvr_native_a10_0: add_fileset_file ./twentynm_pma.sv SYSTEM_VERILOG PATH ../../../alt_xcvr_core/nf/twentynm_pma.sv
+Info: xcvr_native_a10_0: add_fileset_file ./twentynm_xcvr_avmm.sv SYSTEM_VERILOG PATH ../../../alt_xcvr_core/nf/twentynm_xcvr_avmm.sv
+Info: xcvr_native_a10_0: add_fileset_file ./twentynm_xcvr_native.sv SYSTEM_VERILOG PATH ../../../alt_xcvr_core/nf/twentynm_xcvr_native.sv
+Info: xcvr_native_a10_0: add_fileset_file ./altera_xcvr_native_a10_functions_h.sv SYSTEM_VERILOG PATH ..//altera_xcvr_native_a10_functions_h.sv
+Info: xcvr_native_a10_0: add_fileset_file ./a10_avmm_h.sv SYSTEM_VERILOG PATH ..//a10_avmm_h.sv
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_native_pipe_retry.sv SYSTEM_VERILOG PATH ..//alt_xcvr_native_pipe_retry.sv
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_native_avmm_csr.sv SYSTEM_VERILOG PATH ..//alt_xcvr_native_avmm_csr.sv
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_native_prbs_accum.sv SYSTEM_VERILOG PATH ..//alt_xcvr_native_prbs_accum.sv
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_native_odi_accel.sv SYSTEM_VERILOG PATH ..//alt_xcvr_native_odi_accel.sv
+Info: xcvr_native_a10_0: add_fileset_file ./alt_xcvr_native_rcfg_arb.sv SYSTEM_VERILOG PATH ..//alt_xcvr_native_rcfg_arb.sv
+Info: xcvr_native_a10_0: add_fileset_file ./altera_xcvr_native_a10_false_paths.sdc SDC PATH ..//altera_xcvr_native_a10_false_paths.sdc
+Info: xcvr_native_a10_0: add_fileset_file ./altera_xcvr_native_pcie_dfe_params_h.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/altera_xcvr_native_pcie_dfe_params_h.sv
+Info: xcvr_native_a10_0: add_fileset_file ./pcie_mgmt_commands_h.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/pcie_mgmt_commands_h.sv
+Info: xcvr_native_a10_0: add_fileset_file ./pcie_mgmt_functions_h.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/pcie_mgmt_functions_h.sv
+Info: xcvr_native_a10_0: add_fileset_file ./pcie_mgmt_program.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/pcie_mgmt_program.sv
+Info: xcvr_native_a10_0: add_fileset_file ./pcie_mgmt_cpu.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/pcie_mgmt_cpu.sv
+Info: xcvr_native_a10_0: add_fileset_file ./pcie_mgmt_master.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/pcie_mgmt_master.sv
+Info: xcvr_native_a10_0: add_fileset_file ./altera_xcvr_native_pcie_dfe_ip.sv SYSTEM_VERILOG PATH ../pcie_dfe_ip/altera_xcvr_native_pcie_dfe_ip.sv
+Info: wr_arria10_e3p1_phy: Done "wr_arria10_e3p1_phy" with 2 modules, 26 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis
