@@ -1,0 +1,28 @@
+Info: Starting: Create HDL design files for synthesis
+Info: qsys-generate /home/alex/workspace/projects/r13/bel_projects/ip_cores/wr-cores/platform/altera/wr_arria10_scu4_phy/wr_arria10_scu4_rst_ctl/wr_arria10_scu4_rst_ctl.qsys --synthesis=VERILOG --output-directory=/home/alex/workspace/projects/r13/bel_projects/ip_cores/wr-cores/platform/altera/wr_arria10_scu4_phy/wr_arria10_scu4_rst_ctl/wr_arria10_scu4_rst_ctl --family="Arria 10" --part=10AX027E3F29E2SG
+Progress: Loading wr_arria10_scu4_rst_ctl/wr_arria10_scu4_rst_ctl.qsys
+Progress: Reading input file
+Progress: Adding xcvr_reset_control_0 [altera_xcvr_reset_control 18.1]
+Progress: Parameterizing module xcvr_reset_control_0
+Progress: Building connections
+Progress: Parameterizing connections
+Progress: Validating
+Progress: Done reading input file
+Info: wr_arria10_scu4_rst_ctl: "Transforming system: wr_arria10_scu4_rst_ctl"
+Info: wr_arria10_scu4_rst_ctl: Running transform generation_view_transform
+Info: wr_arria10_scu4_rst_ctl: Running transform generation_view_transform took 0.000s
+Info: xcvr_reset_control_0: Running transform generation_view_transform
+Info: xcvr_reset_control_0: Running transform generation_view_transform took 0.000s
+Info: wr_arria10_scu4_rst_ctl: Running transform merlin_avalon_transform
+Info: wr_arria10_scu4_rst_ctl: Running transform merlin_avalon_transform took 0.184s
+Info: wr_arria10_scu4_rst_ctl: "Naming system components in system: wr_arria10_scu4_rst_ctl"
+Info: wr_arria10_scu4_rst_ctl: "Processing generation queue"
+Info: wr_arria10_scu4_rst_ctl: "Generating: wr_arria10_scu4_rst_ctl"
+Info: wr_arria10_scu4_rst_ctl: "Generating: altera_xcvr_reset_control"
+Info: xcvr_reset_control_0: add_fileset_file ./altera_xcvr_functions.sv SYSTEM_VERILOG PATH ../../../altera_xcvr_generic/altera_xcvr_functions.sv
+Info: xcvr_reset_control_0: add_fileset_file ./alt_xcvr_resync.sv SYSTEM_VERILOG PATH ../../../altera_xcvr_generic/ctrl/alt_xcvr_resync.sv
+Info: xcvr_reset_control_0: add_fileset_file ./altera_xcvr_reset_control.sv SYSTEM_VERILOG PATH ..//altera_xcvr_reset_control.sv
+Info: xcvr_reset_control_0: add_fileset_file ./alt_xcvr_reset_counter.sv SYSTEM_VERILOG PATH ..//alt_xcvr_reset_counter.sv
+Info: wr_arria10_scu4_rst_ctl: Done "wr_arria10_scu4_rst_ctl" with 2 modules, 7 files
+Info: qsys-generate succeeded.
+Info: Finished: Create HDL design files for synthesis
