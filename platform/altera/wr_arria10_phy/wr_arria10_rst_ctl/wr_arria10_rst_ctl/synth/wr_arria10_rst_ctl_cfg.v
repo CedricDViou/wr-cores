@@ -1,0 +1,5 @@
+config wr_arria10_rst_ctl_cfg;
+		design wr_arria10_rst_ctl;
+		instance wr_arria10_rst_ctl.xcvr_reset_control_0 use wr_arria10_rst_ctl_altera_xcvr_reset_control_160.altera_xcvr_reset_control;
+endconfig
+
