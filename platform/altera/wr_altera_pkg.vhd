@@ -173,6 +173,228 @@ package wr_altera_pkg is
       reconfig_to_xcvr            : in  std_logic_vector(139 downto 0) := (others => '0'));
   end component;
 
+  component wr_arria10_transceiver is
+    generic (
+      g_use_atx_pll : boolean := TRUE);
+    port (
+      clk_ref_i      : in  std_logic := '0';
+      tx_clk_o       : out std_logic;
+      tx_data_i      : in  std_logic_vector(7 downto 0):= (others => '0');
+      rx_clk_o       : out std_logic;
+      rx_data_o      : out std_logic_vector(7 downto 0);
+      pad_txp_o      : out std_logic;
+      pad_rxp_i      : in  std_logic := '0'
+      );
+  end component wr_arria10_transceiver;
+
+  component wr_arria10_e3p1_transceiver is
+    generic (
+      g_use_atx_pll : boolean := TRUE);
+    port (
+      clk_ref_i      : in  std_logic := '0';
+      tx_clk_o       : out std_logic;
+      tx_data_i      : in  std_logic_vector(7 downto 0):= (others => '0');
+      rx_clk_o       : out std_logic;
+      rx_data_o      : out std_logic_vector(7 downto 0);
+      pad_txp_o      : out std_logic;
+      pad_rxp_i      : in  std_logic := '0'
+      );
+  end component wr_arria10_e3p1_transceiver;
+
+  component wr_arria10_phy is
+    port (
+      rx_analogreset          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_cal_busy             : out std_logic_vector(0 downto 0);
+      rx_cdr_refclk0          : in  std_logic := 'X';
+      rx_clkout               : out std_logic_vector(0 downto 0);
+      rx_coreclkin            : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_digitalreset         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_is_lockedtodata      : out std_logic_vector(0 downto 0);
+      rx_is_lockedtoref       : out std_logic_vector(0 downto 0);
+      rx_parallel_data        : out std_logic_vector(7 downto 0);
+      rx_serial_data          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_analogreset          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_cal_busy             : out std_logic_vector(0 downto 0);
+      tx_clkout               : out std_logic_vector(0 downto 0);
+      tx_coreclkin            : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_digitalreset         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_parallel_data        : in  std_logic_vector(7 downto 0) := (others => 'X');
+      tx_serial_clk0          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_serial_data          : out std_logic_vector(0 downto 0);
+      rx_set_locktodata       : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_set_locktoref        : in  std_logic_vector(0 downto 0) := (others => 'X');
+      unused_tx_parallel_data : in  std_logic_vector(119 downto 0) := (others => 'X');
+      unused_rx_parallel_data : out std_logic_vector(119 downto 0)
+    );
+  end component wr_arria10_phy;
+
+  component wr_arria10_e3p1_phy is
+    port (
+      rx_analogreset          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_cal_busy             : out std_logic_vector(0 downto 0);
+      rx_cdr_refclk0          : in  std_logic := 'X';
+      rx_clkout               : out std_logic_vector(0 downto 0);
+      rx_coreclkin            : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_digitalreset         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_is_lockedtodata      : out std_logic_vector(0 downto 0);
+      rx_is_lockedtoref       : out std_logic_vector(0 downto 0);
+      rx_parallel_data        : out std_logic_vector(7 downto 0);
+      rx_serial_data          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_analogreset          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_cal_busy             : out std_logic_vector(0 downto 0);
+      tx_clkout               : out std_logic_vector(0 downto 0);
+      tx_coreclkin            : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_digitalreset         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_parallel_data        : in  std_logic_vector(7 downto 0) := (others => 'X');
+      tx_serial_clk0          : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_serial_data          : out std_logic_vector(0 downto 0);
+      rx_set_locktodata       : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_set_locktoref        : in  std_logic_vector(0 downto 0) := (others => 'X');
+      unused_tx_parallel_data : in  std_logic_vector(119 downto 0) := (others => 'X');
+      unused_rx_parallel_data : out std_logic_vector(119 downto 0)
+    );
+  end component wr_arria10_e3p1_phy;
+
+  component wr_arria10_scu4_transceiver is
+    generic (
+      g_use_atx_pll : boolean := TRUE);
+    port (
+      clk_ref_i      : in  std_logic := '0';
+      tx_clk_o       : out std_logic;
+      tx_data_i      : in  std_logic_vector(7 downto 0):= (others => '0');
+      rx_clk_o       : out std_logic;
+      rx_data_o      : out std_logic_vector(7 downto 0);
+      pad_txp_o      : out std_logic;
+      pad_rxp_i      : in  std_logic := '0'
+      );
+  end component wr_arria10_scu4_transceiver;
+
+    component wr_arria10_scu4_phy is
+      port (
+        rx_analogreset          : in  std_logic_vector(0 downto 0) := (others => 'X');
+        rx_cal_busy             : out std_logic_vector(0 downto 0);
+        rx_cdr_refclk0          : in  std_logic := 'X';
+        rx_clkout               : out std_logic_vector(0 downto 0);
+        rx_coreclkin            : in  std_logic_vector(0 downto 0) := (others => 'X');
+        rx_digitalreset         : in  std_logic_vector(0 downto 0) := (others => 'X');
+        rx_is_lockedtodata      : out std_logic_vector(0 downto 0);
+        rx_is_lockedtoref       : out std_logic_vector(0 downto 0);
+        rx_parallel_data        : out std_logic_vector(7 downto 0);
+        rx_serial_data          : in  std_logic_vector(0 downto 0) := (others => 'X');
+        tx_analogreset          : in  std_logic_vector(0 downto 0) := (others => 'X');
+        tx_cal_busy             : out std_logic_vector(0 downto 0);
+        tx_clkout               : out std_logic_vector(0 downto 0);
+        tx_coreclkin            : in  std_logic_vector(0 downto 0) := (others => 'X');
+        tx_digitalreset         : in  std_logic_vector(0 downto 0) := (others => 'X');
+        tx_parallel_data        : in  std_logic_vector(7 downto 0) := (others => 'X');
+        tx_serial_clk0          : in  std_logic_vector(0 downto 0) := (others => 'X');
+        tx_serial_data          : out std_logic_vector(0 downto 0);
+        --rx_set_locktodata       : in  std_logic_vector(0 downto 0) := (others => 'X');
+        --rx_set_locktoref        : in  std_logic_vector(0 downto 0) := (others => 'X');
+        unused_tx_parallel_data : in  std_logic_vector(119 downto 0) := (others => 'X');
+        unused_rx_parallel_data : out std_logic_vector(119 downto 0)
+      );
+    end component wr_arria10_scu4_phy;
+
+  component wr_arria10_e3p1_tx_pll is
+    port (
+      pll_refclk0   : in  std_logic := 'X';
+      pll_powerdown : in  std_logic := 'X';
+      pll_locked    : out std_logic;
+      tx_serial_clk : out std_logic;
+      pll_cal_busy  : out std_logic
+    );
+  end component wr_arria10_e3p1_tx_pll;
+
+  component wr_arria10_e3p1_atx_pll is
+    port (
+      pll_refclk0   : in  std_logic := 'X';
+      pll_powerdown : in  std_logic := 'X';
+      pll_locked    : out std_logic;
+      tx_serial_clk : out std_logic;
+      pll_cal_busy  : out std_logic
+    );
+  end component wr_arria10_e3p1_atx_pll;
+
+  component wr_arria10_scu4_atx_pll is
+    port (
+      pll_refclk0   : in  std_logic := 'X';
+      pll_powerdown : in  std_logic := 'X';
+      pll_locked    : out std_logic;
+      tx_serial_clk : out std_logic;
+      pll_cal_busy  : out std_logic
+    );
+  end component wr_arria10_scu4_atx_pll;
+
+  component wr_arria10_atx_pll is
+    port (
+      pll_powerdown : in  std_logic := 'X';
+      pll_refclk0   : in  std_logic := 'X';
+      tx_serial_clk : out std_logic;
+      pll_locked    : out std_logic;
+      pll_cal_busy  : out std_logic
+    );
+  end component wr_arria10_atx_pll;
+
+  -------------------------------------------------------------------------------
+
+  component wr_arria10_rst_ctl is
+    port (
+      clock              : in  std_logic := 'X';
+      reset              : in  std_logic := 'X';
+      pll_powerdown      : out std_logic_vector(0 downto 0);
+      tx_analogreset     : out std_logic_vector(0 downto 0);
+      tx_digitalreset    : out std_logic_vector(0 downto 0);
+      tx_ready           : out std_logic_vector(0 downto 0);
+      pll_locked         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      pll_select         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_cal_busy        : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_analogreset     : out std_logic_vector(0 downto 0);
+      rx_digitalreset    : out std_logic_vector(0 downto 0);
+      rx_ready           : out std_logic_vector(0 downto 0);
+      rx_is_lockedtodata : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_cal_busy        : in  std_logic_vector(0 downto 0) := (others => 'X')
+    );
+  end component wr_arria10_rst_ctl;
+
+  component wr_arria10_e3p1_rst_ctl is
+    port (
+      clock              : in  std_logic := 'X';
+      reset              : in  std_logic := 'X';
+      pll_powerdown      : out std_logic_vector(0 downto 0);
+      tx_analogreset     : out std_logic_vector(0 downto 0);
+      tx_digitalreset    : out std_logic_vector(0 downto 0);
+      tx_ready           : out std_logic_vector(0 downto 0);
+      pll_locked         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      pll_select         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_cal_busy        : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_analogreset     : out std_logic_vector(0 downto 0);
+      rx_digitalreset    : out std_logic_vector(0 downto 0);
+      rx_ready           : out std_logic_vector(0 downto 0);
+      rx_is_lockedtodata : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_cal_busy        : in  std_logic_vector(0 downto 0) := (others => 'X')
+    );
+  end component wr_arria10_e3p1_rst_ctl;
+
+  component wr_arria10_scu4_rst_ctl is
+    port (
+      clock              : in  std_logic := 'X';
+      reset              : in  std_logic := 'X';
+      pll_powerdown      : out std_logic_vector(0 downto 0);
+      tx_analogreset     : out std_logic_vector(0 downto 0);
+      tx_digitalreset    : out std_logic_vector(0 downto 0);
+      tx_ready           : out std_logic_vector(0 downto 0);
+      pll_locked         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      pll_select         : in  std_logic_vector(0 downto 0) := (others => 'X');
+      tx_cal_busy        : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_analogreset     : out std_logic_vector(0 downto 0);
+      rx_digitalreset    : out std_logic_vector(0 downto 0);
+      rx_ready           : out std_logic_vector(0 downto 0);
+      rx_is_lockedtodata : in  std_logic_vector(0 downto 0) := (others => 'X');
+      rx_cal_busy        : in  std_logic_vector(0 downto 0) := (others => 'X')
+    );
+  end component wr_arria10_scu4_rst_ctl;
+
   component arria5_dmtd_pll_default is
     port (
       refclk   : in  std_logic := '0';
