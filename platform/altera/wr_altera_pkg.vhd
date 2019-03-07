@@ -336,6 +336,16 @@ package wr_altera_pkg is
     );
   end component wr_arria10_atx_pll;
 
+  component wr_arria10_tx_pll is
+    port (
+      pll_refclk0   : in  std_logic := 'X';
+      pll_powerdown : in  std_logic := 'X';
+      pll_locked    : out std_logic;
+      tx_serial_clk : out std_logic;
+      pll_cal_busy  : out std_logic
+    );
+  end component wr_arria10_tx_pll;
+
   -------------------------------------------------------------------------------
 
   component wr_arria10_rst_ctl is
