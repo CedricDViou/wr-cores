@@ -192,10 +192,14 @@ package wr_altera_pkg is
       g_use_atx_pll : boolean := TRUE);
     port (
       clk_ref_i      : in  std_logic := '0';
+      ready_o        : out std_logic := '0';
+      drop_link_i    : in  std_logic;
       tx_clk_o       : out std_logic;
       tx_data_i      : in  std_logic_vector(7 downto 0):= (others => '0');
+      tx_ready_o     : out std_logic := '0';
       rx_clk_o       : out std_logic;
       rx_data_o      : out std_logic_vector(7 downto 0);
+      rx_ready_o     : out std_logic; 
       pad_txp_o      : out std_logic;
       pad_rxp_i      : in  std_logic := '0'
       );

@@ -48,11 +48,15 @@ entity wr_arria10_e3p1_transceiver is
   generic (
     g_use_atx_pll : boolean := TRUE);
   port (
-    clk_ref_i      : in  std_logic := '0';                                 -- Input clock from WR extension [125Mhz]
+    clk_ref_i      : in  std_logic := '0';                                -- Input clock from WR extension [125Mhz]
+    ready_o        : out std_logic := '0';                                -- TX and RX ready
+    drop_link_i    : in  std_logic;                                       -- Drop link (reset)
     tx_clk_o       : out std_logic;                                       -- TX clock to WR core
     tx_data_i      : in  std_logic_vector(7 downto 0) := (others => '0'); -- Data from WR core
+    tx_ready_o     : out std_logic := '0';                                -- TX ready
     rx_clk_o       : out std_logic;                                       -- RX clock to WR core
     rx_data_o      : out std_logic_vector(7 downto 0) := (others => '0'); -- Data to WR core
+    rx_ready_o     : out std_logic;                                       -- RX ready
     pad_txp_o      : out std_logic;                                       -- SFP out
     pad_rxp_i      : in  std_logic := '0'                                 -- SFP in
   );
@@ -61,6 +65,7 @@ end wr_arria10_e3p1_transceiver;
 architecture rtl of wr_arria10_e3p1_transceiver is
 
   signal s_pll_select              : std_logic_vector(0 downto 0);
+  signal s_cal_busy                : std_logic_vector(0 downto 0);
 
   signal s_tx_pll_625m_serial_clk  : std_logic;
   signal s_tx_pll_625m_locked      : std_logic_vector(0 downto 0);
@@ -80,6 +85,8 @@ architecture rtl of wr_arria10_e3p1_transceiver is
   signal s_phy_rx_is_lockedtodata  : std_logic_vector(0 downto 0);
 
 begin
+
+  s_cal_busy(0) <= s_phy_tx_cal_busy(0) and s_tx_pll_625m_cal_busy;
 
   -- Transceiver
   inst_phy : wr_arria10_e3p1_phy
@@ -146,12 +153,17 @@ begin
       tx_ready           => s_rst_ctl_tx_ready,
       pll_locked         => s_tx_pll_625m_locked,
       pll_select         => s_pll_select,
-      tx_cal_busy        => s_phy_tx_cal_busy,
+      tx_cal_busy        => s_cal_busy,
       rx_analogreset     => s_rst_ctl_rx_analogreset,
       rx_digitalreset    => s_rst_ctl_rx_digitalreset,
       rx_ready           => s_rst_ctl_rx_ready,
       rx_is_lockedtodata => s_phy_rx_is_lockedtodata,
       rx_cal_busy        => s_phy_rx_cal_busy
     );
+
+  -- Additional outputs
+    tx_ready_o <= s_rst_ctl_tx_ready(0);
+    rx_ready_o <= s_rst_ctl_rx_ready(0);
+    ready_o    <= s_rst_ctl_tx_ready(0) and s_rst_ctl_rx_ready(0);
 
 end rtl;
