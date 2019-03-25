@@ -42,7 +42,7 @@ use work.streamers_pkg.all;
 
 package wr_board_pkg is
 
-  type t_board_fabric_iface is (PLAIN, STREAMERS, ETHERBONE, LOOPBACK, always_last_invalid);
+  type t_board_fabric_iface is (PLAIN, STREAMERS, ETHERBONE, LOOPBACK, NIC, always_last_invalid);
 
   -- TODO: using these default paths requires absolute path. If relative path is used,
   --       they work only for reference designs by chance. Once we figure out how to
@@ -119,7 +119,8 @@ package wr_board_pkg is
       g_tx_streamer_params        : t_tx_streamer_params           := c_tx_streamer_params_defaut;
       g_rx_streamer_params        : t_rx_streamer_params           := c_rx_streamer_params_defaut;
       g_sfp_i2c_mux_enable        : boolean                        := FALSE;
-      g_fabric_iface              : t_board_fabric_iface           := PLAIN);
+      g_fabric_iface              : t_board_fabric_iface           := PLAIN;
+      g_vic_irqs                  : integer                        := 1);
     port (
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic;
@@ -211,7 +212,9 @@ package wr_board_pkg is
       pps_valid_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic);
+      link_ok_o            : out std_logic;
+      vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
+      vic_int_o  : out std_logic);
   end component xwrc_board_common;
 
 end wr_board_pkg;
@@ -249,6 +252,7 @@ package body wr_board_pkg is
       when "PLAINFBRC" => result := PLAIN;
       when "STREAMERS" => result := STREAMERS;
       when "ETHERBONE" => result := ETHERBONE;
+      when "NIC"       => result := NIC;
       when others      => result := always_last_invalid;
     end case;
     return result;
