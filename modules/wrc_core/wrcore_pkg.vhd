@@ -485,6 +485,7 @@ package wrcore_pkg is
       tm_tai_o             : out std_logic_vector(39 downto 0);
       tm_cycles_o          : out std_logic_vector(27 downto 0);
       pps_csync_o          : out std_logic;
+      pps_valid_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
 
@@ -722,6 +723,7 @@ package wrcore_pkg is
       tm_cycles_o          : out std_logic_vector(27 downto 0);
       -- 1PPS output
       pps_csync_o          : out std_logic;
+      pps_valid_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
 
