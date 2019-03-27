@@ -78,7 +78,9 @@ entity xwrc_board_spec is
     g_diag_ro_size              : integer              := 0;
     g_diag_rw_size              : integer              := 0;
     -- User-defined PLL_BASE outputs config
-    g_aux_pll_cfg               : t_auxpll_cfg_array   := c_AUXPLL_CFG_ARRAY_DEFAULT
+    g_aux_pll_cfg               : t_auxpll_cfg_array   := c_AUXPLL_CFG_ARRAY_DEFAULT;
+    g_vic_irqs                  : integer              := 1;
+    g_aux_sdb                   : t_sdb_device         := c_wrc_periph3_sdb
     );
   port (
     ---------------------------------------------------------------------------
@@ -252,9 +254,14 @@ entity xwrc_board_spec is
     btn2_i     : in  std_logic := '1';
     -- 1PPS output
     pps_p_o    : out std_logic;
+    pps_csync_o : out std_logic;
+    pps_valid_o : out std_logic;
     pps_led_o  : out std_logic;
     -- Link ok indication
-    link_ok_o  : out std_logic
+    link_ok_o  : out std_logic;
+
+    vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
+    vic_int_o  : out std_logic
     );
 
 end entity xwrc_board_spec;
@@ -436,7 +443,7 @@ begin  -- architecture struct
       g_dpram_size                => 131072/4,
       g_interface_mode            => PIPELINED,
       g_address_granularity       => BYTE,
-      g_aux_sdb                   => c_wrc_periph3_sdb,
+      g_aux_sdb                   => g_aux_sdb,
       g_softpll_enable_debugger   => FALSE,
       g_vuart_fifo_size           => 1024,
       g_pcs_16bit                 => FALSE,
@@ -447,7 +454,8 @@ begin  -- architecture struct
       g_streamers_op_mode         => g_streamers_op_mode,
       g_tx_streamer_params        => g_tx_streamer_params,
       g_rx_streamer_params        => g_rx_streamer_params,
-      g_fabric_iface              => g_fabric_iface
+      g_fabric_iface              => g_fabric_iface,
+      g_vic_irqs                  => g_vic_irqs
       )
     port map (
       clk_sys_i            => clk_pll_62m5,
@@ -529,8 +537,12 @@ begin  -- architecture struct
       btn1_i               => btn1_i,
       btn2_i               => btn2_i,
       pps_p_o              => pps_p_o,
+      pps_csync_o          => pps_csync_o,
+      pps_valid_o          => pps_valid_o,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o);
+      link_ok_o            => link_ok_o,
+      vic_irqs_i           => vic_irqs_i,
+      vic_int_o            => vic_int_o);
 
   sfp_rate_select_o <= '1';
 
