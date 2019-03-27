@@ -80,7 +80,8 @@ entity xwrc_board_spec is
     -- User-defined PLL_BASE outputs config
     g_aux_pll_cfg               : t_auxpll_cfg_array   := c_AUXPLL_CFG_ARRAY_DEFAULT;
     g_vic_irqs                  : integer              := 1;
-    g_aux_sdb                   : t_sdb_device         := c_wrc_periph3_sdb
+    g_aux_sdb                   : t_sdb_device         := c_wrc_periph3_sdb;
+    g_aux_bridge_sdb            : t_sdb_bridge         := c_wrc_periph3_bridge_sdb
     );
   port (
     ---------------------------------------------------------------------------
@@ -444,6 +445,7 @@ begin  -- architecture struct
       g_interface_mode            => PIPELINED,
       g_address_granularity       => BYTE,
       g_aux_sdb                   => g_aux_sdb,
+      g_aux_bridge_sdb            => g_aux_bridge_sdb,
       g_softpll_enable_debugger   => FALSE,
       g_vuart_fifo_size           => 1024,
       g_pcs_16bit                 => FALSE,

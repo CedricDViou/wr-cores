@@ -78,7 +78,8 @@ entity wrc_board_spec is
     g_diag_ro_vector_width      : integer := 0;
     g_diag_rw_vector_width      : integer := 0;
     g_vic_irqs                  : integer := 1;
-    g_aux_sdb                   : t_sdb_device := c_wrc_periph3_sdb
+    g_aux_sdb                   : t_sdb_device := c_wrc_periph3_sdb;
+    g_aux_bridge_sdb            : t_sdb_bridge := c_wrc_periph3_bridge_sdb
     );
   port (
     ---------------------------------------------------------------------------
@@ -451,7 +452,8 @@ begin  -- architecture struct
       g_diag_ver                  => g_diag_ver,
       g_diag_ro_size              => c_diag_ro_size,
       g_diag_rw_size              => c_diag_rw_size,
-      g_aux_sdb                   => g_aux_sdb)
+      g_aux_sdb                   => g_aux_sdb,
+      g_aux_bridge_sdb            => g_aux_bridge_sdb)
     port map (
       areset_n_i           => areset_n_i,
       areset_edge_n_i      => areset_edge_n_i,

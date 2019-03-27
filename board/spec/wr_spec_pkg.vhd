@@ -62,7 +62,8 @@ package wr_spec_pkg is
       g_diag_rw_size              : integer              := 0;
       g_aux_pll_cfg               : t_auxpll_cfg_array   := c_AUXPLL_CFG_ARRAY_DEFAULT;
       g_vic_irqs                  : integer              := 1;
-      g_aux_sdb                   : t_sdb_device         := c_wrc_periph3_sdb
+      g_aux_sdb                   : t_sdb_device         := c_wrc_periph3_sdb;
+      g_aux_bridge_sdb            : t_sdb_bridge         := c_wrc_periph3_bridge_sdb
     );
     port (
       areset_n_i           : in  std_logic;
@@ -177,7 +178,9 @@ package wr_spec_pkg is
       g_diag_ro_vector_width      : integer := 0;
       g_diag_rw_vector_width      : integer := 0;
       g_vic_irqs                  : integer := 1;
-      g_aux_sdb                   : t_sdb_device := c_wrc_periph3_sdb);
+      g_aux_sdb                   : t_sdb_device := c_wrc_periph3_sdb;
+      g_aux_bridge_sdb            : t_sdb_bridge := c_wrc_periph3_bridge_sdb
+    );
     port (
       areset_n_i           : in  std_logic;
       areset_edge_n_i      : in  std_logic := '1';
