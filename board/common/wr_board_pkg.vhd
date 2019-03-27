@@ -253,7 +253,7 @@ package body wr_board_pkg is
       when "PLAINFBRC" => result := PLAIN;
       when "STREAMERS" => result := STREAMERS;
       when "ETHERBONE" => result := ETHERBONE;
-      when "NIC"       => result := NIC;
+      when "NIC      " => result := NIC;
       when others      => result := always_last_invalid;
     end case;
     return result;
