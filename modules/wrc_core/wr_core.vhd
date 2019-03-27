@@ -45,15 +45,15 @@
 -- Memory map:
 --  0x00000000: I/D Memory
 --  0x00020000: Peripheral interconnect
---      +0x000: Minic
---      +0x100: Endpoint
---      +0x200: Softpll
---      +0x300: PPS gen
---      +0x400: Syscon
---      +0x500: UART
---      +0x600: OneWire
---      +0x700: WRPC diagnostics registers
---      +0x800: Auxillary space (Etherbone config, etc)
+--     +0x0000: Minic
+--     +0x0100: Endpoint
+--     +0x0200: Softpll
+--     +0x0300: PPS gen
+--     +0x0400: Syscon
+--     +0x0500: UART
+--     +0x0600: OneWire
+--     +0x0700: WRPC diagnostics registers
+--     +0x8000: Auxillary space (Etherbone config, etc)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -89,6 +89,7 @@ entity wr_core is
     g_interface_mode            : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_aux_bridge_sdb            : t_sdb_bridge                   := c_wrc_periph3_bridge_sdb;
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
@@ -414,10 +415,12 @@ architecture struct of wr_core is
      4 => f_sdb_embed_device(c_wrc_periph0_sdb, x"00000400"),  -- Syscon
      5 => f_sdb_embed_device(c_wrc_periph1_sdb, x"00000500"),  -- UART
      6 => f_sdb_embed_device(c_wrc_periph2_sdb, x"00000600"),  -- 1-Wire
-     7 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000700"),  -- WRPC diag registers
-     8 => f_sdb_embed_device(g_aux_sdb,         x"00000800")   -- aux WB bus
+     7 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000700"),   -- WRPC diag registers
+     8 => f_sdb_embed_aux(g_aux_sdb, g_aux_bridge_sdb, x"00008000") -- aux WB bus (device or bridge)
      );
-
+  -- NOTE: the address of AUX is chosen to be 0x8000 intentionally.
+  -- This is to maximize the address space allocated to the AUX
+  -- device which can be 0x8000 to 0xFFFF.
   constant c_secbar_sdb_address : t_wishbone_address := x"00000C00";
   constant c_secbar_bridge_sdb  : t_sdb_bridge       :=
     f_xwb_bridge_layout_sdb(true, c_secbar_layout, c_secbar_sdb_address);

@@ -108,6 +108,7 @@ package wr_board_pkg is
       g_interface_mode            : t_wishbone_interface_mode      := PIPELINED;
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
+      g_aux_bridge_sdb            : t_sdb_bridge                   := c_wrc_periph3_bridge_sdb;
       g_softpll_enable_debugger   : boolean                        := FALSE;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := FALSE;
@@ -252,7 +253,7 @@ package body wr_board_pkg is
       when "PLAINFBRC" => result := PLAIN;
       when "STREAMERS" => result := STREAMERS;
       when "ETHERBONE" => result := ETHERBONE;
-      when "NIC"       => result := NIC;
+      when "NIC      " => result := NIC;
       when others      => result := always_last_invalid;
     end case;
     return result;

@@ -224,6 +224,12 @@ package wrcore_pkg is
         date      => x"20120615",
         name      => "WR-Periph-AuxWB    ")));
 
+  constant c_wrc_periph3_bridge_sdb: t_sdb_bridge := (
+    sdb_child     => (others => '0'),
+    sdb_component => c_wrc_periph3_sdb.sdb_component);
+
+  function f_sdb_embed_aux(device : t_sdb_device; bridge: t_sdb_bridge; address : t_wishbone_address) return t_sdb_record;
+
   constant c_wrc_periph4_sdb : t_sdb_device := (
     abi_class     => x"0000",              -- undocumented device
     abi_ver_major => x"01",
@@ -375,6 +381,7 @@ package wrcore_pkg is
       g_interface_mode            : t_wishbone_interface_mode      := PIPELINED;
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
+      g_aux_bridge_sdb            : t_sdb_bridge                   := c_wrc_periph3_bridge_sdb;
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
@@ -518,6 +525,7 @@ package wrcore_pkg is
       g_interface_mode            : t_wishbone_interface_mode      := PIPELINED;
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
+      g_aux_bridge_sdb            : t_sdb_bridge                   := c_wrc_periph3_bridge_sdb;
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
@@ -769,5 +777,28 @@ package body wrcore_pkg is
       return 125000000;
     end if;
   end function;
+
+  -- Function to embed AUX master which can be either sdb_bridge or sdb_device.
+  -- The choice is made based on the input generics g_aux_sdb and g_aux_bridge_sdb.
+  -- g_aux_sdb is used by default unless g_aux_bridge_sdb is set to other than
+  -- the default value. If both, g_aux_sdb and g_aux_bridge_sdb, are set to
+  -- non-default value, this is an error.
+  function f_sdb_embed_aux(device : t_sdb_device; bridge: t_sdb_bridge; address : t_wishbone_address)
+    return t_sdb_record
+  is
+    constant c_bridge_id  : std_logic_vector(31 downto 0) := bridge.sdb_component.product.device_id;
+    constant c_device_id  : std_logic_vector(31 downto 0) := device.sdb_component.product.device_id;
+    constant c_default_id : std_logic_vector(31 downto 0) := x"779c5445";
+  begin
+    assert not (c_bridge_id /= c_default_id and c_device_id /= c_default_id)
+      report "Either g_sdb_aux or g_sdb_bridge_aux can be specified."
+      severity failure;
+    if(c_bridge_id /= c_default_id) then
+      return f_sdb_embed_bridge(bridge, address);
+    else
+      return f_sdb_embed_device(device, address);
+    end if;
+  end function;
+
 
 end package body wrcore_pkg;
