@@ -293,8 +293,7 @@ begin  -- behavioral
             sync_in_progress  <= ppsg_escr_sync_out;
             ppsg_escr_sync_in <= '0';
           else
-            if(sync_in_progress = '1' and pps_in_refclk = '1')
-            then
+            if(sync_in_progress = '1' and pps_in_refclk = '1') then
               ext_sync_p        <= '1';
               sync_in_progress  <= '0';
               ppsg_escr_sync_in <= '1';

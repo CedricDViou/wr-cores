@@ -80,7 +80,7 @@ begin
     if rising_edge(clk_ref_i) then
       if pps_csync_p1_i = '1' or rst_n_ref_i = '0' then
         cnt_ref_bin <= to_unsigned(0, g_counter_width);
-      elsif(cnt_ref_bin = g_ref_clock_rate - 1) then
+      elsif(cnt_ref_bin >= g_ref_clock_rate - 1) then
         cnt_ref_bin <= (others => '0');
       else
         cnt_ref_bin <= cnt_ref_bin + 1;
@@ -120,8 +120,8 @@ begin
   begin
     if rising_edge(clk_in_i) then
       if pps_ext_p = '1' or rst_n_ext_i = '0' then
-        cnt_in_bin <= to_unsigned(2, g_counter_width);
-      elsif(cnt_in_bin = g_in_clock_rate - 1) then
+        cnt_in_bin <= to_unsigned(3, g_counter_width);
+      elsif(cnt_in_bin >= g_in_clock_rate - 1) then
         cnt_in_bin <= (others => '0');
       else
         cnt_in_bin <= cnt_in_bin + 1;

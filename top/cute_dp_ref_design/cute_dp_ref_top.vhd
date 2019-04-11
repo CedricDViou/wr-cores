@@ -65,7 +65,7 @@ entity cute_dp_ref_top is
     g_sfp1_enable : integer:= 1;
     g_cute_version       : string:= "2.2";
     g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
-    g_multiboot_enable   : boolean:= false
+    g_multiboot_enable   : boolean:= true
   );
   port (
     ---------------------------------------------------------------------------
@@ -122,8 +122,8 @@ entity cute_dp_ref_top is
     ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
-
     one_wire           : inout std_logic;      -- 1-wire interface to ds18b20
+
     ---------------------------------------------------------------------------
     -- UART
     ---------------------------------------------------------------------------
@@ -165,6 +165,25 @@ architecture rtl of cute_dp_ref_top is
   -----------------------------------------------------------------------------
   -- Signals
   -----------------------------------------------------------------------------
+  -- SFP
+  signal sfp0_txp_o          : std_logic;
+  signal sfp0_txn_o          : std_logic;
+  signal sfp0_rxp_i          : std_logic;
+  signal sfp0_rxn_i          : std_logic;
+  signal sfp0_det_i          : std_logic;
+  signal sfp0_tx_fault_i     : std_logic;
+  signal sfp0_tx_disable_o   : std_logic;
+  signal sfp0_los_i          : std_logic;
+
+  signal sfp1_txp_o          : std_logic;
+  signal sfp1_txn_o          : std_logic;
+  signal sfp1_rxp_i          : std_logic;
+  signal sfp1_rxn_i          : std_logic;
+  signal sfp1_det_i          : std_logic;
+  signal sfp1_tx_fault_i     : std_logic;
+  signal sfp1_tx_disable_o   : std_logic;
+  signal sfp1_los_i          : std_logic;
+
   -- I2C EEPROM
   signal eeprom_scl_o      : std_logic;
   signal eeprom_scl_i      : std_logic;
@@ -194,6 +213,8 @@ architecture rtl of cute_dp_ref_top is
   signal tm_link_up        : std_logic;
   signal pps_led           : std_logic;
   signal led_act           : std_logic;
+  signal led_link          : std_logic;
+
   -- Wishbone buse(s) from masters attached to crossbar
   signal cnx_master_out : t_wishbone_master_out_array(0 downto 0);
   signal cnx_master_in  : t_wishbone_master_in_array(0 downto 0);
@@ -218,7 +239,7 @@ begin
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,
       g_multiboot_enable => g_multiboot_enable,
-      g_num_ports        => 2)
+      g_num_ports        => g_sfp0_enable+g_sfp1_enable)
     port map (
       areset_n_i          => usr_button,
       clk_20m_vcxo_i      => clk20m_vcxo_i,
@@ -240,39 +261,31 @@ begin
       plldac_load_n_o     => plldac_load_n,
       plldac_sync_n_o     => plldac_sync_n,
   
-      sfp0_txp_o          => sfp0_tx_p,
-      sfp0_txn_o          => sfp0_tx_n,
-      sfp0_rxp_i          => sfp0_rx_p,
-      sfp0_rxn_i          => sfp0_rx_n,
-      sfp0_det_i          => sfp0_det,
+      sfp0_txp_o          => sfp0_txp_o,
+      sfp0_txn_o          => sfp0_txn_o,
+      sfp0_rxp_i          => sfp0_rxp_i,
+      sfp0_rxn_i          => sfp0_rxn_i,
+      sfp0_det_i          => sfp0_det_i,
       sfp0_scl_i          => sfp0_scl_i,
       sfp0_scl_o          => sfp0_scl_o,
       sfp0_sda_i          => sfp0_sda_i,
       sfp0_sda_o          => sfp0_sda_o,
-      sfp0_rate_select_o  => open,
-      sfp0_tx_fault_i     => sfp0_tx_fault,
-      sfp0_tx_disable_o   => sfp0_tx_disable,
-      sfp0_los_i          => sfp0_los,
-      sfp1_txp_o          => sfp1_tx_p,
-      sfp1_txn_o          => sfp1_tx_n,
-      sfp1_rxp_i          => sfp1_rx_p,
-      sfp1_rxn_i          => sfp1_rx_n,
-      sfp1_det_i          => sfp1_det,
+      sfp0_tx_fault_i     => sfp0_tx_fault_i,
+      sfp0_tx_disable_o   => sfp0_tx_disable_o,
+      sfp0_los_i          => sfp0_los_i,
+
+      sfp1_txp_o          => sfp1_txp_o,
+      sfp1_txn_o          => sfp1_txn_o,
+      sfp1_rxp_i          => sfp1_rxp_i,
+      sfp1_rxn_i          => sfp1_rxn_i,
+      sfp1_det_i          => sfp1_det_i,
       sfp1_scl_i          => sfp1_scl_i,
       sfp1_scl_o          => sfp1_scl_o,
       sfp1_sda_i          => sfp1_sda_i,
       sfp1_sda_o          => sfp1_sda_o,
-      sfp1_rate_select_o  => open,
-      sfp1_tx_fault_i     => sfp1_tx_fault,
-      sfp1_tx_disable_o   => sfp1_tx_disable,
-      sfp1_los_i          => sfp1_los,
-
---      aux_master_o        => aux_master_o,
---      aux_master_i        => aux_master_i,
---      wrf_src_o           => wrf_src_o,
---      wrf_src_i           => wrf_src_i,
---      wrf_snk_o           => wrf_snk_o,
---      wrf_snk_i           => wrf_snk_i,
+      sfp1_tx_fault_i     => sfp1_tx_fault_i,
+      sfp1_tx_disable_o   => sfp1_tx_disable_o,
+      sfp1_los_i          => sfp1_los_i,
 
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
@@ -296,20 +309,56 @@ begin
       wb_eth_master_o     => cnx_master_out(0),
       wb_eth_master_i     => cnx_master_in(0),
 
+--      aux_master_o        => aux_master_o,
+--      aux_master_i        => aux_master_i,
+--      wrf_src_o           => wrf_src_o,
+--      wrf_src_i           => wrf_src_i,
+--      wrf_snk_o           => wrf_snk_o,
+--      wrf_snk_i           => wrf_snk_i,
+
       tm_link_up_o        => tm_link_up,
       tm_time_valid_o     => tm_time_valid,
       tm_tai_o            => tm_tai,
       tm_cycles_o         => open,
   
       led_act_o           => led_act,
-      led_link_o          => open,
+      led_link_o          => led_link,
       pps_p_o             => pps_out,
       pps_led_o           => pps_led,
       pps_csync_o         => pps_csync,
       link_ok_o           => open);
-  
+
+  sfp0_led <= not led_act;
+  sfp1_led <= not pps_led;
+
+  usr_led1 <= not tm_time_valid;
+  usr_led2 <= not tm_link_up;
+
   cnx_slave_in <= cnx_master_out;
   cnx_master_in <= cnx_slave_out;
+
+  -- Tristates for SFP EEPROM
+  GEN_SFP0 : if (g_sfp0_enable = 1) generate
+    sfp0_tx_p          <= sfp0_txp_o;
+    sfp0_tx_n          <= sfp0_txn_o;
+    sfp0_tx_disable    <= sfp0_tx_disable_o;
+    sfp0_rxp_i         <= sfp0_rx_p;
+    sfp0_rxn_i         <= sfp0_rx_n;
+    sfp0_det_i         <= sfp0_det;
+    sfp0_tx_fault_i    <= sfp0_tx_fault;
+    sfp0_los_i         <= sfp0_los;
+  end generate;
+
+  GEN_SFP1 : if (g_sfp1_enable = 1) generate
+    sfp1_tx_p          <= sfp1_txp_o;
+    sfp1_tx_n          <= sfp1_txn_o;
+    sfp1_tx_disable    <= sfp1_tx_disable_o;
+    sfp1_rxp_i         <= sfp1_rx_p;
+    sfp1_rxn_i         <= sfp1_rx_n;
+    sfp1_det_i         <= sfp1_det;
+    sfp1_tx_fault_i    <= sfp1_tx_fault;
+    sfp1_los_i         <= sfp1_los;
+  end generate;
 
   -- Tristates for configuration EEPROM
   eeprom_scl  <= '0' when eeprom_scl_o = '0' else 'Z';
@@ -331,11 +380,5 @@ begin
   -- Tristates for Onewire
   one_wire <= '0' when onewire_oen_o = '1' else 'Z';
   onewire_i  <= one_wire;
-
-  sfp0_led <= not led_act;
-  sfp1_led <= not pps_led;
-
-  usr_led1 <= not tm_time_valid;
-  usr_led2 <= not tm_link_up;
 
 end rtl;

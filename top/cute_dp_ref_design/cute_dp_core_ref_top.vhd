@@ -65,7 +65,7 @@ entity cute_dp_core_ref_top is
     g_sfp0_enable : integer:= 1;
     g_sfp1_enable : integer:= 1;
     g_cute_version       : string:= "2.2";
-    g_aux_sdb            : t_sdb_device  := c_xwb_xil_multiboot_sdb;
+    g_aux_sdb            : t_sdb_device  := c_xwb_tcpip_sdb;
     g_multiboot_enable   : boolean:= false
   );
   port (
@@ -113,7 +113,7 @@ entity cute_dp_core_ref_top is
     sfp0_sda_o         : out   std_logic;  -- sda
     sfp0_tx_fault      : in    std_logic;
     sfp0_tx_disable    : out   std_logic;
-    sfp0_los           : in    std_logic;  
+    sfp0_los           : in    std_logic;
 
     sfp1_tx_p          : out   std_logic;
     sfp1_tx_n          : out   std_logic;
@@ -127,14 +127,6 @@ entity cute_dp_core_ref_top is
     sfp1_tx_fault      : in    std_logic;
     sfp1_tx_disable    : out   std_logic;
     sfp1_los           : in    std_logic;
-
-    aux_master_o       : out t_wishbone_master_out;
-    aux_master_i       : in  t_wishbone_master_in := cc_dummy_master_in;
-
-    wrf_src_o          : out t_wrf_source_out;
-    wrf_src_i          : in  t_wrf_source_in:= c_dummy_src_in;
-    wrf_snk_o          : out t_wrf_sink_out;
-    wrf_snk_i          : in  t_wrf_sink_in:= c_dummy_snk_in;
 
     ---------------------------------------------------------------------------
     -- Onewire interface
@@ -164,7 +156,19 @@ entity cute_dp_core_ref_top is
     flash_ncs_o        : out std_logic;
     flash_mosi_o       : out std_logic;
     flash_miso_i       : in  std_logic:='1';
-    
+    ---------------------------------------------------------------------------
+    -- External WB interface
+    ---------------------------------------------------------------------------
+    aux_master_o       : out t_wishbone_master_out;
+    aux_master_i       : in  t_wishbone_master_in := cc_dummy_master_in;
+    ---------------------------------------------------------------------------
+    -- WR fabric interface (when g_fabric_iface = "PLAIN")
+    ---------------------------------------------------------------------------
+    wrf_src_o          : out t_wrf_source_out;
+    wrf_src_i          : in  t_wrf_source_in:= c_dummy_src_in;
+    wrf_snk_o          : out t_wrf_sink_out;
+    wrf_snk_i          : in  t_wrf_sink_in:= c_dummy_snk_in;
+
     ---------------------------------------------------------------------------
     -- Miscellanous I/O pins
     ---------------------------------------------------------------------------
@@ -180,11 +184,29 @@ entity cute_dp_core_ref_top is
 end cute_dp_core_ref_top;
 
 architecture rtl of cute_dp_core_ref_top is
-  
 
   -----------------------------------------------------------------------------
   -- Signals
   -----------------------------------------------------------------------------
+  -- SFP
+  signal sfp0_txp_o          : std_logic;
+  signal sfp0_txn_o          : std_logic;
+  signal sfp0_rxp_i          : std_logic;
+  signal sfp0_rxn_i          : std_logic;
+  signal sfp0_det_i          : std_logic;
+  signal sfp0_tx_fault_i     : std_logic;
+  signal sfp0_tx_disable_o   : std_logic;
+  signal sfp0_los_i          : std_logic;
+
+  signal sfp1_txp_o          : std_logic;
+  signal sfp1_txn_o          : std_logic;
+  signal sfp1_rxp_i          : std_logic;
+  signal sfp1_rxn_i          : std_logic;
+  signal sfp1_det_i          : std_logic;
+  signal sfp1_tx_fault_i     : std_logic;
+  signal sfp1_tx_disable_o   : std_logic;
+  signal sfp1_los_i          : std_logic;
+
   signal pps               : std_logic;
   signal pps_csync         : std_logic;
   attribute maxdelay       : string;
@@ -194,6 +216,8 @@ architecture rtl of cute_dp_core_ref_top is
   signal tm_link_up        : std_logic;
   signal pps_led           : std_logic;
   signal led_act           : std_logic;
+  signal led_link          : std_logic;
+
   -- Wishbone buse(s) from masters attached to crossbar
   signal cnx_master_out : t_wishbone_master_out_array(0 downto 0);
   signal cnx_master_in  : t_wishbone_master_in_array(0 downto 0);
@@ -201,15 +225,9 @@ architecture rtl of cute_dp_core_ref_top is
   signal cnx_slave_out : t_wishbone_slave_out_array(0 downto 0);
   signal cnx_slave_in  : t_wishbone_slave_in_array(0 downto 0);
 
-  -- Not needed now, but useful if application cores are added
-  signal clk_sys_62m5   : std_logic;
-  signal clk_ref_125m   : std_logic;
-  signal rst_sys_62m5_n : std_logic;
-  signal rst_ref_125m_n : std_logic;
-
 begin
 
-  u_wr_core : xwrc_board_cute
+  cmp_xwrc_board_cute : xwrc_board_cute
     generic map(
       g_dpram_initf      => g_dpram_initf,
       g_sfp0_enable      => g_sfp0_enable,
@@ -218,7 +236,7 @@ begin
       g_cute_version     => g_cute_version,
       g_phy_refclk_sel   => 4,
       g_multiboot_enable => g_multiboot_enable,
-      g_num_ports        => 2)
+      g_num_ports        => g_sfp0_enable+g_sfp1_enable)
     port map (
       areset_n_i          => usr_button,
       clk_20m_vcxo_i      => clk20m_vcxo_i,
@@ -228,51 +246,43 @@ begin
       clk_125m_gtp0_n_i   => sfp0_ref_clk_n,
       clk_125m_gtp1_p_i   => sfp1_ref_clk_p,
       clk_125m_gtp1_n_i   => sfp1_ref_clk_n,
-      clk_sys_62m5_o      => clk_sys_62m5,
-      clk_ref_125m_o      => clk_ref_125m,
+      clk_sys_62m5_o      => clk_sys_62m5_o,
+      clk_ref_125m_o      => clk_ref_125m_o,
       clk_10m_ext_o       => ext_clk,
-      rst_sys_62m5_n_o    => rst_sys_62m5_n,
-      rst_ref_125m_n_o    => rst_ref_125m_n,
+      rst_sys_62m5_n_o    => rst_sys_62m5_n_o,
+      rst_ref_125m_n_o    => rst_ref_125m_n_o,
   
       plldac_sclk_o       => plldac_sclk,
       plldac_din_o        => plldac_din,
       plldac_clr_n_o      => plldac_clr_n,
       plldac_load_n_o     => plldac_load_n,
       plldac_sync_n_o     => plldac_sync_n,
-  
-      sfp0_txp_o          => sfp0_tx_p,
-      sfp0_txn_o          => sfp0_tx_n,
-      sfp0_rxp_i          => sfp0_rx_p,
-      sfp0_rxn_i          => sfp0_rx_n,
-      sfp0_det_i          => sfp0_det,
+
+      sfp0_txp_o          => sfp0_txp_o,
+      sfp0_txn_o          => sfp0_txn_o,
+      sfp0_rxp_i          => sfp0_rxp_i,
+      sfp0_rxn_i          => sfp0_rxn_i,
+      sfp0_det_i          => sfp0_det_i,
       sfp0_scl_i          => sfp0_scl_i,
       sfp0_scl_o          => sfp0_scl_o,
       sfp0_sda_i          => sfp0_sda_i,
       sfp0_sda_o          => sfp0_sda_o,
-      sfp0_rate_select_o  => open,
-      sfp0_tx_fault_i     => sfp0_tx_fault,
-      sfp0_tx_disable_o   => sfp0_tx_disable,
-      sfp0_los_i          => sfp0_los,
-      sfp1_txp_o          => sfp1_tx_p,
-      sfp1_txn_o          => sfp1_tx_n,
-      sfp1_rxp_i          => sfp1_rx_p,
-      sfp1_rxn_i          => sfp1_rx_n,
-      sfp1_det_i          => sfp1_det,
+      sfp0_tx_fault_i     => sfp0_tx_fault_i,
+      sfp0_tx_disable_o   => sfp0_tx_disable_o,
+      sfp0_los_i          => sfp0_los_i,
+
+      sfp1_txp_o          => sfp1_txp_o,
+      sfp1_txn_o          => sfp1_txn_o,
+      sfp1_rxp_i          => sfp1_rxp_i,
+      sfp1_rxn_i          => sfp1_rxn_i,
+      sfp1_det_i          => sfp1_det_i,
       sfp1_scl_i          => sfp1_scl_i,
       sfp1_scl_o          => sfp1_scl_o,
       sfp1_sda_i          => sfp1_sda_i,
       sfp1_sda_o          => sfp1_sda_o,
-      sfp1_rate_select_o  => open,
-      sfp1_tx_fault_i     => sfp1_tx_fault,
-      sfp1_tx_disable_o   => sfp1_tx_disable,
-      sfp1_los_i          => sfp1_los,
-
-      aux_master_o        => aux_master_o,
-      aux_master_i        => aux_master_i,
-      wrf_src_o           => wrf_src_o,
-      wrf_src_i           => wrf_src_i,
-      wrf_snk_o           => wrf_snk_o,
-      wrf_snk_i           => wrf_snk_i,
+      sfp1_tx_fault_i     => sfp1_tx_fault_i,
+      sfp1_tx_disable_o   => sfp1_tx_disable_o,
+      sfp1_los_i          => sfp1_los_i,
 
       eeprom_scl_i        => eeprom_scl_i,
       eeprom_scl_o        => eeprom_scl_o,
@@ -281,7 +291,7 @@ begin
   
       onewire_i           => onewire_i,
       onewire_oen_o       => onewire_oen_o,
-  
+
       uart_rxd_i          => uart_rx,
       uart_txd_o          => uart_tx,
   
@@ -296,13 +306,20 @@ begin
       wb_eth_master_o     => cnx_master_out(0),
       wb_eth_master_i     => cnx_master_in(0),
 
+      --aux_master_o        => aux_master_o,
+      --aux_master_i        => aux_master_i,
+      --wrf_src_o           => wrf_src_o,
+      --wrf_src_i           => wrf_src_i,
+      --wrf_snk_o           => wrf_snk_o,
+      --wrf_snk_i           => wrf_snk_i,
+
       tm_link_up_o        => tm_link_up,
       tm_time_valid_o     => tm_time_valid,
       tm_tai_o            => tm_tai,
       tm_cycles_o         => open,
-  
+
       led_act_o           => led_act,
-      led_link_o          => open,
+      led_link_o          => led_link,
       pps_p_o             => pps_out,
       pps_led_o           => pps_led,
       pps_csync_o         => pps_csync,
@@ -313,10 +330,30 @@ begin
 
   usr_led1 <= not tm_time_valid;
   usr_led2 <= not tm_link_up;
-  
-  clk_sys_62m5_o   <= clk_sys_62m5;
-  clk_ref_125m_o   <= clk_ref_125m;
-  rst_sys_62m5_n_o <= rst_sys_62m5_n;
-  rst_ref_125m_n_o <= rst_ref_125m_n;
 
+  cnx_slave_in <= cnx_master_out;
+  cnx_master_in <= cnx_slave_out;
+
+  -- Tristates for SFP EEPROM
+  GEN_SFP0 : if (g_sfp0_enable = 1) generate
+    sfp0_tx_p          <= sfp0_txp_o;
+    sfp0_tx_n          <= sfp0_txn_o;
+    sfp0_tx_disable    <= sfp0_tx_disable_o;
+    sfp0_rxp_i         <= sfp0_rx_p;
+    sfp0_rxn_i         <= sfp0_rx_n;
+    sfp0_det_i         <= sfp0_det;
+    sfp0_tx_fault_i    <= sfp0_tx_fault;
+    sfp0_los_i         <= sfp0_los;
+  end generate;
+
+  GEN_SFP1 : if (g_sfp1_enable = 1) generate
+    sfp1_tx_p          <= sfp1_txp_o;
+    sfp1_tx_n          <= sfp1_txn_o;
+    sfp1_tx_disable    <= sfp1_tx_disable_o;
+    sfp1_rxp_i         <= sfp1_rx_p;
+    sfp1_rxn_i         <= sfp1_rx_n;
+    sfp1_det_i         <= sfp1_det;
+    sfp1_tx_fault_i    <= sfp1_tx_fault;
+    sfp1_los_i         <= sfp1_los;
+  end generate;
 end rtl;
