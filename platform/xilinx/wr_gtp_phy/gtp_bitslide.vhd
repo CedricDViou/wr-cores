@@ -124,6 +124,8 @@ begin  -- behavioral
       counter          <= (others => '0');
       synced_o         <= '0';
       gtp_rx_cdr_rst_o <= '0';
+      bitslide_o       <= (others => '0');
+      cur_slide        <= (others => '0');
     elsif rising_edge(gtp_rx_clk_i) then
       
       if(serdes_ready_i = '0') then
@@ -138,6 +140,7 @@ begin  -- behavioral
           counter          <= (others => '0');
           gtp_rx_slide_o   <= '0';
           synced_o         <= '0';
+          bitslide_o       <= (others=>'0');
           gtp_rx_cdr_rst_o <= '0';
           commas_missed    <= (others => '0');
 
