@@ -224,6 +224,7 @@ architecture rtl of wr_gtx_phy_virtex6 is
 
   signal trig0, trig1, trig2, trig3 : std_logic_vector(31 downto 0);
   signal gtx_rst                    : std_logic;
+  signal gtx_rst_synced             : std_logic;
   signal gtx_loopback               : std_logic_vector(2 downto 0);
   signal gtx_reset_done             : std_logic;
   signal gtx_pll_lockdet            : std_logic;
@@ -295,6 +296,13 @@ begin  -- rtl
   end process;
 
   gtx_rst <= rst_synced or std_logic(not reset_counter(reset_counter'left));
+
+  U_sync_reset : gc_sync_ffs
+    port map (
+      clk_i    => rx_rec_clk,
+      rst_n_i  => '1',
+      data_i   => gtx_rst,
+      synced_o => gtx_rst_synced);
 
   U_Twice_Reset_Gen : gtx_reset
     port map (
@@ -390,7 +398,7 @@ begin  -- rtl
       g_simulation => g_simulation,
       g_target     => "virtex6")
     port map (
-      gtp_rst_i                => gtx_rst,
+      gtp_rst_i                => gtx_rst_synced,
       gtp_rx_clk_i             => rx_rec_clk,
       gtp_rx_comma_det_i       => rx_comma_det,
       gtp_rx_byte_is_aligned_i => rx_byte_is_aligned,
@@ -413,23 +421,23 @@ begin  -- rtl
   trig2(6) <= rxpll_lockdet;
   trig2(7) <= align_done;
 
-
-
-  p_gen_rx_outputs : process(rx_rec_clk, gtx_rst)
+  p_gen_rx_outputs : process(rx_rec_clk)
   begin
-    if(gtx_rst = '1') then
-      rx_data_o    <= (others => '0');
-      rx_k_o       <= (others => '0');
-      rx_enc_err_o <= '0';
-    elsif rising_edge(rx_rec_clk) then
-      if(everything_ready = '1' and rx_synced = '1') then
-        rx_data_o    <= rx_data_int(7 downto 0) & rx_data_int(15 downto 8);
-        rx_k_o       <= rx_k_int(0) & rx_k_int(1);
-        rx_enc_err_o <= rx_disp_err(0) or rx_disp_err(1) or rx_code_err(0) or rx_code_err(1);
+    if rising_edge(rx_rec_clk) then
+      if(gtx_rst_synced = '1') then
+        rx_data_o    <= (others => '0');
+        rx_k_o       <= (others => '0');
+        rx_enc_err_o <= '0';
       else
-        rx_data_o    <= (others => '1');
-        rx_k_o       <= (others => '1');
-        rx_enc_err_o <= '1';
+        if(everything_ready = '1' and rx_synced = '1') then
+          rx_data_o    <= rx_data_int(7 downto 0) & rx_data_int(15 downto 8);
+          rx_k_o       <= rx_k_int(0) & rx_k_int(1);
+          rx_enc_err_o <= rx_disp_err(0) or rx_disp_err(1) or rx_code_err(0) or rx_code_err(1);
+        else
+          rx_data_o    <= (others => '1');
+          rx_k_o       <= (others => '1');
+          rx_enc_err_o <= '1';
+        end if;
       end if;
     end if;
   end process;
