@@ -90,6 +90,54 @@ package wr_nic_wrapper_pkg is
     int_o            : out std_logic);
   end component;
   
+  component wr_nic_wrapper
+  generic(
+    -- Number of peripheral interrupt lines
+    g_num_irqs  : integer := 3;
+    -- Number of ports for the TxTSU module
+    g_num_ports : integer := 1
+  );
+  port(
+    ---------------------------------------------------------------------------
+    -- Global ports (Clocks & Resets)
+    ---------------------------------------------------------------------------
+    -- System clock
+    clk_sys_i              : in std_logic;
+    -- Global reset (active low)
+    resetn_i               : in std_logic;
+
+    ---------------------------------------------------------------------------
+    -- External WB slave interface
+    ---------------------------------------------------------------------------
+    ext_slave_i            : in  t_wishbone_slave_in;
+    ext_slave_o            : out t_wishbone_slave_out;
+
+    ---------------------------------------------------------------------------
+    -- NIC fabric data buses
+    ---------------------------------------------------------------------------
+    nic_snk_i              : in  t_wrf_sink_in;
+    nic_snk_o              : out t_wrf_sink_out;
+    nic_src_i              : in  t_wrf_source_in;
+    nic_src_o              : out t_wrf_source_out;
+
+    -- PPS-related signal for NIC core
+    pps_p_i                : in std_logic := '0';
+    pps_valid_i            : in std_logic := '0';
+
+    ---------------------------------------------------------------------------
+    -- VIC ports (peripheral interrupts lines and global interrupt output)
+    ---------------------------------------------------------------------------
+    vic_irqs_i             : in std_logic_vector(g_num_irqs-1 downto 0);
+    vic_int_o              : out std_logic;
+    
+    ---------------------------------------------------------------------------
+    -- TxTSU ports (Timestamp trigger and acknowlegdement signal)
+    ---------------------------------------------------------------------------
+    txtsu_timestamps_i     : in  t_txtsu_timestamp_array(g_num_ports-1 downto 0);
+    txtsu_timestamps_ack_o : out std_logic_vector(g_num_ports -1 downto 0)
+  );
+  end component;
+  
   -----------------------------------------------------------------------------
   -- Constants
   -----------------------------------------------------------------------------
