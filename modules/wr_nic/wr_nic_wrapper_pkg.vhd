@@ -151,7 +151,7 @@ package wr_nic_wrapper_pkg is
     wbd_width     => x"7", -- 8/16/32-bit port granularity
     sdb_component => (
     addr_first    => x"0000000000000000",
-    addr_last     => x"00000000000001ff",  -- I think this is overestimated (orig. 1ffff, wrsw_hdl. ffff)
+    addr_last     => x"000000000000ffff",  -- I think this is overestimated (orig. 1ffff, wrsw_hdl. ffff)
     product => (
     vendor_id     => x"000000000000CE42", -- CERN
     device_id     => x"00000012",
@@ -190,11 +190,11 @@ package wr_nic_wrapper_pkg is
   -- Crossbar memory layout
   constant c_nic_wrapper_xbar_layout : t_sdb_record_array(c_NIC_WRAPPER_XBAR_NUM_SLAVES-1 downto 0) := (
      c_NIC_WRAPPER_XBAR_SLAVE_NIC => f_sdb_embed_device(c_xwr_nic_sdb , x"00000000"),
-     c_NIC_WRAPPER_XBAR_SLAVE_VIC => f_sdb_embed_device(c_xwb_vic_sdb , x"00000200"),
-     c_NIC_WRAPPER_XBAR_SLAVE_TXTSU => f_sdb_embed_device(c_xwr_txtsu_sdb , x"00000300")
+     c_NIC_WRAPPER_XBAR_SLAVE_VIC => f_sdb_embed_device(c_xwb_vic_sdb , x"00010000"),
+     c_NIC_WRAPPER_XBAR_SLAVE_TXTSU => f_sdb_embed_device(c_xwr_txtsu_sdb , x"00010100")
   );
   -- Crossbar SDB entry address
-  constant c_nic_wrapper_xbar_sdb_address : t_wishbone_address := x"00000400";
+  constant c_nic_wrapper_xbar_sdb_address : t_wishbone_address := x"00011000";
   constant c_nic_wrapper_xbar_bridge_sdb  : t_sdb_bridge       :=
     f_xwb_bridge_layout_sdb(true, c_nic_wrapper_xbar_layout, c_nic_wrapper_xbar_sdb_address);
 
