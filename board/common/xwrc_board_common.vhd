@@ -77,8 +77,7 @@ entity xwrc_board_common is
     -- if WRPC supports only one SFP but we have two connected that are muxed, 
     -- mux also the I2C acess to their memory
     g_sfp_i2c_mux_enable        : boolean                        := FALSE;
-    g_fabric_iface              : t_board_fabric_iface           := PLAIN;
-    g_vic_irqs                  : integer                        := 1);
+    g_fabric_iface              : t_board_fabric_iface           := PLAIN);
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
@@ -264,10 +263,7 @@ entity xwrc_board_common is
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
     -- Link ok indication
-    link_ok_o : out std_logic;
-    -- VIC ports for NIC configuration
-    vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
-    vic_int_o  : out std_logic
+    link_ok_o : out std_logic
     );
 
 end entity xwrc_board_common;
@@ -292,28 +288,6 @@ architecture struct of xwrc_board_common is
       master_o    : out t_wishbone_master_out;
       master_i    : in  t_wishbone_master_in);
   end component;
-  
-  component wr_nic_wrapper
-    generic(
-      g_num_irqs  : integer := 3;
-      g_num_ports : integer := 1
-    );
-    port(
-      clk_sys_i              : in std_logic;
-      resetn_i               : in std_logic;
-      ext_slave_i            : in t_wishbone_slave_in;
-      ext_slave_o            : out t_wishbone_slave_out;
-      nic_snk_i              : in  t_wrf_sink_in;
-      nic_snk_o              : out t_wrf_sink_out;
-      nic_src_i              : in  t_wrf_source_in;
-      nic_src_o              : out t_wrf_source_out;
-      pps_p_i                : in std_logic := '0';
-      pps_valid_i            : in std_logic := '0';
-      vic_irqs_i             : in std_logic_vector(g_num_irqs-1 downto 0);
-      vic_int_o              : out std_logic;
-      txtsu_timestamps_i     : in  t_txtsu_timestamp_array(g_num_ports-1 downto 0);
-      txtsu_timestamps_ack_o : out std_logic_vector(g_num_ports -1 downto 0));
-    end component;
 
   -----------------------------------------------------------------------------
   -- Signals
@@ -412,8 +386,8 @@ begin  -- architecture struct
       g_dpram_size                => g_dpram_size,
       g_interface_mode            => g_interface_mode,
       g_address_granularity       => g_address_granularity,
-      g_aux_sdb                   => f_pick_aux_sdb_device_for_nic(g_fabric_iface, g_aux_sdb),
-      g_aux_bridge_sdb            => f_pick_aux_sdb_bridge_for_nic(g_fabric_iface, g_aux_bridge_sdb),
+      g_aux_sdb                   => g_aux_sdb,
+      g_aux_bridge_sdb            => g_aux_bridge_sdb,
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
@@ -682,38 +656,7 @@ begin  -- architecture struct
 
   end generate gen_sfp_i2c_dual;
   
-  gen_nic : if (g_fabric_iface = NIC) generate
-   cmp_nic_wrapper : wr_nic_wrapper
-    generic map(
-      g_num_irqs  => g_vic_irqs,
-      g_num_ports => 1
-    )
-    port map(
-      clk_sys_i                 => clk_sys_i,
-      resetn_i                  => rst_n_i,
-      ext_slave_i               => aux_master_out,
-      ext_slave_o               => aux_master_in,
-      nic_snk_i                 => wrf_src_out,
-      nic_snk_o                 => wrf_src_in,
-      nic_src_i                 => wrf_snk_out,
-      nic_src_o                 => wrf_snk_in,
-      pps_p_i                   => pps_csync,
-      pps_valid_i               => pps_valid,
-      vic_irqs_i                => vic_irqs_i,
-      vic_int_o                 => vic_int_o,
-      txtsu_timestamps_i(0)     => wrc_timestamps_o,
-      txtsu_timestamps_ack_o(0) => wrc_timestamps_ack_i);
-	
-    timestamps_o.port_id <= (others => '0');
-    timestamps_o.frame_id <= (others => '0');
-    timestamps_o.tsval <= (others => '0');
-    timestamps_o.incorrect <= '0';
-    timestamps_o.stb <= '0';
-  end generate gen_nic;
-  
-  gen_no_nic : if (g_fabric_iface /= NIC) generate
-    timestamps_o         <= wrc_timestamps_o;
-    wrc_timestamps_ack_i <= timestamps_ack_i;
-  end generate gen_no_nic;
+  timestamps_o         <= wrc_timestamps_o;
+  wrc_timestamps_ack_i <= timestamps_ack_i;
 
 end architecture struct;

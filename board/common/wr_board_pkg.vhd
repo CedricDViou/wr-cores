@@ -39,11 +39,10 @@ use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.wrcore_pkg.all;
 use work.streamers_pkg.all;
-use work.wr_nic_wrapper_pkg.all;
 
 package wr_board_pkg is
 
-  type t_board_fabric_iface is (PLAIN, STREAMERS, ETHERBONE, LOOPBACK, NIC, always_last_invalid);
+  type t_board_fabric_iface is (PLAIN, STREAMERS, ETHERBONE, LOOPBACK, always_last_invalid);
 
   -- TODO: using these default paths requires absolute path. If relative path is used,
   --       they work only for reference designs by chance. Once we figure out how to
@@ -91,18 +90,6 @@ package wr_board_pkg is
     simulation  : integer;
     pcs_16_bit  : boolean)
     return string;
-
-  function f_pick_aux_sdb_device_for_nic (
-    iface : t_board_fabric_iface;
-    ext_device : t_sdb_device
-    )
-    return t_sdb_device;
-
-  function f_pick_aux_sdb_bridge_for_nic (
-    iface : t_board_fabric_iface;
-    ext_bridge : t_sdb_bridge
-    )
-    return t_sdb_bridge;
 
   component xwrc_board_common is
     generic (
@@ -226,9 +213,7 @@ package wr_board_pkg is
       pps_valid_o          : out std_logic;
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic;
-      vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
-      vic_int_o  : out std_logic);
+      link_ok_o            : out std_logic);
   end component xwrc_board_common;
 
 end wr_board_pkg;
@@ -266,7 +251,6 @@ package body wr_board_pkg is
       when "PLAINFBRC" => result := PLAIN;
       when "STREAMERS" => result := STREAMERS;
       when "ETHERBONE" => result := ETHERBONE;
-      when "NIC      " => result := NIC;
       when others      => result := always_last_invalid;
     end case;
     return result;
@@ -379,32 +363,6 @@ package body wr_board_pkg is
         "correct path, i.e." &
         "<your wr-cores location>/bin/wrpc/wrc_phy8_sim.{bram, mif} " severity FAILURE;
       return "";
-    end if;
-  end function;
-
-  function f_pick_aux_sdb_device_for_nic (
-    iface : t_board_fabric_iface;
-    ext_device : t_sdb_device
-    )
-    return t_sdb_device is
-  begin
-    if (iface = NIC) then
-      return c_wrc_periph3_sdb;
-    else
-      return ext_device;
-    end if;
-  end function;
-
-  function f_pick_aux_sdb_bridge_for_nic (
-    iface : t_board_fabric_iface;
-    ext_bridge : t_sdb_bridge
-    )
-    return t_sdb_bridge is
-  begin
-    if (iface = NIC) then
-      return c_nic_wrapper_xbar_bridge_sdb;
-    else
-      return ext_bridge;
     end if;
   end function;
 

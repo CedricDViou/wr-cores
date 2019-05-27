@@ -157,9 +157,7 @@ package wr_spec_pkg is
       pps_csync_o          : out std_logic;
       pps_valid_o          : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic;
-      vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
-      vic_int_o  : out std_logic);
+      link_ok_o            : out std_logic);
   end component xwrc_board_spec;
 
 
@@ -323,9 +321,7 @@ package wr_spec_pkg is
       pps_csync_o          : out std_logic;
       pps_valid_o          : out std_logic;
       pps_led_o            : out std_logic;
-      link_ok_o            : out std_logic;
-      vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
-      vic_int_o  : out std_logic);
+      link_ok_o            : out std_logic);
   end component wrc_board_spec;
 
 end wr_spec_pkg;

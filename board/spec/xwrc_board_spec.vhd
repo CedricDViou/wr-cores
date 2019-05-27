@@ -259,10 +259,7 @@ entity xwrc_board_spec is
     pps_valid_o : out std_logic;
     pps_led_o  : out std_logic;
     -- Link ok indication
-    link_ok_o  : out std_logic;
-
-    vic_irqs_i : in std_logic_vector(g_vic_irqs-1 downto 0) := (others => '0');
-    vic_int_o  : out std_logic
+    link_ok_o  : out std_logic
     );
 
 end entity xwrc_board_spec;
@@ -542,9 +539,7 @@ begin  -- architecture struct
       pps_csync_o          => pps_csync_o,
       pps_valid_o          => pps_valid_o,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o,
-      vic_irqs_i           => vic_irqs_i,
-      vic_int_o            => vic_int_o);
+      link_ok_o            => link_ok_o);
 
   sfp_rate_select_o <= '1';
 

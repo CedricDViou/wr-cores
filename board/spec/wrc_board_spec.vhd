@@ -544,8 +544,6 @@ begin  -- architecture struct
       pps_csync_o          => pps_csync_o,
       pps_valid_o          => pps_valid_o,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o,
-      vic_irqs_i           => vic_irqs_i,
-      vic_int_o            => vic_int_o);
+      link_ok_o            => link_ok_o);
 
 end architecture std_wrapper;
