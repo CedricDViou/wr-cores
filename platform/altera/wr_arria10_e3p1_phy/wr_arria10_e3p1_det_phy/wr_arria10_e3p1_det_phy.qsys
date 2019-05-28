@@ -71,13 +71,7 @@
    dir="end">
   <port name="rx_analogreset" internal="rx_analogreset" />
  </interface>
- <interface
-   name="rx_bitslip"
-   internal="xcvr_native_a10_0.rx_bitslip"
-   type="conduit"
-   dir="end">
-  <port name="rx_bitslip" internal="rx_bitslip" />
- </interface>
+ <interface name="rx_bitslip" internal="xcvr_native_a10_0.rx_bitslip" />
  <interface
    name="rx_cal_busy"
    internal="xcvr_native_a10_0.rx_cal_busy"
@@ -99,6 +93,7 @@
    dir="end">
   <port name="rx_clkout" internal="rx_clkout" />
  </interface>
+ <interface name="rx_control" internal="xcvr_native_a10_0.rx_control" />
  <interface
    name="rx_coreclkin"
    internal="xcvr_native_a10_0.rx_coreclkin"
@@ -107,11 +102,32 @@
   <port name="rx_coreclkin" internal="rx_coreclkin" />
  </interface>
  <interface
+   name="rx_datak"
+   internal="xcvr_native_a10_0.rx_datak"
+   type="conduit"
+   dir="end">
+  <port name="rx_datak" internal="rx_datak" />
+ </interface>
+ <interface
    name="rx_digitalreset"
    internal="xcvr_native_a10_0.rx_digitalreset"
    type="conduit"
    dir="end">
   <port name="rx_digitalreset" internal="rx_digitalreset" />
+ </interface>
+ <interface
+   name="rx_disperr"
+   internal="xcvr_native_a10_0.rx_disperr"
+   type="conduit"
+   dir="end">
+  <port name="rx_disperr" internal="rx_disperr" />
+ </interface>
+ <interface
+   name="rx_errdetect"
+   internal="xcvr_native_a10_0.rx_errdetect"
+   type="conduit"
+   dir="end">
+  <port name="rx_errdetect" internal="rx_errdetect" />
  </interface>
  <interface
    name="rx_is_lockedtodata"
@@ -135,6 +151,20 @@
   <port name="rx_parallel_data" internal="rx_parallel_data" />
  </interface>
  <interface
+   name="rx_patterndetect"
+   internal="xcvr_native_a10_0.rx_patterndetect"
+   type="conduit"
+   dir="end">
+  <port name="rx_patterndetect" internal="rx_patterndetect" />
+ </interface>
+ <interface
+   name="rx_runningdisp"
+   internal="xcvr_native_a10_0.rx_runningdisp"
+   type="conduit"
+   dir="end">
+  <port name="rx_runningdisp" internal="rx_runningdisp" />
+ </interface>
+ <interface
    name="rx_serial_data"
    internal="xcvr_native_a10_0.rx_serial_data"
    type="conduit"
@@ -142,25 +172,36 @@
   <port name="rx_serial_data" internal="rx_serial_data" />
  </interface>
  <interface
-   name="rx_set_locktodata"
-   internal="xcvr_native_a10_0.rx_set_locktodata"
+   name="rx_seriallpbken"
+   internal="xcvr_native_a10_0.rx_seriallpbken"
    type="conduit"
    dir="end">
-  <port name="rx_set_locktodata" internal="rx_set_locktodata" />
+  <port name="rx_seriallpbken" internal="rx_seriallpbken" />
  </interface>
  <interface
-   name="rx_set_locktoref"
-   internal="xcvr_native_a10_0.rx_set_locktoref"
-   type="conduit"
-   dir="end">
-  <port name="rx_set_locktoref" internal="rx_set_locktoref" />
- </interface>
+   name="rx_set_locktodata"
+   internal="xcvr_native_a10_0.rx_set_locktodata" />
+ <interface name="rx_set_locktoref" internal="xcvr_native_a10_0.rx_set_locktoref" />
  <interface
    name="rx_std_bitslipboundarysel"
    internal="xcvr_native_a10_0.rx_std_bitslipboundarysel"
    type="conduit"
    dir="end">
   <port name="rx_std_bitslipboundarysel" internal="rx_std_bitslipboundarysel" />
+ </interface>
+ <interface
+   name="rx_std_wa_patternalign"
+   internal="xcvr_native_a10_0.rx_std_wa_patternalign"
+   type="conduit"
+   dir="end">
+  <port name="rx_std_wa_patternalign" internal="rx_std_wa_patternalign" />
+ </interface>
+ <interface
+   name="rx_syncstatus"
+   internal="xcvr_native_a10_0.rx_syncstatus"
+   type="conduit"
+   dir="end">
+  <port name="rx_syncstatus" internal="rx_syncstatus" />
  </interface>
  <interface
    name="tx_analogreset"
@@ -183,6 +224,7 @@
    dir="end">
   <port name="tx_clkout" internal="tx_clkout" />
  </interface>
+ <interface name="tx_control" internal="xcvr_native_a10_0.tx_control" />
  <interface
    name="tx_coreclkin"
    internal="xcvr_native_a10_0.tx_coreclkin"
@@ -191,12 +233,22 @@
   <port name="tx_coreclkin" internal="tx_coreclkin" />
  </interface>
  <interface
+   name="tx_datak"
+   internal="xcvr_native_a10_0.tx_datak"
+   type="conduit"
+   dir="end">
+  <port name="tx_datak" internal="tx_datak" />
+ </interface>
+ <interface
    name="tx_digitalreset"
    internal="xcvr_native_a10_0.tx_digitalreset"
    type="conduit"
    dir="end">
   <port name="tx_digitalreset" internal="tx_digitalreset" />
  </interface>
+ <interface
+   name="tx_enh_data_valid"
+   internal="xcvr_native_a10_0.tx_enh_data_valid" />
  <interface
    name="tx_parallel_data"
    internal="xcvr_native_a10_0.tx_parallel_data"
@@ -218,6 +270,9 @@
    dir="end">
   <port name="tx_serial_data" internal="tx_serial_data" />
  </interface>
+ <interface
+   name="tx_std_bitslipboundarysel"
+   internal="xcvr_native_a10_0.tx_std_bitslipboundarysel" />
  <interface
    name="unused_rx_parallel_data"
    internal="xcvr_native_a10_0.unused_rx_parallel_data"
@@ -321,11 +376,11 @@
   <parameter name="enable_port_rx_pma_iqtxrx_clkout" value="0" />
   <parameter name="enable_port_rx_pma_qpipulldn" value="0" />
   <parameter name="enable_port_rx_polinv" value="0" />
-  <parameter name="enable_port_rx_seriallpbken" value="0" />
-  <parameter name="enable_port_rx_seriallpbken_tx" value="0" />
+  <parameter name="enable_port_rx_seriallpbken" value="1" />
+  <parameter name="enable_port_rx_seriallpbken_tx" value="1" />
   <parameter name="enable_port_rx_signaldetect" value="0" />
   <parameter name="enable_port_rx_std_bitrev_ena" value="0" />
-  <parameter name="enable_port_rx_std_bitslip" value="1" />
+  <parameter name="enable_port_rx_std_bitslip" value="0" />
   <parameter name="enable_port_rx_std_bitslipboundarysel" value="1" />
   <parameter name="enable_port_rx_std_byterev_ena" value="0" />
   <parameter name="enable_port_rx_std_pcfifo_empty" value="0" />
@@ -334,7 +389,7 @@
   <parameter name="enable_port_rx_std_rmfifo_full" value="0" />
   <parameter name="enable_port_rx_std_signaldetect" value="0" />
   <parameter name="enable_port_rx_std_wa_a1a2size" value="0" />
-  <parameter name="enable_port_rx_std_wa_patternalign" value="0" />
+  <parameter name="enable_port_rx_std_wa_patternalign" value="1" />
   <parameter name="enable_port_tx_analog_reset_ack" value="0" />
   <parameter name="enable_port_tx_enh_bitslip" value="0" />
   <parameter name="enable_port_tx_enh_fifo_cnt" value="0" />
@@ -362,7 +417,7 @@
   <parameter name="enable_ports_pipe_hclk" value="0" />
   <parameter name="enable_ports_pipe_rx_elecidle" value="0" />
   <parameter name="enable_ports_pipe_sw" value="0" />
-  <parameter name="enable_ports_rx_manual_cdr_mode" value="1" />
+  <parameter name="enable_ports_rx_manual_cdr_mode" value="0" />
   <parameter name="enable_ports_rx_manual_ppm" value="0" />
   <parameter name="enable_ports_rx_prbs" value="0" />
   <parameter name="enable_simple_interface" value="1" />
@@ -416,7 +471,7 @@
   <parameter name="pll_select" value="0" />
   <parameter name="plls" value="1" />
   <parameter name="pma_mode" value="basic" />
-  <parameter name="protocol_mode" value="basic_std" />
+  <parameter name="protocol_mode" value="cpri_rx_tx" />
   <parameter name="rcfg_enable" value="1" />
   <parameter name="rcfg_enable_avmm_busy_port" value="0" />
   <parameter name="rcfg_file_prefix">altera_xcvr_native_a10</parameter>
@@ -460,31 +515,31 @@
   <parameter name="sim_reduced_counters" value="false" />
   <parameter name="std_data_mask_count_multi" value="0" />
   <parameter name="std_low_latency_bypass_enable" value="0" />
-  <parameter name="std_pcs_pma_width" value="8" />
-  <parameter name="std_rx_8b10b_enable" value="0" />
+  <parameter name="std_pcs_pma_width" value="10" />
+  <parameter name="std_rx_8b10b_enable" value="1" />
   <parameter name="std_rx_bitrev_enable" value="0" />
   <parameter name="std_rx_byte_deser_mode" value="Disabled" />
   <parameter name="std_rx_byterev_enable" value="0" />
-  <parameter name="std_rx_pcfifo_mode" value="low_latency" />
+  <parameter name="std_rx_pcfifo_mode" value="register_fifo" />
   <parameter name="std_rx_polinv_enable" value="0" />
   <parameter name="std_rx_rmfifo_mode" value="disabled" />
   <parameter name="std_rx_rmfifo_pattern_n" value="0" />
   <parameter name="std_rx_rmfifo_pattern_p" value="0" />
   <parameter name="std_rx_word_aligner_fast_sync_status_enable" value="0" />
-  <parameter name="std_rx_word_aligner_mode" value="bitslip" />
-  <parameter name="std_rx_word_aligner_pattern" value="0" />
-  <parameter name="std_rx_word_aligner_pattern_len" value="8" />
+  <parameter name="std_rx_word_aligner_mode">manual (PLD controlled)</parameter>
+  <parameter name="std_rx_word_aligner_pattern" value="380" />
+  <parameter name="std_rx_word_aligner_pattern_len" value="10" />
   <parameter name="std_rx_word_aligner_renumber" value="3" />
   <parameter name="std_rx_word_aligner_rgnumber" value="3" />
   <parameter name="std_rx_word_aligner_rknumber" value="3" />
   <parameter name="std_rx_word_aligner_rvnumber" value="0" />
   <parameter name="std_tx_8b10b_disp_ctrl_enable" value="0" />
-  <parameter name="std_tx_8b10b_enable" value="0" />
+  <parameter name="std_tx_8b10b_enable" value="1" />
   <parameter name="std_tx_bitrev_enable" value="0" />
   <parameter name="std_tx_bitslip_enable" value="0" />
   <parameter name="std_tx_byte_ser_mode" value="Disabled" />
   <parameter name="std_tx_byterev_enable" value="0" />
-  <parameter name="std_tx_pcfifo_mode" value="low_latency" />
+  <parameter name="std_tx_pcfifo_mode" value="register_fifo" />
   <parameter name="std_tx_polinv_enable" value="0" />
   <parameter name="support_mode" value="user_mode" />
   <parameter name="tx_pma_clk_div" value="1" />
