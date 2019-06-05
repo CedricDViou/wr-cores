@@ -1,3 +1,4 @@
-files = [	"enc_8b10b.vhd",
-                "wr_tbi_phy.vhd",
-                "disparity_gen_pkg.vhd" ];
+files = [ "enc_8b10b.vhd",
+          "dec_8b10b.vhd",
+          "wr_tbi_phy.vhd",
+          "disparity_gen_pkg.vhd" ];
