@@ -420,6 +420,8 @@ begin  -- architecture struct
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => "SPEC",
+      g_flash_secsz_kb            => 64,         -- sector size for M25P32
+      g_flash_sdbfs_baddr         => 16#2e0000#, -- sdbfs after multiboot bitstream
       g_phys_uart                 => TRUE,
       g_virtual_uart              => TRUE,
       g_aux_clks                  => g_aux_clks,

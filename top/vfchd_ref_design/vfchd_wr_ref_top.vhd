@@ -53,7 +53,7 @@ use ieee.numeric_std.all;
 library work;
 use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
-use work.xvme64x_core_pkg.all;
+use work.vme64x_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_vfchd_pkg.all;
 use work.vfchd_i2cmux_pkg.all;
@@ -94,7 +94,7 @@ entity vfchd_wr_ref_top is
     vme_as_n_i      : in    std_logic;
     vme_addr_oe_n_o : out   std_logic;
     vme_addr_dir_o  : out   std_logic;
-    vme_irq_n_o     : out   std_logic_vector(7 downto 1);
+    vme_irq_o       : out   std_logic_vector(7 downto 1);
     vme_data_b      : inout std_logic_vector(31 downto 0);
     vme_am_i        : in    std_logic_vector(5 downto 0);
     vme_addr_b      : inout std_logic_vector(31 downto 1);
@@ -279,6 +279,7 @@ architecture top of vfchd_wr_ref_top is
   signal vme_addr_dir_int  : std_logic;
   signal vme_dtack_n       : std_logic;
   signal vme_ga            : std_logic_vector(5 downto 0);
+  signal vme_irq_n         : std_logic_vector(7 downto 1);
 
   -- SFP
   signal sfp_present    : std_logic;
@@ -356,40 +357,45 @@ begin  -- architecture top
   -----------------------------------------------------------------------------
 
   cmp_vme_core : xvme64x_core
+    generic map (
+      g_CLOCK_PERIOD    => 16,
+      g_DECODE_AM       => True,
+      g_USER_CSR_EXT    => False,
+      g_WB_GRANULARITY  => BYTE,
+      g_MANUFACTURER_ID => c_CERN_ID,
+      g_BOARD_ID        => c_SVEC_ID,
+      g_REVISION_ID     => c_SVEC_REVISION_ID,
+      g_PROGRAM_ID      => c_SVEC_PROGRAM_ID)
     port map (
       clk_i           => clk_sys_62m5,
       rst_n_i         => rst_sys_62m5_n,
-      VME_AS_n_i      => vme_as_n_i,
-      VME_RST_n_i     => io_exp_init_done,
-      VME_WRITE_n_i   => vme_write_n_i,
-      VME_AM_i        => vme_am_i,
-      VME_DS_n_i      => vme_ds_n_i,
-      VME_GA_i        => vme_ga,
-      VME_BERR_o      => open,
-      VME_DTACK_n_o   => vme_dtack_n,
-      VME_RETRY_n_o   => open,
-      VME_RETRY_OE_o  => open,
-      VME_LWORD_n_b_i => vme_lword_n_b,
-      VME_LWORD_n_b_o => vme_lword_n_b_out,
-      VME_ADDR_b_i    => vme_addr_b,
-      VME_DATA_b_o    => vme_data_b_out,
-      VME_ADDR_b_o    => vme_addr_b_out,
-      VME_DATA_b_i    => vme_data_b,
-      VME_IRQ_n_o     => vme_irq_n_o,
-      VME_IACK_n_i    => vme_iack_n_i,
-      VME_IACKIN_n_i  => vme_iackin_n_i,
-      VME_IACKOUT_n_o => vme_iackout_n_o,
-      VME_DTACK_OE_o  => open,
-      VME_DATA_DIR_o  => vme_data_dir_int,
-      VME_DATA_OE_N_o => vme_data_oe_n_o,
-      VME_ADDR_DIR_o  => vme_addr_dir_int,
-      VME_ADDR_OE_N_o => vme_addr_oe_n_o,
-      master_o        => cnx1_master_out(c_WB_MASTER_VME),
-      master_i        => cnx1_master_in(c_WB_MASTER_VME),
-      irq_i           => '0');
+      vme_i.as_n      => vme_as_n_i,
+      vme_i.rst_n     => io_exp_init_done,
+      vme_i.write_n   => vme_write_n_i,
+      vme_i.am        => vme_am_i,
+      vme_i.ds_n      => vme_ds_n_i,
+      vme_i.ga        => vme_ga,
+      vme_i.lword_n   => vme_lword_n_b,
+      vme_i.addr      => vme_addr_b,
+      vme_i.data      => vme_data_b,
+      vme_i.iack_n    => vme_iack_n_i,
+      vme_i.iackin_n  => vme_iackin_n_i,
+      vme_o.dtack_n   => vme_dtack_n,
+      vme_o.lword_n   => vme_lword_n_b_out,
+      vme_o.data      => vme_data_b_out,
+      vme_o.addr      => vme_addr_b_out,
+      vme_o.irq_n     => vme_irq_n,
+      vme_o.iackout_n => vme_iackout_n_o,
+      vme_o.data_dir  => vme_data_dir_int,
+      vme_o.data_oe_n => vme_data_oe_n_o,
+      vme_o.addr_dir  => vme_addr_dir_int,
+      vme_o.addr_oe_n => vme_addr_oe_n_o,
+      wb_o            => cnx1_master_out(c_WB_MASTER_VME),
+      wb_i            => cnx1_master_in(c_WB_MASTER_VME));
 
   -- Handle DTACK according to VFC-HD hardware
   vme_dtack_oe_o <= not vme_dtack_n;
+  vme_irq_o      <= not vme_irq_n;
 
   -- VME tri-state buffers
   vme_data_b    <= vme_data_b_out    when vme_data_dir_int = '1' else (others => 'Z');

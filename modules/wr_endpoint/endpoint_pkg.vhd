@@ -14,7 +14,7 @@
 -- structures and component declarations.
 -------------------------------------------------------------------------------
 --
--- Copyright (c) 2011 - 2017 CERN / BE-CO-HT
+-- Copyright (c) 2011-2017 CERN / BE-CO-HT
 --
 -- This source file is free software; you can redistribute it   
 -- and/or modify it under the terms of the GNU Lesser General   

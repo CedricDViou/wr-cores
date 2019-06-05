@@ -4,7 +4,7 @@
 -------------------------------------------------------------------------------
 -- File       : ep_tx_pcs_tbi.vhd
 -- Author     : Tomasz Wlostowski
--- Company    : CERN BE-CO-HT section
+-- Company    : CERN BE-CO-HT
 -- Created    : 2009-06-16
 -- Last update: 2017-02-20
 -- Platform   : FPGA-generic
@@ -23,7 +23,7 @@
 --
 -------------------------------------------------------------------------------
 --
--- Copyright (c) 2009-2017 Tomasz Wlostowski / CERN
+-- Copyright (c) 2009-2017 CERN
 --
 -- This source file is free software; you can redistribute it
 -- and/or modify it under the terms of the GNU Lesser General

@@ -2,7 +2,7 @@
 -- Title      : Simple Pipelined Wishbone MUX/DEMUX for WRPC
 -- Project    : WhiteRabbit
 -------------------------------------------------------------------------------
--- File       : wrf_mux.vhd
+-- File       : xwrf_mux.vhd
 -- Author     : Grzegorz Daniluk
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-08-11
@@ -18,7 +18,24 @@
 -- has to be forwarded to Mini-NIC (if it is the PTP message) or to the 
 -- external interface (others).
 -------------------------------------------------------------------------------
--- Copyright (c) 2012 Grzegorz Daniluk
+-- Copyright (c) 2012-2017 CERN
+--
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
+--
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
+--
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
+-- from http://www.gnu.org/licenses/lgpl-2.1.html
+--
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author          Description

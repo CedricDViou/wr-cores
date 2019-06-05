@@ -14,7 +14,7 @@
 -- defined in IEEE802.3.
 -------------------------------------------------------------------------------
 --
--- Copyright (c) 2009 Tomasz Wlostowski / CERN
+-- Copyright (c) 2009 CERN
 --
 -- This source file is free software; you can redistribute it   
 -- and/or modify it under the terms of the GNU Lesser General   

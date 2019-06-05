@@ -519,6 +519,9 @@ begin  -- rtl
               else
                 state <= SUBFRAME_HEADER;
               end if;
+            else
+              fsm_out.data   <= (others => 'X');
+              fsm_out.dvalid <= '0';
             end if;
 
           when PADDING =>

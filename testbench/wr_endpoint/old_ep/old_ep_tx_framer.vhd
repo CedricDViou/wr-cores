@@ -17,7 +17,7 @@
 -- - strips 802.1q headers when necessary
 -- - decodes TX OOB data and passes it to the timestamping unit
 -------------------------------------------------------------------------------
--- Copyright (c) 2009 Tomasz Wlostowski
+-- Copyright (c) 2009 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author          Description

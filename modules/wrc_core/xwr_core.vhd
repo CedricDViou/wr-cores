@@ -4,7 +4,7 @@
 -------------------------------------------------------------------------------
 -- File       : xwr_core.vhd
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
--- Company    : CERN (BE-CO-HT), Elproma
+-- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
 -- Last update: 2017-05-29
 -- Platform   : FPGA-generics
@@ -23,8 +23,7 @@
 -- and External MAC interface.
 -------------------------------------------------------------------------------
 --
--- Copyright (c) 2011, 2012 Elproma Elektronika
--- Copyright (c) 2012, 2017 CERN
+-- Copyright (c) 2012 - 2017 CERN
 --
 -- This source file is free software; you can redistribute it   
 -- and/or modify it under the terms of the GNU Lesser General   
@@ -77,6 +76,8 @@ entity xwr_core is
     g_with_external_clock_input : boolean                        := true;
     --
     g_board_name                : string                         := "NA  ";
+    g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+    g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart                 : boolean                        := true;
     g_virtual_uart              : boolean                        := true;
     g_aux_clks                  : integer                        := 0;
@@ -274,6 +275,8 @@ begin
     generic map(
       g_simulation                => g_simulation,
       g_board_name                => g_board_name,
+      g_flash_secsz_kb            => g_flash_secsz_kb,
+      g_flash_sdbfs_baddr         => g_flash_sdbfs_baddr,
       g_phys_uart                 => g_phys_uart,
       g_virtual_uart              => g_virtual_uart,
       g_rx_buffer_size            => g_ep_rxbuf_size,

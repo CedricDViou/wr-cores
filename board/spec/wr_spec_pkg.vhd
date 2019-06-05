@@ -1,3 +1,37 @@
+-------------------------------------------------------------------------------
+-- Title      : WRPC Wrapper for SPEC package
+-- Project    : WR PTP Core
+-- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
+-------------------------------------------------------------------------------
+-- File       : wr_spec_pkg.vhd
+-- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
+-- Company    : CERN (BE-CO-HT)
+-- Created    : 2017-02-17
+-- Last update: 2017-07-04
+-- Standard   : VHDL'93
+-------------------------------------------------------------------------------
+-- Copyright (c) 2017 CERN
+-------------------------------------------------------------------------------
+-- GNU LESSER GENERAL PUBLIC LICENSE
+--
+-- This source file is free software; you can redistribute it   
+-- and/or modify it under the terms of the GNU Lesser General   
+-- Public License as published by the Free Software Foundation; 
+-- either version 2.1 of the License, or (at your option) any   
+-- later version.                                               
+--
+-- This source is distributed in the hope that it will be       
+-- useful, but WITHOUT ANY WARRANTY; without even the implied   
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
+-- PURPOSE.  See the GNU Lesser General Public License for more 
+-- details.                                                     
+--
+-- You should have received a copy of the GNU Lesser General    
+-- Public License along with this source; if not, download it   
+-- from http://www.gnu.org/licenses/lgpl-2.1.html
+-- 
+-------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -57,9 +91,9 @@ package wr_spec_pkg is
       sfp_tx_fault_i       : in  std_logic                                        := '0';
       sfp_tx_disable_o     : out std_logic;
       sfp_los_i            : in  std_logic                                        := '0';
-      eeprom_sda_i         : in  std_logic;
+      eeprom_sda_i         : in  std_logic                                        := '1';
       eeprom_sda_o         : out std_logic;
-      eeprom_scl_i         : in  std_logic;
+      eeprom_scl_i         : in  std_logic                                        := '1';
       eeprom_scl_o         : out std_logic;
       onewire_i            : in  std_logic;
       onewire_oen_o        : out std_logic;

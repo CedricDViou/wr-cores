@@ -13,7 +13,7 @@
 -- Description: Module implements a link synchronization detect state machine
 -- compatible with 802.3x spec.
 -------------------------------------------------------------------------------
--- Copyright (c) 2010 Tomasz Wlostowski
+-- Copyright (c) 2010 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author          Description

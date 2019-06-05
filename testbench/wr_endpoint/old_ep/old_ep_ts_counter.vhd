@@ -15,7 +15,7 @@
 -- rising edge counter. For space reasons only some LSBs of falling edge
 -- counter are outputted.
 -------------------------------------------------------------------------------
--- Copyright (c) 2009 Tomasz Wlostowski
+-- Copyright (c) 2009 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author    Description

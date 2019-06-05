@@ -267,6 +267,29 @@ peripheral {
          access_dev = WRITE_ONLY;
       };
 
+      field {
+         name = "Storage type";
+         prefix = "STORAGE_TYPE";
+         size = 2;
+         description = "Storage memory type (0 - Flash, 1 - I2C EEPROM, 2 - 1-Wire EEPROM)";
+         type = SLV;
+         align = 8;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "Storage sector size";
+         prefix = "STORAGE_SEC";
+         size = 16;
+         description = "Storage sector size in KB";
+         type = SLV;
+         align = 16;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+
    };
 
    reg {
@@ -277,6 +300,20 @@ peripheral {
         prefix = "NAME";
         size = 32;
         description = "4-letter name of the board";
+        type = SLV;
+        access_bus = READ_ONLY;
+        access_dev = WRITE_ONLY;
+      };
+   };
+
+   reg {
+      name = "Storage SDBFS info";
+      prefix = "SDBFS";
+      field {
+        name = "Base address";
+        prefix = "BADDR";
+        size = 32;
+        description = "Default base address in storage, where WRPC should write SDBFS image";
         type = SLV;
         access_bus = READ_ONLY;
         access_dev = WRITE_ONLY;

@@ -16,7 +16,7 @@
 -- - parses packet headers and generates RTU requests
 -- - embeds RX OOB block with timestamp information
 -------------------------------------------------------------------------------
--- Copyright (c) 2009 Tomasz Wlostowski
+-- Copyright (c) 2009 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author  Description

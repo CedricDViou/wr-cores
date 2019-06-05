@@ -20,7 +20,7 @@
 --   occur during sampling asynchronous timestamp strobes.
 -- Both timestamps are taken using refclk_i.
 -------------------------------------------------------------------------------
--- Copyright (c) 2009 Tomasz Wlostowski
+-- Copyright (c) 2009 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author  Description

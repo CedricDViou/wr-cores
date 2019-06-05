@@ -11,7 +11,25 @@
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
 -------------------------------------------------------------------------------
--- Copyright (c) 2010 Tomasz Wlostowski
+--
+-- Copyright (c) 2010 CERN
+--
+-- This source file is free software; you can redistribute it   
+-- and/or modify it under the terms of the GNU Lesser General   
+-- Public License as published by the Free Software Foundation; 
+-- either version 2.1 of the License, or (at your option) any   
+-- later version.                                               
+--
+-- This source is distributed in the hope that it will be       
+-- useful, but WITHOUT ANY WARRANTY; without even the implied   
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
+-- PURPOSE.  See the GNU Lesser General Public License for more 
+-- details.                                                     
+--
+-- You should have received a copy of the GNU Lesser General    
+-- Public License along with this source; if not, download it   
+-- from http://www.gnu.org/licenses/lgpl-2.1.html
+--
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author          Description
@@ -66,7 +84,7 @@ end wr_tbi_phy;
 
 architecture rtl of wr_tbi_phy is
 
-  component dec_8b10b
+  component gc_dec_8b10b
     port (
       clk_i       : in  std_logic;
       rst_n_i     : in  std_logic;
@@ -124,7 +142,7 @@ begin  -- rtl
     end if;
   end process;
 
-  U_DEC : dec_8b10b
+  U_DEC : gc_dec_8b10b
     port map (
       clk_i    => tbi_rbclk_i,
       rst_n_i  => rst_synced_rbclk_n,

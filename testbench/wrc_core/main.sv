@@ -151,6 +151,11 @@ module main;
   wire wrc_snk_stall;
   wire wrc_snk_err;
   wire link_up;
+  // globa variables for "tiemout" in case the transmitted frames are not received
+  int rx_sth   = 0;
+  int tx_sth   = 0;
+  int wait_cnt = 0;
+  int rx_cnt   = 0;
 
   /// ////////////////////// WR PTP CORE /////////////////////////////////////
   wr_core #(
@@ -388,12 +393,18 @@ module main;
     tx_sizes = {};
 
     #1400us;
+    
+    tx_sth = 1; // indicate that transmitting frames
     $display("Fixed IFG");
     send_frames(ep_src, frame_number, 1 /* force Inter-frame gap of 1 us */);
     $display("Random IFG");
     send_frames(ep_src, frame_number, 0 /* random Inter-frame gap, between 1 and 100us */);
 
-
+    while (rx_cnt<(frame_number+frame_number)) #1us; 
+    tx_sth = 0; //after having received all the frames, indicate that no frames 
+                //are being transmitted, i.e. betweeen tx and rx
+    #100us;
+    $finish; //finish 
   end
 
   initial begin /// receive frames from WRPC (looped back or sent by LM32), loopback frames
@@ -433,11 +444,12 @@ module main;
     acc_lbk.write(`ADDR_LBK_MCR, `LBK_MCR_ENA);
     wait(link_up == 1'b1);
     #1200us;
-
+    
     while(1) begin
       #0.5us;
+      rx_sth=0;//indicate that nothing is being received
       ep_snk.recv(pkt);
-
+      rx_sth=1; // indicate that you are handling received frame
       /// /////////////////////////////////////////////////////////////////////////////////
       /// received frame generated inside LM32
       if(pkt.dst == PTP_MAC) begin
@@ -469,7 +481,7 @@ module main;
       else if(pkt.dst == SELF_MAC) begin // simulation-generated tests
         self_seqID_rx = 'hFFFFFFFF & (pkt.payload[3] << 24 |pkt.payload[2] << 16 | pkt.payload[1] << 8 | pkt.payload[0]);
         $display("--> recv [size=%4d]: simulation-generated frame that is looped back to the simulation sink, seqID: exp=%4d | rx=%4d",pkt.size, self_seqID_reg, self_seqID_rx);
-
+        rx_cnt++;
         if(self_seqID_reg != self_seqID_rx)
           $warning("simulation-generated ERROR: wrong seqID");
         self_seqID_reg = self_seqID_rx +1;
@@ -490,8 +502,25 @@ module main;
         acc_lbk.read(`ADDR_LBK_FWD_CNT, val64);
         $display("fwd_cnt: %d", val64);
       end
-      total_cnt++;
+      total_cnt++; // count received frames that are sent by simulation
     end
   end
-
+ 
+  /// very simply timout mechanism verify that we receive frames when they are
+  /// sent within a timeout
+  /// We count how long frames are not received when they are sent. if this 
+  /// is too long, timeout
+  initial begin 
+    while(1) begin
+      #0.5us;
+      if (wait_cnt > 2000) begin // this is too much waiting, error
+         $warning("ERROR: RX TIMEOUT, no frame was received within expected timeout");
+         $finish;
+      end
+      else if(rx_sth==0 & tx_sth == 1) // if transmission ongoing and nothing received, count
+        wait_cnt++;
+      else 
+        wait_cnt=0; //if transmitted and recieved, OK
+      end
+    end
 endmodule // main

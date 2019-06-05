@@ -20,7 +20,7 @@
 -- - clock phase measurement (DMTD)
 -- - decodes MAC addresses, VIDs and priorities and passes them to the RTU.
 -------------------------------------------------------------------------------
--- Copyright (c) 2010 Tomasz Wlostowski
+-- Copyright (c) 2010 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author          Description

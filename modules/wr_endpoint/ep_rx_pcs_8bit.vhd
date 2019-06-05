@@ -17,7 +17,7 @@
 -- pulses for RXed packets.
 -------------------------------------------------------------------------------
 --
--- Copyright (c) 2009-2017 Tomasz Wlostowski / CERN
+-- Copyright (c) 2009-2017 CERN
 --
 -- This source file is free software; you can redistribute it   
 -- and/or modify it under the terms of the GNU Lesser General   

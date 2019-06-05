@@ -18,7 +18,7 @@
 -- - positive when clk_fbck_i is slower than selected frequency setpoint
 -- - negative when clk_fbck_i is faster than selected frequency setpoint
 -------------------------------------------------------------------------------
--- Copyright (c) 2010 Tomasz Wlostowski
+-- Copyright (c) 2010 CERN
 -------------------------------------------------------------------------------
 -- Revisions  :
 -- Date        Version  Author          Description

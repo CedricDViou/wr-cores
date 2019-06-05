@@ -1,3 +1,35 @@
+-------------------------------------------------------------------------------
+-- Title      : Common WRPC Wrapper package
+-- Project    : WR PTP Core
+-- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
+-------------------------------------------------------------------------------
+-- File       : xwrc_board_common.vhd
+-- Company    : CERN (BE-CO-HT)
+-- Standard   : VHDL'93
+-------------------------------------------------------------------------------
+--
+-- Copyright (c) 2017 CERN
+--
+-- GNU LESSER GENERAL PUBLIC LICENSE
+--
+-- This source file is free software; you can redistribute it   
+-- and/or modify it under the terms of the GNU Lesser General   
+-- Public License as published by the Free Software Foundation; 
+-- either version 2.1 of the License, or (at your option) any   
+-- later version.                                               
+--
+-- This source is distributed in the hope that it will be       
+-- useful, but WITHOUT ANY WARRANTY; without even the implied   
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
+-- PURPOSE.  See the GNU Lesser General Public License for more 
+-- details.                                                     
+--
+-- You should have received a copy of the GNU Lesser General    
+-- Public License along with this source; if not, download it   
+-- from http://www.gnu.org/licenses/lgpl-2.1.html
+-- 
+-------------------------------------------------------------------------------
+
 library ieee;
 use ieee.std_logic_1164.all;
 
@@ -64,6 +96,8 @@ package wr_board_pkg is
       g_simulation                : integer                        := 0;
       g_with_external_clock_input : boolean                        := TRUE;
       g_board_name                : string                         := "NA  ";
+      g_flash_secsz_kb            : integer                        := 256;        -- default for M25P128
+      g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for M25P128
       g_phys_uart                 : boolean                        := TRUE;
       g_virtual_uart              : boolean                        := TRUE;
       g_aux_clks                  : integer                        := 0;

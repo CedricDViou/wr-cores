@@ -4,18 +4,16 @@
 -- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
 -------------------------------------------------------------------------------
 -- File       : xwrc_board_common.vhd
--- Author(s)  : Dimitrios Lampridis  <dimitrios.lampridis@cern.ch>
 -- Company    : CERN (BE-CO-HT)
--- Created    : 2017-02-22
--- Last update: 2017-05-29
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Wrapper for WR PTP core with common features shared between
 -- the various supported boards. These include the core itself, as well as
 -- a selection of fabric interfaces between the core and the application.
 -------------------------------------------------------------------------------
+--
 -- Copyright (c) 2017 CERN
--------------------------------------------------------------------------------
+--
 -- GNU LESSER GENERAL PUBLIC LICENSE
 --
 -- This source file is free software; you can redistribute it   
@@ -54,6 +52,8 @@ entity xwrc_board_common is
     g_simulation                : integer                        := 0;
     g_with_external_clock_input : boolean                        := TRUE;
     g_board_name                : string                         := "NA  ";
+    g_flash_secsz_kb            : integer                        := 256;        -- default for M25P128
+    g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for M25P128
     g_phys_uart                 : boolean                        := TRUE;
     g_virtual_uart              : boolean                        := TRUE;
     g_aux_clks                  : integer                        := 0;
@@ -323,6 +323,8 @@ begin  -- architecture struct
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => g_board_name,
+      g_flash_secsz_kb            => g_flash_secsz_kb,
+      g_flash_sdbfs_baddr         => g_flash_sdbfs_baddr,
       g_phys_uart                 => g_phys_uart,
       g_virtual_uart              => g_virtual_uart,
       g_aux_clks                  => g_aux_clks,

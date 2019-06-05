@@ -4,15 +4,14 @@
 -------------------------------------------------------------------------------
 -- File       : wrcore_pkg.vhd
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
--- Company    : CERN (BE-CO-HT), Elproma
+-- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-05-11
 -- Last update: 2017-05-29
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
 --
--- Copyright (c) 2011, 2012 Elproma Elektronika
--- Copyright (c) 2012, 2017 CERN
+-- Copyright (c) 2012 - 2017 CERN
 --
 -- This source file is free software; you can redistribute it
 -- and/or modify it under the terms of the GNU Lesser General
@@ -142,23 +141,6 @@ package wrcore_pkg is
   -----------------------------------------------------------------------------
   -- PERIPHERIALS
   -----------------------------------------------------------------------------
-  component xwr_syscon_wb
-    generic(
-      g_interface_mode      : t_wishbone_interface_mode;
-      g_address_granularity : t_wishbone_address_granularity
-      );
-    port (
-      rst_n_i   : in std_logic;
-      clk_sys_i : in std_logic;
-
-      slave_i : in  t_wishbone_slave_in;
-      slave_o : out t_wishbone_slave_out;
-
-      regs_i : in  t_sysc_in_registers;
-      regs_o : out t_sysc_out_registers
-      );
-  end component;
-
   component xwr_diags_wb is
     generic(
       g_interface_mode      : t_wishbone_interface_mode      := CLASSIC;
@@ -260,6 +242,8 @@ package wrcore_pkg is
   component wrc_periph is
     generic(
       g_board_name      : string  := "NA  ";
+      g_flash_secsz_kb    : integer := 64;
+      g_flash_sdbfs_baddr : integer := 16#2e0000#;
       g_phys_uart       : boolean := true;
       g_virtual_uart    : boolean := false;
       g_cntr_period     : integer := 62500;
@@ -376,6 +360,8 @@ package wrcore_pkg is
     generic(
       g_simulation                : integer                        := 0;
       g_board_name                : string                         := "NA  ";
+      g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+      g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
       g_phys_uart                 : boolean                        := true;
       g_virtual_uart              : boolean                        := true;
       g_with_external_clock_input : boolean                        := true;
@@ -517,6 +503,8 @@ package wrcore_pkg is
       g_with_external_clock_input : boolean                        := true;
       --
       g_board_name                : string                         := "NA  ";
+      g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
+      g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
       g_phys_uart                 : boolean                        := true;
       g_virtual_uart              : boolean                        := true;
       g_aux_clks                  : integer                        := 0;
