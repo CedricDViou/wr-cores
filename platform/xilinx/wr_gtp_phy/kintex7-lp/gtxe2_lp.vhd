@@ -73,9 +73,10 @@ entity whiterabbit_gtxe2_channel_wrapper_GT is
 generic
 (
     -- Simulation attributes
-    GT_SIM_GTRESET_SPEEDUP    : string     :=  "FALSE";        -- Set to "true" to speed up sim reset
-    RX_DFE_KL_CFG2_IN         : bit_vector :=   X"3010D90C";
-    PMA_RSV_IN                : bit_vector :=  x"00018480";
+    GT_SIM_GTRESET_SPEEDUP    : string     :=  "FALSE";        -- Set to "TRUE" to speed up sim reset
+    RX_DFE_KL_CFG2_IN         : bit_vector :=   X"301148AC";
+    SIM_CPLLREFCLK_SEL        : bit_vector :=   "001";
+    PMA_RSV_IN                : bit_vector :=  x"001E7080";
     PCS_RSVD_ATTR_IN          : bit_vector :=   X"000000000000"
 );
 port 
@@ -112,9 +113,7 @@ port
     RXUSRCLK_IN                             : in   std_logic;
     RXUSRCLK2_IN                            : in   std_logic;
     ------------------ Receive Ports - FPGA RX interface Ports -----------------
-    RXDATA_OUT                              : out  std_logic_vector(15 downto 0);
-    RXCHARISK_OUT                              : out  std_logic_vector(1 downto 0);
-    RXDISPERR_OUT                              : out  std_logic_vector(1 downto 0);
+    rxdata_out                              : out  std_logic_vector(19 downto 0);
     --------------------------- Receive Ports - RX AFE -------------------------
     GTXRXP_IN                               : in   std_logic;
     ------------------------ Receive Ports - RX AFE Ports ----------------------
@@ -136,7 +135,7 @@ port
     TXUSRCLK_IN                             : in   std_logic;
     TXUSRCLK2_IN                            : in   std_logic;
     ------------------ Transmit Ports - TX Data Path interface -----------------
-    TXDATA_IN                               : in   std_logic_vector(15 downto 0);
+    txdata_in                               : in   std_logic_vector(79 downto 0);
     ---------------- Transmit Ports - TX Driver and OOB signaling --------------
     GTXTXN_OUT                              : out  std_logic;
     GTXTXP_OUT                              : out  std_logic;
@@ -145,7 +144,7 @@ port
     TXOUTCLKFABRIC_OUT                      : out  std_logic;
     TXOUTCLKPCS_OUT                         : out  std_logic;
     --------------------- Transmit Ports - TX Gearbox Ports --------------------
-    TXCHARISK_IN                            : in   std_logic_vector(1 downto 0);
+--    TXCHARISK_IN                            : in   std_logic_vector(1 downto 0);
     ------------- Transmit Ports - TX Initialization and Reset Ports -----------
     TXRESETDONE_OUT                         : out  std_logic;
     ------------------ Transmit Ports - pattern Generator Ports ----------------
@@ -170,19 +169,21 @@ architecture RTL of whiterabbit_gtxe2_channel_wrapper_GT is
     -- RX Datapath signals
     signal rxdata_i                         :   std_logic_vector(63 downto 0);      
     signal rxchariscomma_float_i            :   std_logic_vector(5 downto 0);
-    signal rxcharisk_i                :   std_logic_vector(7 downto 0);
-    signal rxdisperr_i                :   std_logic_vector(7 downto 0);
     signal rxnotintable_float_i             :   std_logic_vector(5 downto 0);
     signal rxrundisp_float_i                :   std_logic_vector(5 downto 0);
-    
+    signal rxdata_out_i                     :   std_logic_vector(19 downto 0);
+    signal rxcharisk_i                      :   std_logic_vector(7 downto 0);
+    signal rxdisperr_i                      :   std_logic_vector(7 downto 0);
 
 
     -- TX Datapath signals
     signal txdata_i                         :   std_logic_vector(63 downto 0);
-    signal txkerr_float_i                   :   std_logic_vector(5 downto 0);
-    signal txrundisp_float_i                :   std_logic_vector(5 downto 0);
-
-
+    signal txdata_in_i                      :   std_logic_vector(79 downto 0);
+    signal txchardispmode_i                 :   std_logic_vector(7 downto 0);
+    signal txchardispval_i                  :   std_logic_vector(7 downto 0);
+    signal txkerr_float_i                   :   std_logic_vector(2 downto 0);
+    signal txrundisp_float_i                :   std_logic_vector(2 downto 0);
+    signal rxstartofseq_float_i             :   std_logic;
 --******************************** Main Body of Code***************************
                        
 begin                      
@@ -195,14 +196,21 @@ begin
 
     -------------------  GT Datapath byte mapping  -----------------
 
-    RXDATA_OUT    <=   rxdata_i(15 downto 0);
-    RXCHARISK_OUT <= rxcharisk_i(1 downto 0);
-    RXDISPERR_OUT <= rxdisperr_i(1 downto 0);
-                                               
+    --The GT deserializes the rightmost parallel bit (LSb) first
+    RXDATA_OUT    <=   rxdata_out_i(19 downto 0);
 
-    txdata_i    <=   (tied_to_ground_vec_i(47 downto 0) & TXDATA_IN);
+    --The GT serializes the rightmost parallel bit (LSb) first
+    txdata_in_i <=   TXDATA_IN;
 
+    -------------  GT RXDATA Assignments for 20 bit datapath  -------  
 
+    rxdata_out_i    <= (rxdisperr_i(1) & rxcharisk_i(1) & rxdata_i(15 downto 8) & rxdisperr_i(0) & rxcharisk_i(0) & rxdata_i(7 downto 0));
+
+    -------------  GT txdata_i Assignments for 80 bit datapath  -------  
+
+    txchardispmode_i  <= (txdata_in_i(79) & txdata_in_i(69) & txdata_in_i(59) & txdata_in_i(49) & txdata_in_i(39) & txdata_in_i(29) & txdata_in_i(19) & txdata_in_i(9));
+    txchardispval_i   <= (txdata_in_i(78) & txdata_in_i(68) & txdata_in_i(58) & txdata_in_i(48) & txdata_in_i(38) & txdata_in_i(28) & txdata_in_i(18) & txdata_in_i(8));
+    txdata_i          <= (txdata_in_i(77 downto 70) & txdata_in_i(67 downto 60) & txdata_in_i(57 downto 50) & txdata_in_i(47 downto 40) & txdata_in_i(37 downto 30) & txdata_in_i(27 downto 20) & txdata_in_i(17 downto 10) & txdata_in_i(7 downto 0));
 
     ----------------------------- GTXE2 Instance  --------------------------   
 
@@ -215,46 +223,46 @@ begin
         SIM_RECEIVER_DETECT_PASS   =>      ("TRUE"),
         SIM_RESET_SPEEDUP          =>      (GT_SIM_GTRESET_SPEEDUP),
         SIM_TX_EIDLE_DRIVE_LEVEL   =>      ("X"),
-        SIM_CPLLREFCLK_SEL         =>      ("001"),
+        SIM_CPLLREFCLK_SEL         =>      (SIM_CPLLREFCLK_SEL),
         SIM_VERSION                =>      ("4.0"), 
         
 
        ------------------RX Byte and Word Alignment Attributes---------------
         ALIGN_COMMA_DOUBLE                      =>     ("FALSE"),
-        ALIGN_COMMA_ENABLE                      =>     ("0001111111"),
-        ALIGN_COMMA_WORD                        =>     (2),
+        ALIGN_COMMA_ENABLE                      =>     ("1111111111"),
+        ALIGN_COMMA_WORD                        =>     (1),
         ALIGN_MCOMMA_DET                        =>     ("TRUE"),
         ALIGN_MCOMMA_VALUE                      =>     ("1010000011"),
         ALIGN_PCOMMA_DET                        =>     ("TRUE"),
         ALIGN_PCOMMA_VALUE                      =>     ("0101111100"),
-        SHOW_REALIGN_COMMA                      =>     ("FALSE"),
+        SHOW_REALIGN_COMMA                      =>     ("TRUE"),
         RXSLIDE_AUTO_WAIT                       =>     (7),
         RXSLIDE_MODE                            =>     ("OFF"),
         RX_SIG_VALID_DLY                        =>     (10),
 
        ------------------RX 8B/10B Decoder Attributes---------------
-        RX_DISPERR_SEQ_MATCH                    =>     ("TRUE"),
-        DEC_MCOMMA_DETECT                       =>     ("TRUE"),
-        DEC_PCOMMA_DETECT                       =>     ("TRUE"),
-        DEC_VALID_COMMA_ONLY                    =>     ("TRUE"),
+        RX_DISPERR_SEQ_MATCH                    =>     ("FALSE"),
+        DEC_MCOMMA_DETECT                       =>     ("FALSE"),
+        DEC_PCOMMA_DETECT                       =>     ("FALSE"),
+        DEC_VALID_COMMA_ONLY                    =>     ("FALSE"),
 
        ------------------------RX Clock Correction Attributes----------------------
-        CBCC_DATA_SOURCE_SEL                    =>     ("DECODED"),
+        CBCC_DATA_SOURCE_SEL                    =>     ("ENCODED"),
         CLK_COR_SEQ_2_USE                       =>     ("FALSE"),
         CLK_COR_KEEP_IDLE                       =>     ("FALSE"),
-        CLK_COR_MAX_LAT                         =>     (10),
-        CLK_COR_MIN_LAT                         =>     (8),
+        CLK_COR_MAX_LAT                         =>     (9),
+        CLK_COR_MIN_LAT                         =>     (7),
         CLK_COR_PRECEDENCE                      =>     ("TRUE"),
         CLK_COR_REPEAT_WAIT                     =>     (0),
         CLK_COR_SEQ_LEN                         =>     (1),
         CLK_COR_SEQ_1_ENABLE                    =>     ("1111"),
-        CLK_COR_SEQ_1_1                         =>     ("0000000000"),
+        CLK_COR_SEQ_1_1                         =>     ("0100000000"),
         CLK_COR_SEQ_1_2                         =>     ("0000000000"),
         CLK_COR_SEQ_1_3                         =>     ("0000000000"),
         CLK_COR_SEQ_1_4                         =>     ("0000000000"),
         CLK_CORRECT_USE                         =>     ("FALSE"),
         CLK_COR_SEQ_2_ENABLE                    =>     ("1111"),
-        CLK_COR_SEQ_2_1                         =>     ("0000000000"),
+        CLK_COR_SEQ_2_1                         =>     ("0100000000"),
         CLK_COR_SEQ_2_2                         =>     ("0000000000"),
         CLK_COR_SEQ_2_3                         =>     ("0000000000"),
         CLK_COR_SEQ_2_4                         =>     ("0000000000"),
@@ -296,13 +304,13 @@ begin
        ---------------------------PMA Attributes----------------------------
         OUTREFCLK_SEL_INV                       =>     ("11"),
         PMA_RSV                                 =>     (PMA_RSV_IN),
-        PMA_RSV2                                =>     (x"2040"),
+        PMA_RSV2                                =>     (x"2050"),
         PMA_RSV3                                =>     ("00"),
         PMA_RSV4                                =>     (x"00000000"),
         RX_BIAS_CFG                             =>     ("000000000100"),
         DMONITOR_CFG                            =>     (x"000A00"),
-        RX_CM_SEL                               =>     ("00"),
-        RX_CM_TRIM                              =>     ("000"),
+        RX_CM_SEL                               =>     ("11"),
+        RX_CM_TRIM                              =>     ("010"),
         RX_DEBUG_CFG                            =>     ("000000000000"),
         RX_OS_CFG                               =>     ("0000010000000"),
         TERM_RCAL_CFG                           =>     ("10000"),
@@ -344,9 +352,22 @@ begin
 
        -----------------------CDR Attributes-------------------------
 
-       --For GTX only: Display Port, HBR/RBR- set RXCDR_CFG=72'h0380008bff40200002
+       --For Display Port, HBR/RBR- set RXCDR_CFG=72'h0380008bff40200008
 
-        RXCDR_CFG                               =>     (x"03000023ff40100020"),
+       --For Display Port, HBR2 -   set RXCDR_CFG=72'h038c008bff20200010
+
+       --For SATA Gen1 GTX- set RXCDR_CFG=72'h03_8000_8BFF_4010_0008
+
+       --For SATA Gen2 GTX- set RXCDR_CFG=72'h03_8800_8BFF_4020_0008
+
+       --For SATA Gen3 GTX- set RXCDR_CFG=72'h03_8000_8BFF_1020_0010
+
+       --For SATA Gen3 GTP- set RXCDR_CFG=83'h0_0000_87FE_2060_2444_1010
+
+       --For SATA Gen2 GTP- set RXCDR_CFG=83'h0_0000_47FE_2060_2448_1010
+
+       --For SATA Gen1 GTP- set RXCDR_CFG=83'h0_0000_47FE_1060_2448_1010
+        RXCDR_CFG                               =>     (x"03000023ff40080020"),
         RXCDR_FR_RESET_ON_EIDLE                 =>     ('0'),
         RXCDR_HOLD_DURING_EIDLE                 =>     ('0'),
         RXCDR_PH_RESET_ON_EIDLE                 =>     ('0'),
@@ -377,7 +398,7 @@ begin
        -------------RX OOB Signaling Attributes----------
         SAS_MAX_COM                             =>     (64),
         SAS_MIN_COM                             =>     (36),
-        SATA_BURST_SEQ_LEN                      =>     ("1111"),
+        SATA_BURST_SEQ_LEN                      =>     ("0101"),
         SATA_BURST_VAL                          =>     ("100"),
         SATA_EIDLE_VAL                          =>     ("100"),
         SATA_MAX_BURST                          =>     (8),
@@ -399,10 +420,10 @@ begin
         TXPH_CFG                                =>     (x"0780"),
         TXPHDLY_CFG                             =>     (x"084020"),
         TXPH_MONITOR_SEL                        =>     ("00000"),
-        TX_XCLK_SEL                             =>     ("TXOUT"),
+        TX_XCLK_SEL                             =>     ("TXUSR"),
 
        -------------------------FPGA TX Interface Attributes-------------------------
-        TX_DATA_WIDTH                           =>     (20),
+        TX_DATA_WIDTH                           =>     (80),
 
        -------------------------TX Configurable Driver Attributes-------------------------
         TX_DEEMPH0                              =>     ("00000"),
@@ -441,8 +462,8 @@ begin
         CPLL_INIT_CFG                           =>     (x"00001E"),
         CPLL_LOCK_CFG                           =>     (x"01E8"),
         CPLL_REFCLK_DIV                         =>     (1),
-        RXOUT_DIV                               =>     (4),
-        TXOUT_DIV                               =>     (4),
+        RXOUT_DIV                               =>     (8),
+        TXOUT_DIV                               =>     (2),
         SATA_CPLL_CFG                           =>     ("VCO_3000MHZ"),
 
        --------------RX Initialization and Reset Attributes-------------
@@ -457,7 +478,7 @@ begin
         RX_DFE_H4_CFG                           =>     ("00011110000"),
         RX_DFE_H5_CFG                           =>     ("00011100000"),
         RX_DFE_KL_CFG                           =>     ("0000011111110"),
-        RX_DFE_LPM_CFG                          =>     (x"0904"),
+        RX_DFE_LPM_CFG                          =>     (x"0954"),
         RX_DFE_LPM_HOLD_DURING_EIDLE            =>     ('0'),
         RX_DFE_UT_CFG                           =>     ("10001111000000000"),
         RX_DFE_VP_CFG                           =>     ("00011111100000011"),
@@ -470,7 +491,7 @@ begin
         RX_INT_DATAWIDTH                        =>     (0),
 
        -------------------------FPGA TX Interface Attribute-------------------------
-        TX_INT_DATAWIDTH                        =>     (0),
+        TX_INT_DATAWIDTH                        =>     (1),
 
        ------------------TX Configurable Driver Attributes---------------
         TX_QPI_STATUS_EN                        =>     ('0'),
@@ -486,15 +507,15 @@ begin
     )
     port map
     (
-                      --------------------------------- CPLL Ports -------------------------------
-        CPLLFBCLKLOST                   =>      CPLLFBCLKLOST_OUT,
-        CPLLLOCK                        =>      CPLLLOCK_OUT,
-        CPLLLOCKDETCLK                  =>      CPLLLOCKDETCLK_IN,
+        --------------------------------- CPLL Ports -------------------------------
+        CPLLFBCLKLOST                   =>      open,
+        CPLLLOCK                        =>      open,
+        CPLLLOCKDETCLK                  =>      tied_to_ground_i,
         CPLLLOCKEN                      =>      tied_to_vcc_i,
-        CPLLPD                          =>      tied_to_ground_i,
-        CPLLREFCLKLOST                  =>      CPLLREFCLKLOST_OUT,
+        CPLLPD                          =>      tied_to_vcc_i,
+        CPLLREFCLKLOST                  =>      open,
         CPLLREFCLKSEL                   =>      "001",
-        CPLLRESET                       =>      CPLLRESET_IN,
+        CPLLRESET                       =>      tied_to_ground_i,
         GTRSVD                          =>      "0000000000000000",
         PCSRSVDIN                       =>      "0000000000000000",
         PCSRSVDIN2                      =>      "00000",
@@ -508,7 +529,7 @@ begin
         GTGREFCLK                       =>      tied_to_ground_i,
         GTNORTHREFCLK0                  =>      tied_to_ground_i,
         GTNORTHREFCLK1                  =>      tied_to_ground_i,
-        GTREFCLK0                       =>      GTREFCLK0_IN,
+        GTREFCLK0                       =>      tied_to_ground_i,
         GTREFCLK1                       =>      tied_to_ground_i,
         GTSOUTHREFCLK0                  =>      tied_to_ground_i,
         GTSOUTHREFCLK1                  =>      tied_to_ground_i,
@@ -522,16 +543,16 @@ begin
         DRPWE                           =>      DRPWE_IN,
         ------------------------------- Clocking Ports -----------------------------
         GTREFCLKMONITOR                 =>      open,
-        QPLLCLK                         =>      QPLLCLK_IN,
-        QPLLREFCLK                      =>      QPLLREFCLK_IN,
-        RXSYSCLKSEL                     =>      "00",
-        TXSYSCLKSEL                     =>      "00",
+        QPLLCLK                         =>      qpllclk_in,
+        QPLLREFCLK                      =>      qpllrefclk_in,
+        RXSYSCLKSEL                     =>      "11",
+        TXSYSCLKSEL                     =>      "11",
         --------------------------- Digital Monitor Ports --------------------------
         DMONITOROUT                     =>      open,
         ----------------- FPGA TX Interface Datapath Configuration  ----------------
-        TX8B10BEN                       =>      tied_to_vcc_i,
+        TX8B10BEN                       =>      '0',
         ------------------------------- Loopback Ports -----------------------------
-        LOOPBACK                        =>      LOOPBACK_IN,
+        LOOPBACK                        =>      tied_to_ground_vec_i(2 downto 0), --LOOPBACK_IN,
         ----------------------------- PCI Express Ports ----------------------------
         PHYSTATUS                       =>      open,
         RXRATE                          =>      tied_to_ground_vec_i(2 downto 0),
@@ -565,16 +586,15 @@ begin
         RXUSRCLK2                       =>      RXUSRCLK2_IN,
         ------------------ Receive Ports - FPGA RX interface Ports -----------------
         RXDATA                          =>      rxdata_i,
-        RXCHARISK => rxcharisk_i,
-        RXDISPERR => rxdisperr_i,
-        
+        rxdisperr => rxdisperr_i,
+        rxcharisk => rxcharisk_i,
         ------------------- Receive Ports - Pattern Checker Ports ------------------
         RXPRBSERR                       =>      open,
         RXPRBSSEL                       =>      tied_to_ground_vec_i(2 downto 0),
         ------------------- Receive Ports - Pattern Checker ports ------------------
         RXPRBSCNTRESET                  =>      tied_to_ground_i,
         -------------------- Receive Ports - RX  Equalizer Ports -------------------
-        RXDFEXYDEN                      =>      tied_to_ground_i,
+        RXDFEXYDEN                      =>      tied_to_vcc_i,
         RXDFEXYDHOLD                    =>      tied_to_ground_i,
         RXDFEXYDOVRDEN                  =>      tied_to_ground_i,
         --------------------------- Receive Ports - RX AFE -------------------------
@@ -600,7 +620,7 @@ begin
         RXPHSLIPMONITOR                 =>      open,
         RXSTATUS                        =>      open,
         -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-        RXCOMMADETEN                    =>      tied_to_vcc_i,
+        RXCOMMADETEN                    =>      tied_to_ground_i,
         RXMCOMMAALIGNEN                 =>      tied_to_ground_i,
         RXPCOMMAALIGNEN                 =>      tied_to_ground_i,
         ------------------ Receive Ports - RX Channel Bonding Ports ----------------
@@ -618,7 +638,7 @@ begin
         RXDFEAGCOVRDEN                  =>      tied_to_ground_i,
         RXDFECM1EN                      =>      tied_to_ground_i,
         RXDFELFHOLD                     =>      tied_to_ground_i,
-        RXDFELFOVRDEN                   =>      tied_to_ground_i,
+        RXDFELFOVRDEN                   =>      tied_to_vcc_i,
         RXDFELPMRESET                   =>      tied_to_ground_i,
         RXDFETAP2HOLD                   =>      tied_to_ground_i,
         RXDFETAP2OVRDEN                 =>      tied_to_ground_i,
@@ -662,7 +682,7 @@ begin
         RXPCSRESET                      =>      tied_to_ground_i,
         RXPMARESET                      =>      RXPMARESET_IN,
         ------------------ Receive Ports - RX Margin Analysis ports ----------------
-        RXLPMEN                         =>      tied_to_vcc_i,
+        RXLPMEN                         =>      tied_to_ground_i,
         ------------------- Receive Ports - RX OOB Signaling ports -----------------
         RXCOMSASDET                     =>      open,
         RXCOMWAKEDET                    =>      open,
@@ -704,8 +724,8 @@ begin
         GTRESETSEL                      =>      tied_to_ground_i,
         RESETOVRD                       =>      tied_to_ground_i,
         ---------------- Transmit Ports - 8b10b Encoder Control Ports --------------
-        TXCHARDISPMODE                  =>      tied_to_ground_vec_i(7 downto 0),
-        TXCHARDISPVAL                   =>      tied_to_ground_vec_i(7 downto 0),
+        TXCHARDISPMODE                  =>      txchardispmode_i,
+        TXCHARDISPVAL                   =>      txchardispval_i,
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
         TXUSRCLK                        =>      TXUSRCLK_IN,
         TXUSRCLK2                       =>      TXUSRCLK2_IN,
@@ -718,7 +738,7 @@ begin
         TXPRBSFORCEERR                  =>      tied_to_ground_i,
         ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
         TXDLYBYPASS                     =>      tied_to_vcc_i,
-        TXDLYEN                         =>      tied_to_ground_i,
+        TXDLYEN                         =>      tied_to_vcc_i,
         TXDLYHOLD                       =>      tied_to_ground_i,
         TXDLYOVRDEN                     =>      tied_to_ground_i,
         TXDLYSRESET                     =>      tied_to_ground_i,
@@ -755,7 +775,7 @@ begin
         TXRATEDONE                      =>      open,
         --------------------- Transmit Ports - TX Gearbox Ports --------------------
         TXCHARISK(7 downto 2)           =>      tied_to_ground_vec_i(5 downto 0),
-        TXCHARISK(1 downto 0)           =>      TXCHARISK_IN,
+        TXCHARISK(1 downto 0)           =>      tied_to_ground_vec_i(1 downto 0),
         TXGEARBOXREADY                  =>      open,
         TXHEADER                        =>      tied_to_ground_vec_i(2 downto 0),
         TXSEQUENCE                      =>      tied_to_ground_vec_i(6 downto 0),
@@ -783,7 +803,7 @@ begin
         TXQPISENP                       =>      open
 
     );
- 
+
  end RTL;
 
 
