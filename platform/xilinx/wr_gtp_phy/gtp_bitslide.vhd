@@ -118,96 +118,93 @@ begin  -- behavioral
 
   p_do_slide : process(gtp_rx_clk_i, gtp_rst_i)
   begin
-    if gtp_rst_i = '1' then
-      state            <= S_SYNC_LOST;
-      gtp_rx_slide_o   <= '0';
-      counter          <= (others => '0');
-      synced_o         <= '0';
-      gtp_rx_cdr_rst_o <= '0';
-    elsif rising_edge(gtp_rx_clk_i) then
-      
-      if(serdes_ready_i = '0') then
-        state <= S_SYNC_LOST;
-      end if;
+    if rising_edge(gtp_rx_clk_i) then
+      if gtp_rst_i = '1' then
+        state            <= S_SYNC_LOST;
+        gtp_rx_slide_o   <= '0';
+        counter          <= (others => '0');
+        synced_o         <= '0';
+        gtp_rx_cdr_rst_o <= '1';
+        cur_slide        <= (others => '0');
+      else
+        if(serdes_ready_i = '0') then
+          state <= S_SYNC_LOST;
+        end if;
 
-      case state is
+        case state is
 
--- State: synchronization lost. Waits until a comma pattern is detected
-        when S_SYNC_LOST =>
-          cur_slide        <= (others => '0');
-          counter          <= (others => '0');
-          gtp_rx_slide_o   <= '0';
-          synced_o         <= '0';
-          gtp_rx_cdr_rst_o <= '0';
-          commas_missed    <= (others => '0');
+  -- State: synchronization lost. Waits until a comma pattern is detected
+          when S_SYNC_LOST =>
+            cur_slide        <= (others => '0');
+            counter          <= (others => '0');
+            gtp_rx_slide_o   <= '0';
+            synced_o         <= '0';
+            gtp_rx_cdr_rst_o <= '0';
+            commas_missed    <= (others => '0');
 
-          if(gtp_rx_comma_det_i = '1') then
-            state <= S_STABILIZE;
-          end if;
+            if(gtp_rx_comma_det_i = '1') then
+              state <= S_STABILIZE;
+            end if;
 
--- State: stabilize: 
-          
-        when S_STABILIZE =>
-          
-          
-          if(gtp_rx_comma_det_i = '1') then
-            counter       <= counter + 1;
-            commas_missed <= (others => '0');
-          else
+  -- State: stabilize: 
+          when S_STABILIZE =>
+            if(gtp_rx_comma_det_i = '1') then
+              counter       <= counter + 1;
+              commas_missed <= (others => '0');
+            else
+              commas_missed <= commas_missed + 1;
+              if(commas_missed(3) = '1') then
+                state <= S_SYNC_LOST;
+              end if;
+            end if;
 
-            commas_missed <= commas_missed + 1;
-            if(commas_missed(3) = '1') then
+            if(counter = to_unsigned(c_sync_detect_threshold, counter'length)) then
+              counter <= (others => '0');
+              state   <= S_PAUSE;
+            end if;
+
+            if(serdes_ready_i = '0') then
               state <= S_SYNC_LOST;
             end if;
-          end if;
 
-          if(counter = to_unsigned(c_sync_detect_threshold, counter'length)) then
-            counter <= (others => '0');
-            state   <= S_PAUSE;
-          end if;
-
-          if(serdes_ready_i = '0') then
-            state <= S_SYNC_LOST;
-          end if;
-
-        when S_SLIDE =>
-          if (cur_slide < c_max_bts-1) then
-            cur_slide <= cur_slide + 1;
-          else
-            cur_slide <= (others=>'0');
-          end if;
-          gtp_rx_slide_o <= '1';
-          counter        <= (others => '0');
-
-          state <= S_PAUSE;
-
-          if(serdes_ready_i = '0') then
-            state <= S_SYNC_LOST;
-          end if;
-
-        when S_PAUSE =>
-          counter        <= counter + 1;
-          gtp_rx_slide_o <= '0';
-
-          if(counter = to_unsigned(c_pause_tics, counter'length)) then
-
-            if(gtp_rx_byte_is_aligned_i = '0') then
-              state <= S_SLIDE;
+          when S_SLIDE =>
+            if (cur_slide < c_max_bts-1) then
+              cur_slide <= cur_slide + 1;
             else
-              state <= S_GOT_SYNC;
+              cur_slide <= (others=>'0');
             end if;
-          end if;
+            gtp_rx_slide_o <= '1';
+            counter        <= (others => '0');
 
-        when S_GOT_SYNC =>
-          gtp_rx_slide_o <= '0';
-          bitslide_o     <= std_logic_vector(cur_slide(4 downto 0));
-          synced_o       <= '1';
-          if(gtp_rx_byte_is_aligned_i = '0' or serdes_ready_i = '0') then
-            gtp_rx_cdr_rst_o <= '1';
-            state            <= S_SYNC_LOST;
-          end if;
-        when others => null;
-      end case;
+            state <= S_PAUSE;
+
+            if(serdes_ready_i = '0') then
+              state <= S_SYNC_LOST;
+            end if;
+
+          when S_PAUSE =>
+            counter        <= counter + 1;
+            gtp_rx_slide_o <= '0';
+
+            if(counter = to_unsigned(c_pause_tics, counter'length)) then
+              if(gtp_rx_byte_is_aligned_i = '0') then
+                state <= S_SLIDE;
+              else
+                state <= S_GOT_SYNC;
+              end if;
+            end if;
+
+          when S_GOT_SYNC =>
+            gtp_rx_slide_o <= '0';
+            bitslide_o     <= std_logic_vector(cur_slide(4 downto 0));
+            synced_o       <= '1';
+            if(gtp_rx_byte_is_aligned_i = '0' or serdes_ready_i = '0') then
+              gtp_rx_cdr_rst_o <= '1';
+              state            <= S_SYNC_LOST;
+            end if;
+          when others => state <= S_SYNC_LOST;
+        end case;
+      end if;
     end if;
   end process;
   

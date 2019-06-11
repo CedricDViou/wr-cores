@@ -410,7 +410,8 @@ begin  -- rtl
   -- to enable killing of link (by ML)
   mdio_mcr_pdown      <= mdio_mcr_pdown_cpu or (not link_ctr_i);
  
-  serdes_rst_o        <= (not pcs_reset_n) or mdio_mcr_pdown;
+  --serdes_rst_o        <= (not pcs_reset_n) or mdio_mcr_pdown;
+  serdes_rst_o <= (not pcs_reset_n) or mdio_mcr_pdown or serdes_sfp_los_i;
 
   U_MDIO_WB : ep_pcs_tbi_mdio_wb
     port map (
