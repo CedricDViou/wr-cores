@@ -98,16 +98,12 @@ entity xwr_softpll_ng is
 -- g_with_ext_clock_input == true
     clk_ext_i : in std_logic;
 
--- External clock, multiplied to 125 MHz using the FPGA's PLL
+-- External clock, multiplied to 62.5 MHz using external AD9516 
     clk_ext_mul_i : in std_logic;
     clk_ext_mul_locked_i : in std_logic := '1';
     clk_ext_stopped_i    : in std_logic := '0';
     clk_ext_rst_o        : out std_logic;
 	 
--- External 10 MHz reference, multiplied to 62.5 MHz using external AD9516
-	clk_ext_db_i	 : in std_logic;
-
-
 -- External clock sync/alignment singnal. SoftPLL will clk_ext_i/clk_fb_i(0)
 -- to match the edges immediately following the rising edge in sync_p_i.
     pps_csync_p1_i : in std_logic;
@@ -162,7 +158,6 @@ architecture wrapper of xwr_softpll_ng is
       clk_ext_mul_locked_i : in  std_logic;
       clk_ext_stopped_i    : in  std_logic;
       clk_ext_rst_o        : out std_logic;
-		clk_ext_db_i	 : in std_logic;
       pps_csync_p1_i  : in  std_logic;
       pps_ext_a_i     : in  std_logic;
       dac_dmtd_data_o : out std_logic_vector(15 downto 0);
@@ -215,7 +210,6 @@ begin  -- behavioral
       clk_ext_mul_locked_i => clk_ext_mul_locked_i,
       clk_ext_stopped_i => clk_ext_stopped_i,
       clk_ext_rst_o     => clk_ext_rst_o,
-		clk_ext_db_i	 => clk_ext_db_i,
       pps_csync_p1_i  => pps_csync_p1_i,
       pps_ext_a_i     => pps_ext_a_i,
       dac_dmtd_data_o => dac_dmtd_data_o,

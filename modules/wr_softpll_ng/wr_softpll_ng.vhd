@@ -73,7 +73,7 @@ entity wr_softpll_ng is
 	 
 -- When true, an additional DDMTD tagger is instantiated for wideband locking the
 -- local oscillator to the reference provided from the daughterboard	 
-	 g_with_ext_daughterboard : boolean := true;
+-- g_with_ext_daughterboard : boolean := true; --TODO: remove dis
 
 -- When true, DDMTD inputs are reversed (so that the DDMTD offset clocks is
 -- being sampled by the measured clock). This is functionally equivalent to
@@ -120,7 +120,7 @@ entity wr_softpll_ng is
     clk_ext_rst_o : out std_logic;
 	 
 -- External 10 MHz reference, multiplied to 62.5 MHz using external AD9516
-	clk_ext_db_i	 : in std_logic;
+--	clk_ext_db_i	 : in std_logic; -- TODO: remove dis. Also, 10 MHz? Or 62.5? Or 125? What a mess.
 
 -- External clock sync/alignment singnal. SoftPLL will align clk_ext_i/clk_fb_i(0)
 -- to match the edges immediately following the rising edge in sync_p_i.
@@ -242,9 +242,9 @@ architecture rtl of wr_softpll_ng is
     return integer is
   begin
     if(g_with_ext_clock_input) then
-		if (g_with_ext_daughterboard) then 
-			return g_num_ref_inputs + g_num_outputs + 2;
-		else
+		--if (g_with_ext_daughterboard) then i -- TODO: remove dis
+		--	return g_num_ref_inputs + g_num_outputs + 2;
+		--else
 			return g_num_ref_inputs + g_num_outputs + 1;
 		end if;
 	 else
@@ -256,10 +256,10 @@ architecture rtl of wr_softpll_ng is
     return integer is
   begin
     if(g_with_ext_clock_input) then
-		if (g_with_ext_daughterboard) then 
-			return 2;
-		else
-			return 1;
+		--if (g_with_ext_daughterboard) then -- TODO: remove dis
+		--	return 2;
+		--else
+		--	return 1;
 		end if;
 	 else
       return 0;
@@ -336,7 +336,7 @@ architecture rtl of wr_softpll_ng is
   signal dmtd_fb_clk_in, dmtd_fb_clk_dmtd : std_logic_vector(g_num_outputs-1 downto 0);
   signal rst_n_dmtd_fb_clk                : std_logic_vector(g_num_outputs-1 downto 0);
 
-  signal ext_ref_present : std_logic;
+  signal ext_ref_present : std_logic; -- FIXME: this signal is never used.
   signal fb_resync_out   : std_logic_vector(g_num_outputs-1 downto 0);
 
   signal ref_resync_start_p : std_logic_vector(31 downto 0);
@@ -533,38 +533,38 @@ begin  -- rtl
         dbg_dmtdout_o        => debug_o(3),
 				dbg_clk_d3_o         => debug_o(5));
 
-	gen_with_ext_daughterboard: if (g_with_ext_daughterboard) generate
-   U_DMTD_EXT_daughterboard : dmtd_with_deglitcher
-      generic map (
-        g_counter_bits      => g_tag_bits,
-        g_divide_input_by_2 => g_divide_input_by_2,
-				g_reverse	=> g_reverse_dmtds)
-      port map (
-        rst_n_dmtdclk_i => rst_n_i,     -- FIXME!
-        rst_n_sysclk_i  => rst_n_i,
-        clk_dmtd_i      => clk_dmtd_i,
-        clk_dmtd_en_i   => '1',
-
-        clk_sys_i => clk_sys_i,
-        clk_in_i  => clk_ext_db_i,
-
-        resync_done_o    => open,
-        resync_start_p_i => '0',
-        resync_p_a_i     => fb_resync_out(0),
-        resync_p_o       => open,
-
-        tag_o        => tags(g_num_ref_inputs + g_num_outputs + 1),
-        tag_stb_p1_o => tags_p(g_num_ref_inputs + g_num_outputs + 1),
-        shift_en_i   => '0',
-        shift_dir_i  => '0',
-
-        deglitch_threshold_i => deglitch_thr_slv,
-        dbg_dmtdout_o        => open,
-				dbg_clk_d3_o         => open);
-				
-
-	
-	end generate gen_with_ext_daughterboard;
+-- 	gen_with_ext_daughterboard: if (g_with_ext_daughterboard) generate
+--    U_DMTD_EXT_daughterboard : dmtd_with_deglitcher
+--       generic map (
+--         g_counter_bits      => g_tag_bits,
+--         g_divide_input_by_2 => g_divide_input_by_2,
+-- 				g_reverse	=> g_reverse_dmtds)
+--       port map (
+--         rst_n_dmtdclk_i => rst_n_i,     -- FIXME!
+--         rst_n_sysclk_i  => rst_n_i,
+--         clk_dmtd_i      => clk_dmtd_i,
+--         clk_dmtd_en_i   => '1',
+-- 
+--         clk_sys_i => clk_sys_i,
+--         clk_in_i  => clk_ext_db_i,
+-- 
+--         resync_done_o    => open,
+--         resync_start_p_i => '0',
+--         resync_p_a_i     => fb_resync_out(0),
+--         resync_p_o       => open,
+-- 
+--         tag_o        => tags(g_num_ref_inputs + g_num_outputs + 1),
+--         tag_stb_p1_o => tags_p(g_num_ref_inputs + g_num_outputs + 1),
+--         shift_en_i   => '0',
+--         shift_dir_i  => '0',
+-- 
+--         deglitch_threshold_i => deglitch_thr_slv,
+--         dbg_dmtdout_o        => open,
+-- 				dbg_clk_d3_o         => open);
+-- 				
+-- 
+-- 	
+-- 	end generate gen_with_ext_daughterboard;
 
     U_Aligner_EXT : spll_aligner
       generic map (
