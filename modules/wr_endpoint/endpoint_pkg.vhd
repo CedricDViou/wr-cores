@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2017-02-20
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -183,7 +183,8 @@ package endpoint_pkg is
       g_interface_mode        : t_wishbone_interface_mode      := CLASSIC;
       g_address_granularity   : t_wishbone_address_granularity := WORD;
       g_simulation            : boolean                        := false;
-      g_pcs_16bit             : boolean                        := false;
+      g_pcs_tx_16bit          : boolean                        := true;
+      g_pcs_rx_16bit          : boolean                        := true;
       g_records_for_phy       : boolean                        := false;
       g_tx_force_gap_length   : integer                        := 0;
       g_tx_runt_padding       : boolean                        := false;
@@ -225,15 +226,15 @@ package endpoint_pkg is
       phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
 
       phy_ref_clk_i        : in  std_logic                     := '0';
-      phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-      phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+      phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
       phy_tx_disparity_i   : in  std_logic                     := '0';
       phy_tx_enc_err_i     : in  std_logic                     := '0';
-      phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_clk_i         : in  std_logic                     := '0';
-      phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_enc_err_i     : in  std_logic                     := '0';
-      phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy8_o               : out t_phy_8bits_from_wrc;
       phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
       phy16_o              : out t_phy_16bits_from_wrc;
@@ -302,7 +303,8 @@ package endpoint_pkg is
       g_tx_force_gap_length   : integer                        := 0;
       g_tx_runt_padding       : boolean                        := false;
       g_simulation            : boolean                        := false;
-      g_pcs_16bit             : boolean                        := true;
+      g_pcs_tx_16bit          : boolean                        := true;
+      g_pcs_rx_16bit          : boolean                        := true;
       g_rx_buffer_size        : integer                        := 1024;
       g_with_rx_buffer        : boolean                        := true;
       g_with_flow_control     : boolean                        := true;
@@ -341,15 +343,15 @@ package endpoint_pkg is
       phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
       
       phy_ref_clk_i        : in  std_logic;
-      phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-      phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+      phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
       phy_tx_disparity_i   : in  std_logic;
       phy_tx_enc_err_i     : in  std_logic;
-      phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_clk_i         : in  std_logic;
-      phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_enc_err_i     : in  std_logic;
-      phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       gmii_tx_clk_i        : in  std_logic	 									 := '0';
       gmii_txd_o           : out std_logic_vector(7 downto 0)  := x"00";
       gmii_tx_en_o         : out std_logic                     := '0';

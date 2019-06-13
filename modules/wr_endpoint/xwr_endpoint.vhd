@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2018-03-08
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -67,7 +67,7 @@ entity xwr_endpoint is
     g_use_new_txcrc         : boolean                        := false;
     g_with_stop_traffic     : boolean                        := false;
     g_phy_lpcalib           : boolean                        := false;
-    g_ep_idx                : integer
+    g_ep_idx : integer
     );
   port (
 
@@ -327,7 +327,7 @@ begin
       g_use_new_txcrc         => g_use_new_txcrc,
       g_with_stop_traffic     => g_with_stop_traffic,
       g_phy_lpcalib           => g_phy_lpcalib,
-      g_ep_idx                => g_ep_idx)
+      g_ep_idx  => g_ep_idx)
     port map (
       clk_ref_i            => clk_ref_i,
       clk_sys_i            => clk_sys_i,

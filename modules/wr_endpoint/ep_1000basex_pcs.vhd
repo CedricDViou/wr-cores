@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-11-18
--- Last update: 2019-04-18
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -63,7 +63,9 @@ entity ep_1000basex_pcs is
     g_simulation : boolean;
     -- PCS datapath width selection: true = 16-bit (Virtex-6), false = 8-bit
     -- (Spartan-6 or TBI).
-    g_16bit      : boolean;
+    g_tx_16bit      : boolean;
+    g_rx_16bit : boolean;
+    
     g_ep_idx     : integer);
 
   port (
@@ -161,11 +163,11 @@ entity ep_1000basex_pcs is
 
     -- TX Code group. In 16-bit mode, the MSB is TXed first (tx_data_o[15:8],
     -- then tx_data_o[7:0]). In 8-bit mode only bits [7:0] are used.
-    serdes_tx_data_o : out std_logic_vector(f_pcs_data_width(g_16bit)-1 downto 0);
+    serdes_tx_data_o : out std_logic_vector(f_pcs_data_width(g_tx_16bit)-1 downto 0);
 
     -- TX Control Code: When 1, a K-character is transmitted. In 16-bit mode,
     -- bit 1 goes first, in 8-bit mode only bit 0 is used.
-    serdes_tx_k_o : out std_logic_vector(f_pcs_k_width(g_16bit)-1 downto 0);
+    serdes_tx_k_o : out std_logic_vector(f_pcs_k_width(g_tx_16bit)-1 downto 0);
 
     -- TX Disparity input: 1 = last transmitted code group ended with negative
     -- running disparity, 0 = positive RD.
@@ -182,10 +184,10 @@ entity ep_1000basex_pcs is
     -- RX recovered clock. MUST be synchronous to incoming serial data stream
     -- for proper PTP/SyncE operation. 62.5 MHz in 16-bit mode, 125 MHz in 8-bit mode.
     serdes_rx_clk_i      : in std_logic;
-    serdes_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_16bit)-1 downto 0);
-    serdes_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_16bit)-1 downto 0);
+    serdes_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_rx_16bit)-1 downto 0);
+    serdes_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_rx_16bit)-1 downto 0);
     serdes_rx_enc_err_i  : in std_logic;
-    serdes_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_16bit)-1 downto 0);
+    serdes_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_rx_16bit)-1 downto 0);
 
     -- RMON events, aligned to clk_sys
     rmon_o : out t_rmon_triggers;
@@ -269,7 +271,7 @@ begin  -- rtl
 
   pcs_reset_n <= '0' when (mdio_mcr_reset = '1' or rst_n_i = '0') else '1';
 
-  gen_16bit : if(g_16bit) generate
+  gen_tx_16bit : if(g_tx_16bit) generate
     U_TX_PCS : ep_tx_pcs_16bit
       port map (
         rst_n_i   => pcs_reset_n,
@@ -300,6 +302,10 @@ begin  -- rtl
         dbg_rd_count_o     => dbg_tx_pcs_rd_count_o     
         );
 
+  end generate gen_tx_16bit;
+  
+  gen_rx_16bit : if g_rx_16bit generate
+    
     U_RX_PCS : ep_rx_pcs_16bit
       generic map (
         g_simulation => g_simulation,
@@ -346,9 +352,9 @@ begin  -- rtl
 
     mdio_wr_spec_bslide <= serdes_rx_bitslide_i(4 downto 0);
     
-  end generate gen_16bit;
+  end generate gen_rx_16bit;
 
-  gen_8bit : if(not g_16bit) generate
+  gen_tx_8bit : if(not g_tx_16bit) generate
     U_TX_PCS : ep_tx_pcs_8bit
       port map (
         rst_n_i   => pcs_reset_n,
@@ -378,6 +384,10 @@ begin  -- rtl
         preamble_shrinkage => preamble_shrinkage
         );
 
+  end generate gen_tx_8bit;
+
+  gen_rx_8bit: if(not g_rx_16bit) generate
+    
     U_RX_PCS : ep_rx_pcs_8bit
       generic map (
         g_simulation => g_simulation)
@@ -425,7 +435,7 @@ begin  -- rtl
     dbg_tx_pcs_wr_count_o <= (others => '0');
     nice_dbg_o.rx.fsm     <= (others => '0');
 
-  end generate gen_8bit;
+  end generate gen_rx_8bit;
 
   txpcs_busy_o <= txpcs_busy_int;
 

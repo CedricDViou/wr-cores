@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2019-03-29
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -644,7 +644,6 @@ begin
       );
   ppsg_link_ok <= not phy_rst;
   pps_csync_o  <= s_pps_csync;
-  pps_valid_o  <= pps_valid;
 
   -----------------------------------------------------------------------------
   -- Software PLL
@@ -787,7 +786,7 @@ begin
       phy_rx_bitslide_i    => phy_rx_bitslide_i,
       phy_debug_o => phy_debug_o,
       phy_debug_i => phy_debug_i,
-
+      
       phy8_o  => phy8_o,
       phy8_i  => phy8_i,
       phy16_o => phy16_o,

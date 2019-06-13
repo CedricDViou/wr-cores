@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2018-10-25
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -61,7 +61,8 @@ entity wr_endpoint is
     g_tx_force_gap_length   : integer                        := 0;
     g_tx_runt_padding       : boolean                        := true;
     g_simulation            : boolean                        := false;
-    g_pcs_16bit             : boolean                        := true;
+    g_pcs_tx_16bit          : boolean                        := true;
+    g_pcs_rx_16bit          : boolean                        := true;
     g_rx_buffer_size        : integer                        := 1024;
     g_with_rx_buffer        : boolean                        := true;
     g_with_flow_control     : boolean                        := true;
@@ -123,16 +124,16 @@ entity wr_endpoint is
     phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
 
     phy_ref_clk_i      : in  std_logic;
-    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
     phy_tx_disparity_i : in  std_logic;
     phy_tx_enc_err_i   : in  std_logic;
 
-    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0);
     phy_rx_clk_i      : in std_logic;
-    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0);
     phy_rx_enc_err_i  : in std_logic;
-    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0);
 
 -------------------------------------------------------------------------------
 -- GMII Interface (8-bit)
@@ -492,7 +493,8 @@ begin
   U_PCS_1000BASEX : ep_1000basex_pcs
     generic map (
       g_simulation => g_simulation,
-      g_16bit      => g_pcs_16bit,
+      g_tx_16bit      => g_pcs_tx_16bit,
+      g_rx_16bit      => g_pcs_rx_16bit,
       g_ep_idx     => g_ep_idx)
     port map (
       rst_sys_n_i   => rst_sys_n_i,
@@ -719,7 +721,7 @@ begin
     generic map (
       g_timestamp_bits_r => 28,
       g_timestamp_bits_f => 4,
-      g_ref_clock_rate   => f_pcs_clock_rate(g_pcs_16bit))
+      g_ref_clock_rate   => f_pcs_clock_rate(g_pcs_rx_16bit))
     port map (
       clk_ref_i      => clk_ref_i,
       clk_rx_i       => phy_rx_clk_i,
