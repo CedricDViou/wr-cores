@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-11-18
--- Last update: 2017-02-20
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -116,7 +116,8 @@ package endpoint_private_pkg is
   component ep_1000basex_pcs
     generic (
       g_simulation : boolean;
-      g_16bit      : boolean;
+      g_tx_16bit      : boolean;
+      g_rx_16bit      : boolean;
       g_ep_idx     : integer);
     port (
       rst_sys_n_i                   : in  std_logic;
@@ -148,15 +149,15 @@ package endpoint_private_pkg is
       serdes_sfp_tx_disable_o       : out std_logic;
       serdes_rdy_i                  : in  std_logic;
       serdes_tx_clk_i               : in  std_logic;
-      serdes_tx_data_o              : out std_logic_vector(f_pcs_data_width(g_16bit)-1 downto 0);
-      serdes_tx_k_o                 : out std_logic_vector(f_pcs_k_width(g_16bit)-1 downto 0);
+      serdes_tx_data_o              : out std_logic_vector(f_pcs_data_width(g_tx_16bit)-1 downto 0);
+      serdes_tx_k_o                 : out std_logic_vector(f_pcs_k_width(g_tx_16bit)-1 downto 0);
       serdes_tx_disparity_i         : in  std_logic;
       serdes_tx_enc_err_i           : in  std_logic;
       serdes_rx_clk_i               : in  std_logic;
-      serdes_rx_data_i              : in  std_logic_vector(f_pcs_data_width(g_16bit)-1 downto 0);
-      serdes_rx_k_i                 : in  std_logic_vector(f_pcs_k_width(g_16bit)-1 downto 0);
+      serdes_rx_data_i              : in  std_logic_vector(f_pcs_data_width(g_rx_16bit)-1 downto 0);
+      serdes_rx_k_i                 : in  std_logic_vector(f_pcs_k_width(g_rx_16bit)-1 downto 0);
       serdes_rx_enc_err_i           : in  std_logic;
-      serdes_rx_bitslide_i          : in  std_logic_vector(f_pcs_bts_width(g_16bit)-1 downto 0);
+      serdes_rx_bitslide_i          : in  std_logic_vector(f_pcs_bts_width(g_rx_16bit)-1 downto 0);
       rmon_o                        : out t_rmon_triggers;
       mdio_addr_i                   : in  std_logic_vector(15 downto 0);
       mdio_data_i                   : in  std_logic_vector(15 downto 0);

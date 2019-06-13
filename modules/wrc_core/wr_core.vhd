@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2019-03-29
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -92,7 +92,8 @@ entity wr_core is
     g_softpll_enable_debugger   : boolean                        := false;
     g_softpll_use_sampled_ref_clocks : boolean := false;
     g_vuart_fifo_size           : integer                        := 1024;
-    g_pcs_16bit                 : boolean                        := false;
+    g_pcs_tx_16bit              : boolean                        := false;
+    g_pcs_rx_16bit              : boolean                        := false;
     g_records_for_phy           : boolean                        := false;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
@@ -140,16 +141,16 @@ entity wr_core is
     -- PHY I/f
     phy_ref_clk_i : in std_logic;
 
-    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
     phy_tx_disparity_i : in  std_logic;
     phy_tx_enc_err_i   : in  std_logic;
 
-    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0);
     phy_rx_rbclk_i    : in std_logic;
-    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0);
     phy_rx_enc_err_i  : in std_logic;
-    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0);
 
     phy_rst_o            : out std_logic;
     phy_rdy_i            : in  std_logic := '1';
@@ -524,16 +525,22 @@ begin
   -- PHY TX/RX clock selection based on generics
   -----------------------------------------------------------------------------
 
-  GEN_16BIT_PHY_IF: if g_pcs_16bit and g_records_for_phy generate
-    phy_rx_clk <= phy16_i.rx_clk;
+  GEN_16BIT_PHY_IF1: if g_pcs_tx_16bit and g_records_for_phy generate
     phy_tx_clk <= phy16_i.ref_clk;
   end generate;
 
-  GEN_8BIT_PHY_IF: if not g_pcs_16bit and g_records_for_phy generate
-    phy_rx_clk <= phy8_i.rx_clk;
+  GEN_16BIT_PHY_IF2: if g_pcs_rx_16bit and g_records_for_phy generate
+    phy_rx_clk <= phy16_i.rx_clk;
+  end generate;
+
+  GEN_8BIT_PHY_IF1: if not g_pcs_tx_16bit and g_records_for_phy generate
     phy_tx_clk <= phy8_i.ref_clk;
   end generate;
 
+  GEN_8BIT_PHY_IF2: if not g_pcs_rx_16bit and g_records_for_phy generate
+    phy_rx_clk <= phy8_i.rx_clk;
+  end generate;
+ 
   GEN_STD_PHY_IF: if not g_records_for_phy generate
     phy_rx_clk <= phy_rx_rbclk_i;
     phy_tx_clk <= phy_ref_clk_i;
@@ -597,7 +604,7 @@ begin
     generic map(
       g_interface_mode       => PIPELINED,
       g_address_granularity  => BYTE,
-      g_ref_clock_rate       => f_refclk_rate(g_pcs_16bit),
+      g_ref_clock_rate       => f_refclk_rate(g_pcs_rx_16bit),
       g_ext_clock_rate       => 10000000,
       g_with_ext_clock_input => g_with_external_clock_input)
     port map(
@@ -634,14 +641,14 @@ begin
     generic map(
       g_with_ext_clock_input => g_with_external_clock_input,
       g_reverse_dmtds        => false,
-      g_divide_input_by_2    => not g_pcs_16bit,
+      g_divide_input_by_2    => not g_pcs_rx_16bit,
       g_with_debug_fifo      => g_softpll_enable_debugger,
       g_tag_bits             => 22,
       g_interface_mode       => PIPELINED,
       g_address_granularity  => BYTE,
       g_num_ref_inputs       => 1,
       g_num_outputs          => 1 + g_aux_clks,
-      g_ref_clock_rate       => f_refclk_rate(g_pcs_16bit),
+      g_ref_clock_rate       => f_refclk_rate(g_pcs_rx_16bit),
       g_use_sampled_ref_clocks => g_softpll_use_sampled_ref_clocks,
       g_ext_clock_rate       => 10000000)
     port map(
@@ -723,7 +730,8 @@ begin
       g_address_granularity => BYTE,
       g_simulation          => f_int2bool(g_simulation),
       g_tx_runt_padding     => g_tx_runt_padding,
-      g_pcs_16bit           => g_pcs_16bit,
+      g_pcs_rx_16bit        => g_pcs_rx_16bit,
+      g_pcs_tx_16bit        => g_pcs_tx_16bit,
       g_records_for_phy     => g_records_for_phy,
       g_rx_buffer_size      => g_rx_buffer_size,
       g_with_rx_buffer      => true,

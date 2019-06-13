@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-05-11
--- Last update: 2019-03-29
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -380,7 +380,8 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_softpll_use_sampled_ref_clocks : boolean := false;
       g_vuart_fifo_size           : integer                        := 1024;
-      g_pcs_16bit                 : boolean                        := false;
+      g_pcs_tx_16bit              : boolean                        := false;
+      g_pcs_rx_16bit              : boolean                        := false;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -407,15 +408,15 @@ package wrcore_pkg is
       -- PHY I/f
       -----------------------------------------
       phy_ref_clk_i        : in  std_logic                    := '0';
-      phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-      phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+      phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
       phy_tx_disparity_i   : in  std_logic                    := '0';
       phy_tx_enc_err_i     : in  std_logic                    := '0';
-      phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_data_i        : in  std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_rbclk_i       : in  std_logic                    := '0';
-      phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_k_i           : in  std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_enc_err_i     : in  std_logic                    := '0';
-      phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_bitslide_i    : in  std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rst_o            : out std_logic;
       phy_rdy_i            : in  std_logic := '1';
       phy_loopen_o         : out std_logic;
@@ -527,7 +528,8 @@ package wrcore_pkg is
       g_softpll_enable_debugger   : boolean                        := false;
       g_softpll_use_sampled_ref_clocks : boolean := false;
       g_vuart_fifo_size           : integer                        := 1024;
-      g_pcs_16bit                 : boolean                        := false;
+      g_pcs_tx_16bit              : boolean                        := false;
+      g_pcs_rx_16bit              : boolean                        := false;
       g_records_for_phy           : boolean                        := false;
       g_diag_id                   : integer                        := 0;
       g_diag_ver                  : integer                        := 0;
@@ -577,16 +579,16 @@ package wrcore_pkg is
       -----------------------------------------
       phy_ref_clk_i : in std_logic;
 
-      phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-      phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+      phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+      phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
       phy_tx_disparity_i : in  std_logic := '0';
       phy_tx_enc_err_i   : in  std_logic := '0';
 
-      phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
       phy_rx_rbclk_i    : in std_logic                    := '0';
-      phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0):= (others=>'0');
+      phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0):= (others=>'0');
       phy_rx_enc_err_i  : in std_logic                    := '0';
-      phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+      phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
 
       phy_rst_o    : out std_logic;
       phy_rdy_i    : in  std_logic := '1';

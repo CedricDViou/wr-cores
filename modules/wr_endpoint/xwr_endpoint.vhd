@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2018-03-08
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -51,7 +51,8 @@ entity xwr_endpoint is
     g_simulation            : boolean                        := false;
     g_tx_force_gap_length   : integer                        := 0;
     g_tx_runt_padding       : boolean                        := false;
-    g_pcs_16bit             : boolean                        := false;
+    g_pcs_tx_16bit          : boolean                        := false;
+    g_pcs_rx_16bit          : boolean                        := false;
     g_records_for_phy       : boolean                        := false;
     g_rx_buffer_size        : integer                        := 1024;
     g_with_rx_buffer        : boolean                        := true;
@@ -114,16 +115,16 @@ entity xwr_endpoint is
     phy_debug_o          : out  std_logic_vector(15 downto 0);
     
     phy_ref_clk_i      : in  std_logic := '0';
-    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+    phy_tx_data_o      : out std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+    phy_tx_k_o         : out std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
     phy_tx_disparity_i : in  std_logic := '0';
     phy_tx_enc_err_i   : in  std_logic := '0';
 
-    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+    phy_rx_data_i     : in std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
     phy_rx_clk_i      : in std_logic                     := '0';
-    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+    phy_rx_k_i        : in std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
     phy_rx_enc_err_i  : in std_logic                     := '0';
-    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0) := (others=>'0');
+    phy_rx_bitslide_i : in std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0) := (others=>'0');
 
     -- 2nd option is to use record-based I/Os
     phy8_o            : out t_phy_8bits_from_wrc;
@@ -284,19 +285,19 @@ architecture syn of xwr_endpoint is
   signal phy_rst          : std_logic;
   signal phy_loopen       : std_logic;
   signal phy_loopen_vec   : std_logic_vector(2 downto 0);
-  signal phy_tx_data      : std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-  signal phy_tx_k         : std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+  signal phy_tx_data      : std_logic_vector(f_pcs_data_width(g_pcs_tx_16bit)-1 downto 0);
+  signal phy_tx_k         : std_logic_vector(f_pcs_k_width(g_pcs_tx_16bit)-1 downto 0);
   signal phy_tx_prbs_sel  : std_logic_vector(2 downto 0);
   signal sfp_tx_disable   : std_logic;
   signal phy_tx_clk       : std_logic;
 
   signal phy_tx_disparity : std_logic;
   signal phy_tx_enc_err   : std_logic;
-  signal phy_rx_data      : std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
+  signal phy_rx_data      : std_logic_vector(f_pcs_data_width(g_pcs_rx_16bit)-1 downto 0);
   signal phy_rx_clk       : std_logic;
-  signal phy_rx_k         : std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
+  signal phy_rx_k         : std_logic_vector(f_pcs_k_width(g_pcs_rx_16bit)-1 downto 0);
   signal phy_rx_enc_err   : std_logic;
-  signal phy_rx_bts       : std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+  signal phy_rx_bts       : std_logic_vector(f_pcs_bts_width(g_pcs_rx_16bit)-1 downto 0);
   signal phy_rdy          : std_logic;
   signal sfp_tx_fault     : std_logic;
   signal sfp_los          : std_logic;
@@ -311,7 +312,8 @@ begin
       g_tx_force_gap_length => g_tx_force_gap_length,
       g_tx_runt_padding     => g_tx_runt_padding,
       g_simulation            => g_simulation,
-      g_pcs_16bit             => g_pcs_16bit,
+      g_pcs_tx_16bit          => g_pcs_tx_16bit,
+      g_pcs_rx_16bit          => g_pcs_rx_16bit,
       g_rx_buffer_size        => g_rx_buffer_size,
       g_with_rx_buffer        => g_with_rx_buffer,
       g_with_flow_control     => g_with_flow_control,
@@ -444,7 +446,7 @@ begin
 
 
   -- Record-based PHY connections, depending on 8/16-bit PCS
-  GEN_16BIT_IF: if g_pcs_16bit and g_records_for_phy generate
+  GEN_16BIT_IF_TX: if g_pcs_tx_16bit and g_records_for_phy generate
     phy16_o.rst            <= phy_rst;
     phy16_o.loopen         <= phy_loopen;
     phy16_o.loopen_vec     <= phy_loopen_vec;
@@ -453,8 +455,10 @@ begin
     phy16_o.tx_prbs_sel    <= phy_tx_prbs_sel;
     phy16_o.sfp_tx_disable <= sfp_tx_disable;
     phy16_o.debug <= phy_debug_out;
-
     phy_tx_clk       <= phy16_i.ref_clk;
+  end generate GEN_16BIT_IF_TX;
+  
+  GEN_16BIT_IF_RX: if g_pcs_rx_16bit and g_records_for_phy generate
     phy_tx_disparity <= phy16_i.tx_disparity;
     phy_tx_enc_err   <= phy16_i.tx_enc_err;
     phy_rx_data      <= phy16_i.rx_data;
@@ -476,9 +480,9 @@ begin
     phy_loopen_vec_o     <= (others => '0');
     phy_tx_prbs_sel_o    <= (others => '0');
     phy_sfp_tx_disable_o <= '0';
-  end generate;
+  end generate GEN_16BIT_IF_RX;
 
-  GEN_8BIT_IF: if not g_pcs_16bit and g_records_for_phy generate
+  GEN_8BIT_IF_TX: if not g_pcs_tx_16bit and g_records_for_phy generate
     phy8_o.rst            <= phy_rst;
     phy8_o.loopen         <= phy_loopen;
     phy8_o.loopen_vec     <= phy_loopen_vec;
@@ -490,6 +494,10 @@ begin
     phy_tx_clk       <= phy8_i.ref_clk;
     phy_tx_disparity <= phy8_i.tx_disparity;
     phy_tx_enc_err   <= phy8_i.tx_enc_err;
+  end generate GEN_8BIT_IF_TX;
+  
+  GEN_8BIT_IF_RX: if not g_pcs_rx_16bit and g_records_for_phy generate
+
     phy_rx_data      <= phy8_i.rx_data;
     phy_rx_clk       <= phy8_i.rx_clk;
     phy_rx_k         <= phy8_i.rx_k;
@@ -508,7 +516,7 @@ begin
     phy_loopen_vec_o     <= (others => '0');
     phy_tx_prbs_sel_o    <= (others => '0');
     phy_sfp_tx_disable_o <= '0';
-  end generate;
+  end generate GEN_8BIT_IF_RX;
 
   -- backwards compatibility
   GEN_STD_IF: if not g_records_for_phy generate

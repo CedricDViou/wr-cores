@@ -7,7 +7,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2009-06-22
--- Last update: 2017-02-03
+-- Last update: 2019-06-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -182,7 +182,7 @@ architecture syn of ep_timestamping_unit is
   signal valid_rx, valid_tx : std_logic;
 
 
-  signal cal_count                                   : unsigned(5 downto 0);
+  signal cal_count                                   : unsigned(5 downto 0) := to_unsigned(1, 6);
   signal rx_trigger_mask, rx_trigger_a, rx_cal_pulse_a : std_logic;
 
   signal regs_o_tscr_cs_done       : std_logic;
