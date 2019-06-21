@@ -16,7 +16,7 @@
 // PROGRAM "Quartus Prime"
 // VERSION "Version 18.1.0 Build 625 09/12/2018 SJ Standard Edition"
 
-// DATE "06/18/2019 13:51:18"
+// DATE "06/21/2019 16:15:14"
 
 // 
 // Device: Altera 10AX115S2F45I1SG Package FBGA1932
@@ -56,7 +56,7 @@ wire \pll_powerdown~input_o ;
 wire \pll_refclk0~input_o ;
 
 
-wr_arria10_e3p1_atx_pll_wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i xcvr_atx_pll_a10_0(
+wr_arria10_e3p1_atx_pll_wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua xcvr_atx_pll_a10_0(
 	.pld_cal_done_0(\xcvr_atx_pll_a10_0|a10_xcvr_avmm_inst|pld_cal_done[0] ),
 	.tx_serial_clk(\xcvr_atx_pll_a10_0|a10_xcvr_atx_pll_inst|pll_serial_clk_8g ),
 	.pll_locked(\xcvr_atx_pll_a10_0|a10_xcvr_atx_pll_inst|pll_locked ),
@@ -74,7 +74,7 @@ assign \pll_powerdown~input_o  = pll_powerdown;
 
 endmodule
 
-module wr_arria10_e3p1_atx_pll_wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i (
+module wr_arria10_e3p1_atx_pll_wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua (
 	pld_cal_done_0,
 	tx_serial_clk,
 	pll_locked,
@@ -278,7 +278,7 @@ defparam twentynm_atx_pll_inst.cp_lf_3rd_pole_freq = "lf_3rd_pole_setting1";
 defparam twentynm_atx_pll_inst.cp_lf_order = "lf_3rd_order";
 defparam twentynm_atx_pll_inst.cp_testmode = "cp_normal";
 defparam twentynm_atx_pll_inst.d2a_voltage = "d2a_setting_4";
-defparam twentynm_atx_pll_inst.datarate = "1250000000 bps";
+defparam twentynm_atx_pll_inst.datarate = "5000000000 bps";
 defparam twentynm_atx_pll_inst.device_variant = "device1";
 defparam twentynm_atx_pll_inst.dprio_clk_vreg_boost_expected_voltage = 12'b000000000000;
 defparam twentynm_atx_pll_inst.dprio_clk_vreg_boost_scratch = 3'b000;
@@ -327,7 +327,7 @@ defparam twentynm_atx_pll_inst.iqclk_mux_sel = "iqtxrxclk0";
 defparam twentynm_atx_pll_inst.is_cascaded_pll = "false";
 defparam twentynm_atx_pll_inst.is_otn = "false";
 defparam twentynm_atx_pll_inst.is_sdi = "false";
-defparam twentynm_atx_pll_inst.l_counter = 16;
+defparam twentynm_atx_pll_inst.l_counter = 4;
 defparam twentynm_atx_pll_inst.l_counter_enable = "true";
 defparam twentynm_atx_pll_inst.l_counter_scratch = 5'b00001;
 defparam twentynm_atx_pll_inst.lc_atb = "atb_selectdisable";
@@ -341,7 +341,7 @@ defparam twentynm_atx_pll_inst.m_counter = 40;
 defparam twentynm_atx_pll_inst.max_fractional_percentage = 7'b0000000;
 defparam twentynm_atx_pll_inst.min_fractional_percentage = 7'b0000000;
 defparam twentynm_atx_pll_inst.n_counter_scratch = 3'b001;
-defparam twentynm_atx_pll_inst.output_clock_frequency = "625000000 hz";
+defparam twentynm_atx_pll_inst.output_clock_frequency = "2500000000 hz";
 defparam twentynm_atx_pll_inst.output_regulator_supply = "vreg1v_setting0";
 defparam twentynm_atx_pll_inst.overrange_voltage = "over_setting0";
 defparam twentynm_atx_pll_inst.pfd_delay_compensation = "normal_delay";

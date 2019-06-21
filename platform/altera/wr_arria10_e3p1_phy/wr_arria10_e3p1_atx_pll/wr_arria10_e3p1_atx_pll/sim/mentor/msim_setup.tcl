@@ -94,7 +94,7 @@
 # within the Quartus project, and generate a unified
 # script which supports all the Altera IP within the design.
 # ----------------------------------------
-# ACDS 18.1 625 linux 2019.06.18.13:51:03
+# ACDS 18.1 625 linux 2019.06.21.16:14:58
 
 # ----------------------------------------
 # Initialize variables
@@ -251,8 +251,8 @@ alias com {
   eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/mentor/a10_xcvr_atx_pll.sv"                                     -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
   eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/mentor/alt_xcvr_pll_embedded_debug.sv"                          -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
   eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/mentor/alt_xcvr_pll_avmm_csr.sv"                                -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i.sv" -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_lhyn27i.sv"                     -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua.sv" -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_z7ksuua.sv"                     -L altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
   eval  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS        "$QSYS_SIMDIR/wr_arria10_e3p1_atx_pll.vhd"                                                                                                                                                             
 }
 

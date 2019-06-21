@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 package wr_arria10_e3p1_atx_pll_pkg is
-	component wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i is
+	component wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua is
 		generic (
 			enable_pll_reconfig                                              : integer := 0;
 			rcfg_jtag_enable                                                 : integer := 0;
@@ -148,6 +148,6 @@ package wr_arria10_e3p1_atx_pll_pkg is
 			mcgb_cal_busy           : out std_logic;                                        -- mcgb_cal_busy
 			mcgb_hip_cal_done       : out std_logic                                         -- hip_cal_done
 		);
-	end component wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i;
+	end component wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua;
 
 end wr_arria10_e3p1_atx_pll_pkg;

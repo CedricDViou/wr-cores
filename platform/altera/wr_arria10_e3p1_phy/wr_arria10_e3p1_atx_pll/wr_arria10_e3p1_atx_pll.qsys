@@ -20,9 +20,9 @@
 }
 ]]></parameter>
  <parameter name="clockCrossingAdapter" value="HANDSHAKE" />
- <parameter name="device" value="10AX115S2F45I2SG" />
+ <parameter name="device" value="10AX115S2F45I1SG" />
  <parameter name="deviceFamily" value="Arria 10" />
- <parameter name="deviceSpeedGrade" value="2" />
+ <parameter name="deviceSpeedGrade" value="1" />
  <parameter name="fabricMode" value="QSYS" />
  <parameter name="generateLegacySim" value="false" />
  <parameter name="generationId" value="0" />
@@ -81,7 +81,7 @@
    autoexport="1">
   <parameter name="base_device" value="NIGHTFURY5" />
   <parameter name="bw_sel" value="medium" />
-  <parameter name="device" value="10AX115S2F45I2SG" />
+  <parameter name="device" value="10AX115S2F45I1SG" />
   <parameter name="device_family" value="Arria 10" />
   <parameter name="enable_16G_path" value="0" />
   <parameter name="enable_8G_path" value="1" />
@@ -143,7 +143,7 @@
   <parameter name="set_l_counter" value="16" />
   <parameter name="set_m_counter" value="24" />
   <parameter name="set_manual_reference_clock_frequency" value="200.0" />
-  <parameter name="set_output_clock_frequency" value="625.0" />
+  <parameter name="set_output_clock_frequency" value="2500.0" />
   <parameter name="set_rcfg_emb_strm_enable" value="0" />
   <parameter name="set_ref_clk_div" value="1" />
   <parameter name="set_user_identifier" value="0" />

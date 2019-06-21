@@ -69,7 +69,7 @@ refer to the applicable agreement for further details.
 		(text "clk" (rect 101 107 220 224)(font "Arial" (color 0 0 0)))
 		(text "tx_serial_clk" (rect 241 123 560 259)(font "Arial" (color 128 0 0)(font_size 9)))
 		(text "clk" (rect 225 147 468 304)(font "Arial" (color 0 0 0)))
-		(text " wr_arria10_e3p1_atx_pll " (rect 229 168 608 346)(font "Arial" ))
+		(text " system " (rect 301 168 650 346)(font "Arial" ))
 		(line (pt 96 32)(pt 240 32)(line_width 1))
 		(line (pt 240 32)(pt 240 168)(line_width 1))
 		(line (pt 96 168)(pt 240 168)(line_width 1))

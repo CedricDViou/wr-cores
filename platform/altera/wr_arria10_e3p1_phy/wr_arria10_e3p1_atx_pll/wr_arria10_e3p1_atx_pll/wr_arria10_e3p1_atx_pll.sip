@@ -26,5 +26,5 @@ set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [fi
 set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/cadence_files.txt"]
 set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/synopsys_files.txt"]
 set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/aldec_files.txt"]
-set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i.sv"]
-set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_lhyn27i.sv"]
+set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua.sv"]
+set_global_assignment -library "lib_wr_arria10_e3p1_atx_pll" -name MISC_FILE [file join $::quartus(sip_path) "altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_z7ksuua.sv"]
