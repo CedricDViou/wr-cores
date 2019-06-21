@@ -225,6 +225,7 @@ package wr_altera_pkg is
     generic (
       g_use_atx_pll     : boolean := true;
       g_use_cmu_pll     : boolean := false;
+		g_use_simple_wa   : boolean := false;
       g_use_det_phy     : boolean := true;
       g_use_sfp_los_rst : boolean := true;
       g_use_tx_lcr_dbg  : boolean := false;
@@ -422,6 +423,16 @@ package wr_altera_pkg is
       pll_cal_busy  : out std_logic
     );
   end component wr_arria10_e3p1_atx_pll;
+
+  component wr_arria10_e3p1_cmu_pll is
+    port (
+      pll_powerdown : in  std_logic := 'X';
+      pll_refclk0   : in  std_logic := 'X';
+      tx_serial_clk : out std_logic;
+      pll_locked    : out std_logic;
+      pll_cal_busy  : out std_logic
+    );
+  end component wr_arria10_e3p1_cmu_pll;
 
   component wr_arria10_scu4_atx_pll is
     port (

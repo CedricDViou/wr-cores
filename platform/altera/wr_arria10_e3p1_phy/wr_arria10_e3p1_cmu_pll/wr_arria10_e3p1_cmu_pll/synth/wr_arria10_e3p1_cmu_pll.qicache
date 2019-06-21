@@ -1,0 +1,9 @@
+<?xml version='1.0' encoding='us-ascii'?>
+<qsys_generation_info>
+<qsys_file path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_cmu_pll/wr_arria10_e3p1_cmu_pll.qsys" />
+<gen_dir path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_cmu_pll/wr_arria10_e3p1_cmu_pll/" />
+<user_regen_policy value="Never Regenerate Existing IP" />
+<actual_regen_policy value="Never Regenerate Existing IP" />
+<gen_action value="IP Generation Skipped" />
+<gen_status value="IP Generation Succeeded" />
+</qsys_generation_info>
