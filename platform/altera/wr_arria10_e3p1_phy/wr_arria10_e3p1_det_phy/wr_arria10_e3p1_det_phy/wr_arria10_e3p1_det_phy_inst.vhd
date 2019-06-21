@@ -23,6 +23,7 @@
 			rx_patterndetect          : out std_logic;                                         -- rx_patterndetect
 			rx_runningdisp            : out std_logic;                                         -- rx_runningdisp
 			rx_serial_data            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_serial_data
+			rx_seriallpbken           : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_seriallpbken
 			rx_std_bitslipboundarysel : out std_logic_vector(4 downto 0);                      -- rx_std_bitslipboundarysel
 			rx_std_wa_patternalign    : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_std_wa_patternalign
 			rx_syncstatus             : out std_logic;                                         -- rx_syncstatus
@@ -36,8 +37,7 @@
 			tx_serial_clk0            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
 			tx_serial_data            : out std_logic_vector(0 downto 0);                      -- tx_serial_data
 			unused_rx_parallel_data   : out std_logic_vector(113 downto 0);                    -- unused_rx_parallel_data
-			unused_tx_parallel_data   : in  std_logic_vector(118 downto 0) := (others => 'X'); -- unused_tx_parallel_data
-			rx_seriallpbken           : in  std_logic_vector(0 downto 0)   := (others => 'X')  -- rx_seriallpbken
+			unused_tx_parallel_data   : in  std_logic_vector(118 downto 0) := (others => 'X')  -- unused_tx_parallel_data
 		);
 	end component wr_arria10_e3p1_det_phy;
 
@@ -66,6 +66,7 @@
 			rx_patterndetect          => CONNECTED_TO_rx_patterndetect,          --          rx_patterndetect.rx_patterndetect
 			rx_runningdisp            => CONNECTED_TO_rx_runningdisp,            --            rx_runningdisp.rx_runningdisp
 			rx_serial_data            => CONNECTED_TO_rx_serial_data,            --            rx_serial_data.rx_serial_data
+			rx_seriallpbken           => CONNECTED_TO_rx_seriallpbken,           --           rx_seriallpbken.rx_seriallpbken
 			rx_std_bitslipboundarysel => CONNECTED_TO_rx_std_bitslipboundarysel, -- rx_std_bitslipboundarysel.rx_std_bitslipboundarysel
 			rx_std_wa_patternalign    => CONNECTED_TO_rx_std_wa_patternalign,    --    rx_std_wa_patternalign.rx_std_wa_patternalign
 			rx_syncstatus             => CONNECTED_TO_rx_syncstatus,             --             rx_syncstatus.rx_syncstatus
@@ -79,7 +80,6 @@
 			tx_serial_clk0            => CONNECTED_TO_tx_serial_clk0,            --            tx_serial_clk0.clk
 			tx_serial_data            => CONNECTED_TO_tx_serial_data,            --            tx_serial_data.tx_serial_data
 			unused_rx_parallel_data   => CONNECTED_TO_unused_rx_parallel_data,   --   unused_rx_parallel_data.unused_rx_parallel_data
-			unused_tx_parallel_data   => CONNECTED_TO_unused_tx_parallel_data,   --   unused_tx_parallel_data.unused_tx_parallel_data
-			rx_seriallpbken           => CONNECTED_TO_rx_seriallpbken            --           rx_seriallpbken.rx_seriallpbken
+			unused_tx_parallel_data   => CONNECTED_TO_unused_tx_parallel_data    --   unused_tx_parallel_data.unused_tx_parallel_data
 		);
 

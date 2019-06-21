@@ -8,6 +8,11 @@
   </columns>
  </systemtable>
  <library expandedCategories="Library,Project" />
- <window width="1100" height="1129" x="1460" y="25" />
- <generation path="" synthesis="VHDL" block_symbol_file="0" />
+ <window width="1403" height="1046" x="1911" y="1260" />
+ <generation
+   path=""
+   synthesis="VHDL"
+   block_symbol_file="0"
+   simulation="VHDL"
+   greybox="1" />
 </preferences>

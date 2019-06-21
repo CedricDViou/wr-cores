@@ -12,3 +12,12 @@ altera_lnsim_ver:                                    ./libraries/altera_lnsim_ve
 twentynm_ver:                                        ./libraries/twentynm_ver/                                       
 twentynm_hssi_ver:                                   ./libraries/twentynm_hssi_ver/                                  
 twentynm_hip_ver:                                    ./libraries/twentynm_hip_ver/                                   
+altera:                                              ./libraries/altera/                                             
+lpm:                                                 ./libraries/lpm/                                                
+sgate:                                               ./libraries/sgate/                                              
+altera_mf:                                           ./libraries/altera_mf/                                          
+altera_lnsim:                                        ./libraries/altera_lnsim/                                       
+twentynm:                                            ./libraries/twentynm/                                           
+twentynm_hssi:                                       ./libraries/twentynm_hssi/                                      
+twentynm_hip:                                        ./libraries/twentynm_hip/                                       
+LIBRARY_SCAN = TRUE

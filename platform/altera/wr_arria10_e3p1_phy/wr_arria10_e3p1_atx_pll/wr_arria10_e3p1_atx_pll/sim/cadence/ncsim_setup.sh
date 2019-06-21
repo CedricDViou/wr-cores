@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 18.1 625 linux 2019.02.13.16:44:36
+# ACDS 18.1 625 linux 2019.06.18.13:51:03
 
 # ----------------------------------------
 # ncsim - auto-generated simulation script
@@ -106,12 +106,12 @@
 # within the Quartus project, and generate a unified
 # script which supports all the Altera IP within the design.
 # ----------------------------------------
-# ACDS 18.1 625 linux 2019.02.13.16:44:36
+# ACDS 18.1 625 linux 2019.06.18.13:51:03
 # ----------------------------------------
 # initialize variables
 TOP_LEVEL_NAME="wr_arria10_e3p1_atx_pll"
 QSYS_SIMDIR="./../"
-QUARTUS_INSTALL_DIR="/home/alex/workspace/optional/quartus18/quartus/"
+QUARTUS_INSTALL_DIR="/opt/quartus/18/quartus/"
 SKIP_FILE_COPY=0
 SKIP_DEV_COM=0
 SKIP_COM=0
@@ -152,10 +152,17 @@ mkdir -p ./libraries/altera_ver/
 mkdir -p ./libraries/lpm_ver/
 mkdir -p ./libraries/sgate_ver/
 mkdir -p ./libraries/altera_mf_ver/
-mkdir -p ./libraries/altera_lnsim_ver/
 mkdir -p ./libraries/twentynm_ver/
 mkdir -p ./libraries/twentynm_hssi_ver/
 mkdir -p ./libraries/twentynm_hip_ver/
+mkdir -p ./libraries/altera/
+mkdir -p ./libraries/lpm/
+mkdir -p ./libraries/sgate/
+mkdir -p ./libraries/altera_mf/
+mkdir -p ./libraries/altera_lnsim/
+mkdir -p ./libraries/twentynm/
+mkdir -p ./libraries/twentynm_hssi/
+mkdir -p ./libraries/twentynm_hip/
 
 # ----------------------------------------
 # copy RAM/ROM files to simulation directory
@@ -167,37 +174,56 @@ if [ $SKIP_DEV_COM -eq 0 ]; then
   ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/220model.v"                           -work lpm_ver          
   ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate.v"                              -work sgate_ver        
   ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf.v"                          -work altera_mf_ver    
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim.sv"                      -work altera_lnsim_ver 
   ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_atoms.v"                     -work twentynm_ver     
-  ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cadence/twentynm_atoms_ncrypt.v"      -work twentynm_ver     
-  ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cadence/twentynm_hssi_atoms_ncrypt.v" -work twentynm_hssi_ver
   ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hssi_atoms.v"                -work twentynm_hssi_ver
-  ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cadence/twentynm_hip_atoms_ncrypt.v"  -work twentynm_hip_ver 
   ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hip_atoms.v"                 -work twentynm_hip_ver 
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd"            -work altera           
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_standard_functions.vhd"        -work altera           
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/alt_dspbuilder_package.vhd"           -work altera           
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_europa_support_lib.vhd"        -work altera           
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives_components.vhd"     -work altera           
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives.vhd"                -work altera           
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/220pack.vhd"                          -work lpm              
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/220model.vhd"                         -work lpm              
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate_pack.vhd"                       -work sgate            
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate.vhd"                            -work sgate            
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf_components.vhd"             -work altera_mf        
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf.vhd"                        -work altera_mf        
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim.sv"                      -work altera_lnsim     
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim_components.vhd"          -work altera_lnsim     
+  ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cadence/twentynm_atoms_ncrypt.v"      -work twentynm         
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_atoms.vhd"                   -work twentynm         
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_components.vhd"              -work twentynm         
+  ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cadence/twentynm_hssi_atoms_ncrypt.v" -work twentynm_hssi    
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hssi_components.vhd"         -work twentynm_hssi    
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hssi_atoms.vhd"              -work twentynm_hssi    
+  ncvlog $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QUARTUS_INSTALL_DIR/eda/sim_lib/cadence/twentynm_hip_atoms_ncrypt.v"  -work twentynm_hip     
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hip_components.vhd"          -work twentynm_hip     
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hip_atoms.vhd"               -work twentynm_hip     
 fi
 
 # ----------------------------------------
 # compile design files in correct order
 if [ $SKIP_COM -eq 0 ]; then
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/altera_xcvr_native_a10_functions_h.sv"                          -work altera_common_sv_packages                           -cdslib ./cds_libs/altera_common_sv_packages.cds.lib                          
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/twentynm_xcvr_avmm.sv"                                          -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_resync.sv"                                             -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_arbiter.sv"                                            -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_avmm_h.sv"                                                  -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_arb.sv"                                   -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_xcvr_atx_pll.sv"                                            -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_embedded_debug.sv"                                 -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_avmm_csr.sv"                                       -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_chk6tua.sv" -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS       "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_chk6tua.sv"                     -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
-  ncvlog -compcnfg $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/wr_arria10_e3p1_atx_pll.v"                                                                                                                                                                                                                 
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/altera_xcvr_native_a10_functions_h.sv"                          -work altera_common_sv_packages                           -cdslib ./cds_libs/altera_common_sv_packages.cds.lib                          
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/twentynm_xcvr_avmm.sv"                                          -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_resync.sv"                                             -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_arbiter.sv"                                            -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_avmm_h.sv"                                                  -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_arb.sv"                                   -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_xcvr_atx_pll.sv"                                            -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_embedded_debug.sv"                                 -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_avmm_csr.sv"                                       -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i.sv" -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvlog -sv $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_lhyn27i.sv"                     -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -cdslib ./cds_libs/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181.cds.lib
+  ncvhdl -v93 $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS   "$QSYS_SIMDIR/wr_arria10_e3p1_atx_pll.vhd"                                                                                                                                                                                                               
 fi
 
 # ----------------------------------------
 # elaborate top level design
 if [ $SKIP_ELAB -eq 0 ]; then
   export GENERIC_PARAM_COMPAT_CHECK=1
-  ncelab -access +w+r+c -namemap_mixgen $ELAB_OPTIONS $USER_DEFINED_ELAB_OPTIONS $TOP_LEVEL_NAME
+  ncelab -access +w+r+c -namemap_mixgen -relax $ELAB_OPTIONS $USER_DEFINED_ELAB_OPTIONS $TOP_LEVEL_NAME
 fi
 
 # ----------------------------------------

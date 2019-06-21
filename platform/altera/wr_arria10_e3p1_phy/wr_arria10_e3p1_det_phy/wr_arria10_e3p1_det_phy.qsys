@@ -542,7 +542,7 @@
   <parameter name="std_tx_pcfifo_mode" value="register_fifo" />
   <parameter name="std_tx_polinv_enable" value="0" />
   <parameter name="support_mode" value="user_mode" />
-  <parameter name="tx_pma_clk_div" value="1" />
+  <parameter name="tx_pma_clk_div" value="4" />
   <parameter name="tx_pma_div_clkout_divider" value="0" />
   <parameter name="validation_rule_select" value="" />
  </module>

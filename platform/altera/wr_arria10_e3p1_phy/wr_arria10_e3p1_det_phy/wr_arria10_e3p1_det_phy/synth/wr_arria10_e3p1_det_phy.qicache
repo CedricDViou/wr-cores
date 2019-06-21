@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='us-ascii'?>
 <qsys_generation_info>
-<qsys_file path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy.qsys" />
-<gen_dir path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/" />
+<qsys_file path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy.qsys" />
+<gen_dir path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/" />
 <user_regen_policy value="Never Regenerate Existing IP" />
 <actual_regen_policy value="Never Regenerate Existing IP" />
 <gen_action value="IP Generation Skipped" />

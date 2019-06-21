@@ -23,6 +23,7 @@ module wr_arria10_e3p1_det_phy (
 	rx_patterndetect,
 	rx_runningdisp,
 	rx_serial_data,
+	rx_seriallpbken,
 	rx_std_bitslipboundarysel,
 	rx_std_wa_patternalign,
 	rx_syncstatus,
@@ -36,8 +37,7 @@ module wr_arria10_e3p1_det_phy (
 	tx_serial_clk0,
 	tx_serial_data,
 	unused_rx_parallel_data,
-	unused_tx_parallel_data,
-	rx_seriallpbken);	
+	unused_tx_parallel_data);	
 
 	input	[0:0]	reconfig_write;
 	input	[0:0]	reconfig_read;
@@ -62,6 +62,7 @@ module wr_arria10_e3p1_det_phy (
 	output		rx_patterndetect;
 	output		rx_runningdisp;
 	input	[0:0]	rx_serial_data;
+	input	[0:0]	rx_seriallpbken;
 	output	[4:0]	rx_std_bitslipboundarysel;
 	input	[0:0]	rx_std_wa_patternalign;
 	output		rx_syncstatus;
@@ -76,5 +77,4 @@ module wr_arria10_e3p1_det_phy (
 	output	[0:0]	tx_serial_data;
 	output	[113:0]	unused_rx_parallel_data;
 	input	[118:0]	unused_tx_parallel_data;
-	input	[0:0]	rx_seriallpbken;
 endmodule

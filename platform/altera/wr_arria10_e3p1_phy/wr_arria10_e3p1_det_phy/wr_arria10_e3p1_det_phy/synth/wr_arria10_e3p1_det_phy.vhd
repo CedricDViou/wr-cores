@@ -56,7 +56,7 @@ architecture rtl of wr_arria10_e3p1_det_phy is
 
 begin
 
-	xcvr_native_a10_0 : component wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181.wr_arria10_e3p1_det_phy_pkg.wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa
+	xcvr_native_a10_0 : component wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181.wr_arria10_e3p1_det_phy_pkg.wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq
 		generic map (
 			device_revision                                                        => "20nm5",
 			duplex_mode                                                            => "duplex",
@@ -692,7 +692,7 @@ begin
 			pma_cgb_prot_mode                                                      => "basic_tx",
 			pma_cgb_ser_mode                                                       => "ten_bit",
 			pma_cgb_sup_mode                                                       => "user_mode",
-			pma_cgb_x1_div_m_sel                                                   => "divbypass",
+			pma_cgb_x1_div_m_sel                                                   => "divby4",
 			pma_cgb_input_select_x1                                                => "fpll_bot",
 			pma_cgb_input_select_gen3                                              => "unused",
 			pma_cgb_input_select_xn                                                => "unused",
@@ -745,9 +745,9 @@ begin
 			pma_tx_buf_xtx_path_prot_mode                                          => "basic_tx",
 			pma_tx_buf_xtx_path_datarate                                           => "1250000000 bps",
 			pma_tx_buf_xtx_path_datawidth                                          => 10,
-			pma_tx_buf_xtx_path_clock_divider_ratio                                => 1,
+			pma_tx_buf_xtx_path_clock_divider_ratio                                => 4,
 			pma_tx_buf_xtx_path_pma_tx_divclk_hz                                   => "125000000",
-			pma_tx_buf_xtx_path_tx_pll_clk_hz                                      => "625000000",
+			pma_tx_buf_xtx_path_tx_pll_clk_hz                                      => "156250000",
 			pma_tx_buf_xtx_path_sup_mode                                           => "user_mode",
 			cdr_pll_pma_width                                                      => 10,
 			cdr_pll_cgb_div                                                        => 1,

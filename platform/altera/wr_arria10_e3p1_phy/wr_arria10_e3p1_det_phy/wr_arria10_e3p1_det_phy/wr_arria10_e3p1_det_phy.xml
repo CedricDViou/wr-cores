@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <deploy
- date="2019.05.24.17:52:13"
- outputDirectory="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/">
+ date="2019.06.21.11:36:31"
+ outputDirectory="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/">
  <perimeter>
   <parameter
      name="AUTO_GENERATION_ID"
@@ -292,30 +292,30 @@
    kind="wr_arria10_e3p1_det_phy"
    version="1.0"
    name="wr_arria10_e3p1_det_phy">
-  <parameter name="AUTO_GENERATION_ID" value="1558713131" />
+  <parameter name="AUTO_GENERATION_ID" value="1561109790" />
   <parameter name="AUTO_DEVICE" value="10AX115S2F45I1SG" />
   <parameter name="AUTO_DEVICE_FAMILY" value="Arria 10" />
   <parameter name="AUTO_UNIQUE_ID" value="" />
   <parameter name="AUTO_DEVICE_SPEEDGRADE" value="1" />
   <generatedFiles>
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy.v"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy.v"
        attributes="CONTAINS_INLINE_CONFIGURATION" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy_cfg.v"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy_cfg.v"
        attributes="CONTAINS_INLINE_CONFIGURATION" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy.v"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy.v"
        attributes="CONTAINS_INLINE_CONFIGURATION" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy_cfg.v"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/synth/wr_arria10_e3p1_det_phy_cfg.v"
        attributes="CONTAINS_INLINE_CONFIGURATION" />
   </childGeneratedFiles>
   <sourceFiles>
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy.qsys" />
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy.qsys" />
   </sourceFiles>
   <childSourceFiles>
    <file
@@ -323,7 +323,7 @@
   </childSourceFiles>
   <messages>
    <message level="Info" culprit="wr_arria10_e3p1_det_phy">"Generating: wr_arria10_e3p1_det_phy"</message>
-   <message level="Info" culprit="wr_arria10_e3p1_det_phy">"Generating: wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa"</message>
+   <message level="Info" culprit="wr_arria10_e3p1_det_phy">"Generating: wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq"</message>
    <message level="Info" culprit="xcvr_native_a10_0">add_fileset_file ./alt_xcvr_resync.sv SYSTEM_VERILOG PATH ../../../../altera_xcvr_generic/ctrl/alt_xcvr_resync.sv</message>
    <message level="Info" culprit="xcvr_native_a10_0">add_fileset_file ./alt_xcvr_arbiter.sv SYSTEM_VERILOG PATH ../../../../altera_xcvr_generic/ctrl/alt_xcvr_arbiter.sv</message>
    <message level="Info" culprit="xcvr_native_a10_0">add_fileset_file ./twentynm_pcs.sv SYSTEM_VERILOG PATH ../../../alt_xcvr_core/nf/twentynm_pcs.sv</message>
@@ -351,7 +351,7 @@
  <entity
    kind="altera_xcvr_native_a10"
    version="18.1"
-   name="wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa">
+   name="wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq">
   <parameter name="enable_ports_rx_prbs" value="0" />
   <parameter name="cdr_pll_f_max_pfd" value="350000000 Hz" />
   <parameter name="pma_tx_buf_duty_cycle_correction_reset_n" value="reset_n" />
@@ -625,7 +625,7 @@
   <parameter name="hssi_10g_tx_pcs_txfifo_mode" value="phase_comp" />
   <parameter name="pma_adapt_adp_ctle_en" value="radp_ctle_disable" />
   <parameter name="pma_cgb_sup_mode" value="user_mode" />
-  <parameter name="pma_cgb_x1_div_m_sel" value="divbypass" />
+  <parameter name="pma_cgb_x1_div_m_sel" value="divby4" />
   <parameter name="hssi_8g_rx_pcs_reconfig_settings" value="{}" />
   <parameter name="hssi_8g_tx_pcs_tx_bitslip" value="dis_tx_bitslip" />
   <parameter name="anlg_tx_compensation_en" value="enable" />
@@ -740,7 +740,7 @@
   <parameter name="hssi_10g_tx_pcs_sh_err" value="sh_err_dis" />
   <parameter name="hssi_pipe_gen1_2_txswing" value="dis_txswing" />
   <parameter name="hssi_10g_tx_pcs_bonding_dft_val" value="dft_0" />
-  <parameter name="tx_pma_clk_div" value="1" />
+  <parameter name="tx_pma_clk_div" value="4" />
   <parameter name="enable_port_tx_std_pcfifo_full" value="0" />
   <parameter name="data_rate_bps" value="1250000000 bps" />
   <parameter name="pma_adapt_adp_dfe_fxtap_load" value="radp_dfe_fxtap_load_0" />
@@ -1367,7 +1367,7 @@
   <parameter name="l_std_tx_field_width" value="11" />
   <parameter name="cdr_pll_initial_settings" value="true" />
   <parameter name="pma_tx_ser_ser_clk_mon" value="disable_clk_mon" />
-  <parameter name="pma_tx_buf_xtx_path_tx_pll_clk_hz" value="625000000" />
+  <parameter name="pma_tx_buf_xtx_path_tx_pll_clk_hz" value="156250000" />
   <parameter name="anlg_tx_pre_emp_switching_ctrl_2nd_post_tap" value="0" />
   <parameter name="pma_cdr_refclk_xmux_refclk_src" value="refclk_iqclk" />
   <parameter name="pma_rx_buf_lfeq_enable" value="non_lfeq_mode" />
@@ -2112,7 +2112,7 @@
      value="dis_phystatus_rst_toggle" />
   <parameter name="pma_tx_buf_xtx_path_swing_level" value="lv" />
   <parameter name="pma_tx_buf_silicon_rev" value="20nm5es" />
-  <parameter name="pma_tx_buf_xtx_path_clock_divider_ratio" value="1" />
+  <parameter name="pma_tx_buf_xtx_path_clock_divider_ratio" value="4" />
   <parameter name="cdr_pll_f_min_vco" value="4900000000 Hz" />
   <parameter name="hssi_10g_tx_pcs_scrm_bypass" value="scrm_bypass_en" />
   <parameter name="hssi_common_pcs_pma_interface_early_eios_counter" value="0" />
@@ -2336,150 +2336,150 @@
      value="pipe_if_8gpcs" />
   <generatedFiles>
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_resync.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_resync.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_arbiter.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_arbiter.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pcs.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pcs.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pma.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pma.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_avmm.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_avmm.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_native.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_native.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_functions_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_functions_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/a10_avmm_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/a10_avmm_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_pipe_retry.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_pipe_retry.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_avmm_csr.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_avmm_csr.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_prbs_accum.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_prbs_accum.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_odi_accel.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_odi_accel.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_arb.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_arb.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_false_paths.sdc"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_false_paths.sdc"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_params_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_params_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_commands_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_commands_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_functions_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_functions_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_program.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_program.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_cpu.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_cpu.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_master.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_master.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_ip.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_ip.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/plain_files.txt"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/plain_files.txt"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_opt_logic_b7porpa.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_opt_logic_iwfuxyq.sv"
        attributes="" />
   </generatedFiles>
   <childGeneratedFiles>
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_resync.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_resync.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_arbiter.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_arbiter.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pcs.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pcs.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pma.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_pma.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_avmm.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_avmm.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_native.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/twentynm_xcvr_native.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_functions_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_functions_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/a10_avmm_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/a10_avmm_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_pipe_retry.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_pipe_retry.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_avmm_csr.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_avmm_csr.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_prbs_accum.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_prbs_accum.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_odi_accel.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_odi_accel.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_arb.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_arb.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_false_paths.sdc"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_a10_false_paths.sdc"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_params_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_params_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_commands_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_commands_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_functions_h.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_functions_h.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_program.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_program.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_cpu.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_cpu.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_master.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/pcie_mgmt_master.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_ip.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/altera_xcvr_native_pcie_dfe_ip.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/plain_files.txt"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/plain_files.txt"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq.sv"
        attributes="" />
    <file
-       path="/home/alex/workspace/a10_devel_after_sdc/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_opt_logic_b7porpa.sv"
+       path="/home/alex/workspace/a10_wrpc-4.2_cmu_pinning_fix_simple_wa/ip_cores/wr-cores/platform/altera/wr_arria10_e3p1_phy/wr_arria10_e3p1_det_phy/wr_arria10_e3p1_det_phy/altera_xcvr_native_a10_181/synth/alt_xcvr_native_rcfg_opt_logic_iwfuxyq.sv"
        attributes="" />
   </childGeneratedFiles>
   <sourceFiles>
@@ -2489,7 +2489,7 @@
   <childSourceFiles/>
   <instantiator instantiator="wr_arria10_e3p1_det_phy" as="xcvr_native_a10_0" />
   <messages>
-   <message level="Info" culprit="wr_arria10_e3p1_det_phy">"Generating: wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa"</message>
+   <message level="Info" culprit="wr_arria10_e3p1_det_phy">"Generating: wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq"</message>
    <message level="Info" culprit="xcvr_native_a10_0">add_fileset_file ./alt_xcvr_resync.sv SYSTEM_VERILOG PATH ../../../../altera_xcvr_generic/ctrl/alt_xcvr_resync.sv</message>
    <message level="Info" culprit="xcvr_native_a10_0">add_fileset_file ./alt_xcvr_arbiter.sv SYSTEM_VERILOG PATH ../../../../altera_xcvr_generic/ctrl/alt_xcvr_arbiter.sv</message>
    <message level="Info" culprit="xcvr_native_a10_0">add_fileset_file ./twentynm_pcs.sv SYSTEM_VERILOG PATH ../../../alt_xcvr_core/nf/twentynm_pcs.sv</message>

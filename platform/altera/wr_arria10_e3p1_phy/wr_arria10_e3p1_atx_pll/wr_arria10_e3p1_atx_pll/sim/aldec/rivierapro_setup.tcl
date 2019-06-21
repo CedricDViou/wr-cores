@@ -12,7 +12,7 @@
 # or its authorized distributors. Please refer to the applicable 
 # agreement for further details.
 
-# ACDS 18.1 625 linux 2019.02.13.16:44:36
+# ACDS 18.1 625 linux 2019.06.18.13:51:03
 # ----------------------------------------
 # Auto-generated simulation script rivierapro_setup.tcl
 # ----------------------------------------
@@ -113,7 +113,7 @@ if ![info exists QSYS_SIMDIR] {
 }
 
 if ![info exists QUARTUS_INSTALL_DIR] { 
-  set QUARTUS_INSTALL_DIR "/home/alex/workspace/optional/quartus18/quartus/"
+  set QUARTUS_INSTALL_DIR "/opt/quartus/18/quartus/"
 }
 
 if ![info exists USER_DEFINED_COMPILE_OPTIONS] { 
@@ -176,6 +176,22 @@ ensure_lib                   ./libraries/twentynm_hssi_ver
 vmap       twentynm_hssi_ver ./libraries/twentynm_hssi_ver
 ensure_lib                   ./libraries/twentynm_hip_ver 
 vmap       twentynm_hip_ver  ./libraries/twentynm_hip_ver 
+ensure_lib                   ./libraries/altera           
+vmap       altera            ./libraries/altera           
+ensure_lib                   ./libraries/lpm              
+vmap       lpm               ./libraries/lpm              
+ensure_lib                   ./libraries/sgate            
+vmap       sgate             ./libraries/sgate            
+ensure_lib                   ./libraries/altera_mf        
+vmap       altera_mf         ./libraries/altera_mf        
+ensure_lib                   ./libraries/altera_lnsim     
+vmap       altera_lnsim      ./libraries/altera_lnsim     
+ensure_lib                   ./libraries/twentynm         
+vmap       twentynm          ./libraries/twentynm         
+ensure_lib                   ./libraries/twentynm_hssi    
+vmap       twentynm_hssi     ./libraries/twentynm_hssi    
+ensure_lib                   ./libraries/twentynm_hip     
+vmap       twentynm_hip      ./libraries/twentynm_hip     
 ensure_lib                                                     ./libraries/altera_common_sv_packages                          
 vmap       altera_common_sv_packages                           ./libraries/altera_common_sv_packages                          
 ensure_lib                                                     ./libraries/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
@@ -196,38 +212,61 @@ alias dev_com {
   vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hssi_atoms.v"              -work twentynm_hssi_ver
   vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/aldec/twentynm_hip_atoms_ncrypt.v"  -work twentynm_hip_ver 
   vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hip_atoms.v"               -work twentynm_hip_ver 
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_syn_attributes.vhd"          -work altera           
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_standard_functions.vhd"      -work altera           
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/alt_dspbuilder_package.vhd"         -work altera           
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_europa_support_lib.vhd"      -work altera           
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives_components.vhd"   -work altera           
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_primitives.vhd"              -work altera           
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/220pack.vhd"                        -work lpm              
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/220model.vhd"                       -work lpm              
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate_pack.vhd"                     -work sgate            
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/sgate.vhd"                          -work sgate            
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf_components.vhd"           -work altera_mf        
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_mf.vhd"                      -work altera_mf        
+  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim.sv"                    -work altera_lnsim     
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/altera_lnsim_components.vhd"        -work altera_lnsim     
+  vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/aldec/twentynm_atoms_ncrypt.v"      -work twentynm         
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_atoms.vhd"                 -work twentynm         
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_components.vhd"            -work twentynm         
+  vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/aldec/twentynm_hssi_atoms_ncrypt.v" -work twentynm_hssi    
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hssi_components.vhd"       -work twentynm_hssi    
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hssi_atoms.vhd"            -work twentynm_hssi    
+  vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QUARTUS_INSTALL_DIR/eda/sim_lib/aldec/twentynm_hip_atoms_ncrypt.v"  -work twentynm_hip     
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hip_components.vhd"        -work twentynm_hip     
+  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS          "$QUARTUS_INSTALL_DIR/eda/sim_lib/twentynm_hip_atoms.vhd"             -work twentynm_hip     
 }
 
 # ----------------------------------------
 # Compile the design files in correct order
 alias com {
   echo "\[exec\] com"
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/altera_xcvr_native_a10_functions_h.sv"                                                       -work altera_common_sv_packages                          
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/twentynm_xcvr_avmm.sv"                                          -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_resync.sv"                                             -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_arbiter.sv"                                            -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_avmm_h.sv"                                                  -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_arb.sv"                                   -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_xcvr_atx_pll.sv"                                            -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_embedded_debug.sv"                                 -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_avmm_csr.sv"                                       -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_chk6tua.sv" -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS      "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_chk6tua.sv"                     -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
-  eval  vlog -v2k5 $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/wr_arria10_e3p1_atx_pll.v"                                                                                                                                                               
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/altera_xcvr_native_a10_functions_h.sv"                                                       -work altera_common_sv_packages                          
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/twentynm_xcvr_avmm.sv"                                          -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_resync.sv"                                             -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_arbiter.sv"                                            -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_avmm_h.sv"                                                  -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_arb.sv"                                   -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/a10_xcvr_atx_pll.sv"                                            -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_embedded_debug.sv"                                 -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_pll_avmm_csr.sv"                                       -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_lhyn27i.sv" -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vlog  $USER_DEFINED_VERILOG_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS "$QSYS_SIMDIR/../altera_xcvr_atx_pll_a10_181/sim/alt_xcvr_atx_pll_rcfg_opt_logic_lhyn27i.sv"                     -l altera_common_sv_packages -work wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181
+  eval  vcom $USER_DEFINED_VHDL_COMPILE_OPTIONS $USER_DEFINED_COMPILE_OPTIONS     "$QSYS_SIMDIR/wr_arria10_e3p1_atx_pll.vhd"                                                                                                                                                             
 }
 
 # ----------------------------------------
 # Elaborate top level design
 alias elab {
   echo "\[exec\] elab"
-  eval vsim +access +r -t ps $ELAB_OPTIONS -L work -L altera_common_sv_packages -L wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L twentynm_ver -L twentynm_hssi_ver -L twentynm_hip_ver $TOP_LEVEL_NAME
+  eval vsim +access +r -t ps $ELAB_OPTIONS -L work -L altera_common_sv_packages -L wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L twentynm_ver -L twentynm_hssi_ver -L twentynm_hip_ver -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L twentynm -L twentynm_hssi -L twentynm_hip $TOP_LEVEL_NAME
 }
 
 # ----------------------------------------
 # Elaborate the top level design with -dbg -O2 option
 alias elab_debug {
   echo "\[exec\] elab_debug"
-  eval vsim -dbg -O2 +access +r -t ps $ELAB_OPTIONS -L work -L altera_common_sv_packages -L wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L twentynm_ver -L twentynm_hssi_ver -L twentynm_hip_ver $TOP_LEVEL_NAME
+  eval vsim -dbg -O2 +access +r -t ps $ELAB_OPTIONS -L work -L altera_common_sv_packages -L wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 -L altera_ver -L lpm_ver -L sgate_ver -L altera_mf_ver -L altera_lnsim_ver -L twentynm_ver -L twentynm_hssi_ver -L twentynm_hip_ver -L altera -L lpm -L sgate -L altera_mf -L altera_lnsim -L twentynm -L twentynm_hssi -L twentynm_hip $TOP_LEVEL_NAME
 }
 
 # ----------------------------------------

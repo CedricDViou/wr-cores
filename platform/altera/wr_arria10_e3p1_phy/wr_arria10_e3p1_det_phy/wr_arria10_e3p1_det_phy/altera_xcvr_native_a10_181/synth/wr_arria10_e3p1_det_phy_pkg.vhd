@@ -3,7 +3,7 @@ use IEEE.std_logic_1164.all;
 use IEEE.numeric_std.all;
 
 package wr_arria10_e3p1_det_phy_pkg is
-	component wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa is
+	component wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq is
 		generic (
 			device_revision                                                        : string  := "20nm5es";
 			duplex_mode                                                            : string  := "duplex";
@@ -911,6 +911,6 @@ package wr_arria10_e3p1_det_phy_pkg is
 			pipe_rx_polarity          : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- pipe_rx_polarity
 			avmm_busy                 : out std_logic_vector(0 downto 0)                       -- avmm_busy
 		);
-	end component wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_b7porpa;
+	end component wr_arria10_e3p1_det_phy_altera_xcvr_native_a10_181_iwfuxyq;
 
 end wr_arria10_e3p1_det_phy_pkg;

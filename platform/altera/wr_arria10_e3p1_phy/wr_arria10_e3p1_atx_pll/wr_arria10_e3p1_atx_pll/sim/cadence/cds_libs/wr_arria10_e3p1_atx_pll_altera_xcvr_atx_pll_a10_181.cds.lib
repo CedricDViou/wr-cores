@@ -13,9 +13,16 @@ DEFINE altera_ver                                          ./../libraries/altera
 DEFINE lpm_ver                                             ./../libraries/lpm_ver/                                            
 DEFINE sgate_ver                                           ./../libraries/sgate_ver/                                          
 DEFINE altera_mf_ver                                       ./../libraries/altera_mf_ver/                                      
-DEFINE altera_lnsim_ver                                    ./../libraries/altera_lnsim_ver/                                   
 DEFINE twentynm_ver                                        ./../libraries/twentynm_ver/                                       
 DEFINE twentynm_hssi_ver                                   ./../libraries/twentynm_hssi_ver/                                  
 DEFINE twentynm_hip_ver                                    ./../libraries/twentynm_hip_ver/                                   
+DEFINE altera                                              ./../libraries/altera/                                             
+DEFINE lpm                                                 ./../libraries/lpm/                                                
+DEFINE sgate                                               ./../libraries/sgate/                                              
+DEFINE altera_mf                                           ./../libraries/altera_mf/                                          
+DEFINE altera_lnsim                                        ./../libraries/altera_lnsim/                                       
+DEFINE twentynm                                            ./../libraries/twentynm/                                           
+DEFINE twentynm_hssi                                       ./../libraries/twentynm_hssi/                                      
+DEFINE twentynm_hip                                        ./../libraries/twentynm_hip/                                       
 DEFINE altera_common_sv_packages                           ./../libraries/altera_common_sv_packages/                          
 DEFINE wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181 ./../libraries/wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181/

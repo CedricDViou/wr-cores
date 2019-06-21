@@ -22,6 +22,7 @@
 		.rx_patterndetect          (<connected-to-rx_patterndetect>),          //          rx_patterndetect.rx_patterndetect
 		.rx_runningdisp            (<connected-to-rx_runningdisp>),            //            rx_runningdisp.rx_runningdisp
 		.rx_serial_data            (<connected-to-rx_serial_data>),            //            rx_serial_data.rx_serial_data
+		.rx_seriallpbken           (<connected-to-rx_seriallpbken>),           //           rx_seriallpbken.rx_seriallpbken
 		.rx_std_bitslipboundarysel (<connected-to-rx_std_bitslipboundarysel>), // rx_std_bitslipboundarysel.rx_std_bitslipboundarysel
 		.rx_std_wa_patternalign    (<connected-to-rx_std_wa_patternalign>),    //    rx_std_wa_patternalign.rx_std_wa_patternalign
 		.rx_syncstatus             (<connected-to-rx_syncstatus>),             //             rx_syncstatus.rx_syncstatus
@@ -35,7 +36,6 @@
 		.tx_serial_clk0            (<connected-to-tx_serial_clk0>),            //            tx_serial_clk0.clk
 		.tx_serial_data            (<connected-to-tx_serial_data>),            //            tx_serial_data.tx_serial_data
 		.unused_rx_parallel_data   (<connected-to-unused_rx_parallel_data>),   //   unused_rx_parallel_data.unused_rx_parallel_data
-		.unused_tx_parallel_data   (<connected-to-unused_tx_parallel_data>),   //   unused_tx_parallel_data.unused_tx_parallel_data
-		.rx_seriallpbken           (<connected-to-rx_seriallpbken>)            //           rx_seriallpbken.rx_seriallpbken
+		.unused_tx_parallel_data   (<connected-to-unused_tx_parallel_data>)    //   unused_tx_parallel_data.unused_tx_parallel_data
 	);
 
