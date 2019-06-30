@@ -149,7 +149,7 @@ entity wr_softpll_ng is
     wb_ack_o   : out std_logic;
     wb_stall_o : out std_logic;
     wb_irq_o   : out std_logic;
-    debug_o    : out std_logic_vector(5 downto 0);
+    -- debug_o    : out std_logic_vector(5 downto 0);
 
 -- Debug FIFO readout interrupt
     dbg_fifo_irq_o : out std_logic
@@ -475,9 +475,9 @@ begin  -- rtl
 
   gen_with_ext_clock_input : if(g_with_ext_clock_input) generate
 
-		debug_o(0) <= fb_resync_out(0);
-		debug_o(1) <= tags_p(g_num_ref_inputs + g_num_outputs);
-		debug_o(2) <= tags_p(g_num_ref_inputs);
+		-- debug_o(0) <= fb_resync_out(0);
+		-- debug_o(1) <= tags_p(g_num_ref_inputs + g_num_outputs);
+		-- debug_o(2) <= tags_p(g_num_ref_inputs);
     
     U_DMTD_EXT : dmtd_with_deglitcher
       generic map (
@@ -503,9 +503,10 @@ begin  -- rtl
         shift_en_i   => '0',
         shift_dir_i  => '0',
 
-        deglitch_threshold_i => deglitch_thr_slv,
-        dbg_dmtdout_o        => debug_o(3),
-				dbg_clk_d3_o         => debug_o(5));
+        deglitch_threshold_i => deglitch_thr_slv
+        -- dbg_dmtdout_o        => debug_o(3),
+				-- dbg_clk_d3_o         => debug_o(5)
+        );
 
     U_Aligner_EXT : spll_aligner
       generic map (

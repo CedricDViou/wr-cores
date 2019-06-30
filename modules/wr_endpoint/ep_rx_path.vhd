@@ -107,9 +107,9 @@ entity ep_rx_path is
     rtu_rq_o       : out t_ep_internal_rtu_request;
     rtu_full_i     : in  std_logic;
     rtu_rq_valid_o : out std_logic;
-    rtu_rq_abort_o : out std_logic;
+    rtu_rq_abort_o : out std_logic
 
-    nice_dbg_o     : out t_dbg_ep_rxpath
+    -- nice_dbg_o     : out t_dbg_ep_rxpath
     );
 end ep_rx_path;
 
@@ -307,8 +307,8 @@ begin  -- behavioral
       dreq_i           => dreq_pipe(3),
       fab_i            => fab_pipe(2),
       fab_o            => fab_pipe(3),
-      full_o           => nice_dbg_o.pcs_fifo_full,
-      empty_o          => nice_dbg_o.pcs_fifo_empty,
+      full_o           => open, --nice_dbg_o.pcs_fifo_full,
+      empty_o          => open, --nice_dbg_o.pcs_fifo_empty,
       almostfull_o     => pcs_fifo_almostfull,
       pass_threshold_i => std_logic_vector(to_unsigned(32, 7)));  -- fixme: add
                                                                   -- register
@@ -476,13 +476,13 @@ begin  -- behavioral
   rmon_o.rx_tclass(6) <= rtu_rq_valid when (vlan_tclass = "110" and vlan_is_tagged = '1') else '0';
   rmon_o.rx_tclass(7) <= rtu_rq_valid when (vlan_tclass = "111" and vlan_is_tagged = '1') else '0';
 
-  GEN_DBG: for i in 0 to 9 generate
-    nice_dbg_o.fab_pipe(i) <= fab_pipe(i);
-    nice_dbg_o.dreq_pipe(i)<= dreq_pipe(i);
-  end generate GEN_DBG;
+--  GEN_DBG: for i in 0 to 9 generate
+--    nice_dbg_o.fab_pipe(i) <= fab_pipe(i);
+--    nice_dbg_o.dreq_pipe(i)<= dreq_pipe(i);
+--  end generate GEN_DBG;
 
-  nice_dbg_o.pcs_fifo_afull <= pcs_fifo_almostfull;
-  nice_dbg_o.rxbuf_full <= rxbuf_full;
+--  nice_dbg_o.pcs_fifo_afull <= pcs_fifo_almostfull;
+--  nice_dbg_o.rxbuf_full <= rxbuf_full;
 
   process(clk_sys_i)
   begin

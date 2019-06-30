@@ -270,10 +270,11 @@ package endpoint_pkg is
       led_act_o            : out std_logic;
       link_kill_i          : in  std_logic                     := '0';
       link_up_o            : out std_logic;
-      stop_traffic_i       : in std_logic := '0';
-      dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
-      dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
-      nice_dbg_o  : out t_dbg_ep);
+      stop_traffic_i       : in std_logic := '0'
+      -- dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
+      -- dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0)
+      -- nice_dbg_o  : out t_dbg_ep
+      );
   end component;
 
   component wr_endpoint
@@ -395,10 +396,11 @@ package endpoint_pkg is
       led_act_o            : out std_logic;
       link_kill_i          : in  std_logic                     := '0';
       link_up_o            : out std_logic;
-      stop_traffic_i       : in std_logic := '0';
-      dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
-      dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
-      nice_dbg_o  : out t_dbg_ep);
+      stop_traffic_i       : in std_logic := '0'
+      -- dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
+      -- dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
+      -- nice_dbg_o  : out t_dbg_ep
+      );
   end component;
   
   constant c_xwr_endpoint_sdb : t_sdb_device := (

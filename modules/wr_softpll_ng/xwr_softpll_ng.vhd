@@ -127,7 +127,7 @@ entity xwr_softpll_ng is
     slave_i : in  t_wishbone_slave_in;
     slave_o : out t_wishbone_slave_out;
 
-    debug_o        : out std_logic_vector(5 downto 0);
+    -- debug_o        : out std_logic_vector(5 downto 0);
     dbg_fifo_irq_o : out std_logic
     );
 
@@ -179,7 +179,7 @@ architecture wrapper of xwr_softpll_ng is
       wb_ack_o        : out std_logic;
       wb_stall_o      : out std_logic;
       wb_irq_o        : out std_logic;
-      debug_o         : out std_logic_vector(5 downto 0);
+      -- debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
   
@@ -229,7 +229,7 @@ begin  -- behavioral
       wb_ack_o        => slave_o.ack,
       wb_stall_o      => slave_o.stall,
       wb_irq_o        => slave_o.int,
-      debug_o         => debug_o,
+      -- debug_o         => debug_o,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 
   slave_o.err <= '0';

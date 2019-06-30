@@ -294,11 +294,11 @@ entity wr_endpoint is
 -- (e.g.: cable disconnected)
     link_up_o : out std_logic;
 
-    stop_traffic_i : in std_logic := '0';
+    stop_traffic_i : in std_logic := '0'
 
-    dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
-    dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
-    nice_dbg_o  : out t_dbg_ep
+    -- dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
+    -- dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
+    -- nice_dbg_o  : out t_dbg_ep
     );
 
 end wr_endpoint;
@@ -547,10 +547,11 @@ begin
       mdio_data_o  => regs_towb_ep.mdio_asr_rdata_i,
       mdio_stb_i   => regs_fromwb.mdio_cr_data_wr_o,
       mdio_rw_i    => regs_fromwb.mdio_cr_rw_o,
-      mdio_ready_o => regs_towb_ep.mdio_asr_ready_i,
-      dbg_tx_pcs_wr_count_o => dbg_tx_pcs_wr_count_o,
-      dbg_tx_pcs_rd_count_o => dbg_tx_pcs_rd_count_o,
-      nice_dbg_o   => nice_dbg_o.pcs);
+      mdio_ready_o => regs_towb_ep.mdio_asr_ready_i
+      -- dbg_tx_pcs_wr_count_o => dbg_tx_pcs_wr_count_o,
+      -- dbg_tx_pcs_rd_count_o => dbg_tx_pcs_rd_count_o,
+      -- nice_dbg_o   => nice_dbg_o.pcs
+      );
 
 
 -------------------------------------------------------------------------------
@@ -658,8 +659,9 @@ begin
       rtu_rq_valid_o => rtu_rq_strobe_p1_o,
       rtu_rq_abort_o => rtu_rq_abort_o,
       src_wb_o       => src_out,
-      src_wb_i       => src_in,
-      nice_dbg_o     => nice_dbg_o.rxpath);
+      src_wb_i       => src_in
+      -- nice_dbg_o     => nice_dbg_o.rxpath
+      );
 
 
   rtu_rq_smac_o     <= rtu_rq.smac;

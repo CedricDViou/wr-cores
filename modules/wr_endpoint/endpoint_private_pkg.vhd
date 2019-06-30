@@ -160,10 +160,11 @@ package endpoint_private_pkg is
       mdio_data_o                   : out std_logic_vector(15 downto 0);
       mdio_stb_i                    : in  std_logic;
       mdio_rw_i                     : in  std_logic;
-      mdio_ready_o                  : out std_logic;
-      dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
-      dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
-      nice_dbg_o  : out t_dbg_ep_pcs);
+      mdio_ready_o                  : out std_logic
+      -- dbg_tx_pcs_wr_count_o     : out std_logic_vector(5+4 downto 0);
+      -- dbg_tx_pcs_rd_count_o     : out std_logic_vector(5+4 downto 0);
+      -- nice_dbg_o  : out t_dbg_ep_pcs
+      );
   end component;
 
   component ep_tx_pcs_8bit
@@ -271,8 +272,9 @@ package endpoint_private_pkg is
       an_idle_match_o            : out std_logic;
       rmon_rx_overrun            : out std_logic;
       rmon_rx_inv_code           : out std_logic;
-      rmon_rx_sync_lost          : out std_logic;
-      nice_dbg_o                 : out t_dbg_ep_rxpcs);
+      rmon_rx_sync_lost          : out std_logic
+      -- nice_dbg_o                 : out t_dbg_ep_rxpcs
+      );
   end component;
 
   component ep_autonegotiation
@@ -684,8 +686,9 @@ package endpoint_private_pkg is
       rtu_rq_o               : out t_ep_internal_rtu_request;
       rtu_full_i             : in  std_logic;
       rtu_rq_valid_o         : out std_logic;
-      rtu_rq_abort_o         : out std_logic;
-      nice_dbg_o             : out t_dbg_ep_rxpath);
+      rtu_rq_abort_o         : out std_logic
+      -- nice_dbg_o             : out t_dbg_ep_rxpath
+      );
   end component;
 
   component ep_tx_path

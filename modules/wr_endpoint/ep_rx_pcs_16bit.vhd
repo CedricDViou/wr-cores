@@ -104,9 +104,9 @@ entity ep_rx_pcs_16bit is
     -- RMON events
     rmon_rx_overrun   : out std_logic;
     rmon_rx_inv_code  : out std_logic;
-    rmon_rx_sync_lost : out std_logic;
+    rmon_rx_sync_lost : out std_logic
      
-    nice_dbg_o  : out t_dbg_ep_rxpcs
+    -- nice_dbg_o  : out t_dbg_ep_rxpcs
     );
 
 end ep_rx_pcs_16bit;
@@ -749,12 +749,12 @@ begin
 
   pcs_fab_o.rx_timestamp_valid <= timestamp_valid_i;
 
-  nice_dbg_o.fsm <= "000" when (rx_state = RX_NOFRAME) else
-                    "001" when (rx_state = RX_CR) else
-                    "010" when (rx_state = RX_SPD_PREAMBLE) else
-                    "011" when (rx_state = RX_PAYLOAD) else
-                    "100" when (rx_state = RX_EXTEND) else
-                    "111";
+  -- nice_dbg_o.fsm <= "000" when (rx_state = RX_NOFRAME) else
+  --                   "001" when (rx_state = RX_CR) else
+  --                   "010" when (rx_state = RX_SPD_PREAMBLE) else
+  --                   "011" when (rx_state = RX_PAYLOAD) else
+  --                   "100" when (rx_state = RX_EXTEND) else
+  --                   "111";
 
 end behavioral;
 
