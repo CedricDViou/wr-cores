@@ -175,6 +175,35 @@ peripheral {
         align = 13;
       };
 
+      field {
+        name = "PLL_RESET";
+        prefix = "pll_reset";
+        description = "write 1: Reset PLL";
+        type = MONOSTABLE;
+        align = 14;
+      };
+      
+      field {
+        name = "PLL_LOCK";
+        prefix = "pll_lock";
+        description = "read : current status of the pll_lock line";
+        type = BIT;
+        access_bus = READ_ONLY;
+        access_dev = WRITE_ONLY;
+        load = LOAD_EXT;
+        align = 15;
+      };
+      
+      field {
+        name = "PLL_STATUS";
+        prefix = "pll_status";
+        description = "read : current status of the pll_status line";
+        type = BIT;
+        access_bus = READ_ONLY;
+        access_dev = WRITE_ONLY;
+        load = LOAD_EXT;
+        align = 16;
+      };
    };
 
    reg {
@@ -251,6 +280,13 @@ peripheral {
         align = 12;
       };
 
+      field {
+         name = "PLL_RESET";
+         prefix = "pll_reset";
+         description = "write 1: Remove Reset PLL.";
+         type = MONOSTABLE;
+         align = 14;
+      };
    };
 
    reg {

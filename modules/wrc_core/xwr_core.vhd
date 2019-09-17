@@ -138,6 +138,19 @@ entity xwr_core is
     dac_dpll_data_o    : out std_logic_vector(15 downto 0);
 
     -----------------------------------------
+    -- AD9516 PLL Control signals
+    -----------------------------------------
+    pll_status_i       : in  std_logic;
+    pll_mosi_o         : out std_logic;
+    pll_miso_i         : in  std_logic;
+    pll_sck_o          : out std_logic;
+    pll_cs_n_o         : out std_logic;
+    pll_sync_n_o       : out std_logic;
+    pll_reset_n_o      : out std_logic;
+    pll_refsel_o       : out std_logic;
+    pll_lock_i         : in  std_logic;
+
+    -----------------------------------------
     -- PHY I/f
     -----------------------------------------
     phy_ref_clk_i : in std_logic;
@@ -319,6 +332,16 @@ begin
       dac_dpll_load_p1_o   => dac_dpll_load_p1_o,
       dac_dpll_data_o      => dac_dpll_data_o,
 
+      pll_status_i         => pll_status_i,
+      pll_mosi_o           => pll_mosi_o,
+      pll_miso_i           => pll_miso_i,
+      pll_sck_o            => pll_sck_o,
+      pll_cs_n_o           => pll_cs_n_o,
+      pll_sync_n_o         => pll_sync_n_o,
+      pll_reset_n_o        => pll_reset_n_o,
+      pll_refsel_o         => pll_refsel_o,
+      pll_lock_i           => pll_lock_i,
+ 
       phy_ref_clk_i        => phy_ref_clk_i,
       phy_tx_data_o        => phy_tx_data_o,
       phy_tx_k_o           => phy_tx_k_o,

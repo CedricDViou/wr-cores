@@ -142,6 +142,15 @@ package wr_board_pkg is
       dac_hpll_data_o      : out std_logic_vector(15 downto 0);
       dac_dpll_load_p1_o   : out std_logic;
       dac_dpll_data_o      : out std_logic_vector(15 downto 0);
+      pll_status_i         : in  std_logic := '0';
+      pll_mosi_o           : out std_logic;
+      pll_miso_i           : in  std_logic := '0';
+      pll_sck_o            : out std_logic;
+      pll_cs_n_o           : out std_logic;
+      pll_sync_n_o         : out std_logic;
+      pll_reset_n_o        : out std_logic;
+      pll_refsel_o         : out std_logic;
+      pll_lock_i           : in  std_logic := '0';
       phy8_o               : out t_phy_8bits_from_wrc;
       phy8_i               : in  t_phy_8bits_to_wrc                               := c_dummy_phy8_to_wrc;
       phy16_o              : out t_phy_16bits_from_wrc;

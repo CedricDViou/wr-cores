@@ -256,35 +256,44 @@ package wrcore_pkg is
       g_diag_rw_size    : integer := 0
       );
     port(
-      clk_sys_i   : in  std_logic;
-      rst_n_i     : in  std_logic;
-      rst_net_n_o : out std_logic;
-      rst_wrc_n_o : out std_logic;
-      led_red_o   : out std_logic;
-      led_green_o : out std_logic;
-      scl_o       : out std_logic;
-      scl_i       : in  std_logic;
-      sda_o       : out std_logic;
-      sda_i       : in  std_logic;
-      sfp_scl_o   : out std_logic;
-      sfp_scl_i   : in  std_logic;
-      sfp_sda_o   : out std_logic;
-      sfp_sda_i   : in  std_logic;
-      sfp_det_i   : in  std_logic;
-      memsize_i   : in  std_logic_vector(3 downto 0);
-      btn1_i      : in  std_logic;
-      btn2_i      : in  std_logic;
-      spi_sclk_o  : out std_logic;
-      spi_ncs_o   : out std_logic;
-      spi_mosi_o  : out std_logic;
-      spi_miso_i  : in  std_logic;
-      slave_i     : in  t_wishbone_slave_in_array(0 to 3);
-      slave_o     : out t_wishbone_slave_out_array(0 to 3);
-      uart_rxd_i  : in  std_logic;
-      uart_txd_o  : out std_logic;
-      owr_pwren_o : out std_logic_vector(1 downto 0);
-      owr_en_o    : out std_logic_vector(1 downto 0);
-      owr_i       : in  std_logic_vector(1 downto 0);
+      clk_sys_i      : in  std_logic;
+      rst_n_i        : in  std_logic;
+      rst_net_n_o    : out std_logic;
+      rst_wrc_n_o    : out std_logic;
+      led_red_o      : out std_logic;
+      led_green_o    : out std_logic;
+      scl_o          : out std_logic;
+      scl_i          : in  std_logic;
+      sda_o          : out std_logic;
+      sda_i          : in  std_logic;
+      sfp_scl_o      : out std_logic;
+      sfp_scl_i      : in  std_logic;
+      sfp_sda_o      : out std_logic;
+      sfp_sda_i      : in  std_logic;
+      sfp_det_i      : in  std_logic;
+      memsize_i      : in  std_logic_vector(3 downto 0);
+      btn1_i         : in  std_logic;
+      btn2_i         : in  std_logic;
+      spi_sclk_o     : out std_logic;
+      spi_ncs_o      : out std_logic;
+      spi_mosi_o     : out std_logic;
+      spi_miso_i     : in  std_logic;
+      pll_status_i   : in  std_logic := '0';
+      pll_mosi_o     : out std_logic;
+      pll_miso_i     : in  std_logic := '0';
+      pll_sck_o      : out std_logic;
+      pll_cs_n_o     : out std_logic;
+      pll_sync_n_o   : out std_logic;
+      pll_reset_n_o  : out std_logic;
+      pll_refsel_o   : out std_logic;
+      pll_lock_i     : in  std_logic;
+      slave_i        : in  t_wishbone_slave_in_array(0 to 4);
+      slave_o        : out t_wishbone_slave_out_array(0 to 4);
+      uart_rxd_i     : in  std_logic;
+      uart_txd_o     : out std_logic;
+      owr_pwren_o    : out std_logic_vector(1 downto 0);
+      owr_en_o       : out std_logic_vector(1 downto 0);
+      owr_i          : in  std_logic_vector(1 downto 0);
       diag_array_in  : in  t_generic_word_array(g_diag_ro_size-1 downto 0);
       diag_array_out : out t_generic_word_array(g_diag_rw_size-1 downto 0)
       );
@@ -401,6 +410,17 @@ package wrcore_pkg is
       dac_hpll_data_o      : out std_logic_vector(15 downto 0);
       dac_dpll_load_p1_o   : out std_logic;
       dac_dpll_data_o      : out std_logic_vector(15 downto 0);
+
+      pll_status_i         : in  std_logic := '0';
+      pll_mosi_o           : out std_logic;
+      pll_miso_i           : in  std_logic := '0';
+      pll_sck_o            : out std_logic;
+      pll_cs_n_o           : out std_logic;
+      pll_sync_n_o         : out std_logic;
+      pll_reset_n_o        : out std_logic;
+      pll_refsel_o         : out std_logic;
+      pll_lock_i           : in  std_logic := '0';
+
       -----------------------------------------
       -- PHY I/f
       -----------------------------------------
@@ -603,23 +623,32 @@ package wrcore_pkg is
       -----------------------------------------
       --GPIO
       -----------------------------------------
-      led_act_o  : out std_logic;
-      led_link_o : out std_logic;
-      scl_o      : out std_logic;
-      scl_i      : in  std_logic := '1';
-      sda_o      : out std_logic;
-      sda_i      : in  std_logic := '1';
-      sfp_scl_o  : out std_logic;
-      sfp_scl_i  : in  std_logic := '1';
-      sfp_sda_o  : out std_logic;
-      sfp_sda_i  : in  std_logic := '1';
-      sfp_det_i  : in  std_logic := '1';
-      btn1_i     : in  std_logic := '1';
-      btn2_i     : in  std_logic := '1';
-      spi_sclk_o : out std_logic;
-      spi_ncs_o  : out std_logic;
-      spi_mosi_o : out std_logic;
-      spi_miso_i : in  std_logic := '0';
+      led_act_o     : out std_logic;
+      led_link_o    : out std_logic;
+      scl_o         : out std_logic;
+      scl_i         : in  std_logic := '1';
+      sda_o         : out std_logic;
+      sda_i         : in  std_logic := '1';
+      sfp_scl_o     : out std_logic;
+      sfp_scl_i     : in  std_logic := '1';
+      sfp_sda_o     : out std_logic;
+      sfp_sda_i     : in  std_logic := '1';
+      sfp_det_i     : in  std_logic := '1';
+      btn1_i        : in  std_logic := '1';
+      btn2_i        : in  std_logic := '1';
+      spi_sclk_o    : out std_logic;
+      spi_ncs_o     : out std_logic;
+      spi_mosi_o    : out std_logic;
+      spi_miso_i    : in  std_logic := '0';
+      pll_status_i  : in  std_logic := '0';
+      pll_mosi_o    : out std_logic;
+      pll_miso_i    : in  std_logic := '0';
+      pll_sck_o     : out std_logic;
+      pll_cs_n_o    : out std_logic;
+      pll_sync_n_o  : out std_logic;
+      pll_reset_n_o : out std_logic;
+      pll_refsel_o  : out std_logic;
+      pll_lock_i    : in  std_logic := '0';
 
       -----------------------------------------
       --UART

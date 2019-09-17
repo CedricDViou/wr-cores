@@ -119,6 +119,20 @@ entity xwrc_board_spec7 is
     dac_dmtd_sclk_o   : out std_logic;
     dac_dmtd_din_o    : out std_logic;
 
+    -------------------------------------------------------------------------------
+    -- AD9516 PLL Control signals
+    -------------------------------------------------------------------------------    
+
+    pll_status_i      : in  std_logic := '0';
+    pll_mosi_o        : out std_logic;
+    pll_miso_i        : in  std_logic := '0';
+    pll_sck_o         : out std_logic;
+    pll_cs_n_o        : out std_logic;
+    pll_sync_n_o      : out std_logic;
+    pll_reset_n_o     : out std_logic;
+    pll_refsel_o      : out std_logic;
+    pll_lock_i        : in  std_logic := '0';
+
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver and SFP management info
     ---------------------------------------------------------------------------
@@ -468,6 +482,15 @@ begin  -- architecture struct
       dac_hpll_data_o      => dac_dmtd_data,
       dac_dpll_load_p1_o   => dac_refclk_load,
       dac_dpll_data_o      => dac_refclk_data,
+      pll_status_i         => pll_status_i,
+      pll_mosi_o           => pll_mosi_o,
+      pll_miso_i           => pll_miso_i,
+      pll_sck_o            => pll_sck_o,
+      pll_cs_n_o           => pll_cs_n_o,
+      pll_sync_n_o         => pll_sync_n_o,
+      pll_reset_n_o        => pll_reset_n_o,
+      pll_refsel_o         => pll_refsel_o,
+      pll_lock_i           => pll_lock_i,
       phy16_o              => phy16_from_wrc,
       phy16_i              => phy16_to_wrc,
       scl_o                => eeprom_scl_o,

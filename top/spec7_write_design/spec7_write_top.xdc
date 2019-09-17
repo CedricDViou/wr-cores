@@ -68,6 +68,29 @@ set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
 set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
 
+#   -------------------------------------------------------------------------------
+#   -- AD9516 PLL Control signals
+#   -------------------------------------------------------------------------------    
+# Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN B11 [get_ports pll_status_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_status_i]
+set_property PACKAGE_PIN B12 [get_ports pll_mosi_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_mosi_o]
+set_property PACKAGE_PIN C11 [get_ports pll_miso_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_miso_i]
+set_property PACKAGE_PIN A15 [get_ports pll_sck_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_sck_o]
+set_property PACKAGE_PIN A14 [get_ports pll_cs_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_cs_n_o]
+set_property PACKAGE_PIN B14 [get_ports pll_sync_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_sync_n_o]
+set_property PACKAGE_PIN C12 [get_ports pll_reset_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_reset_n_o]
+set_property PACKAGE_PIN C14 [get_ports pll_refsel_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_refsel_o]
+set_property PACKAGE_PIN A12 [get_ports pll_lock_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_lock_i]
+
 #   ---------------------------------------------------------------------------
 #   -- SFP I/O for transceiver
 #   ---------------------------------------------------------------------------

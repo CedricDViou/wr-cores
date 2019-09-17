@@ -81,8 +81,8 @@ entity spec7_write_top is
     clk_125m_dmtd_p_i : in std_logic;             -- 124.992 MHz PLL reference
     clk_125m_dmtd_n_i : in std_logic;
 
-    clk_125m_gtx_n_i : in std_logic;              -- 125 MHz GTX reference (either from WR
-    clk_125m_gtx_p_i : in std_logic;              -- Oscillators of stable external oscillator)
+    clk_125m_gtx_n_i  : in std_logic;             -- 125 MHz GTX reference (either from WR
+    clk_125m_gtx_p_i  : in std_logic;             -- Oscillators of stable external oscillator)
 
     ---------------------------------------------------------------------------
     -- SPI interface to DACs
@@ -96,6 +96,20 @@ entity spec7_write_top is
     dac_dmtd_sclk_o   : out std_logic;
     dac_dmtd_din_o    : out std_logic;
 
+    -------------------------------------------------------------------------------
+    -- AD9516 PLL Control signals
+    -------------------------------------------------------------------------------    
+
+    pll_status_i      : in  std_logic;
+    pll_mosi_o        : out std_logic;
+    pll_miso_i        : in  std_logic;
+    pll_sck_o         : out std_logic;
+    pll_cs_n_o        : out std_logic;
+    pll_sync_n_o      : out std_logic;
+    pll_reset_n_o     : out std_logic;
+    pll_refsel_o      : out std_logic;
+    pll_lock_i        : in  std_logic;
+    
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver
     ---------------------------------------------------------------------------
@@ -288,6 +302,16 @@ begin  -- architecture top
       dac_dmtd_cs_n_o     => dac_dmtd_cs_n_o,
       dac_dmtd_sclk_o     => dac_dmtd_sclk_o, 
       dac_dmtd_din_o      => dac_dmtd_din_o, 
+
+      pll_status_i        => pll_status_i,
+      pll_mosi_o          => pll_mosi_o,
+      pll_miso_i          => pll_miso_i,
+      pll_sck_o           => pll_sck_o,
+      pll_cs_n_o          => pll_cs_n_o,
+      pll_sync_n_o        => pll_sync_n_o,
+      pll_reset_n_o       => pll_reset_n_o,
+      pll_refsel_o        => pll_refsel_o,
+      pll_lock_i          => pll_lock_i,
 
       sfp_txp_o           => sfp_txp_o,
       sfp_txn_o           => sfp_txn_o,

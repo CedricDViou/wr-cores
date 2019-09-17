@@ -86,8 +86,19 @@ entity wrc_periph is
     spi_mosi_o  : out std_logic;
     spi_miso_i  : in  std_logic;
 
-    slave_i : in  t_wishbone_slave_in_array(0 to 3);
-    slave_o : out t_wishbone_slave_out_array(0 to 3);
+    -- AD9516 signals
+    pll_status_i  : in  std_logic;
+    pll_mosi_o    : out std_logic;
+    pll_miso_i    : in  std_logic;
+    pll_sck_o     : out std_logic;
+    pll_cs_n_o    : out std_logic;
+    pll_sync_n_o  : out std_logic;
+    pll_reset_n_o : out std_logic;
+    pll_refsel_o  : out std_logic;
+    pll_lock_i    : in  std_logic;
+
+    slave_i : in  t_wishbone_slave_in_array(0 to 4);
+    slave_o : out t_wishbone_slave_out_array(0 to 4);
 
     uart_rxd_i : in  std_logic;
     uart_txd_o : out std_logic;
@@ -515,5 +526,43 @@ begin
    wrpc_diag_regs_in.wdiag_setp_i              <= sysc_regs_o.wdiag_setp_o;
    wrpc_diag_regs_in.wdiag_ucnt_i              <= sysc_regs_o.wdiag_ucnt_o;
    wrpc_diag_regs_in.wdiag_temp_i              <= sysc_regs_o.wdiag_temp_o;
+
+   -------------------------------------------------------------------------------
+   -- AD9516 PLL Control signals
+   -------------------------------------------------------------------------------    
+
+   U_SPI_Master : xwb_spi
+     generic map (
+       g_interface_mode      => PIPELINED,
+       g_address_granularity => BYTE,
+       g_divider_len         => 8,
+       g_max_char_len        => 24,
+       g_num_slaves          => 1)
+     port map (
+       clk_sys_i            => clk_sys_i,
+       rst_n_i              => rst_n_i,
+       slave_i              => slave_i(4),
+       slave_o              => slave_o(4),
+       desc_o               => open,
+       pad_cs_o(0)          => pll_cs_n_o,
+       pad_sclk_o           => pll_sck_o,
+       pad_mosi_o           => pll_mosi_o,
+       pad_miso_i           => pll_miso_i);
+
+   process(clk_sys_i)
+   begin
+     if rising_edge(clk_sys_i) then
+       if(sysc_regs_o.gpsr_pll_reset_o = '1') then
+         pll_reset_n_o <= '0';
+       elsif(sysc_regs_o.gpcr_pll_reset_o = '1') then
+         pll_reset_n_o <= '1';
+       end if;
+       sysc_regs_i.gpsr_pll_lock_i <= pll_lock_i;
+       sysc_regs_i.gpsr_pll_status_i <= pll_status_i;
+     end if;
+   end process;
+
+   pll_sync_n_o  <= '1';  -- Not Used by AD9516, default drive '1'
+   pll_refsel_o  <= '0';  -- Not Used by AD9516, default drive '0'
 
 end struct;

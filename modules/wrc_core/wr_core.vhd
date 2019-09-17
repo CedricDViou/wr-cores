@@ -54,6 +54,7 @@
 --      +0x600: OneWire
 --      +0x700: Auxillary space (Etherbone config, etc)
 --      +0x800: WRPC diagnostics registers
+--      +0x900: SPI master (to PLL, SPEC7)
 
 library ieee;
 use ieee.std_logic_1164.all;
@@ -137,6 +138,17 @@ entity wr_core is
 
     dac_dpll_load_p1_o : out std_logic;
     dac_dpll_data_o    : out std_logic_vector(15 downto 0);
+
+    -- AD9516 signals
+    pll_status_i  : in  std_logic;
+    pll_mosi_o    : out std_logic;
+    pll_miso_i    : in  std_logic;
+    pll_sck_o     : out std_logic;
+    pll_cs_n_o    : out std_logic;
+    pll_sync_n_o  : out std_logic;
+    pll_reset_n_o : out std_logic;
+    pll_refsel_o  : out std_logic;
+    pll_lock_i    : in  std_logic;
 
     -- PHY I/f
     phy_ref_clk_i : in std_logic;
@@ -415,15 +427,15 @@ architecture struct of wr_core is
   -----------------------------------------------------------------------------
   --WB Peripherials
   -----------------------------------------------------------------------------
-  signal periph_slave_i : t_wishbone_slave_in_array(0 to 3);
-  signal periph_slave_o : t_wishbone_slave_out_array(0 to 3);
+  signal periph_slave_i : t_wishbone_slave_in_array(0 to 4);
+  signal periph_slave_o : t_wishbone_slave_out_array(0 to 4);
   signal sysc_in_regs   : t_sysc_in_registers;
   signal sysc_out_regs  : t_sysc_out_registers;
 
   -----------------------------------------------------------------------------
   --WB Secondary Crossbar
   -----------------------------------------------------------------------------
-  constant c_secbar_layout : t_sdb_record_array(8 downto 0) :=
+  constant c_secbar_layout : t_sdb_record_array(9 downto 0) :=
     (0 => f_sdb_embed_device(c_xwr_mini_nic_sdb, x"00000000"),
      1 => f_sdb_embed_device(c_xwr_endpoint_sdb, x"00000100"),
      2 => f_sdb_embed_device(c_xwr_softpll_ng_sdb, x"00000200"),
@@ -432,15 +444,16 @@ architecture struct of wr_core is
      5 => f_sdb_embed_device(c_wrc_periph1_sdb, x"00000500"),  -- UART
      6 => f_sdb_embed_device(c_wrc_periph2_sdb, x"00000600"),  -- 1-Wire
      7 => f_sdb_embed_device(g_aux_sdb,         x"00000700"),  -- aux WB bus
-     8 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800")   -- WRPC diag registers
+     8 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800"),  -- WRPC diag registers
+     9 => f_sdb_embed_device(c_xwb_spi_sdb,     x"00000900")   -- SPI master (to PLL, SPEC7)
      );
 
   constant c_secbar_sdb_address : t_wishbone_address := x"00000C00";
   constant c_secbar_bridge_sdb  : t_sdb_bridge       :=
     f_xwb_bridge_layout_sdb(true, c_secbar_layout, c_secbar_sdb_address);
 
-  signal secbar_master_i : t_wishbone_master_in_array(8 downto 0);
-  signal secbar_master_o : t_wishbone_master_out_array(8 downto 0);
+  signal secbar_master_i : t_wishbone_master_in_array(9 downto 0);
+  signal secbar_master_o : t_wishbone_master_out_array(9 downto 0);
 
   -----------------------------------------------------------------------------
   --WB intercon
@@ -931,6 +944,17 @@ begin
       spi_mosi_o  => spi_mosi_o,
       spi_miso_i  => spi_miso_i,
 
+      -- AD9516 signals
+      pll_status_i  => pll_status_i,
+      pll_mosi_o    => pll_mosi_o,
+      pll_miso_i    => pll_miso_i,
+      pll_sck_o     => pll_sck_o,
+      pll_cs_n_o    => pll_cs_n_o,
+      pll_sync_n_o  => pll_sync_n_o,
+      pll_reset_n_o => pll_reset_n_o,
+      pll_refsel_o  => pll_refsel_o,
+      pll_lock_i    => pll_lock_i,
+
       slave_i => periph_slave_i,
       slave_o => periph_slave_o,
 
@@ -1046,7 +1070,7 @@ begin
     generic map(
       g_verbose     => g_verbose,
       g_num_masters => 1,
-      g_num_slaves  => 9,
+      g_num_slaves  => 10,
       g_registered  => true,
       g_wraparound  => true,
       g_layout      => c_secbar_layout,
@@ -1076,11 +1100,12 @@ begin
   secbar_master_i(5) <= periph_slave_o(1);
   secbar_master_i(6) <= periph_slave_o(2);
   secbar_master_i(8) <= periph_slave_o(3);
+  secbar_master_i(9) <= periph_slave_o(4);
   periph_slave_i(0)  <= secbar_master_o(4);
   periph_slave_i(1)  <= secbar_master_o(5);
   periph_slave_i(2)  <= secbar_master_o(6);
   periph_slave_i(3)  <= secbar_master_o(8);
-
+  periph_slave_i(4)  <= secbar_master_o(9);
 
   aux_adr_o <= secbar_master_o(7).adr;
   aux_dat_o <= secbar_master_o(7).dat;
@@ -1110,8 +1135,6 @@ begin
   --secbar_master_i(2).rty <= '0';
   --secbar_master_i(1).rty <= '0';
   --secbar_master_i(0).rty <= '0';
-
-
 
   -----------------------------------------------------------------------------
   -- WBP MUX
