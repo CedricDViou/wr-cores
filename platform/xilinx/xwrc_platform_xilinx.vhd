@@ -93,8 +93,11 @@ entity xwrc_platform_xilinx is
     clk_20m_vcxo_i        : in  std_logic             := '0';
     -- 125.000 MHz PLL reference
     clk_125m_pllref_i     : in  std_logic             := '0';
+    clk_62m5_pllref_i     : in  std_logic             := '0';
+
     -- 124.992 MHz DMTD reference (CLBv3 reference design)
-    clk_125m_dmtd_i       : in  std_logic             := '0';
+    clk_125m_dmtd_i       : in  std_logic := '0';
+    
     ---------------------------------------------------------------------------
     -- Clock inputs from custom PLLs (g_use_default_plls = FALSE)
     ---------------------------------------------------------------------------
@@ -151,6 +154,7 @@ entity xwrc_platform_xilinx is
     -- PLL outputs
     clk_62m5_sys_o        : out std_logic;
     clk_125m_ref_o        : out std_logic;
+    clk_62m5_ref_o : out std_logic;
     clk_20m_o             : out std_logic;
     clk_ref_locked_o      : out std_logic;
     clk_62m5_dmtd_o       : out std_logic;
