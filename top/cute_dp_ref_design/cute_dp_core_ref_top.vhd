@@ -91,7 +91,6 @@ entity cute_dp_core_ref_top is
     ---------------------------------------------------------------------------
     -- SPI interface to DACs
     ---------------------------------------------------------------------------
-
     plldac_sclk        : out std_logic;
     plldac_din         : out std_logic;
     plldac_clr_n       : out std_logic;
@@ -175,7 +174,7 @@ entity cute_dp_core_ref_top is
     -- user interface
     sfp0_led           : out std_logic;
     sfp1_led           : out std_logic;
-    ext_clk            : out std_logic;
+    clk_10m_ext_o      : out std_logic;
     usr_button         : in  std_logic;
     usr_led1           : out std_logic;
     usr_led2           : out std_logic;
@@ -248,7 +247,7 @@ begin
       clk_125m_gtp1_n_i   => sfp1_ref_clk_n,
       clk_sys_62m5_o      => clk_sys_62m5_o,
       clk_ref_125m_o      => clk_ref_125m_o,
-      clk_10m_ext_o       => ext_clk,
+      clk_10m_ext_o       => clk_10m_ext_o,
       rst_sys_62m5_n_o    => rst_sys_62m5_n_o,
       rst_ref_125m_n_o    => rst_ref_125m_n_o,
   
