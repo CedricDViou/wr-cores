@@ -11,7 +11,7 @@ module wr_arria10_e3p1_atx_pll (
 		output wire  tx_serial_clk  // tx_serial_clk.clk
 	);
 
-	wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_chk6tua #(
+	wr_arria10_e3p1_atx_pll_altera_xcvr_atx_pll_a10_181_z7ksuua #(
 		.enable_pll_reconfig                                              (0),
 		.rcfg_jtag_enable                                                 (0),
 		.rcfg_separate_avmm_busy                                          (0),
@@ -60,7 +60,7 @@ module wr_arria10_e3p1_atx_pll (
 		.atx_pll_dsm_fractional_value_ready                               ("pll_k_ready"),
 		.atx_pll_iqclk_mux_sel                                            ("iqtxrxclk0"),
 		.atx_pll_vco_bypass_enable                                        ("false"),
-		.atx_pll_l_counter                                                (16),
+		.atx_pll_l_counter                                                (4),
 		.atx_pll_l_counter_enable                                         ("true"),
 		.atx_pll_cascadeclk_test                                          ("cascadetest_off"),
 		.atx_pll_hclk_divide                                              (1),
@@ -68,11 +68,11 @@ module wr_arria10_e3p1_atx_pll (
 		.atx_pll_m_counter                                                (40),
 		.atx_pll_ref_clk_div                                              (1),
 		.atx_pll_bw_sel                                                   ("medium"),
-		.atx_pll_datarate                                                 ("1250000000 bps"),
+		.atx_pll_datarate                                                 ("5000000000 bps"),
 		.atx_pll_device_variant                                           ("device1"),
 		.atx_pll_initial_settings                                         ("true"),
 		.atx_pll_lc_mode                                                  ("lccmu_normal"),
-		.atx_pll_output_clock_frequency                                   ("625000000 Hz"),
+		.atx_pll_output_clock_frequency                                   ("2500000000 Hz"),
 		.atx_pll_powerdown_mode                                           ("powerup"),
 		.atx_pll_prot_mode                                                ("basic_tx"),
 		.atx_pll_reference_clock_frequency                                ("125000000 Hz"),
@@ -99,7 +99,7 @@ module wr_arria10_e3p1_atx_pll (
 		.hssi_pma_cgb_master_x1_div_m_sel                                 ("divbypass"),
 		.hssi_pma_cgb_master_cgb_enable_iqtxrxclk                         ("disable_iqtxrxclk"),
 		.hssi_pma_cgb_master_ser_mode                                     ("sixty_four_bit"),
-		.hssi_pma_cgb_master_datarate                                     ("1250000000 bps"),
+		.hssi_pma_cgb_master_datarate                                     ("5000000000 bps"),
 		.hssi_pma_cgb_master_cgb_power_down                               ("normal_cgb"),
 		.hssi_pma_cgb_master_observe_cgb_clocks                           ("observe_nothing"),
 		.hssi_pma_cgb_master_op_mode                                      ("enabled"),
