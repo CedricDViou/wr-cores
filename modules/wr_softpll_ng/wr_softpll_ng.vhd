@@ -246,7 +246,7 @@ architecture rtl of wr_softpll_ng is
 		--	return g_num_ref_inputs + g_num_outputs + 2;
 		--else
 			return g_num_ref_inputs + g_num_outputs + 1;
-		end if;
+		-- end if;
 	 else
       return g_num_ref_inputs + g_num_outputs;
     end if;
@@ -259,8 +259,8 @@ architecture rtl of wr_softpll_ng is
 		--if (g_with_ext_daughterboard) then -- TODO: remove dis
 		--	return 2;
 		--else
-		--	return 1;
-		end if;
+		return 1;
+		-- end if;
 	 else
       return 0;
     end if;
