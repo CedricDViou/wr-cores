@@ -1,7 +1,6 @@
 *.sopcinfo
-*.qicache
-*.html
-*.qip
+*.xml
 *.rpt
-*.cmp
-
+*.rpt.1
+*.qicache
+*.qip
