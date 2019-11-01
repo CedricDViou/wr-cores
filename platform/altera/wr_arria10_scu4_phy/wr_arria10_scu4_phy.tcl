@@ -1,3 +1,0 @@
-qsys-generate wr_arria10_scu4_phy
-qsys-generate wr_arria10_scu4_atx_pll
-qsys-generate wr_arria10_scu4_rst_ctl
