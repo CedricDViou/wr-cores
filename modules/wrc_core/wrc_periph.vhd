@@ -12,25 +12,25 @@
 -------------------------------------------------------------------------------
 -- Description:
 -- WRC_PERIPH integrates WRC_SYSCON, UART/VUART, 1-Wire Master, WRPC_DIAGS
--- 
+--
 -------------------------------------------------------------------------------
 --
 -- Copyright (c) 2012 - 2017 CERN
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -131,7 +131,7 @@ architecture struct of wrc_periph is
   signal cntr_div      : unsigned(23 downto 0);
   signal cntr_tics     : unsigned(31 downto 0);
   signal cntr_overflow : std_logic;
-  
+
   signal rst_wrc_n_o_reg : std_logic := '1';
   signal diag_adr : unsigned(15 downto 0);
   signal diag_dat : std_logic_vector(31 downto 0);
@@ -139,6 +139,24 @@ architecture struct of wrc_periph is
   signal diag_in       : t_generic_word_array(g_diag_ro_size + g_diag_rw_size-1 downto 0);
   signal wrpc_diag_regs_in     : t_wrc_diags_in_registers;
   signal wrpc_diag_regs_out    : t_wrc_diags_out_registers;
+
+  component wrc_syscon_wb
+    port (
+      rst_n_i                                  : in     std_logic;
+      clk_sys_i                                : in     std_logic;
+      wb_adr_i                                 : in     std_logic_vector(4 downto 0);
+      wb_dat_i                                 : in     std_logic_vector(31 downto 0);
+      wb_dat_o                                 : out    std_logic_vector(31 downto 0);
+      wb_cyc_i                                 : in     std_logic;
+      wb_sel_i                                 : in     std_logic_vector(3 downto 0);
+      wb_stb_i                                 : in     std_logic;
+      wb_we_i                                  : in     std_logic;
+      wb_ack_o                                 : out    std_logic;
+      wb_stall_o                               : out    std_logic;
+      regs_i                                   : in     t_sysc_in_registers;
+      regs_o                                   : out    t_sysc_out_registers
+    );
+  end component;
 
 begin
 
@@ -153,13 +171,13 @@ begin
 
         if(sysc_regs_o.rstr_trig_wr_o = '1' and sysc_regs_o.rstr_trig_o = x"deadbee") then
           rst_wrc_n_o_reg <= not sysc_regs_o.rstr_rst_o;
-        end if; 
-            
+        end if;
+
         rst_net_n_o <= not sysc_regs_o.gpsr_net_rst_o;
-      end if; 
-    end if; 
+      end if;
+    end if;
   end process;
-  
+
   -------------------------------------
   -- LEDs
   -------------------------------------
@@ -396,7 +414,7 @@ begin
   ----------------------------------------
   -- SYSCON
   ----------------------------------------
-  SYSCON : entity work.wrc_syscon_wb
+  SYSCON : wrc_syscon_wb
     port map (
       rst_n_i    => rst_n_i,
       clk_sys_i  => clk_sys_i,
