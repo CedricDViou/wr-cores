@@ -73,7 +73,7 @@ entity wrc_board_kc705 is
     g_rx_streamer_params       : t_rx_streamer_params := c_rx_streamer_params_defaut;
     -- memory initialisation file for embedded CPU
     --g_dpram_initf               : string  := "../../../../bin/wrpc/wrc_phy16.bram";
-    g_dpram_initf               : string  := "../../wrc.bram";
+    g_dpram_initf               : string  := "/home/pascal/Documents/FPGA/spec7_tests/White_Rabbit/src/wrc.bram";
     -- identification (id and ver) of the layout of words in the generic diag interface
     g_diag_id                   : integer := 0;
     g_diag_ver                  : integer := 0;
@@ -100,8 +100,10 @@ entity wrc_board_kc705 is
     -- External PPS input (g_with_external_clock_input = TRUE)
     pps_ext_i         : in  std_logic := '0';
     -- 62.5MHz sys clock output
+    clk_sys_62m5_o    : out std_logic;
     clk_ref_62m5_n_o  : out std_logic;
     clk_ref_62m5_p_o  : out std_logic;
+    pci_clk_i         : in  std_logic;
 
     ---------------------------------------------------------------------------
     -- Shared SPI interface to DACs
@@ -153,7 +155,20 @@ entity wrc_board_kc705 is
     -- Link ok indication
     link_ok_o  : out std_logic;
     
-    fan : out std_logic
+    fan : out std_logic;
+    
+    wb_adr_i   : in  std_logic_vector(c_wishbone_address_width-1 downto 0)   := (others => '0');
+    wb_dat_i   : in  std_logic_vector(c_wishbone_data_width-1 downto 0)      := (others => '0');
+    wb_dat_o   : out std_logic_vector(c_wishbone_data_width-1 downto 0);
+    wb_sel_i   : in  std_logic_vector(c_wishbone_address_width/8-1 downto 0) := (others => '0');
+    wb_we_i    : in  std_logic                                               := '0';
+    wb_cyc_i   : in  std_logic                                               := '0';
+    wb_stb_i   : in  std_logic                                               := '0';
+    wb_ack_o   : out std_logic;
+    wb_err_o   : out std_logic;
+    wb_rty_o   : out std_logic;
+    wb_stall_o : out std_logic
+    
     );
 
 end entity wrc_board_kc705;
@@ -204,7 +219,9 @@ architecture std_wrapper of wrc_board_kc705 is
   signal onewire_oen : std_logic;
   signal fan_cnt : unsigned(19 downto 0);
   
- 
+  signal wb_slave_i : t_wishbone_slave_in;
+  signal wb_slave_o : t_wishbone_slave_out;
+  
 begin  -- architecture struct
   
   --the cooling fan on the kc705 is maddeningly loud this sets the fan to 25% duty cylce. short fan to '1' or 'Z' for default behaviour.
@@ -273,6 +290,19 @@ begin  -- architecture struct
   
   onewire_b    <= '0' when (onewire_oen = '1') else 'Z';
   onewire_i <= onewire_b;
+  
+  wb_dat_o   <= wb_slave_o.dat;
+  wb_ack_o   <= wb_slave_o.ack;
+  wb_err_o   <= wb_slave_o.err;
+  wb_rty_o   <= wb_slave_o.rty;
+  wb_stall_o <= wb_slave_o.stall;
+  wb_slave_i.adr <= wb_adr_i; 
+  wb_slave_i.dat <= wb_dat_i; 
+  wb_slave_i.sel <= wb_sel_i; 
+  wb_slave_i.we  <= wb_we_i ; 
+  wb_slave_i.cyc <= wb_cyc_i; 
+  wb_slave_i.stb <= wb_stb_i; 
+  
   -- Instantiate the records-based module
   cmp_xwrc_board_kc705 : xwrc_board_kc705
     generic map (
@@ -297,10 +327,11 @@ begin  -- architecture struct
       clk_10m_ext_i        => clk_10m_ext,
       pps_ext_i            => pps_ext_i,
       --clk_sys_62m5_o       => clk_sys_62m5_o,
-      clk_sys_62m5_o       => open,
+      clk_sys_62m5_o       => clk_sys_62m5_o,
       clk_ref_62m5_o       => clk_ref_62m5,
       rst_sys_62m5_n_o     => open,
       rst_ref_62m5_n_o     => open,
+      pci_clk_i            => pci_clk_i,
       --rst_sys_62m5_n_o     => rst_sys_62m5_n_o,
       --rst_ref_62m5_n_o     => rst_ref_62m5_n_o,
       dac_refclk_cs_n_o    => dac_refclk_cs_n_o,
@@ -347,6 +378,8 @@ begin  -- architecture struct
       wrs_rx_valid_o       => open,
       wrs_rx_dreq_i        => '0',
       wrs_rx_cfg_i         => wrs_rx_cfg_in,
+      wb_slave_i           => wb_slave_i,
+      wb_slave_o           => wb_slave_o,
       aux_diag_i           => aux_diag_in,
       aux_diag_o           => aux_diag_out,
       tm_dac_value_o       => open,

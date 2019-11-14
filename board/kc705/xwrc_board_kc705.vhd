@@ -103,6 +103,9 @@ entity xwrc_board_kc705 is
     -- active low reset outputs, synchronous to 62m5 and 125m clocks
     rst_sys_62m5_n_o    : out std_logic;
     rst_ref_62m5_n_o    : out std_logic;
+    
+    pci_clk_i           : in  std_logic;
+
 
     ---------------------------------------------------------------------------
     -- Shared SPI interface to DACs
@@ -187,7 +190,12 @@ entity xwrc_board_kc705 is
     ---------------------------------------------------------------------------
     -- No Etherbone WB master interface (when g_fabric_iface = "etherbone")
     ---------------------------------------------------------------------------
-
+    
+    ---------------------------------------------------------------------------
+    -- External WB slave port 
+    ---------------------------------------------------------------------------
+    wb_slave_i : in  t_wishbone_slave_in := cc_dummy_slave_in;
+    wb_slave_o : out t_wishbone_slave_out;
     ---------------------------------------------------------------------------
     -- Generic diagnostics interface (access from WRPC via SNMP or uart console
     ---------------------------------------------------------------------------
@@ -258,7 +266,7 @@ architecture struct of xwrc_board_kc705 is
   signal clk_pll_dmtd : std_logic;
   signal pll_locked   : std_logic;
   signal clk_10m_ext  : std_logic;
-
+  
   -- Reset logic
   signal areset_edge_ppulse : std_logic;
   signal rst_62m5_n         : std_logic;
@@ -285,7 +293,6 @@ architecture struct of xwrc_board_kc705 is
   signal ext_ref_mul_locked  : std_logic;
   signal ext_ref_mul_stopped : std_logic;
   signal ext_ref_rst         : std_logic;
-   
 
 begin  -- architecture struct
 
@@ -323,7 +330,7 @@ begin  -- architecture struct
       ext_ref_mul_stopped_o => ext_ref_mul_stopped,
       ext_ref_rst_i         => ext_ref_rst);
 
-  clk_sys_62m5_o <= clk_pll_62m5;
+  clk_sys_62m5_o <= pci_clk_i;
   clk_ref_62m5_o <= clk_ref_62m5;
 
   -----------------------------------------------------------------------------
@@ -337,7 +344,7 @@ begin  -- architecture struct
     generic map (
       g_sync_edge => "positive")
     port map (
-      clk_i    => clk_pll_62m5,
+      clk_i    => pci_clk_i,
       rst_n_i  => '1',
       data_i   => areset_edge_n_i,
       ppulse_o => areset_edge_ppulse);
@@ -346,7 +353,7 @@ begin  -- architecture struct
   rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
 
   -- concatenation of all clocks required to have synced resets
-  rstlogic_clk_in(0) <= clk_pll_62m5;
+  rstlogic_clk_in(0) <= pci_clk_i;
   rstlogic_clk_in(1) <= clk_ref_62m5;
 
   cmp_rstlogic_reset : gc_reset
@@ -376,7 +383,7 @@ begin  -- architecture struct
       g_num_cs_select => 1,
       g_sclk_polarity => 0)
     port map (
-      clk_i         => clk_pll_62m5,
+      clk_i         => pci_clk_i,
       rst_n_i       => rst_62m5_n,
       value_i       => dac_dmtd_data,
       cs_sel_i      => "1",
@@ -393,7 +400,7 @@ begin  -- architecture struct
       g_num_cs_select => 1,
       g_sclk_polarity => 0)
     port map (
-      clk_i         => clk_pll_62m5,
+      clk_i         => pci_clk_i,
       rst_n_i       => rst_62m5_n,
       value_i       => dac_refclk_data,
       cs_sel_i      => "1",
@@ -436,7 +443,7 @@ begin  -- architecture struct
       g_fabric_iface              => g_fabric_iface
       )
     port map (
-      clk_sys_i            => clk_pll_62m5,
+      clk_sys_i            => pci_clk_i,
       clk_dmtd_i           => clk_pll_dmtd,
       clk_ref_i            => clk_ref_62m5,
       clk_aux_i            => clk_aux_i,
@@ -468,8 +475,8 @@ begin  -- architecture struct
       spi_miso_i           => '0',
       uart_rxd_i           => uart_rxd_i,
       uart_txd_o           => uart_txd_o,
-      aux_master_o         => open,
-      aux_master_i         => cc_dummy_master_in,
+      wb_slave_o           => wb_slave_o,
+      wb_slave_i           => wb_slave_i,
       owr_pwren_o          => open,
       owr_en_o             => onewire_en,
       owr_i                => onewire_in,
