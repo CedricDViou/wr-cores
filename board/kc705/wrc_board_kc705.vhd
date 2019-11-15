@@ -73,7 +73,7 @@ entity wrc_board_kc705 is
     g_rx_streamer_params       : t_rx_streamer_params := c_rx_streamer_params_defaut;
     -- memory initialisation file for embedded CPU
     --g_dpram_initf               : string  := "../../../../bin/wrpc/wrc_phy16.bram";
-    g_dpram_initf               : string  := "/home/pascal/Documents/FPGA/spec7_tests/White_Rabbit/src/wrc.bram";
+    g_dpram_initf               : string  := "../src/wrc.bram";
     -- identification (id and ver) of the layout of words in the generic diag interface
     g_diag_id                   : integer := 0;
     g_diag_ver                  : integer := 0;
