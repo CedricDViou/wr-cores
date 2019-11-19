@@ -47,8 +47,13 @@ set_property IOSTANDARD LVCMOS25 [get_ports dac_dmtd_sclk_o]
 create_clock -period 33.333 -name dac_dmtd_sclk_o -waveform {0.000 16.667} [get_ports dac_dmtd_sclk_o]
 
 
+<<<<<<< HEAD
 #set_property PACKAGE_PIN G12 [get_ports areset_i] 
 #set_property IOSTANDARD LVCMOS25 [get_ports areset_i]
+=======
+set_property PACKAGE_PIN G12 [get_ports areset_i] 
+set_property IOSTANDARD LVCMOS25 [get_ports areset_i]
+>>>>>>> 7180fa4c971e0b4efea037c38ccc25415ffa23b6
 
 set_property PACKAGE_PIN D27 [get_ports clk_20m_vcxo_n_i]
 #set_property IOSTANDARD LVDS_25 [get_ports clk_20m_vcxo_n_i]

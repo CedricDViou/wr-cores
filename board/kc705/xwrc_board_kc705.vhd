@@ -106,7 +106,6 @@ entity xwrc_board_kc705 is
     
     pci_clk_i           : in  std_logic;
 
-
     ---------------------------------------------------------------------------
     -- Shared SPI interface to DACs
     ---------------------------------------------------------------------------
@@ -266,7 +265,7 @@ architecture struct of xwrc_board_kc705 is
   signal clk_pll_dmtd : std_logic;
   signal pll_locked   : std_logic;
   signal clk_10m_ext  : std_logic;
-  
+   
   -- Reset logic
   signal areset_edge_ppulse : std_logic;
   signal rst_62m5_n         : std_logic;
@@ -477,6 +476,8 @@ begin  -- architecture struct
       uart_txd_o           => uart_txd_o,
       wb_slave_o           => wb_slave_o,
       wb_slave_i           => wb_slave_i,
+      aux_master_o         => open,
+      aux_master_i         => cc_dummy_master_in,
       owr_pwren_o          => open,
       owr_en_o             => onewire_en,
       owr_i                => onewire_in,

@@ -76,7 +76,6 @@ package wr_kc705_pkg is
         rst_ref_62m5_n_o    : out std_logic;
         pci_clk_i           : in  std_logic;
 
-
         dac_refclk_cs_n_o : out std_logic;
         dac_refclk_sclk_o : out std_logic;
         dac_refclk_din_o  : out std_logic;
@@ -288,6 +287,5 @@ component wrc_board_kc705 is
     );
 
 end component ;
-  
   
 end wr_kc705_pkg;
