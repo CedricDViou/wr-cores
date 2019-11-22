@@ -151,6 +151,7 @@ package wr_board_pkg is
       pll_reset_n_o        : out std_logic;
       pll_refsel_o         : out std_logic;
       pll_lock_i           : in  std_logic := '0';
+      pll_clk_sel_o        : out std_logic;
       phy8_o               : out t_phy_8bits_from_wrc;
       phy8_i               : in  t_phy_8bits_to_wrc                               := c_dummy_phy8_to_wrc;
       phy16_o              : out t_phy_16bits_from_wrc;

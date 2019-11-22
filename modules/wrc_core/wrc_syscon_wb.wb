@@ -204,6 +204,14 @@ peripheral {
         load = LOAD_EXT;
         align = 16;
       };
+      
+      field {
+        name = "PLL_CLK_SEL";
+        prefix = "pll_clk_sel";
+        description = "write 1: SPEC7, Select clk_sys source from AD9516";
+        type = MONOSTABLE;
+        align = 17;
+      };
    };
 
    reg {
@@ -286,6 +294,14 @@ peripheral {
          description = "write 1: Remove Reset PLL.";
          type = MONOSTABLE;
          align = 14;
+      };
+
+      field {
+         name = "PLL_CLK_SEL";
+         prefix = "pll_clk_sel";
+         description = "write 1: SPEC7, Select clk_sys source from free running clk_dmtd";
+         type = MONOSTABLE;
+         align = 17;
       };
    };
 

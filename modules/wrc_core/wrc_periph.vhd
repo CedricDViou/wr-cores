@@ -96,6 +96,9 @@ entity wrc_periph is
     pll_reset_n_o : out std_logic;
     pll_refsel_o  : out std_logic;
     pll_lock_i    : in  std_logic;
+    -- SPEC7 Select clk_sys source (either always running clk_dmtd or
+    -- 125 MHz from AD9516 after PLL initialisation.)
+    pll_clk_sel_o      : out std_logic;
 
     slave_i : in  t_wishbone_slave_in_array(0 to 4);
     slave_o : out t_wishbone_slave_out_array(0 to 4);
@@ -552,11 +555,19 @@ begin
    process(clk_sys_i)
    begin
      if rising_edge(clk_sys_i) then
+
        if(sysc_regs_o.gpsr_pll_reset_o = '1') then
          pll_reset_n_o <= '0';
        elsif(sysc_regs_o.gpcr_pll_reset_o = '1') then
          pll_reset_n_o <= '1';
        end if;
+
+       if(sysc_regs_o.gpsr_pll_clk_sel_o = '1') then
+         pll_clk_sel_o <= '0';
+       elsif(sysc_regs_o.gpcr_pll_clk_sel_o = '1') then
+         pll_clk_sel_o <= '1';
+       end if;
+
        sysc_regs_i.gpsr_pll_lock_i <= pll_lock_i;
        sysc_regs_i.gpsr_pll_status_i <= pll_status_i;
      end if;

@@ -149,6 +149,9 @@ entity xwr_core is
     pll_reset_n_o      : out std_logic;
     pll_refsel_o       : out std_logic;
     pll_lock_i         : in  std_logic;
+    -- SPEC7 Select clk_sys source (either always running clk_dmtd or
+    -- 125 MHz from AD9516 after PLL initialisation.)
+    pll_clk_sel_o      : out std_logic;
 
     -----------------------------------------
     -- PHY I/f
@@ -341,6 +344,7 @@ begin
       pll_reset_n_o        => pll_reset_n_o,
       pll_refsel_o         => pll_refsel_o,
       pll_lock_i           => pll_lock_i,
+      pll_clk_sel_o        => pll_clk_sel_o,
  
       phy_ref_clk_i        => phy_ref_clk_i,
       phy_tx_data_o        => phy_tx_data_o,

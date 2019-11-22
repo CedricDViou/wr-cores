@@ -271,6 +271,7 @@ architecture struct of xwrc_board_spec7 is
 
   -- IBUFDS
   signal clk_125m_dmtd_buf : std_logic;
+  signal clk_sys_62m5      : std_logic;
   signal clk_dmtd          : std_logic;
 
   -- PLLs, clocks
@@ -278,6 +279,7 @@ architecture struct of xwrc_board_spec7 is
   signal clk_ref_62m5 : std_logic;
   signal pll_locked   : std_logic;
   signal clk_10m_ext  : std_logic;
+  signal pll_clk_sel  : std_logic;
 
   -- Reset logic
   signal areset_edge_ppulse : std_logic;
@@ -353,8 +355,18 @@ begin  -- architecture struct
       ext_ref_mul_stopped_o => ext_ref_mul_stopped,
       ext_ref_rst_i         => ext_ref_rst);
 
+  -- The AD9516 on the SPEC7 needs to be initialized before it outputs 
+  -- clk_125m_gtx_p/n_i (which is 
 
-  clk_sys_62m5_o <= clk_pll_62m5;
+  cmp_bufgmux: BUFGMUX
+    port map (
+      O  => clk_sys_62m5,
+      I0 => clk_dmtd,
+      I1 => clk_pll_62m5,
+      S  => pll_clk_sel
+    );
+
+  clk_sys_62m5_o <= clk_sys_62m5;
   clk_ref_62m5_o <= clk_ref_62m5;
 
   -----------------------------------------------------------------------------
@@ -368,16 +380,21 @@ begin  -- architecture struct
     generic map (
       g_sync_edge => "positive")
     port map (
-      clk_i    => clk_pll_62m5,
+      clk_i    => clk_sys_62m5,
       rst_n_i  => '1',
       data_i   => areset_edge_n_i,
       ppulse_o => areset_edge_ppulse);
 
   -- logic AND of all async reset sources (active low)
-  rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
+  -- Note: pll_locked = pll_dmtd_locked and pll_sys_locked. SPEC7 uses
+  -- direct_dmtd thus pll_dmtd_locked is always '1'. SPEC7 initial clk_sys_62m5
+  -- is clk_dmtd (selected by BUFGMUX) and clk_pll_62m5 is not yet driven by AD9516
+  -- so pll_sys_locked = '0' and can't be used for synchronous reset generation.
+  --rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
+  rstlogic_arst_n <= areset_n_i and (not areset_edge_ppulse);
 
   -- concatenation of all clocks required to have synced resets
-  rstlogic_clk_in(0) <= clk_pll_62m5;
+  rstlogic_clk_in(0) <= clk_sys_62m5;
   rstlogic_clk_in(1) <= clk_ref_62m5;
 
   cmp_rstlogic_reset : gc_reset
@@ -408,7 +425,7 @@ begin  -- architecture struct
       g_num_cs_select => 1,
       g_sclk_polarity => 0)
     port map (
-      clk_i         => clk_pll_62m5,
+      clk_i         => clk_sys_62m5,
       rst_n_i       => rst_62m5_n,
       value_i       => dac_dmtd_data,
       cs_sel_i      => "1",
@@ -425,7 +442,7 @@ begin  -- architecture struct
       g_num_cs_select => 1,
       g_sclk_polarity => 0)
     port map (
-      clk_i         => clk_pll_62m5,
+      clk_i         => clk_sys_62m5,
       rst_n_i       => rst_62m5_n,
       value_i       => dac_refclk_data,
       cs_sel_i      => "1",
@@ -467,7 +484,7 @@ begin  -- architecture struct
       g_fabric_iface              => g_fabric_iface
       )
     port map (
-      clk_sys_i            => clk_pll_62m5,
+      clk_sys_i            => clk_sys_62m5,
       clk_dmtd_i           => clk_dmtd,
       clk_ref_i            => clk_ref_62m5,
       clk_aux_i            => clk_aux_i,
@@ -491,6 +508,7 @@ begin  -- architecture struct
       pll_reset_n_o        => pll_reset_n_o,
       pll_refsel_o         => pll_refsel_o,
       pll_lock_i           => pll_lock_i,
+      pll_clk_sel_o        => pll_clk_sel,
       phy16_o              => phy16_from_wrc,
       phy16_i              => phy16_to_wrc,
       scl_o                => eeprom_scl_o,
