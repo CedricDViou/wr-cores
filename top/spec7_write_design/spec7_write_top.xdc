@@ -182,6 +182,13 @@ set_property IOSTANDARD LVCMOS25 [get_ports led_pps]
 set_property PACKAGE_PIN AA20 [get_ports reset_n_i]
 set_property IOSTANDARD LVCMOS25 [get_ports reset_n_i]
 
+# Suicide & Watchdog
+# Bank 13 (HR) VCCO - 2.5 V
+set_property PACKAGE_PIN AC22 [get_ports suicide_n_o]
+set_property IOSTANDARD LVCMOS25 [get_ports suicide_n_o]
+set_property PACKAGE_PIN AC21 [get_ports wdog_n_o]
+set_property IOSTANDARD LVCMOS25 [get_ports wdog_n_o]
+
 # SI570
 # Bank 12 (HR) VCCO - 2.5 V
 #set_property PACKAGE_PIN AD14 [get_ports si570_clk_n]

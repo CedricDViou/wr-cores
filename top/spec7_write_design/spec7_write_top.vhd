@@ -147,6 +147,8 @@ entity spec7_write_top is
     led_link_o  : out std_logic;
 
     reset_n_i   : in  std_logic;
+    suicide_n_o : out std_logic;
+    wdog_n_o    : out std_logic;
 
     ------------------------------------------------------------------------------
     -- Digital I/O Bulls-Eye connections
@@ -272,6 +274,10 @@ architecture top of spec7_write_top is
 
 
 begin  -- architecture top
+
+  -- Never trigger PS_POR or PROGRAM_B
+  suicide_n_o <= '1';
+  wdog_n_o    <= '1';
 
   -----------------------------------------------------------------------------
   -- The WR PTP core board package (WB Slave + WB Master)
