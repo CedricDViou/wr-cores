@@ -41,7 +41,6 @@ library work;
 use work.gencores_pkg.all;
 use work.wrcore_pkg.all;
 use work.wishbone_pkg.all;
-use work.etherbone_pkg.all;
 use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.streamers_pkg.all;
@@ -491,20 +490,6 @@ begin  -- architecture struct
 
   gen_etherbone : if (g_fabric_iface = ETHERBONE) generate
 
-    cmp_eb_ethernet_slave : eb_ethernet_slave
-      generic map (
-        g_sdb_address => x"0000000000030000")
-      port map (
-        clk_i       => clk_sys_i,
-        nRst_i      => aux_rst_n,
-        src_o       => wrf_snk_in,
-        src_i       => wrf_snk_out,
-        snk_o       => wrf_src_in,
-        snk_i       => wrf_src_out,
-        cfg_slave_o => aux_master_in,
-        cfg_slave_i => aux_master_out,
-        master_o    => wb_eth_master_o,
-        master_i    => wb_eth_master_i);
 
     -- unused output ports
     wrf_src_o <= c_dummy_snk_in;
