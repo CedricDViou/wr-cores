@@ -135,6 +135,7 @@ entity spec7_write_top is
     reset_n_i   : in  std_logic;
     suicide_n_o : out std_logic;
     wdog_n_o    : out std_logic;
+    prsnt_m2c_l_i : in  std_logic;
 
     ------------------------------------------------------------------------------
     -- Digital I/O Bulls-Eye connections
@@ -264,6 +265,7 @@ begin  -- architecture top
   -- Never trigger PS_POR or PROGRAM_B
   suicide_n_o <= '1';
   wdog_n_o    <= '1';
+  -- prsnt_m2c_l_i isn't used but must be defined as input.
 
   -----------------------------------------------------------------------------
   -- The WR PTP core board package (WB Slave + WB Master)
