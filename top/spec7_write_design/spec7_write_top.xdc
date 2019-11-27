@@ -188,6 +188,8 @@ set_property PACKAGE_PIN AC22 [get_ports suicide_n_o]
 set_property IOSTANDARD LVCMOS25 [get_ports suicide_n_o]
 set_property PACKAGE_PIN AC21 [get_ports wdog_n_o]
 set_property IOSTANDARD LVCMOS25 [get_ports wdog_n_o]
+set_property PACKAGE_PIN V19 [get_ports prsnt_m2c_l_i]
+set_property IOSTANDARD LVCMOS25 [get_ports prsnt_m2c_l_i]
 
 # SI570
 # Bank 12 (HR) VCCO - 2.5 V
