@@ -93,6 +93,20 @@ entity spec7_wr_ref_top is
     dac_dmtd_sclk_o   : out std_logic;
     dac_dmtd_din_o    : out std_logic;
 
+    -------------------------------------------------------------------------------
+    -- AD9516 PLL Control signals
+    -------------------------------------------------------------------------------    
+
+    pll_status_i      : in  std_logic;
+    pll_mosi_o        : out std_logic;
+    pll_miso_i        : in  std_logic;
+    pll_sck_o         : out std_logic;
+    pll_cs_n_o        : out std_logic;
+    pll_sync_n_o      : out std_logic;
+    pll_reset_n_o     : out std_logic;
+    pll_refsel_o      : out std_logic;
+    pll_lock_i        : in  std_logic;
+    
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver
     ---------------------------------------------------------------------------
@@ -130,6 +144,9 @@ entity spec7_wr_ref_top is
     led_link_o  : out std_logic;
 
     reset_n_i   : in  std_logic;
+    suicide_n_o : out std_logic;
+    wdog_n_o    : out std_logic;
+    prsnt_m2c_l_i : in  std_logic;
 
     ------------------------------------------------------------------------------
     -- Digital I/O Bulls-Eye connections
@@ -266,6 +283,11 @@ architecture top of spec7_wr_ref_top is
 
 begin  -- architecture top
 
+  -- Never trigger PS_POR or PROGRAM_B
+  suicide_n_o <= '1';
+  wdog_n_o    <= '1';
+  -- prsnt_m2c_l_i isn't used but must be defined as input.
+
   -----------------------------------------------------------------------------
   -- The WR PTP core board package (WB Slave + WB Master)
   -----------------------------------------------------------------------------
@@ -294,6 +316,16 @@ begin  -- architecture top
       dac_dmtd_cs_n_o     => dac_dmtd_cs_n_o,
       dac_dmtd_sclk_o     => dac_dmtd_sclk_o, 
       dac_dmtd_din_o      => dac_dmtd_din_o, 
+
+      pll_status_i        => pll_status_i,
+      pll_mosi_o          => pll_mosi_o,
+      pll_miso_i          => pll_miso_i,
+      pll_sck_o           => pll_sck_o,
+      pll_cs_n_o          => pll_cs_n_o,
+      pll_sync_n_o        => pll_sync_n_o,
+      pll_reset_n_o       => pll_reset_n_o,
+      pll_refsel_o        => pll_refsel_o,
+      pll_lock_i          => pll_lock_i,
 
       sfp_txp_o           => sfp_txp_o,
       sfp_txn_o           => sfp_txn_o,
