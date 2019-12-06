@@ -153,12 +153,18 @@ architecture rtl of xwrc_platform_xilinx is
   signal clk_125m_pllref_buf : std_logic;
   signal clk_62m5_sys : std_logic;
 
+  attribute mark_debug : string;
+  attribute mark_debug of pll_locked_o : signal is "TRUE";
+  attribute mark_debug of pll_arst : signal is "TRUE";
+  
+  signal clk_125m_gth_gclk, clk_125m_gth_prebuf : std_logic;
+  
 begin  -- architecture rtl
 
   -----------------------------------------------------------------------------
   -- Check for unsupported features and/or misconfiguration
   -----------------------------------------------------------------------------
-  gen_unknown_fpga : if (g_fpga_family /= "spartan6" and g_fpga_family /= "kintex7" and g_fpga_family /= "artix7" and g_fpga_family /= "kintexultrascale") generate
+  gen_unknown_fpga : if (g_fpga_family /= "spartan6" and g_fpga_family /= "kintex7" and g_fpga_family /= "artix7" and g_fpga_family /= "kintexultrascale" and g_fpga_family /= "zynqultrascaleplus") generate
     assert FALSE
       report "Xilinx FPGA family [" & g_fpga_family & "] is not supported"
       severity ERROR;
@@ -596,7 +602,7 @@ begin  -- architecture rtl
       signal mmcm_sys_clk_fb : std_logic;
 
     begin
-      -- System PLL (100 MHz -> 62.5 MHz)
+      -- System PLL (125 MHz -> 62.5 MHz)
       cmp_sys_clk_pll : MMCME3_ADV
         generic map (
           BANDWIDTH            => "OPTIMIZED", -- Jitter programming (HIGH, LOW, OPTIMIZED)
@@ -726,6 +732,172 @@ begin  -- architecture rtl
 
     end generate gen_kintexultrascale_default_plls;
 
+
+    ---------------------------------------------------------------------------
+    -- Zynq Ultrascale+ PLLs
+    ---------------------------------------------------------------------------
+
+    gen_zynqultrascaleplus_default_plls : if (g_fpga_family = "zynqultrascaleplus") generate
+
+      signal clk_sys          : std_logic;
+      signal clk_sys_out      : std_logic;
+      signal clk_sys_fb       : std_logic;
+      signal pll_sys_locked   : std_logic;
+      signal clk_dmtd         : std_logic;
+      signal clk_dmtd_fb      : std_logic;
+      signal pll_dmtd_locked  : std_logic;
+      signal clk_20m_vcxo_buf : std_logic;
+      signal mmcm_sys_clk_fb_prebuf : std_logic;
+      signal mmcm_sys_clk_fb : std_logic;
+
+    begin
+      -- System PLL (100 MHz -> 62.5 MHz)
+      cmp_sys_clk_pll : MMCME4_ADV
+        generic map (
+          BANDWIDTH            => "OPTIMIZED", -- Jitter programming (HIGH, LOW, OPTIMIZED)
+          COMPENSATION         => "AUTO",      -- AUTO, BUF_IN, EXTERNAL, INTERNAL, ZHOLD
+          STARTUP_WAIT         => "FALSE",     -- Delays DONE until MMCM is locked (FALSE, TRUE)
+          CLKOUT4_CASCADE      => "FALSE",
+          -- CLKIN_PERIOD: Input clock period in ns units, ps resolution (i.e. 33.333 is 30 MHz).
+          CLKIN1_PERIOD        => 8.0,
+          CLKFBOUT_MULT_F      => 8.0,        -- Multiply value for all CLKOUT (2.000-64.000)
+          DIVCLK_DIVIDE        => 1,           -- Master division value (1-106)
+          CLKFBOUT_PHASE       => 0.0,         -- Phase offset in degrees of CLKFB (-360.000-360.000)
+          CLKFBOUT_USE_FINE_PS => "FALSE",
+          CLKOUT0_DIVIDE_F     => 16.0,         -- clk_sys: 100 MHz * 10 / 16 = 62.5 MHz
+          CLKOUT0_DUTY_CYCLE   => 0.5,
+          CLKOUT0_PHASE        => 0.0,
+          CLKOUT0_USE_FINE_PS  => "FALSE",
+
+          CLKOUT1_DIVIDE       => 8  ,    
+          CLKOUT1_DUTY_CYCLE   => 0.5,
+          CLKOUT1_PHASE        => 0.0,
+          CLKOUT1_USE_FINE_PS  => "FALSE"
+
+          )
+        port map (
+          -- Clock Inputs inputs: Clock inputs
+          CLKIN1       => clk_125m_pci_i,
+          CLKIN2       => '0',
+          -- Clock Outputs outputs: User configurable clock outputs
+          CLKOUT0      => clk_sys,
+          CLKOUT1 => clk_125m_gth_prebuf,
+          -- Feedback
+          CLKFBOUT     => mmcm_sys_clk_fb,
+          CLKFBIN      => mmcm_sys_clk_fb,
+          -- Status Ports outputs: MMCM status ports
+          LOCKED       => pll_sys_locked,
+          CDDCREQ      => '0',
+          -- Control Ports inputs: MMCM control ports
+          CLKINSEL     => '1',
+          PWRDWN       => '0',
+          RST          => pll_arst,
+          -- DRP Ports inputs: Dynamic reconfiguration ports
+          DADDR        => (others => '0'),
+          DCLK         => '0',
+          DEN          => '0',
+          DI           => (others => '0'),
+          DWE          => '0',
+          -- Dynamic Phase Shift Ports inputs: Ports used for dynamic phase shifting of the outputs
+          PSCLK        => '0',
+          PSEN         => '0',
+          PSINCDEC     => '0'
+          );
+
+      clk_125m_ref_o <= clk_sys_out;
+      
+--      clk_125m_ref_o <= clk_125m_gth_gclk;
+      
+      -- cmp_buf_mmcm_sys_fb : BUFG
+      --   port map (
+      --     I => mmcm_sys_clk_fb_prebuf,
+      --     O => mmcm_sys_clk_fb);
+
+      -- System PLL output clock buffer
+      cmp_clk_sys_buf_o : BUFG
+      port map (
+        I => clk_sys,
+        O => clk_sys_out);
+      -- System PLL output clock buffer
+      cmp_clk_gth_buf_o : BUFG
+      port map (
+        I => clk_125m_gth_prebuf,
+        O => clk_125m_gth_gclk);
+
+      clk_62m5_sys_o <= clk_sys_out;
+      clk_62m5_sys <= clk_sys_out;
+
+    -- fixme : no dmtd clock for the moment
+      pll_locked_o   <=                     pll_sys_locked;
+
+      -- DMTD PLL (20 MHz -> ~62,5 MHz)
+      cmp_dmtd_clk_pll : MMCME4_ADV
+        generic map (
+          BANDWIDTH            => "OPTIMIZED",
+          CLKOUT4_CASCADE      => "FALSE",
+          COMPENSATION         => "ZHOLD",
+          STARTUP_WAIT         => "FALSE",
+          DIVCLK_DIVIDE        => 1,
+          CLKFBOUT_MULT_F      => 50.000,    -- 20 MHz -> 1 GHz
+          CLKFBOUT_PHASE       => 0.000,
+          CLKFBOUT_USE_FINE_PS => "FALSE",
+          CLKOUT0_DIVIDE_F     => 16.000,    -- 1GHz/16 -> 62.5 MHz
+          CLKOUT0_PHASE        => 0.000,
+          CLKOUT0_DUTY_CYCLE   => 0.500,
+          CLKOUT0_USE_FINE_PS  => "FALSE",
+          CLKIN1_PERIOD        => 50.000,    -- 50ns for 20 MHz
+          REF_JITTER1          => 0.010)
+        port map (
+          -- Output clocks
+          CLKFBOUT     => clk_dmtd_fb,
+          CLKOUT0      => clk_dmtd,
+          -- Input clock control
+          CLKFBIN      => clk_dmtd_fb,
+          CLKIN1       => clk_20m_vcxo_buf,
+          CLKIN2       => '0',
+          -- Tied to always select the primary input clock
+          CLKINSEL     => '1',
+          CDDCREQ      => '0',
+          -- Ports for dynamic reconfiguration
+          DADDR        => (others => '0'),
+          DCLK         => '0',
+          DEN          => '0',
+          DI           => (others => '0'),
+          DO           => open,
+          DRDY         => open,
+          DWE          => '0',
+          -- Ports for dynamic phase shift
+          PSCLK        => '0',
+          PSEN         => '0',
+          PSINCDEC     => '0',
+          PSDONE       => open,
+          -- Other control and status signals
+          LOCKED       => pll_dmtd_locked,
+          CLKINSTOPPED => open,
+          CLKFBSTOPPED => open,
+          PWRDWN       => '0',
+          RST          => pll_arst);
+
+      -- DMTD PLL input clock buffer
+      cmp_clk_dmtd_buf_i : BUFG
+        port map (
+          O => clk_20m_vcxo_buf,
+          I => clk_20m_vcxo_i);
+
+      -- DMTD PLL output clock buffer
+      cmp_clk_dmtd_buf_o : BUFG
+        port map (
+          O => clk_62m5_dmtd_o,
+          I => clk_dmtd);
+
+      -- External 10MHz reference PLL for Kintex Ultrascale
+      gen_zynqultrascaleplus_ext_ref_plls : if (g_with_external_clock_input = TRUE) generate
+        assert false report "External clock inputs not supported yet for Zynq Ultrascale+ family" severity FAILURE;
+      end generate gen_zynqultrascaleplus_ext_ref_plls;
+
+    end generate gen_zynqultrascaleplus_default_plls;
+
+    
     
     ---------------------------------------------------------------------------
     --   Artix7 PLLs
@@ -973,7 +1145,7 @@ begin  -- architecture rtl
 
     clk_62m5_sys_o  <= clk_62m5_sys_i;
     clk_62m5_dmtd_o <= clk_62m5_dmtd_i;
-    clk_125m_ref_o  <= clk_125m_ref_i;
+--    clk_125m_ref_o  <= clk_125m_ref_i;
 
     pll_locked_o     <= clk_sys_locked_i and clk_dmtd_locked_i;
     clk_ref_locked_o <= clk_ref_locked_i;
@@ -1141,6 +1313,60 @@ begin  -- architecture rtl
     phy8_o <= c_dummy_phy8_to_wrc;
 
   end generate gen_phy_kintexultrascale;
+
+
+  ---------------------------------------------------------------------------
+  -- Zynq Ultrascale+ PHY
+  ---------------------------------------------------------------------------
+
+  gen_phy_zynqultrascaleplus : if (g_fpga_family = "zynqultrascaleplus") generate
+
+ 
+  begin
+    
+    cmp_gthe4 : entity work.wr_gthe4_phy_family7
+      generic map (
+        g_simulation => g_simulation,
+        g_use_gclk_as_refclk => true)
+      port map (
+        clk_gth_p_i    => clk_125m_gtp_p_i,
+        clk_gth_n_i    => clk_125m_gtp_n_i,
+        clk_gth_gclk_i => clk_125m_gth_gclk,
+        clk_freerun_i  => clk_62m5_sys,
+        tx_out_clk_o   => phy16_o.ref_clk,
+        tx_data_i      => phy16_i.tx_data,
+        tx_k_i         => phy16_i.tx_k,
+        tx_disparity_o => phy16_o.tx_disparity,
+        tx_enc_err_o   => phy16_o.tx_enc_err,
+        rx_rbclk_o     => phy16_o.rx_clk,
+        rx_data_o      => phy16_o.rx_data,
+        rx_k_o         => phy16_o.rx_k,
+        rx_enc_err_o   => phy16_o.rx_enc_err,
+        rx_bitslide_o  => phy16_o.rx_bitslide,
+        rst_i          => phy16_i.rst,
+
+        loopen_i       => phy16_i.loopen_vec,
+--        tx_prbs_sel_i  => phy16_i.tx_prbs_sel,
+        rdy_o          => phy16_o.rdy,
+        pad_txn_o => sfp_txn_o,
+        pad_txp_o => sfp_txp_o,
+        pad_rxn_i => sfp_rxn_i,
+        pad_rxp_i => sfp_rxp_i,
+        tx_locked_o   => open,
+        debug_i => x"0000");
+
+
+--  clk_125m_ref_o       <= clk_ref;
+    clk_ref_locked_o     <= '1'; --clk_ref_locked;
+--    phy16_o.ref_clk      <= clk_ref;
+    phy16_o.sfp_tx_fault <= sfp_tx_fault_i;
+    phy16_o.sfp_los      <= sfp_los_i;
+    sfp_tx_disable_o     <= phy16_i.sfp_tx_disable;
+
+    phy8_o <= c_dummy_phy8_to_wrc;
+
+  end generate gen_phy_zynqultrascaleplus;
+
   
   ---------------------------------------------------------------------------
   --   Kintex7 PHY
