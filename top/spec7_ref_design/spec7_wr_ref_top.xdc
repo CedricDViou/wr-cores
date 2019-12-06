@@ -61,6 +61,29 @@ set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
 set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
 
+#   -------------------------------------------------------------------------------
+#   -- AD9516 PLL Control signals
+#   -------------------------------------------------------------------------------    
+# Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN B11 [get_ports pll_status_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_status_i]
+set_property PACKAGE_PIN B12 [get_ports pll_mosi_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_mosi_o]
+set_property PACKAGE_PIN C11 [get_ports pll_miso_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_miso_i]
+set_property PACKAGE_PIN A15 [get_ports pll_sck_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_sck_o]
+set_property PACKAGE_PIN A14 [get_ports pll_cs_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_cs_n_o]
+set_property PACKAGE_PIN B14 [get_ports pll_sync_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_sync_n_o]
+set_property PACKAGE_PIN C12 [get_ports pll_reset_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_reset_n_o]
+set_property PACKAGE_PIN C14 [get_ports pll_refsel_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_refsel_o]
+set_property PACKAGE_PIN A12 [get_ports pll_lock_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_lock_i]
+
 #   ---------------------------------------------------------------------------
 #   -- SFP I/O for transceiver
 #   ---------------------------------------------------------------------------
@@ -123,8 +146,8 @@ set_property IOSTANDARD LVCMOS25 [get_ports led_link_o]
 set_property PACKAGE_PIN AB25 [get_ports led_act_o]
 set_property IOSTANDARD LVCMOS25 [get_ports led_act_o]
 # LED_0
-#set_property PACKAGE_PIN AC26 [get_ports led_0]
-#set_property IOSTANDARD LVCMOS25 [get_ports led_0]
+#set_property PACKAGE_PIN AC26 [get_ports led_pps]
+#set_property IOSTANDARD LVCMOS25 [get_ports led_pps]
 # LED_1
 #set_property PACKAGE_PIN AB26 [get_ports led_1]
 #set_property IOSTANDARD LVCMOS25 [get_ports led_1]
@@ -151,6 +174,15 @@ set_property IOSTANDARD LVCMOS25 [get_ports led_act_o]
 # Bank 13 (HR) VCCO - 2.5 V
 set_property PACKAGE_PIN AA20 [get_ports reset_n_i]
 set_property IOSTANDARD LVCMOS25 [get_ports reset_n_i]
+
+# Suicide & Watchdog
+# Bank 13 (HR) VCCO - 2.5 V
+set_property PACKAGE_PIN AC22 [get_ports suicide_n_o]
+set_property IOSTANDARD LVCMOS25 [get_ports suicide_n_o]
+set_property PACKAGE_PIN AC21 [get_ports wdog_n_o]
+set_property IOSTANDARD LVCMOS25 [get_ports wdog_n_o]
+set_property PACKAGE_PIN V19 [get_ports prsnt_m2c_l_i]
+set_property IOSTANDARD LVCMOS25 [get_ports prsnt_m2c_l_i]
 
 # SI570
 # Bank 12 (HR) VCCO - 2.5 V
@@ -449,10 +481,10 @@ set_property IOSTANDARD LVCMOS25 [get_ports dio_led_bot_o]
 # Bank 13 VCCO - 2.5 V  FMC_XM105 J1 pin 23
 #set_property PACKAGE_PIN Y20 [get_ports fmc_la05_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la05_n]
-# Bank 13 VCCO - 2.5 V  FMC_XM105 J1 pin 25
+# Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 25
 #set_property PACKAGE_PIN W18 [get_ports fmc_la06_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la06_p]
-# Bank 13 VCCO - 2.5 V  FMC_XM105 J1 pin 27
+# Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 27
 #set_property PACKAGE_PIN W19 [get_ports fmc_la06_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la06_n]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 29
