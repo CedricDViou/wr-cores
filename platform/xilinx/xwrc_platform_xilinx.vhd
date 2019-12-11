@@ -66,6 +66,9 @@ entity xwrc_platform_xilinx is
       -- Select GTP channel to use 
       g_gtp_enable_ch0            : integer := 0;
       g_gtp_enable_ch1            : integer := 1;
+      -- Use 125 MHz PLL reference (SVEC7)
+      g_use_125m_pllref : integer := 1;
+      
       -- Select PHY reference clock
       -- default value of 4 selects CLK10 / CLK11 (see UG386, Fig 2-3, page 41)
       g_phy_refclk_sel            : integer range 0 to 7 := 4;
@@ -154,6 +157,8 @@ entity xwrc_platform_xilinx is
     -- PLL outputs
     clk_62m5_sys_o        : out std_logic;
     clk_125m_ref_o        : out std_logic;
+    clk_125m_sys_o : out std_logic;
+    
     clk_62m5_ref_o : out std_logic;
     clk_20m_o             : out std_logic;
     clk_ref_locked_o      : out std_logic;
@@ -183,6 +188,7 @@ architecture rtl of xwrc_platform_xilinx is
 
   signal pll_arst            : std_logic := '0';
   signal clk_125m_pllref_buf : std_logic;
+  signal clk_pll_aux      : std_logic_vector(3 downto 0);
 
 begin  -- architecture rtl
 
@@ -231,6 +237,25 @@ begin  -- architecture rtl
   -- active high async reset for PLLs
   pll_arst <= not areset_n_i;
 
+  -- PLL aux clocks buffers
+  gen_auxclk_bufs: for I in 0 to 3 generate
+    -- Aux PLL_BASE clocks with BUFG enabled
+    gen_auxclk_bufg_en: if g_aux_pll_cfg(I).enabled = TRUE and g_aux_pll_cfg(I).bufg_en = TRUE generate
+      cmp_auxclk_bufg : BUFG
+        port map (
+          O => clk_pll_aux_o(I),
+          I => clk_pll_aux(I));
+    end generate;
+    -- Aux PLL_BASE clocks with BUFG disabled
+    gen_auxclk_no_bufg: if g_aux_pll_cfg(I).enabled = TRUE and g_aux_pll_cfg(I).bufg_en = FALSE generate
+      clk_pll_aux_o(I) <= clk_pll_aux(I);
+    end generate;
+    -- Disabled aux PLL_BASE clocks
+    gen_auxclk_disabled: if g_aux_pll_cfg(I).enabled = FALSE generate
+      clk_pll_aux_o(I) <= '0';
+    end generate;
+  end generate;
+  
   gen_default_plls : if (g_use_default_plls = TRUE) generate
 
     -- Default PLL setup consists of two PLLs.
@@ -253,7 +278,6 @@ begin  -- architecture rtl
       signal clk_dmtd_fb      : std_logic;
       signal pll_dmtd_locked  : std_logic;
       signal clk_20m_vcxo_buf : std_logic;
-      signal clk_pll_aux      : std_logic_vector(3 downto 0);
 
       signal clk_125m_pllref_buf_int1 : std_logic;
       signal clk_125m_pllref_buf_int2 : std_logic;
@@ -313,24 +337,7 @@ begin  -- architecture rtl
           O => clk_125m_pllref_buf_int1,
           I => clk_125m_pllref_i);
 
-      -- PLL aux clocks buffers
-      gen_auxclk_bufs: for I in 0 to 3 generate
-        -- Aux PLL_BASE clocks with BUFG enabled
-        gen_auxclk_bufg_en: if g_aux_pll_cfg(I).enabled = TRUE and g_aux_pll_cfg(I).bufg_en = TRUE generate
-          cmp_auxclk_bufg : BUFG
-            port map (
-              O => clk_pll_aux_o(I),
-              I => clk_pll_aux(I));
-        end generate;
-        -- Aux PLL_BASE clocks with BUFG disabled
-        gen_auxclk_no_bufg: if g_aux_pll_cfg(I).enabled = TRUE and g_aux_pll_cfg(I).bufg_en = FALSE generate
-          clk_pll_aux_o(I) <= clk_pll_aux(I);
-        end generate;
-        -- Disabled aux PLL_BASE clocks
-        gen_auxclk_disabled: if g_aux_pll_cfg(I).enabled = FALSE generate
-          clk_pll_aux_o(I) <= '0';
-        end generate;
-      end generate;
+   
 
       -- System PLL output clock buffer
       cmp_clk_sys_buf_o : BUFG
@@ -588,12 +595,21 @@ begin  -- architecture rtl
           CLKOUT0_DUTY_CYCLE  => 0.500,
           CLKOUT0_USE_FINE_PS => false,
 
+          CLKOUT1_DIVIDE     => g_aux_pll_cfg(0).divide,
+          CLKOUT1_PHASE      => 0.000,
+          CLKOUT1_DUTY_CYCLE => 0.500,
+          CLKOUT2_DIVIDE     => g_aux_pll_cfg(1).divide,
+          CLKOUT2_PHASE      => 0.000,
+          CLKOUT2_DUTY_CYCLE => 0.500,
+          
           CLKIN1_PERIOD => 8.000,            -- 8 ns means 125 MHz
           REF_JITTER1   => 0.010)
         port map (
           -- Output clocks
           CLKFBOUT     => clk_sys_fb,
           CLKOUT0      => clk_sys,
+          CLKOUT1 => clk_pll_aux(0),
+          CLKOUT2 => clk_pll_aux(1),
           -- Input clock control
           CLKFBIN      => clk_sys_fb,
           CLKIN1       => clk_125m_pllref_buf,
@@ -1347,6 +1363,8 @@ begin  -- architecture rtl
         I => clk_125m_gtx_buf,
         O => clk_125m_pllref_buf);
 
+    clk_125m_sys_o <= clk_125m_pllref_buf;
+
     cmp_gtx: wr_gtx_phy_family7
       generic map(
         g_simulation => g_simulation)
@@ -1374,7 +1392,7 @@ begin  -- architecture rtl
 
         tx_locked_o   => clk_ref_locked);
 
-    clk_125m_ref_o       <= clk_ref;
+    clk_62m5_ref_o       <= clk_ref;
     clk_ref_locked_o     <= clk_ref_locked;
     phy16_o.ref_clk      <= clk_ref;
     phy16_o.sfp_tx_fault <= sfp_tx_fault_i;

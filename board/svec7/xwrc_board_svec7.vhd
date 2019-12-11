@@ -7,7 +7,7 @@
 -- Author(s)  : Dimitrios Lampridis  <dimitrios.lampridis@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-16
--- Last update: 2019-10-17
+-- Last update: 2019-12-10
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
@@ -93,8 +93,8 @@ entity xwrc_board_svec7 is
     areset_edge_n_i     : in  std_logic := '1';
     -- Clock inputs from the board
     clk_20m_vcxo_i      : in  std_logic;
-    clk_62m5_pllref_p_i : in  std_logic;
-    clk_62m5_pllref_n_i : in  std_logic;
+    clk_125m_pllref_p_i : in  std_logic;
+    clk_125m_pllref_n_i : in  std_logic;
     clk_125m_gtx_n_i    : in  std_logic;
     clk_125m_gtx_p_i    : in  std_logic;
     -- Aux clocks, which can be disciplined by the WR Core
@@ -105,6 +105,8 @@ entity xwrc_board_svec7 is
     pps_ext_i           : in  std_logic                               := '0';
     -- 62.5MHz sys clock output
     clk_sys_62m5_o      : out std_logic;
+    -- 125MHz sys clock output
+    clk_sys_125m_o      : out std_logic;
     -- 125MHz ref clock output
     clk_ref_62m5_o      : out std_logic;
     -- 125.x MHz DDMTD clock
@@ -115,6 +117,7 @@ entity xwrc_board_svec7 is
     rst_pll_aux_n_o     : out std_logic_vector(3 downto 0);
     -- active low reset outputs, synchronous to 62m5 and 125m clocks
     rst_sys_62m5_n_o    : out std_logic;
+    rst_sys_125m_n_o    : out std_logic;
     rst_ref_62m5_n_o    : out std_logic;
 
     ---------------------------------------------------------------------------
@@ -270,10 +273,11 @@ architecture struct of xwrc_board_svec7 is
   -----------------------------------------------------------------------------
 
   -- IBUFDS
-  signal clk_62m5_pllref_buf : std_logic;
+  signal clk_125m_pllref_buf : std_logic;
 
   -- PLLs
   signal clk_pll_sys_62m5 : std_logic;
+  signal clk_pll_sys_125m : std_logic;
   signal clk_pll_ref_62m5 : std_logic;
   signal clk_pll_dmtd : std_logic;
   signal pll_locked   : std_logic;
@@ -287,8 +291,8 @@ architecture struct of xwrc_board_svec7 is
   signal areset_edge_ppulse : std_logic;
   signal rst_62m5_n         : std_logic;
   signal rstlogic_arst      : std_logic;
-  signal rstlogic_clk_in    : std_logic_vector(5 downto 0);
-  signal rstlogic_rst_out   : std_logic_vector(5 downto 0);
+  signal rstlogic_clk_in    : std_logic_vector(6 downto 0);
+  signal rstlogic_rst_out   : std_logic_vector(6 downto 0);
 
   -- PLL DAC ARB
   signal dac_sync_n       : std_logic_vector(1 downto 0);
@@ -312,7 +316,6 @@ architecture struct of xwrc_board_svec7 is
   signal ext_ref_mul_locked  : std_logic;
   signal ext_ref_mul_stopped : std_logic;
   signal ext_ref_rst         : std_logic;
-  signal clk_pll_62m5 : std_logic;
   
 
   
@@ -328,9 +331,9 @@ begin  -- architecture struct
       IBUF_LOW_PWR => TRUE,
       IOSTANDARD   => "DEFAULT")
     port map (
-      O  => clk_62m5_pllref_buf,
-      I  => clk_62m5_pllref_p_i,
-      IB => clk_62m5_pllref_n_i);
+      O  => clk_125m_pllref_buf,
+      I  => clk_125m_pllref_p_i,
+      IB => clk_125m_pllref_n_i);
 
   cmp_xwrc_platform : entity work.xwrc_platform_xilinx
     generic map (
@@ -343,8 +346,7 @@ begin  -- architecture struct
       areset_n_i            => areset_n_i,
       clk_10m_ext_i         => clk_10m_ext_i,
       clk_20m_vcxo_i        => clk_20m_vcxo_i,
-      clk_62m5_pllref_i     => clk_62m5_pllref_buf, -- fixme : different clock
-                                                    -- freq
+      clk_125m_pllref_i     => clk_125m_pllref_buf, 
       clk_125m_gtp_p_i      => clk_125m_gtx_p_i,
       clk_125m_gtp_n_i      => clk_125m_gtx_n_i,
       sfp_txn_o             => sfp_txn_o,
@@ -356,6 +358,7 @@ begin  -- architecture struct
       sfp_tx_disable_o      => sfp_tx_disable_o,
       clk_pll_aux_o         => clk_pll_aux,
       clk_62m5_sys_o        => clk_pll_sys_62m5,
+      clk_125m_sys_o        => clk_pll_sys_125m,
       clk_62m5_ref_o        => clk_pll_ref_62m5,
       clk_62m5_dmtd_o       => clk_pll_dmtd,
       pll_locked_o          => pll_locked,
@@ -368,6 +371,7 @@ begin  -- architecture struct
       ext_ref_rst_i         => ext_ref_rst);
 
   clk_sys_62m5_o <= clk_pll_sys_62m5;
+  clk_sys_125m_o <= clk_pll_sys_125m;
   clk_ref_62m5_o <= clk_pll_ref_62m5;
   clk_pll_aux_o  <= clk_pll_aux;
 
@@ -382,7 +386,7 @@ begin  -- architecture struct
     generic map (
       g_sync_edge => "positive")
     port map (
-      clk_i    => clk_pll_62m5,
+      clk_i    => clk_pll_sys_125m,
       rst_n_i  => '1',
       data_i   => areset_edge_n_i,
       ppulse_o => areset_edge_ppulse);
@@ -392,12 +396,13 @@ begin  -- architecture struct
 
   -- concatenation of all clocks required to have synced resets
   rstlogic_clk_in(0)          <= clk_pll_sys_62m5;
-  rstlogic_clk_in(1)          <= clk_pll_ref_62m5;
-  rstlogic_clk_in(5 downto 2) <= clk_pll_aux;
+  rstlogic_clk_in(1)          <= clk_pll_sys_125m;
+  rstlogic_clk_in(2)          <= clk_pll_ref_62m5;
+  rstlogic_clk_in(6 downto 3) <= clk_pll_aux;
 
   cmp_rstlogic_reset : gc_reset_multi_aasd
     generic map (
-      g_CLOCKS  => 6,   -- 62.5MHz, 125MHz, + 4x pll_aux
+      g_CLOCKS  => 7,   -- 62.5MHz, 125MHz, + 4x pll_aux
       g_RST_LEN => 16)  -- 16 clock cycles
     port map (
       arst_i  => rstlogic_arst,
@@ -407,9 +412,10 @@ begin  -- architecture struct
   -- distribution of resets (already synchronized to their clock domains)
   rst_62m5_n <= rstlogic_rst_out(0);
 
+  rst_sys_125m_n_o <= rstlogic_rst_out(1);
   rst_sys_62m5_n_o <= rst_62m5_n;
-  rst_ref_62m5_n_o <= rstlogic_rst_out(1);
-  rst_pll_aux_n_o  <= rstlogic_rst_out(5 downto 2);
+  rst_ref_62m5_n_o <= rstlogic_rst_out(2);
+  rst_pll_aux_n_o  <= rstlogic_rst_out(6 downto 3);
 
   -----------------------------------------------------------------------------
   -- 2x SPI DAC
@@ -420,7 +426,7 @@ begin  -- architecture struct
       g_invert_sclk    => FALSE,
       g_num_extra_bits => 8)
     port map (
-      clk_i      => clk_pll_62m5,
+      clk_i      => clk_pll_sys_125m,
       rst_n_i    => rst_62m5_n,
       val1_i     => dac_dpll_data,
       load1_i    => dac_dpll_load_p1,
