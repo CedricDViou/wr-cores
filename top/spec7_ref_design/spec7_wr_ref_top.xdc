@@ -22,7 +22,7 @@ set_property IOSTANDARD LVDS [get_ports clk_125m_dmtd_n_i]
 create_clock -period 8.000 -name clk_125m_gtx -waveform {0.000 4.000} [get_ports clk_125m_gtx_p_i]
 create_clock -period 8.000 -name clk_125m_dmtd -waveform {0.000 4.000} [get_ports clk_125m_dmtd_p_i]
 
-# Set divide by 2 propety for generated clk_dmtd (platform xilinx: g_direct_dmtd = TRUE)
+# Set divide by 2 property for generated clk_dmtd (platform xilinx: g_direct_dmtd = TRUE)
 create_generated_clock -name clk_125m_dmtd_div2 -source [get_ports clk_125m_dmtd_p_i] -divide_by 2 [get_pins cmp_xwrc_board_spec7/cmp_xwrc_platform/gen_default_plls.gen_kintex7_artix7_default_plls.gen_kintex7_artix7_direct_dmtd.clk_dmtd_reg/Q]
 
 # Set 10 -> 62.5 MHz (*25 /4) generated clk_ext_mul (platform xilinx: g_direct_dmtd = TRUE)
@@ -42,6 +42,9 @@ set_clock_groups -asynchronous \
 -group clk_sys \
 -group dio_clk \
 -group clk_ext_mul
+
+# Set BMM_INFO_DESIGN property to avoid ERROR during "Write Bitstream"
+set_property BMM_INFO_DESIGN spec7_wr_ref_top_bd.bmm [current_design]
 
 #   ---------------------------------------------------------------------------
 #   -- SPI interface to DACs
