@@ -97,7 +97,7 @@ entity spec7_write_top is
     dac_dmtd_din_o    : out std_logic;
 
     -------------------------------------------------------------------------------
-    -- AD9516 PLL Control signals
+    -- PLL Control signals
     -------------------------------------------------------------------------------    
 
     pll_status_i      : in  std_logic;
@@ -106,9 +106,8 @@ entity spec7_write_top is
     pll_sck_o         : out std_logic;
     pll_cs_n_o        : out std_logic;
     pll_sync_n_o      : out std_logic;
-    pll_reset_n_o     : out std_logic;
-    pll_refsel_o      : out std_logic;
     pll_lock_i        : in  std_logic;
+    pll_wr_mode_o     : out std_logic_vector(1 downto 0);
     
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver
@@ -317,9 +316,9 @@ begin  -- architecture top
       pll_sck_o           => pll_sck_o,
       pll_cs_n_o          => pll_cs_n_o,
       pll_sync_n_o        => pll_sync_n_o,
-      pll_reset_n_o       => pll_reset_n_o,
-      pll_refsel_o        => pll_refsel_o,
+      pll_reset_n_o       => open,
       pll_lock_i          => pll_lock_i,
+      pll_wr_mode_o       => pll_wr_mode_o,
 
       sfp_txp_o           => sfp_txp_o,
       sfp_txn_o           => sfp_txn_o,

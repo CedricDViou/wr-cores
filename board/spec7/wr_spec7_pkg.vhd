@@ -87,8 +87,8 @@ package wr_spec7_pkg is
       pll_cs_n_o           : out std_logic;
       pll_sync_n_o         : out std_logic;
       pll_reset_n_o        : out std_logic;
-      pll_refsel_o         : out std_logic;
       pll_lock_i           : in  std_logic := '0';
+      pll_wr_mode_o        : out std_logic_vector(1 downto 0);
       sfp_txp_o            : out std_logic;
       sfp_txn_o            : out std_logic;
       sfp_rxp_i            : in  std_logic;

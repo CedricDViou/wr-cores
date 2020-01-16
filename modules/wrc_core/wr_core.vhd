@@ -139,7 +139,7 @@ entity wr_core is
     dac_dpll_load_p1_o : out std_logic;
     dac_dpll_data_o    : out std_logic_vector(15 downto 0);
 
-    -- AD9516 signals
+    -- PLL signals
     pll_status_i  : in  std_logic;
     pll_mosi_o    : out std_logic;
     pll_miso_i    : in  std_logic;
@@ -147,10 +147,10 @@ entity wr_core is
     pll_cs_n_o    : out std_logic;
     pll_sync_n_o  : out std_logic;
     pll_reset_n_o : out std_logic;
-    pll_refsel_o  : out std_logic;
     pll_lock_i    : in  std_logic;
+    pll_wr_mode_o : out std_logic_vector(1 downto 0);
     -- SPEC7 Select clk_sys source (either always running clk_dmtd or
-    -- 125 MHz from AD9516 after PLL initialisation.)
+    -- 125 MHz from PLL after PLL initialisation.)
     pll_clk_sel_o : out std_logic;
 
     -- PHY I/f
@@ -947,7 +947,7 @@ begin
       spi_mosi_o  => spi_mosi_o,
       spi_miso_i  => spi_miso_i,
 
-      -- AD9516 signals
+      -- PLL signals
       pll_status_i  => pll_status_i,
       pll_mosi_o    => pll_mosi_o,
       pll_miso_i    => pll_miso_i,
@@ -955,8 +955,8 @@ begin
       pll_cs_n_o    => pll_cs_n_o,
       pll_sync_n_o  => pll_sync_n_o,
       pll_reset_n_o => pll_reset_n_o,
-      pll_refsel_o  => pll_refsel_o,
       pll_lock_i    => pll_lock_i,
+      pll_wr_mode_o => pll_wr_mode_o,
       pll_clk_sel_o => pll_clk_sel_o,
 
       slave_i => periph_slave_i,

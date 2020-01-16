@@ -138,7 +138,7 @@ entity xwr_core is
     dac_dpll_data_o    : out std_logic_vector(15 downto 0);
 
     -----------------------------------------
-    -- AD9516 PLL Control signals
+    -- PLL Control signals
     -----------------------------------------
     pll_status_i       : in  std_logic;
     pll_mosi_o         : out std_logic;
@@ -147,10 +147,10 @@ entity xwr_core is
     pll_cs_n_o         : out std_logic;
     pll_sync_n_o       : out std_logic;
     pll_reset_n_o      : out std_logic;
-    pll_refsel_o       : out std_logic;
     pll_lock_i         : in  std_logic;
+    pll_wr_mode_o      : out std_logic_vector(1 downto 0);
     -- SPEC7 Select clk_sys source (either always running clk_dmtd or
-    -- 125 MHz from AD9516 after PLL initialisation.)
+    -- 125 MHz from PLL after PLL initialisation.)
     pll_clk_sel_o      : out std_logic;
 
     -----------------------------------------
@@ -342,8 +342,8 @@ begin
       pll_cs_n_o           => pll_cs_n_o,
       pll_sync_n_o         => pll_sync_n_o,
       pll_reset_n_o        => pll_reset_n_o,
-      pll_refsel_o         => pll_refsel_o,
       pll_lock_i           => pll_lock_i,
+      pll_wr_mode_o        => pll_wr_mode_o,
       pll_clk_sel_o        => pll_clk_sel_o,
  
       phy_ref_clk_i        => phy_ref_clk_i,

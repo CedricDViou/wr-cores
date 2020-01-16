@@ -285,8 +285,8 @@ package wrcore_pkg is
       pll_cs_n_o     : out std_logic;
       pll_sync_n_o   : out std_logic;
       pll_reset_n_o  : out std_logic;
-      pll_refsel_o   : out std_logic;
       pll_lock_i     : in  std_logic;
+      pll_wr_mode_o  : out std_logic_vector(1 downto 0);
       pll_clk_sel_o  : out std_logic;
       slave_i        : in  t_wishbone_slave_in_array(0 to 4);
       slave_o        : out t_wishbone_slave_out_array(0 to 4);
@@ -419,8 +419,8 @@ package wrcore_pkg is
       pll_cs_n_o           : out std_logic;
       pll_sync_n_o         : out std_logic;
       pll_reset_n_o        : out std_logic;
-      pll_refsel_o         : out std_logic;
       pll_lock_i           : in  std_logic := '0';
+      pll_wr_mode_o        : out std_logic_vector(1 downto 0);
       pll_clk_sel_o        : out std_logic;
       
       -----------------------------------------
@@ -649,9 +649,9 @@ package wrcore_pkg is
       pll_cs_n_o    : out std_logic;
       pll_sync_n_o  : out std_logic;
       pll_reset_n_o : out std_logic;
-      pll_refsel_o  : out std_logic;
       pll_lock_i    : in  std_logic := '0';
-      pll_clk_sel_o        : out std_logic;
+      pll_wr_mode_o : out std_logic_vector(1 downto 0);
+      pll_clk_sel_o : out std_logic;
 
       -----------------------------------------
       --UART

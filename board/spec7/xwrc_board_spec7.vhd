@@ -120,7 +120,7 @@ entity xwrc_board_spec7 is
     dac_dmtd_din_o    : out std_logic;
 
     -------------------------------------------------------------------------------
-    -- AD9516 PLL Control signals
+    -- PLL Control signals
     -------------------------------------------------------------------------------    
 
     pll_status_i      : in  std_logic := '0';
@@ -130,8 +130,8 @@ entity xwrc_board_spec7 is
     pll_cs_n_o        : out std_logic;
     pll_sync_n_o      : out std_logic;
     pll_reset_n_o     : out std_logic;
-    pll_refsel_o      : out std_logic;
     pll_lock_i        : in  std_logic := '0';
+    pll_wr_mode_o     : out std_logic_vector(1 downto 0);
 
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver and SFP management info
@@ -355,7 +355,7 @@ begin  -- architecture struct
       ext_ref_mul_stopped_o => ext_ref_mul_stopped,
       ext_ref_rst_i         => ext_ref_rst);
 
-  -- The AD9516 on the SPEC7 needs to be initialized before it outputs 
+  -- The PLL on the SPEC7 needs to be initialized before it outputs 
   -- clk_125m_gtx_p/n_i (which is 
 
   cmp_bufgmux: BUFGMUX
@@ -388,7 +388,7 @@ begin  -- architecture struct
   -- logic AND of all async reset sources (active low)
   -- Note: pll_locked = pll_dmtd_locked and pll_sys_locked. SPEC7 uses
   -- direct_dmtd thus pll_dmtd_locked is always '1'. SPEC7 initial clk_sys_62m5
-  -- is clk_dmtd (selected by BUFGMUX) and clk_pll_62m5 is not yet driven by AD9516
+  -- is clk_dmtd (selected by BUFGMUX) and clk_pll_62m5 is not yet driven by the PLL
   -- so pll_sys_locked = '0' and can't be used for synchronous reset generation.
   --rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
   rstlogic_arst_n <= areset_n_i and (not areset_edge_ppulse);
@@ -506,8 +506,8 @@ begin  -- architecture struct
       pll_cs_n_o           => pll_cs_n_o,
       pll_sync_n_o         => pll_sync_n_o,
       pll_reset_n_o        => pll_reset_n_o,
-      pll_refsel_o         => pll_refsel_o,
       pll_lock_i           => pll_lock_i,
+      pll_wr_mode_o        => pll_wr_mode_o,
       pll_clk_sel_o        => pll_clk_sel,
       phy16_o              => phy16_from_wrc,
       phy16_i              => phy16_to_wrc,
