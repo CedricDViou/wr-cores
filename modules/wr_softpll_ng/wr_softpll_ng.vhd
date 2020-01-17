@@ -10,7 +10,7 @@
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 --
 -- The hardware part of the revised softcore PLL. Incorporates a user-defined
 -- number of DDMTD taggers, a FIFO allowing for sequential readout of
@@ -20,20 +20,20 @@
 --
 -- Copyright (c) 2012-2017 CERN
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -326,7 +326,7 @@ architecture rtl of wr_softpll_ng is
 
   signal aligner_sample_valid, aligner_sample_ack : std_logic_vector(g_num_outputs downto 0);
   signal aligner_sample_cref, aligner_sample_cin  : t_aligner_sample_array;
-  
+
 begin  -- rtl
 
   U_Adapter : wb_slave_adapter
@@ -390,7 +390,7 @@ begin  -- rtl
       pps_p1_i     => pps_ext_a_i,
       freq_o       => regs_out.f_ext_freq_i,
       freq_valid_o => open);            -- fixme
-  
+
 
   gen_ref_dmtds : for i in 0 to g_num_ref_inputs-1 generate
 
@@ -425,7 +425,7 @@ begin  -- rtl
   end generate gen_ref_dmtds;
 
   gen_feedback_dmtds : for i in 0 to g_num_outputs-1 generate
-    
+
     DMTD_FB : dmtd_with_deglitcher
       generic map (
         g_counter_bits      => g_tag_bits,
@@ -466,7 +466,7 @@ begin  -- rtl
     debug_o(0) <= fb_resync_out(0);
     debug_o(1) <= tags_p(g_num_ref_inputs + g_num_outputs);
     debug_o(2) <= tags_p(g_num_ref_inputs);
-    
+
     U_DMTD_EXT : dmtd_with_deglitcher
       generic map (
         g_counter_bits      => g_tag_bits,
@@ -527,7 +527,7 @@ begin  -- rtl
     clk_ext_rst_o <= regs_in.eccr_ext_ref_pllrst_o;
   end generate gen_with_ext_clock_input;
 
-  
+
   gen_without_ext_clock_input : if(not g_with_ext_clock_input) generate
     aligner_sample_valid <= (others => '0');
     aligner_sample_cref  <= (others => (others => '0'));
@@ -566,7 +566,7 @@ begin  -- rtl
       end if;
     end process;
 
-  
+
   U_WB_SLAVE : spll_wb_slave
     generic map (
       g_with_debug_fifo => f_pick(g_with_debug_fifo, 1, 0))
@@ -593,7 +593,6 @@ begin  -- rtl
     wb_out.err   <= '0';
     wb_out.rty   <= '0';
     wb_out.stall <= '0';
-    wb_out.int   <= '0';
 
   p_ocer_rcer_regs : process(clk_sys_i)
   begin
@@ -649,7 +648,7 @@ begin  -- rtl
         elsif(g_with_ext_clock_input and tags_grant(f_num_total_channels-1) = '1') then
           tags_req(f_num_total_channels-1) <= '0';
         end if;
-        
+
       end if;
     end if;
   end process;
@@ -668,7 +667,7 @@ begin  -- rtl
         tag_valid_pre <= '0';
         tag_valid     <= '0';
       else
-        
+
         for i in 0 to f_num_total_channels-1 loop
           if(tags_grant_p(i) = '1') then
             tags_masked(i) <= tags(i);
@@ -695,7 +694,7 @@ begin  -- rtl
         end loop;
 
         tag_muxed <= muxed;
-        
+
       end if;
     end if;
   end process;
@@ -705,7 +704,7 @@ begin  -- rtl
 
   regs_out.trr_value_i(g_tag_bits-1 downto 0) <= tag_muxed;
   regs_out.trr_value_i(23 downto g_tag_bits)  <= (others => '0');
-  
+
   regs_out.occr_out_en_i(g_num_outputs-1 downto 0) <= out_enable_i;
   regs_out.occr_out_en_i(7 downto g_num_outputs)   <= (others => '0');
 
@@ -722,7 +721,7 @@ begin  -- rtl
   -----------------------------------------------------------------------------
 
   gen_with_debug_fifo : if(g_with_debug_fifo = true) generate
-    
+
     dbg_fifo_almostfull <= '1' when unsigned(regs_in.dfr_host_wr_usedw_o) > 8180 else '0';
 
     p_request_counter : process(clk_sys_i)
