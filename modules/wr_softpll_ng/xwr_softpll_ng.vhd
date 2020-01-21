@@ -10,27 +10,27 @@
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 --
 -- Struct'ized version of wr_softpll_ng.
 -------------------------------------------------------------------------------
 --
 -- Copyright (c) 2012-2017 CERN
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -183,11 +183,10 @@ architecture wrapper of xwr_softpll_ng is
       wb_we_i         : in  std_logic;
       wb_ack_o        : out std_logic;
       wb_stall_o      : out std_logic;
-      irq_o           : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
-  
+
 begin  -- behavioral
 
   U_Wrapped_Softpll : wr_softpll_ng
@@ -236,11 +235,10 @@ begin  -- behavioral
       wb_we_i         => slave_i.we,
       wb_ack_o        => slave_o.ack,
       wb_stall_o      => slave_o.stall,
-      irq_o           => int_o,
       debug_o         => debug_o,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 
   slave_o.err <= '0';
   slave_o.rty <= '0';
-  
+
 end wrapper;
