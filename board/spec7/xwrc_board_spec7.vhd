@@ -339,6 +339,9 @@ begin  -- architecture struct
       ext_ref_mul_stopped_o => ext_ref_mul_stopped,
       ext_ref_rst_i         => ext_ref_rst);
 
+  -- The PLL on the SPEC7 needs to be initialized before it outputs clk_125m_gtx_p/n_i.
+  -- Avoid a deadlock. The clk_dmtd is always present and is first used to bring alive
+  -- the LM32 that exectutes a PLL initialisation before switching to clk_pll_62m5.
 
   clk_sys_62m5_o <= clk_pll_62m5;
   clk_ref_62m5_o <= clk_ref_62m5;

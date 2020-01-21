@@ -71,6 +71,29 @@ set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
 set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
 
+#   -------------------------------------------------------------------------------
+#   -- PLL Control signals
+#   -------------------------------------------------------------------------------    
+# Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN B11 [get_ports pll_status_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_status_i]
+set_property PACKAGE_PIN C14 [get_ports pll_mosi_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_mosi_o]
+set_property PACKAGE_PIN C11 [get_ports pll_miso_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_miso_i]
+set_property PACKAGE_PIN A15 [get_ports pll_sck_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_sck_o]
+set_property PACKAGE_PIN A14 [get_ports pll_cs_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_cs_n_o]
+set_property PACKAGE_PIN B14 [get_ports pll_sync_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_sync_n_o]
+set_property PACKAGE_PIN A12 [get_ports pll_lock_i]
+set_property IOSTANDARD LVCMOS18 [get_ports pll_lock_i]
+set_property PACKAGE_PIN B12 [get_ports {pll_wr_mode_o[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {pll_wr_mode_o[0]}]
+set_property PACKAGE_PIN C12 [get_ports {pll_wr_mode_o[1]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {pll_wr_mode_o[1]}]
+
 #   ---------------------------------------------------------------------------
 #   -- SFP I/O for transceiver
 #   ---------------------------------------------------------------------------
@@ -218,7 +241,7 @@ set_property PACKAGE_PIN E15 [get_ports clk_10m_n_o]
 set_property IOSTANDARD LVDS [get_ports clk_10m_n_o]
 
 # 125MHz Reference Clock Out
-# Bulls-Eye A05, A06 (connected to AD9516)
+# Bulls-Eye A05, A06 (connected to LTC6950)
 
 # TX Spare GTX Out (Bank 112 GTX3)
 # Bulls-Eye A07, A08
@@ -253,13 +276,16 @@ set_property PACKAGE_PIN F14 [get_ports pps_n_i]
 set_property IOSTANDARD LVDS [get_ports pps_n_i]
 
 # 10MHZ_in
-# Bulls-Eye B03, B04
-# Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN J14 [get_ports clk_10m_p_i]
-set_property IOSTANDARD LVDS [get_ports clk_10m_p_i]
-# Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN H14 [get_ports clk_10m_n_i]
-set_property IOSTANDARD LVDS [get_ports clk_10m_n_i]
+# Bulls-Eye B03, B04 (via LTC6957)
+# Bank 13 (HR) VCCO - 2.5 V
+set_property PACKAGE_PIN AF24 [get_ports clk_10m_p_i]
+set_property IOSTANDARD LVDS_25 [get_ports clk_10m_p_i]
+# Bank 13 (HR) VCCO - 2.5 V
+set_property PACKAGE_PIN AF25 [get_ports clk_10m_n_i]
+set_property IOSTANDARD LVDS_25 [get_ports clk_10m_n_i]
+# Signal clk_ext_10m is soly used for sampling the phase relation w.r.t. refclock.
+# The signals clk_10m_p/n_i are routed to a non-clock capable pins. Hence:
+set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk_ext_10m] 
 
 # Reference Clock In (Bank 111)
 # Bulls-Eye B05, B06
@@ -270,6 +296,20 @@ set_property IOSTANDARD LVDS [get_ports clk_10m_n_i]
 # Bulls-Eye B07, B08
 #set_property PACKAGE_PIN T4 [get_ports BE_RXP]
 #set_property PACKAGE_PIN T3 [get_ports BE_RXN]
+
+# Spare CLK_DMTD In
+# Bulls-Eye B09, B10
+# Bank 35 (HP) VCCO - 1.8 V
+#set_property PACKAGE_PIN J14 [get_ports clk_dmtd_p_i]
+#set_property IOSTANDARD LVDS [get_ports clk_dmtd_p_i]
+# Bank 35 (HP) VCCO - 1.8 V
+#set_property PACKAGE_PIN H14 [get_ports clk_dmtd_n_i]
+#set_property IOSTANDARD LVDS [get_ports clk_dmtd_n_i]
+
+# Bank 13 (HR) VCCO - 2.5 V
+# Bulls-Eye B11 (PPS Single Ended)
+set_property PACKAGE_PIN AE23 [get_ports pps_i]
+set_property IOSTANDARD LVCMOS25 [get_ports pps_i]
 
 
 #   ---------------------------------------------------------------------------

@@ -140,21 +140,24 @@ entity spec7_write_top is
     ------------------------------------------------------------------------------
     -- Digital I/O Bulls-Eye connections
     ------------------------------------------------------------------------------
-    --  3, 4 ABSCAL_TXTS                 (Bank 35 C17,C16)
+    -- A09,A10 ABSCAL_TXTS                 (Bank 35 C17,C16)
     abscal_txts_p_o   : out std_logic;
     abscal_txts_n_o   : out std_logic;
-    --  5, 6 PPS_OUT                     (Bank 35 G16,G15)
+    -- A01,A02 PPS_OUT                     (Bank 35 G16,G15)
     pps_p_o           : out std_logic;
     pps_n_o           : out std_logic;
-    --  7, 8 PPS_IN                      (Bank 35 G14,F14)
+    -- B01,B02 PPS_IN                      (Bank 35 G14,F14)
     pps_p_i           : in std_logic;
     pps_n_i           : in std_logic;
-    --  9,10 10MHz_out                   (Bank 35 F15,E15)
+    -- A03,A04 10MHz_out                   (Bank 35 F15,E15)
     clk_10m_p_o       : out std_logic;
     clk_10m_n_o       : out std_logic;
-    -- 11,12 10MHZ_in                    (Bank 35 J14,H14)
+    -- B03,B04 10MHZ_in                    (Bank 13 AF24,AF25)
     clk_10m_p_i       : in std_logic;
     clk_10m_n_i       : in std_logic;
+
+    -- B11 Single ended PPS_IN             (Bank 13 AE23)
+    pps_i             : in std_logic;
 
     -- blink 1-PPS.
     led_pps : out std_logic;
@@ -379,7 +382,7 @@ begin  -- architecture top
       O  => clk_10m_p_o,
       OB => clk_10m_n_o);
 
-  cmp_ibufgds_10mhz_in: IBUFGDS
+  cmp_ibufds_10mhz_in: IBUFDS
     generic map (
       DIFF_TERM => true)
     port map (
