@@ -65,12 +65,12 @@ set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
 
 #   -------------------------------------------------------------------------------
-#   -- AD9516 PLL Control signals
+#   -- PLL Control signals
 #   -------------------------------------------------------------------------------    
 # Bank 35 (HP) VCCO - 1.8 V
 set_property PACKAGE_PIN B11 [get_ports pll_status_i]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_status_i]
-set_property PACKAGE_PIN B12 [get_ports pll_mosi_o]
+set_property PACKAGE_PIN C14 [get_ports pll_mosi_o]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_mosi_o]
 set_property PACKAGE_PIN C11 [get_ports pll_miso_i]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_miso_i]
@@ -80,12 +80,12 @@ set_property PACKAGE_PIN A14 [get_ports pll_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_cs_n_o]
 set_property PACKAGE_PIN B14 [get_ports pll_sync_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_sync_n_o]
-set_property PACKAGE_PIN C12 [get_ports pll_reset_n_o]
-set_property IOSTANDARD LVCMOS18 [get_ports pll_reset_n_o]
-set_property PACKAGE_PIN C14 [get_ports pll_refsel_o]
-set_property IOSTANDARD LVCMOS18 [get_ports pll_refsel_o]
 set_property PACKAGE_PIN A12 [get_ports pll_lock_i]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_lock_i]
+set_property PACKAGE_PIN B12 [get_ports {pll_wr_mode_o[0]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {pll_wr_mode_o[0]}]
+set_property PACKAGE_PIN C12 [get_ports {pll_wr_mode_o[1]}]
+set_property IOSTANDARD LVCMOS18 [get_ports {pll_wr_mode_o[1]}]
 
 #   ---------------------------------------------------------------------------
 #   -- SFP I/O for transceiver
@@ -271,10 +271,10 @@ set_property IOSTANDARD LVDS [get_ports abscal_txts_n_o]
 # 10MHZ_IN
 # Bulls-Eye B03, B04
 # Bank 35 (HP) VCCO - 1.8 V
-#set_property PACKAGE_PIN J14 [get_ports clk_10m_p_i]
+#set_property PACKAGE_PIN AF24 [get_ports clk_10m_p_i]
 #set_property IOSTANDARD LVDS [get_ports clk_10m_p_i]
 # Bank 35 (HP) VCCO - 1.8 V
-#set_property PACKAGE_PIN H14 [get_ports clk_10m_n_i]
+#set_property PACKAGE_PIN AF25 [get_ports clk_10m_n_i]
 #set_property IOSTANDARD LVDS [get_ports clk_10m_n_i]
 
 # Reference Clock In (Bank 111)
@@ -286,6 +286,20 @@ set_property IOSTANDARD LVDS [get_ports abscal_txts_n_o]
 # Bulls-Eye B07, B08
 #set_property PACKAGE_PIN T4 [get_ports BE_RXP]
 #set_property PACKAGE_PIN T3 [get_ports BE_RXN]
+
+# CLK_DMTD In (Debug purposes only)
+# Bulls-Eye B09, B10
+# Bank 35 (HP) VCCO - 1.8 V
+#set_property PACKAGE_PIN J14 [get_ports clk_dmtd_p_i]
+#set_property IOSTANDARD LVDS [get_ports clk_dmtd_p_i]
+# Bank 35 (HP) VCCO - 1.8 V
+#set_property PACKAGE_PIN H14 [get_ports clk_dmtd_n_i]
+#set_property IOSTANDARD LVDS [get_ports clk_dmtd_n_i]
+
+# Bank 13 (HR) VCCO - 2.5 V
+# Bulls-Eye B11 (PPS Single Ended)
+#set_property PACKAGE_PIN AE23 [get_ports pps_i]
+#set_property IOSTANDARD LVCMOS25 [get_ports pps_i]
 
 #   ---------------------------------------------------------------------------
 #   -- Digital I/O FMC Pins
