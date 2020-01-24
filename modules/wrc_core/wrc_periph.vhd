@@ -552,10 +552,13 @@ begin
        pad_mosi_o           => pll_mosi_o,
        pad_miso_i           => pll_miso_i);
 
-   process(clk_sys_i)
+   process(clk_sys_i, rst_n_i)
    begin
-     if rising_edge(clk_sys_i) then
-
+     if (rst_n_i = '0') then
+       pll_reset_n_o <= '0';
+	   pll_clk_sel_o <= '0';
+	   pll_wr_mode_o <= (others => '0');
+	 elsif rising_edge(clk_sys_i) then
        if(sysc_regs_o.gpsr_pll_reset_o = '1') then
          pll_reset_n_o <= '0';
        elsif(sysc_regs_o.gpcr_pll_reset_o = '1') then
