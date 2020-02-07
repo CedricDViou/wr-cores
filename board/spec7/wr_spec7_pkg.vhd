@@ -110,6 +110,8 @@ package wr_spec7_pkg is
       onewire_oen_o        : out std_logic;
       uart_rxd_i           : in  std_logic;
       uart_txd_o           : out std_logic;
+      wb_slave_i           : in  t_wishbone_slave_in := cc_dummy_slave_in;
+      wb_slave_o           : out t_wishbone_slave_out;
       wrf_src_o            : out t_wrf_source_out;
       wrf_src_i            : in  t_wrf_source_in                                  := c_dummy_src_in;
       wrf_snk_o            : out t_wrf_sink_out;
@@ -152,6 +154,152 @@ package wr_spec7_pkg is
       link_ok_o            : out std_logic);
   end component xwrc_board_spec7;
 
+  type t_axis_32 is record
+    data  : std_logic_vector(31 DOWNTO 0);
+    last  : std_logic;
+    valid : std_logic;
+    ready : std_logic;
+    keep  : std_logic_vector(31/8 DOWNTO 0);
+  end record t_axis_32;
+  
+  type t_axis_64 is record
+    data  : std_logic_vector(63 DOWNTO 0);
+    last  : std_logic;
+    valid : std_logic;
+    ready : std_logic;
+    keep  : std_logic_vector(63/8 DOWNTO 0);
+  end record t_axis_64;
+  
+  -- AXI4-Lite interface, master output ports, 32 bits
+  type t_axi4_lite_master_out_32 is record
+    ARVALID : std_logic;
+    AWVALID : std_logic;
+    BREADY  : std_logic;
+    RREADY  : std_logic;
+    WLAST   : std_logic;
+    WVALID  : std_logic;
+    ARADDR  : std_logic_vector (31 downto 0);
+    AWADDR  : std_logic_vector (31 downto 0);
+    WDATA   : std_logic_vector (31 downto 0);
+    WSTRB   : std_logic_vector (3 downto 0);
+  end record;
+  subtype t_axi4_lite_slave_in_32 is t_axi4_lite_master_out_32;
+  
+  -- AXI4-Lite interface, master input ports, 32 bits
+  type t_axi4_lite_master_in_32 is record
+    ARREADY : std_logic;
+    AWREADY : std_logic;
+    BVALID  : std_logic;
+    RLAST   : std_logic;
+    RVALID  : std_logic;
+    WREADY  : std_logic;
+    BRESP   : std_logic_vector (1 downto 0);
+    RRESP   : std_logic_vector (1 downto 0);
+    RDATA   : std_logic_vector (31 downto 0);
+  end record;
+  subtype t_axi4_lite_slave_out_32 is t_axi4_lite_master_in_32;
+
+  COMPONENT xdma_0
+  PORT (
+    sys_clk : IN STD_LOGIC;
+    sys_rst_n : IN STD_LOGIC;
+    user_lnk_up : OUT STD_LOGIC;
+    pci_exp_txp : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+    pci_exp_txn : OUT STD_LOGIC_VECTOR(1 DOWNTO 0);
+    pci_exp_rxp : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    pci_exp_rxn : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    axi_aclk : OUT STD_LOGIC;
+    axi_aresetn : OUT STD_LOGIC;
+    usr_irq_req : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    usr_irq_ack : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    m_axil_awaddr   : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axil_awprot   : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+    m_axil_awvalid  : OUT STD_LOGIC;
+    m_axil_awready  : IN STD_LOGIC;
+    m_axil_wdata    : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axil_wstrb    : OUT STD_LOGIC_VECTOR(3 DOWNTO 0);
+    m_axil_wvalid   : OUT STD_LOGIC;
+    m_axil_wready   : IN STD_LOGIC;
+    m_axil_bvalid   : IN STD_LOGIC;
+    m_axil_bresp    : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    m_axil_bready   : OUT STD_LOGIC;
+    m_axil_araddr   : OUT STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axil_arprot   : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+    m_axil_arvalid  : OUT STD_LOGIC;
+    m_axil_arready  : IN STD_LOGIC;
+    m_axil_rdata    : IN STD_LOGIC_VECTOR(31 DOWNTO 0);
+    m_axil_rresp    : IN STD_LOGIC_VECTOR(1 DOWNTO 0);
+    m_axil_rvalid   : IN STD_LOGIC;
+    m_axil_rready   : OUT STD_LOGIC;
+    s_axis_c2h_tdata_0 : IN STD_LOGIC_VECTOR(63 DOWNTO 0);
+    s_axis_c2h_tlast_0 : IN STD_LOGIC;
+    s_axis_c2h_tvalid_0 : IN STD_LOGIC;
+    s_axis_c2h_tready_0 : OUT STD_LOGIC;
+    s_axis_c2h_tkeep_0 : IN STD_LOGIC_VECTOR(7 DOWNTO 0);
+    m_axis_h2c_tdata_0 : OUT STD_LOGIC_VECTOR(63 DOWNTO 0);
+    m_axis_h2c_tlast_0 : OUT STD_LOGIC;
+    m_axis_h2c_tvalid_0 : OUT STD_LOGIC;
+    m_axis_h2c_tready_0 : IN STD_LOGIC;
+    m_axis_h2c_tkeep_0 : OUT STD_LOGIC_VECTOR(7 DOWNTO 0)
+  );
+  END COMPONENT;
+  component Pcie_wrapper is
+  port (
+    aclk1_0 : in STD_LOGIC;
+    pcie_clk : in STD_LOGIC;
+    pcie_rst_n : in STD_LOGIC;
+    user_lnk_up_0 : out STD_LOGIC;
+    usr_irq_ack_0 : out STD_LOGIC_VECTOR ( 0 to 0 );
+    usr_irq_req_0 : in STD_LOGIC_VECTOR ( 0 to 0 );
+    M00_AXI_0_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    M00_AXI_0_awlen : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    M00_AXI_0_awsize : out STD_LOGIC_VECTOR ( 2 downto 0 );
+    M00_AXI_0_awburst : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    M00_AXI_0_awlock : out STD_LOGIC_VECTOR ( 0 to 0 );
+    M00_AXI_0_awcache : out STD_LOGIC_VECTOR ( 3 downto 0 );
+    M00_AXI_0_awprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
+    M00_AXI_0_awqos : out STD_LOGIC_VECTOR ( 3 downto 0 );
+    M00_AXI_0_awvalid : out STD_LOGIC;
+    M00_AXI_0_awready : in STD_LOGIC;
+    M00_AXI_0_wdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    M00_AXI_0_wstrb : out STD_LOGIC_VECTOR ( 3 downto 0 );
+    M00_AXI_0_wlast : out STD_LOGIC;
+    M00_AXI_0_wvalid : out STD_LOGIC;
+    M00_AXI_0_wready : in STD_LOGIC;
+    M00_AXI_0_bresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    M00_AXI_0_bvalid : in STD_LOGIC;
+    M00_AXI_0_bready : out STD_LOGIC;
+    M00_AXI_0_araddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
+    M00_AXI_0_arlen : out STD_LOGIC_VECTOR ( 7 downto 0 );
+    M00_AXI_0_arsize : out STD_LOGIC_VECTOR ( 2 downto 0 );
+    M00_AXI_0_arburst : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    M00_AXI_0_arlock : out STD_LOGIC_VECTOR ( 0 to 0 );
+    M00_AXI_0_arcache : out STD_LOGIC_VECTOR ( 3 downto 0 );
+    M00_AXI_0_arprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
+    M00_AXI_0_arqos : out STD_LOGIC_VECTOR ( 3 downto 0 );
+    M00_AXI_0_arvalid : out STD_LOGIC;
+    M00_AXI_0_arready : in STD_LOGIC;
+    M00_AXI_0_rdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+    M00_AXI_0_rresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    M00_AXI_0_rlast : in STD_LOGIC;
+    M00_AXI_0_rvalid : in STD_LOGIC;
+    M00_AXI_0_rready : out STD_LOGIC;
+    pcie_mgt_0_rxn : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_mgt_0_rxp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_mgt_0_txn : out STD_LOGIC_VECTOR ( 1 downto 0 );
+    pcie_mgt_0_txp : out STD_LOGIC_VECTOR ( 1 downto 0 )
+  );
+  end component Pcie_wrapper;
+  component xwb_axi4lite_bridge is
+    port (
+    clk_sys_i    : in std_logic;
+    rst_n_i      : in std_logic;
+    axi4_slave_i : in  t_axi4_lite_slave_in_32;
+    axi4_slave_o : out t_axi4_lite_slave_out_32;
+    wb_master_o  : out t_wishbone_master_out;
+    wb_master_i  : in  t_wishbone_master_in
+    );
+  end component;
 
 --  component wrc_board_spec7 is
 --    generic (
