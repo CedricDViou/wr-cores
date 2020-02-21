@@ -95,6 +95,27 @@ set_property PACKAGE_PIN C12 [get_ports {pll_wr_mode_o[1]}]
 set_property IOSTANDARD LVCMOS18 [get_ports {pll_wr_mode_o[1]}]
 
 #   ---------------------------------------------------------------------------
+#   -- PCIe 
+#   ---------------------------------------------------------------------------
+# Bank 112 (GTX2)
+set_property PACKAGE_PIN AB3 [get_ports {rxn[0]}]
+set_property PACKAGE_PIN AB4 [get_ports {rxp[0]}]
+set_property PACKAGE_PIN AA1 [get_ports {txn[0]}]
+set_property PACKAGE_PIN AA2 [get_ports {txp[0]}]
+
+set_property PACKAGE_PIN Y3 [get_ports {rxn[1]}]
+set_property PACKAGE_PIN Y4 [get_ports {rxp[1]}]
+set_property PACKAGE_PIN W1 [get_ports {txn[1]}]
+set_property PACKAGE_PIN W2 [get_ports {txp[1]}]
+
+set_property PACKAGE_PIN R6 [get_ports pci_clk_p]
+set_property PACKAGE_PIN R5 [get_ports pci_clk_n]
+create_clock -period 10.000 -name pci_clk_p [get_ports pci_clk_p]
+
+set_property PACKAGE_PIN D13 [get_ports perst_n]
+set_property IOSTANDARD LVCMOS18 [get_ports perst_n]
+
+#   ---------------------------------------------------------------------------
 #   -- SFP I/O for transceiver
 #   ---------------------------------------------------------------------------
 
@@ -122,14 +143,6 @@ set_property PACKAGE_PIN G12 [get_ports sfp_tx_disable_o]
 set_property IOSTANDARD LVCMOS18 [get_ports sfp_tx_disable_o]
 set_property PACKAGE_PIN K13 [get_ports sfp_los_i]
 set_property IOSTANDARD LVCMOS18 [get_ports sfp_los_i]
-
-#   ---------------------------------------------------------------------------
-#   -- PCIe PERST#
-#   ---------------------------------------------------------------------------
-
-# Bank 35 (HP) VCCO - 1.8 V
-#set_property PACKAGE_PIN D13 [get_ports perst_n]
-#set_property IOSTANDARD LVCMOS18 [get_ports perst_n]
 
 #   ---------------------------------------------------------------------------
 #   -- UART

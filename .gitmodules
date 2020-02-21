@@ -1,6 +1,7 @@
 [submodule "ip_cores/general-cores"]
 	path = ip_cores/general-cores
 	url = https://ohwr.org/project/general-cores.git
+    branch = pascal_axi
 [submodule "ip_cores/etherbone-core"]
 	path = ip_cores/etherbone-core
 	url = https://ohwr.org/project/etherbone-core.git

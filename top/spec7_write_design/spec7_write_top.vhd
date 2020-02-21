@@ -57,6 +57,7 @@ use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_spec7_pkg.all;
+use work.axi4_pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -182,7 +183,19 @@ entity spec7_write_top is
     -- EEPROM    (24AA64       Addr 1010.000x) and
     -- Unique ID (24AA025EU48, Addr 1010.001x).
     scl_b : inout std_logic;
-    sda_b : inout std_logic
+    sda_b : inout std_logic;
+    
+    ---------------------------------------------------------------------------
+    -- PCIe interface
+    ---------------------------------------------------------------------------
+    
+    pci_clk_n : in  std_logic;
+    pci_clk_p : in  std_logic;
+    perst_n   : in  std_logic;
+    rxn       : in  std_logic_vector(1 downto 0);
+    rxp       : in  std_logic_vector(1 downto 0);
+    txn       : out std_logic_vector(1 downto 0);
+    txp       : out std_logic_vector(1 downto 0)
 
   );
 end entity spec7_write_top;
@@ -256,6 +269,18 @@ architecture top of spec7_write_top is
   -- DIO Mezzanine
   signal dio_in  : std_logic_vector(4 downto 0);
   signal dio_out : std_logic_vector(4 downto 0);
+  
+  --Axi4
+  signal m_axil_i :  t_axi4_lite_master_in_32;
+  signal m_axil_o :  t_axi4_lite_master_out_32;
+  
+  --Wishbone
+  signal wb_master_i : t_wishbone_master_in; 
+  signal wb_master_o : t_wishbone_master_out;
+
+  --PCIe 
+  signal pci_clk : std_logic;
+
 
   component pll_62m5_500m is
     port (
@@ -283,6 +308,71 @@ begin  -- architecture top
   wdog_n_o    <= '1';
   -- prsnt_m2c_l_i isn't used but must be defined as input.
 
+pci_clk_buf : IBUFDS_GTE2
+  port map(
+    I  => pci_clk_p,
+    IB => pci_clk_n,
+    O  => pci_clk,
+    ODIV2 => open,
+    CEB => '0'
+  ); 
+Pcie: Pcie_wrapper
+  port map (
+    M00_AXI_0_araddr  => m_axil_o.araddr,
+    M00_AXI_0_arburst => open,
+    M00_AXI_0_arcache => open,
+    M00_AXI_0_arlen   => open,
+    M00_AXI_0_arlock  => open,
+    M00_AXI_0_arprot  => open,
+    M00_AXI_0_arqos   => open,
+    M00_AXI_0_arready => m_axil_i.arready,
+    M00_AXI_0_arsize  => open,
+    M00_AXI_0_arvalid => m_axil_o.arvalid,
+    M00_AXI_0_awaddr  => m_axil_o.awaddr,
+    M00_AXI_0_awburst => open,
+    M00_AXI_0_awcache => open,
+    M00_AXI_0_awlen   => open,
+    M00_AXI_0_awlock  => open,
+    M00_AXI_0_awprot  => open,
+    M00_AXI_0_awqos   => open,
+    M00_AXI_0_awready => m_axil_i.awready,
+    M00_AXI_0_awsize  => open,
+    M00_AXI_0_awvalid => m_axil_o.awvalid,
+    M00_AXI_0_bready  => m_axil_o.bready,
+    M00_AXI_0_bresp   => m_axil_i.bresp,
+    M00_AXI_0_bvalid  => m_axil_i.bvalid,
+    M00_AXI_0_rdata   => m_axil_i.rdata,
+    M00_AXI_0_rlast   => m_axil_i.rlast,
+    M00_AXI_0_rready  => m_axil_o.rready,
+    M00_AXI_0_rresp   => m_axil_i.rresp,
+    M00_AXI_0_rvalid  => m_axil_i.rvalid,
+    M00_AXI_0_wdata   => m_axil_o.wdata,
+    M00_AXI_0_wlast   => m_axil_o.wlast,
+    M00_AXI_0_wready  => m_axil_i.wready,
+    M00_AXI_0_wstrb   => m_axil_o.wstrb,
+    M00_AXI_0_wvalid  => m_axil_o.wvalid,
+    aclk1_0           => clk_sys_62m5,
+    pcie_mgt_0_rxn    => rxn,
+    pcie_mgt_0_rxp    => rxp,
+    pcie_mgt_0_txn    => txn,
+    pcie_mgt_0_txp    => txp,
+    pcie_clk          => pci_clk,
+    pcie_rst_n        => perst_n,
+    user_lnk_up_0     => open,
+    usr_irq_ack_0     => open,
+    usr_irq_req_0     => "0"
+  );
+
+AXI2WB : xwb_axi4lite_bridge 
+  port map(
+    clk_sys_i => clk_sys_62m5,
+    rst_n_i   => reset_n_i,
+                
+    axi4_slave_i => m_axil_o,
+    axi4_slave_o => m_axil_i,
+    wb_master_o  => wb_master_o,
+    wb_master_i  => wb_master_i  
+  );
   -----------------------------------------------------------------------------
   -- The WR PTP core board package (WB Slave + WB Master)
   -----------------------------------------------------------------------------
@@ -305,7 +395,6 @@ begin  -- architecture top
       clk_ref_62m5_o      => clk_ref_62m5,
       rst_sys_62m5_n_o    => rst_sys_62m5_n,
       rst_ref_62m5_n_o    => rst_ref_62m5_n,
-
       dac_refclk_cs_n_o   => dac_refclk_cs_n_o,
       dac_refclk_sclk_o   => dac_refclk_sclk_o,
       dac_refclk_din_o    => dac_refclk_din_o,
@@ -347,6 +436,9 @@ begin  -- architecture top
       -- Uart
       uart_rxd_i          => uart_rxd_i,
       uart_txd_o          => uart_txd_o,
+      -- Wishbone
+      wb_slave_i          => wb_master_o,
+      wb_slave_o          => wb_master_i,
       
       abscal_txts_o       => wrc_abscal_txts_out,
       abscal_rxts_o       => open,
