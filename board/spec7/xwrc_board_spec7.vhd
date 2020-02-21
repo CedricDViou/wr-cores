@@ -161,9 +161,10 @@ entity xwrc_board_spec7 is
     ---------------------------------------------------------------------------
 
     ---------------------------------------------------------------------------
-    -- No External WB interface
+    --External WB interface
     ---------------------------------------------------------------------------
-
+    wb_slave_i : in  t_wishbone_slave_in := cc_dummy_slave_in;
+    wb_slave_o : out t_wishbone_slave_out;
     ---------------------------------------------------------------------------
     -- WR fabric interface (when g_fabric_iface = "plainfbrc")
     ---------------------------------------------------------------------------
@@ -344,6 +345,16 @@ begin  -- architecture struct
   -- the LM32 that exectutes a PLL initialisation before switching to clk_pll_62m5.
 
   clk_sys_62m5_o <= clk_pll_62m5;
+
+  cmp_bufgmux: BUFGMUX
+    port map (
+      O  => clk_sys_62m5,
+      I0 => clk_dmtd,
+      I1 => clk_pll_62m5,
+      S  => pll_clk_sel
+    );
+
+  clk_sys_62m5_o <= clk_sys_62m5;
   clk_ref_62m5_o <= clk_ref_62m5;
 
   -----------------------------------------------------------------------------
@@ -491,6 +502,8 @@ begin  -- architecture struct
       owr_pwren_o          => open,
       owr_en_o             => onewire_en,
       owr_i                => onewire_in,
+      wb_slave_i           => wb_slave_i,
+      wb_slave_o           => wb_slave_o,
       wrf_src_o            => wrf_src_o,
       wrf_src_i            => wrf_src_i,
       wrf_snk_o            => wrf_snk_o,
