@@ -151,6 +151,7 @@ entity xwrc_platform_xilinx is
     ---------------------------------------------------------------------------
     -- PLL outputs
     clk_62m5_sys_o        : out std_logic;
+    clk_125m_gtx_buf_o    : out std_logic;
     clk_125m_ref_o        : out std_logic;
     clk_20m_o             : out std_logic;
     clk_ref_locked_o      : out std_logic;
@@ -1158,7 +1159,8 @@ begin  -- architecture rtl
 
         tx_locked_o   => clk_ref_locked);
 
-    clk_125m_ref_o       <= clk_ref;
+    clk_125m_gtx_buf_o   <= clk_125m_gtx_buf;
+	clk_125m_ref_o       <= clk_ref;
     clk_ref_locked_o     <= clk_ref_locked;
     phy16_o.ref_clk      <= clk_ref;
     phy16_o.sfp_tx_fault <= sfp_tx_fault_i;
