@@ -192,6 +192,16 @@ architecture rtl of wr_gtx_phy_family7 is
     ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
     TXUSRCLK_IN                             : in   std_logic;
     TXUSRCLK2_IN                            : in   std_logic;
+    ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
+    TXDLYEN_IN                              : in   std_logic;
+    TXDLYSRESET_IN                          : in   std_logic;
+    TXDLYSRESETDONE_OUT                     : out  std_logic;
+    TXPHALIGN_IN                            : in   std_logic;
+    TXPHALIGNDONE_OUT                       : out  std_logic;
+    TXPHALIGNEN_IN                          : in   std_logic;
+    TXPHDLYRESET_IN                         : in   std_logic;
+    TXPHINIT_IN                             : in   std_logic;
+    TXPHINITDONE_OUT                        : out  std_logic;
     ------------------ Transmit Ports - TX Data Path interface -----------------
     TXDATA_IN                               : in   std_logic_vector(15 downto 0);
     ---------------- Transmit Ports - TX Driver and OOB signaling --------------
@@ -230,6 +240,56 @@ architecture rtl of wr_gtx_phy_family7 is
       gtp_rx_cdr_rst_o         : out std_logic;
       bitslide_o               : out std_logic_vector(4 downto 0);
       synced_o                 : out std_logic);
+  end component;
+
+  component whiterabbitgtx_wrapper_TX_STARTUP_FSM
+    generic(
+      EXAMPLE_SIMULATION       : integer := 0;
+      STABLE_CLOCK_PERIOD      : integer range 4 to 250 := 8; --Period of the stable clock driving this state-machine, unit is [ns]
+      RETRY_COUNTER_BITWIDTH   : integer range 2 to 8  := 8; 
+      TX_QPLL_USED             : boolean := False;           -- the TX and RX Reset FSMs must
+      RX_QPLL_USED             : boolean := False;           -- share these two generic values
+      PHASE_ALIGNMENT_MANUAL   : boolean := True             -- Decision if a manual phase-alignment is necessary or the automatic 
+                                                             -- is enough. For single-lane applications the automatic alignment is 
+                                                             -- sufficient              
+      );     
+    port (
+	  STABLE_CLOCK             : in  STD_LOGIC;              --Stable Clock, either a stable clock from the PCB
+                                                             --or reference-clock present at startup.
+      TXUSERCLK                : in  STD_LOGIC;              --TXUSERCLK as used in the design
+      SOFT_RESET               : in  STD_LOGIC;              --User Reset, can be pulled any time
+      QPLLREFCLKLOST           : in  STD_LOGIC;              --QPLL Reference-clock for the GT is lost
+      CPLLREFCLKLOST           : in  STD_LOGIC;              --CPLL Reference-clock for the GT is lost
+      QPLLLOCK                 : in  STD_LOGIC;              --Lock Detect from the QPLL of the GT
+      CPLLLOCK                 : in  STD_LOGIC;              --Lock Detect from the CPLL of the GT
+      TXRESETDONE              : in  STD_LOGIC;      
+      MMCM_LOCK                : in  STD_LOGIC;      
+      GTTXRESET                : out STD_LOGIC:='0';      
+      MMCM_RESET               : out STD_LOGIC:='0';      
+      QPLL_RESET               : out STD_LOGIC:='0';        --Reset QPLL
+      CPLL_RESET               : out STD_LOGIC:='0';        --Reset CPLL
+      TX_FSM_RESET_DONE        : out STD_LOGIC:='0';        --Reset-sequence has sucessfully been finished.
+      TXUSERRDY                : out STD_LOGIC:='0';
+      RUN_PHALIGNMENT          : out STD_LOGIC:='0';
+      RESET_PHALIGNMENT        : out STD_LOGIC:='0';
+      PHALIGNMENT_DONE         : in  STD_LOGIC;
+      RETRY_COUNTER            : out STD_LOGIC_VECTOR (RETRY_COUNTER_BITWIDTH-1 downto 0):=(others=>'0')-- Number of 
+                                                       -- Retries it took to get the transceiver up and running
+      );
+  end component;
+  
+  component whiterabbitgtx_wrapper_AUTO_PHASE_ALIGN     
+    port (
+	  STABLE_CLOCK             : in  STD_LOGIC;              --Stable Clock, either a stable clock from the PCB
+                                                                --or reference-clock present at startup.
+      RUN_PHALIGNMENT          : in  STD_LOGIC;              --Signal from the main Reset-FSM to run the auto phase-alignment procedure
+      PHASE_ALIGNMENT_DONE     : out STD_LOGIC;              -- Auto phase-alignment performed sucessfully
+      PHALIGNDONE              : in  STD_LOGIC;              --\ Phase-alignment signals from and to the
+      DLYSRESET                : out STD_LOGIC;              -- |transceiver.
+      DLYSRESETDONE            : in  STD_LOGIC;              --/
+      RECCLKSTABLE             : in  STD_LOGIC               --/on the RX-side.
+           
+      );
   end component;
 
   constant c_rxcdrlock_max            : integer := 3;
@@ -271,6 +331,15 @@ architecture rtl of wr_gtx_phy_family7 is
   signal tx_data_swapped              : std_logic_vector(15 downto 0);
 
   signal cur_disp                     : t_8b10b_disparity;
+  
+  signal cpllreset                    : std_logic;
+  signal txuserrdy                    : std_logic;
+  signal run_tx_phalignment           : std_logic;
+  signal tx_phalignment_done          : std_logic;
+  signal txphaligndone                : std_logic;
+  signal txdlysreset                  : std_logic;
+  signal txdlysresetdone              : std_logic;
+  signal tx_fsm_rst_done              : std_logic;
 
 begin  -- rtl
 
@@ -338,7 +407,7 @@ U_GTX_INST : WHITERABBIT_GTXE2_CHANNEL_WRAPPER_GT
 		CPLLLOCK_OUT               => cpll_lockdet,
 		CPLLLOCKDETCLK_IN          => '0',
 		CPLLREFCLKLOST_OUT         => open,
-		CPLLRESET_IN               => rst_int,
+		CPLLRESET_IN               => cpllreset,
 		-------------------------- Channel - Clocking Ports ------------------------
 		GTREFCLK0_IN               => clk_gtx_i,
 		---------------------------- Channel - DRP Ports  --------------------------
@@ -393,10 +462,20 @@ U_GTX_INST : WHITERABBIT_GTXE2_CHANNEL_WRAPPER_GT
 		RXRESETDONE_OUT            => rx_rst_done,
 		--------------------- TX Initialization and Reset Ports --------------------
 		GTTXRESET_IN               => gtreset,
-		TXUSERRDY_IN               => cpll_lockdet,
+		TXUSERRDY_IN               => txuserrdy,
 		------------------ Transmit Ports - FPGA TX Interface Ports ----------------
 		TXUSRCLK_IN                => tx_out_clk,
 		TXUSRCLK2_IN               => tx_out_clk,
+		------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
+		TXDLYEN_IN                 => '0',
+		TXDLYSRESET_IN             => txdlysreset,
+		TXDLYSRESETDONE_OUT        => txdlysresetdone,
+		TXPHALIGN_IN               => '0',
+		TXPHALIGNDONE_OUT          => txphaligndone,
+		TXPHALIGNEN_IN             => '0',
+		TXPHDLYRESET_IN            => '0',
+		TXPHINIT_IN                => '0',
+		TXPHINITDONE_OUT           => open,
 		------------------ Transmit Ports - TX Data Path interface -----------------
 		TXDATA_IN                  => tx_data_swapped,
 --       TXDATA_IN                  => tx_data_i,
@@ -413,7 +492,53 @@ U_GTX_INST : WHITERABBIT_GTXE2_CHANNEL_WRAPPER_GT
 		------------- Transmit Ports - TX Initialization and Reset Ports -----------
 		TXRESETDONE_OUT            => tx_rst_done,
                 ------------------ Transmit Ports - pattern Generator Ports ----------------
-    TXPRBSSEL_IN               => tx_prbs_sel_i
+        TXPRBSSEL_IN               => tx_prbs_sel_i
+    );
+  
+  U_txresetfsm_i:  whiterabbitgtx_wrapper_TX_STARTUP_FSM 
+
+    generic map(
+      EXAMPLE_SIMULATION           => g_simulation,
+      STABLE_CLOCK_PERIOD          => 8,                     -- Period of the stable clock driving this state-machine, unit is [ns]
+      RETRY_COUNTER_BITWIDTH       => 8,                  
+      TX_QPLL_USED                 => FALSE,                 -- the TX and RX Reset FSMs must
+      RX_QPLL_USED                 => FALSE,                 -- share these two generic values
+      PHASE_ALIGNMENT_MANUAL       => TRUE                   -- Decision if a manual phase-alignment is necessary or the automatic 
+                                                             -- is enough. For single-lane applications the automatic alignment is 
+                                                             -- sufficient              
+      )     
+    port map ( 
+      STABLE_CLOCK                 => clk_gtx_i,  			 --	in
+      TXUSERCLK                    => tx_out_clk,            -- in
+      SOFT_RESET                   => rst_int,               -- in
+      QPLLREFCLKLOST               => '0',                   -- in
+      --CPLLREFCLKLOST               => cpllrefclklost,        -- in
+      CPLLREFCLKLOST               => '0',        -- in
+      QPLLLOCK                     => '1',                   -- in
+      CPLLLOCK                     => cpll_lockdet,          -- in
+      TXRESETDONE                  => tx_rst_done,           -- in
+      MMCM_LOCK                    => '1',                   -- in
+      GTTXRESET                    => gtreset,               -- out
+      MMCM_RESET                   => open,                  -- out
+      QPLL_RESET                   => open,                  -- out
+      CPLL_RESET                   => cpllreset,             -- out
+      TX_FSM_RESET_DONE            => tx_fsm_rst_done,       -- out
+      TXUSERRDY                    => txuserrdy,             -- out
+      RUN_PHALIGNMENT              => run_tx_phalignment,    -- out
+      RESET_PHALIGNMENT            => open,                  -- out
+      PHALIGNMENT_DONE             => tx_phalignment_done,   -- in
+      RETRY_COUNTER                => open                   -- out
+      );
+
+  U_tx_auto_phase_align_i : whiterabbitgtx_wrapper_AUTO_PHASE_ALIGN    
+    port map ( 
+      STABLE_CLOCK                 => clk_gtx_i,             -- in
+      RUN_PHALIGNMENT              => run_tx_phalignment,    -- in
+      PHASE_ALIGNMENT_DONE         => tx_phalignment_done,   -- out
+      PHALIGNDONE                  => txphaligndone,         -- in
+      DLYSRESET                    => txdlysreset,           -- out
+      DLYSRESETDONE                => txdlysresetdone,       -- in
+      RECCLKSTABLE                 => '1'                    -- in
     );
 
   U_Bitslide : gtp_bitslide
@@ -434,8 +559,7 @@ U_GTX_INST : WHITERABBIT_GTXE2_CHANNEL_WRAPPER_GT
   txpll_lockdet    <= cpll_lockdet;
 --  rxpll_lockdet    <= rx_cdr_lock;
   rxpll_lockdet    <= rx_cdr_lock_filtered;
-  gtreset          <= not cpll_lockdet;
-  rst_done         <= rx_rst_done and tx_rst_done;
+  rst_done         <= rx_rst_done and tx_rst_done and tx_fsm_rst_done;
   rst_done_n       <= not rst_done;
   pll_lockdet      <= txpll_lockdet and rxpll_lockdet;
   everything_ready <= rst_done and pll_lockdet;

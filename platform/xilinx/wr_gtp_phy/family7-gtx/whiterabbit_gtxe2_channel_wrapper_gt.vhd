@@ -143,6 +143,16 @@ port
     ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
     TXUSRCLK_IN                             : in   std_logic;
     TXUSRCLK2_IN                            : in   std_logic;
+    ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
+    TXDLYEN_IN                              : in   std_logic;
+    TXDLYSRESET_IN                          : in   std_logic;
+    TXDLYSRESETDONE_OUT                     : out  std_logic;
+    TXPHALIGN_IN                            : in   std_logic;
+    TXPHALIGNDONE_OUT                       : out  std_logic;
+    TXPHALIGNEN_IN                          : in   std_logic;
+    TXPHDLYRESET_IN                         : in   std_logic;
+    TXPHINIT_IN                             : in   std_logic;
+    TXPHINITDONE_OUT                        : out  std_logic;
     ------------------ Transmit Ports - TX Data Path interface -----------------
     TXDATA_IN                               : in   std_logic_vector(15 downto 0);
     ---------------- Transmit Ports - TX Driver and OOB signaling --------------
@@ -397,7 +407,7 @@ begin
         TRANS_TIME_RATE                         =>     (x"0E"),
 
        --------------TX Buffer Attributes----------------
-        TXBUF_EN                                =>     ("TRUE"),
+        TXBUF_EN                                =>     ("FALSE"),
         TXBUF_RESET_ON_RATE_CHANGE              =>     ("TRUE"),
         TXDLY_CFG                               =>     (x"001F"),
         TXDLY_LCFG                              =>     (x"030"),
@@ -405,7 +415,7 @@ begin
         TXPH_CFG                                =>     (x"0780"),
         TXPHDLY_CFG                             =>     (x"084020"),
         TXPH_MONITOR_SEL                        =>     ("00000"),
-        TX_XCLK_SEL                             =>     ("TXOUT"),
+        TX_XCLK_SEL                             =>     ("TXUSR"),
 
        -------------------------FPGA TX Interface Attributes-------------------------
         TX_DATA_WIDTH                           =>     (20),
@@ -730,20 +740,20 @@ begin
         ------------------ Transmit Ports - Pattern Generator Ports ----------------
         TXPRBSFORCEERR                  =>      tied_to_ground_i,
         ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
-        TXDLYBYPASS                     =>      tied_to_vcc_i,
-        TXDLYEN                         =>      tied_to_ground_i,
+        TXDLYBYPASS                     =>      tied_to_ground_i,
+        TXDLYEN                         =>      TXDLYEN_IN,
         TXDLYHOLD                       =>      tied_to_ground_i,
         TXDLYOVRDEN                     =>      tied_to_ground_i,
-        TXDLYSRESET                     =>      tied_to_ground_i,
-        TXDLYSRESETDONE                 =>      open,
+        TXDLYSRESET                     =>      TXDLYSRESET_IN,
+        TXDLYSRESETDONE                 =>      TXDLYSRESETDONE_OUT,
         TXDLYUPDOWN                     =>      tied_to_ground_i,
-        TXPHALIGN                       =>      tied_to_ground_i,
-        TXPHALIGNDONE                   =>      open,
-        TXPHALIGNEN                     =>      tied_to_ground_i,
+        TXPHALIGN                       =>      TXPHALIGN_IN,
+        TXPHALIGNDONE                   =>      TXPHALIGNDONE_OUT,
+        TXPHALIGNEN                     =>      TXPHALIGNEN_IN,
         TXPHDLYPD                       =>      tied_to_ground_i,
-        TXPHDLYRESET                    =>      tied_to_ground_i,
-        TXPHINIT                        =>      tied_to_ground_i,
-        TXPHINITDONE                    =>      open,
+        TXPHDLYRESET                    =>      TXPHDLYRESET_IN,
+        TXPHINIT                        =>      TXPHINIT_IN,
+        TXPHINITDONE                    =>      TXPHINITDONE_OUT,
         TXPHOVRDEN                      =>      tied_to_ground_i,
         ---------------------- Transmit Ports - TX Buffer Ports --------------------
         TXBUFSTATUS                     =>      open,
@@ -764,7 +774,7 @@ begin
         TXOUTCLK                        =>      TXOUTCLK_OUT,
         TXOUTCLKFABRIC                  =>      TXOUTCLKFABRIC_OUT,
         TXOUTCLKPCS                     =>      TXOUTCLKPCS_OUT,
-        TXOUTCLKSEL                     =>      "010",
+        TXOUTCLKSEL                     =>      "100",
         TXRATEDONE                      =>      open,
         --------------------- Transmit Ports - TX Gearbox Ports --------------------
         TXCHARISK(7 downto 2)           =>      tied_to_ground_vec_i(5 downto 0),
