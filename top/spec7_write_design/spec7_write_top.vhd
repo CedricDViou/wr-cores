@@ -57,7 +57,7 @@ use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_spec7_pkg.all;
-
+use work.axi4_pkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
@@ -270,7 +270,7 @@ architecture top of spec7_write_top is
   --Axi4
   signal m_axil_i :  t_axi4_lite_master_in_32;
   signal m_axil_o :  t_axi4_lite_master_out_32;
-  signal axi_h2c_fifo_64, axi_c2h_fifo_64 : t_axis_64;
+  signal axis_icap: t_axis_64;
   
   --Wishbone
   signal wb_master_i : t_wishbone_master_in; 
@@ -278,6 +278,7 @@ architecture top of spec7_write_top is
 
   --PCIe 
   signal pci_clk : std_logic;
+  signal axi_clk : std_logic;
 
 
   component pll_62m5_500m is
@@ -349,7 +350,13 @@ Pcie: Pcie_wrapper
     M00_AXI_0_wready  => m_axil_i.wready,
     M00_AXI_0_wstrb   => m_axil_o.wstrb,
     M00_AXI_0_wvalid  => m_axil_o.wvalid,
+--    M_AXIS_H2C_0_0_tdata  => axis_icap.data,
+--    M_AXIS_H2C_0_0_tkeep  => axis_icap.keep,
+--    M_AXIS_H2C_0_0_tlast  => axis_icap.last,
+--    M_AXIS_H2C_0_0_tready => axis_icap.ready,
+--    M_AXIS_H2C_0_0_tvalid => axis_icap.valid,
     aclk1_0           => clk_sys_62m5,
+    axi_aclk          => axi_clk,
     pcie_mgt_0_rxn    => rxn,
     pcie_mgt_0_rxp    => rxp,
     pcie_mgt_0_txn    => txn,
@@ -360,7 +367,16 @@ Pcie: Pcie_wrapper
     usr_irq_ack_0     => open,
     usr_irq_req_0     => "0"
   );
-
+--Icap : icap_wrapper 
+--  port map(
+--    s_axis_tvalid => axis_icap.valid, 
+--    s_axis_tready => axis_icap.ready, 
+--    s_axis_tdata  => axis_icap.data, 
+--    s_axis_tkeep  => axis_icap.keep,
+--    s_axis_tlast  => axis_icap.last,
+--    axi_clk       => axi_clk,
+--    axi_rst_n     => reset_n_i
+--  );
 AXI2WB : xwb_axi4lite_bridge 
   port map(
     clk_sys_i => clk_sys_62m5,
