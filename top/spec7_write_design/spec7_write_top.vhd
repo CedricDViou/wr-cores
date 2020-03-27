@@ -356,7 +356,7 @@ Pcie: Pcie_wrapper
 --    M_AXIS_H2C_0_0_tready => axis_icap.ready,
 --    M_AXIS_H2C_0_0_tvalid => axis_icap.valid,
     aclk1_0           => clk_sys_62m5,
-    axi_aclk          => axi_clk,
+--    axi_aclk          => axi_clk,
     pcie_mgt_0_rxn    => rxn,
     pcie_mgt_0_rxp    => rxp,
     pcie_mgt_0_txn    => txn,

@@ -284,7 +284,7 @@ package wr_spec7_pkg is
 --    M_AXIS_H2C_0_0_tready : in STD_LOGIC;
 --    M_AXIS_H2C_0_0_tvalid : out STD_LOGIC;
     aclk1_0 : in STD_LOGIC;
-    axi_aclk : out STD_LOGIC;
+--    axi_aclk : out STD_LOGIC;
     pcie_clk : in STD_LOGIC;
     pcie_mgt_0_rxn : in STD_LOGIC_VECTOR ( 1 downto 0 );
     pcie_mgt_0_rxp : in STD_LOGIC_VECTOR ( 1 downto 0 );
