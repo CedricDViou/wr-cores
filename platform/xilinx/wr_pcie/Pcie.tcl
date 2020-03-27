@@ -275,5 +275,6 @@ proc create_root_design { parentCell } {
 ##################################################################
 
 create_root_design ""
-
-
+make_wrapper -files [get_files ./work/spec7_write_top.srcs/sources_1/bd/Pcie/Pcie.bd] -top
+add_files -norecurse ./work/spec7_write_top.srcs/sources_1/bd/Pcie/hdl/Pcie_wrapper.vhd
+close_bd_design [get_bd_designs Pcie]
