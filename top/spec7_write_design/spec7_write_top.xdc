@@ -89,13 +89,11 @@ set_property IOSTANDARD LVCMOS18 [get_ports pll_lock_i]
 #   -- PCIe
 #   ---------------------------------------------------------------------------
 # Bank 112 (GTX2)
-#set_property LOC GTXE2_CHANNEL_X0Y12 [get_cells {Pcie/Pcie_i/xdma_0/inst/Pcie_xdma_0_0_pcie2_to_pcie3_wrapper_i/pcie2_ip_i/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[0].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
 set_property PACKAGE_PIN AB3 [get_ports {rxn[0]}]
 set_property PACKAGE_PIN AB4 [get_ports {rxp[0]}]
 set_property PACKAGE_PIN AA1 [get_ports {txn[0]}]
 set_property PACKAGE_PIN AA2 [get_ports {txp[0]}]
 
-#set_property LOC GTXE2_CHANNEL_X0Y13 [get_cells {Pcie/Pcie_i/xdma_0/inst/Pcie_xdma_0_0_pcie2_to_pcie3_wrapper_i/pcie2_ip_i/U0/inst/gt_top_i/pipe_wrapper_i/pipe_lane[1].gt_wrapper_i/gtx_channel.gtxe2_channel_i}]
 set_property PACKAGE_PIN Y3 [get_ports {rxn[1]}]
 set_property PACKAGE_PIN Y4 [get_ports {rxp[1]}]
 set_property PACKAGE_PIN W1 [get_ports {txn[1]}]
