@@ -546,7 +546,56 @@ architecture struct of wr_core is
   --signal TRIG1   : std_logic_vector(31 downto 0);
   --signal TRIG2   : std_logic_vector(31 downto 0);
   --signal TRIG3   : std_logic_vector(31 downto 0);
+  COMPONENT ila_0
+
+PORT (
+	clk : IN STD_LOGIC;
+
+
+
+	probe0 : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+	probe1 : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+	probe2 : IN STD_LOGIC_VECTOR(31 DOWNTO 0); 
+	probe3 : IN STD_LOGIC_VECTOR(3 DOWNTO 0); 
+	probe4 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
+	probe5 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
+	probe6 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
+	probe7 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
+	probe8 : IN STD_LOGIC_VECTOR(0 DOWNTO 0); 
+	probe9 : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+	probe10 : IN STD_LOGIC_VECTOR(0 DOWNTO 0)
+);
+END COMPONENT  ;
 begin
+WB_ILA : ila_0
+--PORT MAP (
+--	clk => clk_sys_i,
+--	probe0 => ext_wb_in.adr, 
+--	probe1 => ext_wb_in.dat,   
+--	probe2 => ext_wb_out.dat,   
+--	probe3 => ext_wb_in.sel,   
+--	probe4(0) => ext_wb_in.we,    
+--	probe5(0) => ext_wb_in.cyc,   
+--	probe6(0) => ext_wb_in.stb,   
+--	probe7(0) => ext_wb_out.ack,   
+--	probe8(0) => ext_wb_out.err,   
+--	probe9(0) => ext_wb_out.rty,   
+--	probe10(0) => ext_wb_out.stall 
+--);
+PORT MAP (
+	clk => clk_sys_i,
+	probe0 => secbar_master_o(4).adr, 
+	probe1 => secbar_master_o(4).dat,   
+	probe2 => secbar_master_i(4).dat,   
+	probe3 => secbar_master_o(4).sel,   
+	probe4(0) => secbar_master_o(4).we,    
+	probe5(0) => secbar_master_o(4).cyc,   
+	probe6(0) => secbar_master_o(4).stb,   
+	probe7(0) => secbar_master_i(4).ack,   
+	probe8(0) => secbar_master_i(4).err,   
+	probe9(0) => secbar_master_i(4).rty,   
+	probe10(0) => secbar_master_i(4).stall 
+);
 
   -----------------------------------------------------------------------------
   -- PHY TX/RX clock selection based on generics

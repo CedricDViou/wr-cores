@@ -57,7 +57,7 @@ use work.gencores_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_spec7_pkg.all;
-
+use work.axi4_pkg.all;
 library unisim;
 use unisim.vcomponents.all;
 
@@ -180,8 +180,44 @@ entity spec7_write_top is
     -- EEPROM    (24AA64       Addr 1010.000x) and
     -- Unique ID (24AA025EU48, Addr 1010.001x).
     scl_b : inout std_logic;
-    sda_b : inout std_logic
+    sda_b : inout std_logic;
+    
+    ---------------------------------------------------------------------------
+    -- PCIe interface
+    ---------------------------------------------------------------------------
+    
+    pci_clk_n : in  std_logic;
+    pci_clk_p : in  std_logic;
+    perst_n   : in  std_logic;
+    rxn       : in  std_logic_vector(1 downto 0);
+    rxp       : in  std_logic_vector(1 downto 0);
+    txn       : out std_logic_vector(1 downto 0);
+    txp       : out std_logic_vector(1 downto 0);
 
+    ---------------------------------------------------------------------------
+    -- Processing system
+    ---------------------------------------------------------------------------
+    DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
+    DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
+    DDR_cas_n : inout STD_LOGIC;
+    DDR_ck_n : inout STD_LOGIC;
+    DDR_ck_p : inout STD_LOGIC;
+    DDR_cke : inout STD_LOGIC;
+    DDR_cs_n : inout STD_LOGIC;
+    DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
+    DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_odt : inout STD_LOGIC;
+    DDR_ras_n : inout STD_LOGIC;
+    DDR_reset_n : inout STD_LOGIC;
+    DDR_we_n : inout STD_LOGIC;
+    FIXED_IO_ddr_vrn : inout STD_LOGIC;
+    FIXED_IO_ddr_vrp : inout STD_LOGIC;
+    FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
+    FIXED_IO_ps_clk : inout STD_LOGIC;
+    FIXED_IO_ps_porb : inout STD_LOGIC;
+    FIXED_IO_ps_srstb : inout STD_LOGIC
   );
 end entity spec7_write_top;
 
@@ -254,6 +290,20 @@ architecture top of spec7_write_top is
   -- DIO Mezzanine
   signal dio_in  : std_logic_vector(4 downto 0);
   signal dio_out : std_logic_vector(4 downto 0);
+  
+  --Axi4
+  signal m_axil_i :  t_axi4_lite_master_in_32;
+  signal m_axil_o :  t_axi4_lite_master_out_32;
+  signal axis_icap: t_axis_64;
+  
+  --Wishbone
+  signal wb_master_i : t_wishbone_master_in; 
+  signal wb_master_o : t_wishbone_master_out;
+
+  --PCIe 
+  signal pci_clk : std_logic;
+  signal axi_clk : std_logic;
+
 
   component pll_62m5_500m is
     port (
@@ -273,7 +323,75 @@ architecture top of spec7_write_top is
     );
   end component gen_10mhz;
 
-
+  component processing_system_pcie_wrapper is
+    port (
+      DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
+      DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
+      DDR_cas_n : inout STD_LOGIC;
+      DDR_ck_n : inout STD_LOGIC;
+      DDR_ck_p : inout STD_LOGIC;
+      DDR_cke : inout STD_LOGIC;
+      DDR_cs_n : inout STD_LOGIC;
+      DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+      DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
+      DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+      DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+      DDR_odt : inout STD_LOGIC;
+      DDR_ras_n : inout STD_LOGIC;
+      DDR_reset_n : inout STD_LOGIC;
+      DDR_we_n : inout STD_LOGIC;
+      FIXED_IO_ddr_vrn : inout STD_LOGIC;
+      FIXED_IO_ddr_vrp : inout STD_LOGIC;
+      FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
+      FIXED_IO_ps_clk : inout STD_LOGIC;
+      FIXED_IO_ps_porb : inout STD_LOGIC;
+      FIXED_IO_ps_srstb : inout STD_LOGIC;
+      gpio_rtl_0_tri_o : out STD_LOGIC_VECTOR ( 3 downto 0 );
+      M00_AXI_0_araddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
+      M00_AXI_0_arburst : out STD_LOGIC_VECTOR ( 1 downto 0 );
+      M00_AXI_0_arcache : out STD_LOGIC_VECTOR ( 3 downto 0 );
+      M00_AXI_0_arlen : out STD_LOGIC_VECTOR ( 7 downto 0 );
+      M00_AXI_0_arlock : out STD_LOGIC_VECTOR ( 0 to 0 );
+      M00_AXI_0_arprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
+      M00_AXI_0_arqos : out STD_LOGIC_VECTOR ( 3 downto 0 );
+      M00_AXI_0_arready : in STD_LOGIC;
+      M00_AXI_0_arsize : out STD_LOGIC_VECTOR ( 2 downto 0 );
+      M00_AXI_0_arvalid : out STD_LOGIC;
+      M00_AXI_0_awaddr : out STD_LOGIC_VECTOR ( 31 downto 0 );
+      M00_AXI_0_awburst : out STD_LOGIC_VECTOR ( 1 downto 0 );
+      M00_AXI_0_awcache : out STD_LOGIC_VECTOR ( 3 downto 0 );
+      M00_AXI_0_awlen : out STD_LOGIC_VECTOR ( 7 downto 0 );
+      M00_AXI_0_awlock : out STD_LOGIC_VECTOR ( 0 to 0 );
+      M00_AXI_0_awprot : out STD_LOGIC_VECTOR ( 2 downto 0 );
+      M00_AXI_0_awqos : out STD_LOGIC_VECTOR ( 3 downto 0 );
+      M00_AXI_0_awready : in STD_LOGIC;
+      M00_AXI_0_awsize : out STD_LOGIC_VECTOR ( 2 downto 0 );
+      M00_AXI_0_awvalid : out STD_LOGIC;
+      M00_AXI_0_bready : out STD_LOGIC;
+      M00_AXI_0_bresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+      M00_AXI_0_bvalid : in STD_LOGIC;
+      M00_AXI_0_rdata : in STD_LOGIC_VECTOR ( 31 downto 0 );
+      M00_AXI_0_rlast : in STD_LOGIC;
+      M00_AXI_0_rready : out STD_LOGIC;
+      M00_AXI_0_rresp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+      M00_AXI_0_rvalid : in STD_LOGIC;
+      M00_AXI_0_wdata : out STD_LOGIC_VECTOR ( 31 downto 0 );
+      M00_AXI_0_wlast : out STD_LOGIC;
+      M00_AXI_0_wready : in STD_LOGIC;
+      M00_AXI_0_wstrb : out STD_LOGIC_VECTOR ( 3 downto 0 );
+      M00_AXI_0_wvalid : out STD_LOGIC;
+      aclk1_0 : in STD_LOGIC;
+      pcie_clk : in STD_LOGIC;
+      pcie_mgt_0_rxn : in STD_LOGIC_VECTOR ( 1 downto 0 );
+      pcie_mgt_0_rxp : in STD_LOGIC_VECTOR ( 1 downto 0 );
+      pcie_mgt_0_txn : out STD_LOGIC_VECTOR ( 1 downto 0 );
+      pcie_mgt_0_txp : out STD_LOGIC_VECTOR ( 1 downto 0 );
+      pcie_rst_n : in STD_LOGIC;
+      user_lnk_up_0 : out STD_LOGIC;
+      usr_irq_ack_0 : out STD_LOGIC_VECTOR ( 0 to 0 );
+      usr_irq_req_0 : in STD_LOGIC_VECTOR ( 0 to 0 )     
+    );
+  end component processing_system_pcie_wrapper;
 begin  -- architecture top
 
   -- Never trigger PS_POR or PROGRAM_B
@@ -281,6 +399,77 @@ begin  -- architecture top
   wdog_n_o    <= '1';
   -- prsnt_m2c_l_i isn't used but must be defined as input.
 
+pci_clk_buf : IBUFDS_GTE2
+  port map(
+    I  => pci_clk_p,
+    IB => pci_clk_n,
+    O  => pci_clk,
+    ODIV2 => open,
+    CEB => '0'
+  ); 
+--Pcie: Pcie_wrapper
+--  port map (
+--    M00_AXI_0_araddr  => m_axil_o.araddr,
+--    M00_AXI_0_arburst => open,
+--    M00_AXI_0_arcache => open,
+--    M00_AXI_0_arlen   => open,
+--    M00_AXI_0_arlock  => open,
+--    M00_AXI_0_arprot  => open,
+--    M00_AXI_0_arqos   => open,
+--    M00_AXI_0_arready => m_axil_i.arready,
+--    M00_AXI_0_arsize  => open,
+--    M00_AXI_0_arvalid => m_axil_o.arvalid,
+--    M00_AXI_0_awaddr  => m_axil_o.awaddr,
+--    M00_AXI_0_awburst => open,
+--    M00_AXI_0_awcache => open,
+--    M00_AXI_0_awlen   => open,
+--    M00_AXI_0_awlock  => open,
+--    M00_AXI_0_awprot  => open,
+--    M00_AXI_0_awqos   => open,
+--    M00_AXI_0_awready => m_axil_i.awready,
+--    M00_AXI_0_awsize  => open,
+--    M00_AXI_0_awvalid => m_axil_o.awvalid,
+--    M00_AXI_0_bready  => m_axil_o.bready,
+--    M00_AXI_0_bresp   => m_axil_i.bresp,
+--    M00_AXI_0_bvalid  => m_axil_i.bvalid,
+--    M00_AXI_0_rdata   => m_axil_i.rdata,
+--    M00_AXI_0_rlast   => m_axil_i.rlast,
+--    M00_AXI_0_rready  => m_axil_o.rready,
+--    M00_AXI_0_rresp   => m_axil_i.rresp,
+--    M00_AXI_0_rvalid  => m_axil_i.rvalid,
+--    M00_AXI_0_wdata   => m_axil_o.wdata,
+--    M00_AXI_0_wlast   => m_axil_o.wlast,
+--    M00_AXI_0_wready  => m_axil_i.wready,
+--    M00_AXI_0_wstrb   => m_axil_o.wstrb,
+--    M00_AXI_0_wvalid  => m_axil_o.wvalid,
+----    M_AXIS_H2C_0_0_tdata  => axis_icap.data,
+----    M_AXIS_H2C_0_0_tkeep  => axis_icap.keep,
+----    M_AXIS_H2C_0_0_tlast  => axis_icap.last,
+----    M_AXIS_H2C_0_0_tready => axis_icap.ready,
+----    M_AXIS_H2C_0_0_tvalid => axis_icap.valid,
+--    aclk1_0           => clk_sys_62m5,
+----    axi_aclk          => axi_clk,
+--    pcie_mgt_0_rxn    => rxn,
+--    pcie_mgt_0_rxp    => rxp,
+--    pcie_mgt_0_txn    => txn,
+--    pcie_mgt_0_txp    => txp,
+--    pcie_clk          => pci_clk,
+--    pcie_rst_n        => perst_n,
+--    user_lnk_up_0     => open,
+--    usr_irq_ack_0     => open,
+--    usr_irq_req_0     => "0"
+--  );
+
+AXI2WB : xwb_axi4lite_bridge 
+  port map(
+    clk_sys_i => clk_sys_62m5,
+    rst_n_i   => reset_n_i,
+                
+    axi4_slave_i => m_axil_o,
+    axi4_slave_o => m_axil_i,
+    wb_master_o  => wb_master_o,
+    wb_master_i  => wb_master_i  
+  );
   -----------------------------------------------------------------------------
   -- The WR PTP core board package (WB Slave + WB Master)
   -----------------------------------------------------------------------------
@@ -303,7 +492,6 @@ begin  -- architecture top
       clk_ref_62m5_o      => clk_ref_62m5,
       rst_sys_62m5_n_o    => rst_sys_62m5_n,
       rst_ref_62m5_n_o    => rst_ref_62m5_n,
-
       dac_refclk_cs_n_o   => dac_refclk_cs_n_o,
       dac_refclk_sclk_o   => dac_refclk_sclk_o,
       dac_refclk_din_o    => dac_refclk_din_o,
@@ -345,6 +533,9 @@ begin  -- architecture top
       -- Uart
       uart_rxd_i          => uart_rxd_i,
       uart_txd_o          => uart_txd_o,
+      -- Wishbone
+      wb_slave_i          => wb_master_o,
+      wb_slave_o          => wb_master_i,
       
       abscal_txts_o       => wrc_abscal_txts_out,
       abscal_rxts_o       => open,
@@ -449,5 +640,73 @@ begin  -- architecture top
     rst_n_i    => rst_ref_62m5_n,
     pulse_i    => wrc_pps_led,
     extended_o => led_pps);
-
+    
+  processing_system: processing_system_pcie_wrapper
+     port map (
+      DDR_addr(14 downto 0) => DDR_addr(14 downto 0),
+      DDR_ba(2 downto 0) => DDR_ba(2 downto 0),
+      DDR_cas_n => DDR_cas_n,
+      DDR_ck_n => DDR_ck_n,
+      DDR_ck_p => DDR_ck_p,
+      DDR_cke => DDR_cke,
+      DDR_cs_n => DDR_cs_n,
+      DDR_dm(3 downto 0) => DDR_dm(3 downto 0),
+      DDR_dq(31 downto 0) => DDR_dq(31 downto 0),
+      DDR_dqs_n(3 downto 0) => DDR_dqs_n(3 downto 0),
+      DDR_dqs_p(3 downto 0) => DDR_dqs_p(3 downto 0),
+      DDR_odt => DDR_odt,
+      DDR_ras_n => DDR_ras_n,
+      DDR_reset_n => DDR_reset_n,
+      DDR_we_n => DDR_we_n,
+      FIXED_IO_ddr_vrn => FIXED_IO_ddr_vrn,
+      FIXED_IO_ddr_vrp => FIXED_IO_ddr_vrp,
+      FIXED_IO_mio(53 downto 0) => FIXED_IO_mio(53 downto 0),
+      FIXED_IO_ps_clk => FIXED_IO_ps_clk,
+      FIXED_IO_ps_porb => FIXED_IO_ps_porb,
+      FIXED_IO_ps_srstb => FIXED_IO_ps_srstb,
+      gpio_rtl_0_tri_o(3 downto 0) => open,
+      M00_AXI_0_araddr  => m_axil_o.araddr,
+      M00_AXI_0_arburst => open,
+      M00_AXI_0_arcache => open,
+      M00_AXI_0_arlen   => open,
+      M00_AXI_0_arlock  => open,
+      M00_AXI_0_arprot  => open,
+      M00_AXI_0_arqos   => open,
+      M00_AXI_0_arready => m_axil_i.arready,
+      M00_AXI_0_arsize  => open,
+      M00_AXI_0_arvalid => m_axil_o.arvalid,
+      M00_AXI_0_awaddr  => m_axil_o.awaddr,
+      M00_AXI_0_awburst => open,
+      M00_AXI_0_awcache => open,
+      M00_AXI_0_awlen   => open,
+      M00_AXI_0_awlock  => open,
+      M00_AXI_0_awprot  => open,
+      M00_AXI_0_awqos   => open,
+      M00_AXI_0_awready => m_axil_i.awready,
+      M00_AXI_0_awsize  => open,
+      M00_AXI_0_awvalid => m_axil_o.awvalid,
+      M00_AXI_0_bready  => m_axil_o.bready,
+      M00_AXI_0_bresp   => m_axil_i.bresp,
+      M00_AXI_0_bvalid  => m_axil_i.bvalid,
+      M00_AXI_0_rdata   => m_axil_i.rdata,
+      M00_AXI_0_rlast   => m_axil_i.rlast,
+      M00_AXI_0_rready  => m_axil_o.rready,
+      M00_AXI_0_rresp   => m_axil_i.rresp,
+      M00_AXI_0_rvalid  => m_axil_i.rvalid,
+      M00_AXI_0_wdata   => m_axil_o.wdata,
+      M00_AXI_0_wlast   => m_axil_o.wlast,
+      M00_AXI_0_wready  => m_axil_i.wready,
+      M00_AXI_0_wstrb   => m_axil_o.wstrb,
+      M00_AXI_0_wvalid  => m_axil_o.wvalid,
+      aclk1_0           => clk_sys_62m5,
+      pcie_mgt_0_rxn    => rxn,
+      pcie_mgt_0_rxp    => rxp,
+      pcie_mgt_0_txn    => txn,
+      pcie_mgt_0_txp    => txp,
+      pcie_clk          => pci_clk,
+      pcie_rst_n        => perst_n,
+      user_lnk_up_0     => open,
+      usr_irq_ack_0     => open,
+      usr_irq_req_0     => "0"
+    );
 end architecture top;

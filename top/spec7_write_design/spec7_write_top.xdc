@@ -14,8 +14,8 @@ set_property PACKAGE_PIN U5 [get_ports clk_125m_gtx_n_i]
 #set_property PACKAGE_PIN AA5 [get_ports fmc_gbtclk0_m2c_n]
 
 # Bank 35 (HP) VCCO - 1.8 V -- 124.992 MHz DMTD clock
-set_property PACKAGE_PIN D15 [get_ports clk_125m_dmtd_p_i]
 set_property IOSTANDARD LVDS [get_ports clk_125m_dmtd_p_i]
+set_property PACKAGE_PIN D15 [get_ports clk_125m_dmtd_p_i]
 set_property PACKAGE_PIN D14 [get_ports clk_125m_dmtd_n_i]
 set_property IOSTANDARD LVDS [get_ports clk_125m_dmtd_n_i]
 
@@ -33,25 +33,16 @@ create_clock -period 16.000 -name TXOUTCLK -waveform {0.000 8.000} [get_pins cmp
 
 create_clock -period 100.000 -name clk_10m_in -waveform {0.000 50.000} [get_ports clk_10m_p_i]
 
-set_clock_groups -asynchronous \
--group clk_125m_gtx \
--group clk_125m_dmtd \
--group clk_125m_dmtd_div2 \
--group RXOUTCLK \
--group TXOUTCLK \
--group clk_sys \
--group clk_10m_in \
--group clk_ext_mul
+set_clock_groups -asynchronous -group clk_125m_gtx -group clk_125m_dmtd -group clk_125m_dmtd_div2 -group RXOUTCLK -group TXOUTCLK -group clk_sys -group clk_10m_in -group clk_ext_mul
 
 # TXOUTCLK = 16 ns = 8 clock periods of clk_500m which has 2 ns period
 # Setup requirement at edge 8, hold requirement at edge 7
 # See also:
 # https://www.xilinx.com/video/hardware/timing-exception-multicycle-path-constraints.html
-set_multicycle_path 8 -setup -from [get_clocks  "*TXOUTCLK*"] -to [get_clocks  "*clk_500m*"]
-set_multicycle_path 7 -hold -from [get_clocks  "*TXOUTCLK*"] -to [get_clocks  "*clk_500m*"]
+set_multicycle_path -setup -from [get_clocks *TXOUTCLK*] -to [get_clocks *clk_500m*] 8
+set_multicycle_path -hold -from [get_clocks *TXOUTCLK*] -to [get_clocks *clk_500m*] 7
 
 # Set BMM_INFO_DESIGN property to avoid ERROR during "Write Bitstream"
-set_property BMM_INFO_DESIGN spec7_write_top_bd.bmm [current_design]
 
 #   ---------------------------------------------------------------------------
 #   -- SPI interface to DACs
@@ -73,7 +64,7 @@ set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
 
 #   -------------------------------------------------------------------------------
 #   -- AD9516 PLL Control signals
-#   -------------------------------------------------------------------------------    
+#   -------------------------------------------------------------------------------
 # Bank 35 (HP) VCCO - 1.8 V
 set_property PACKAGE_PIN B11 [get_ports pll_status_i]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_status_i]
@@ -93,6 +84,27 @@ set_property PACKAGE_PIN C14 [get_ports pll_refsel_o]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_refsel_o]
 set_property PACKAGE_PIN A12 [get_ports pll_lock_i]
 set_property IOSTANDARD LVCMOS18 [get_ports pll_lock_i]
+
+#   ---------------------------------------------------------------------------
+#   -- PCIe
+#   ---------------------------------------------------------------------------
+# Bank 112 (GTX2)
+set_property PACKAGE_PIN AB3 [get_ports {rxn[0]}]
+set_property PACKAGE_PIN AB4 [get_ports {rxp[0]}]
+set_property PACKAGE_PIN AA1 [get_ports {txn[0]}]
+set_property PACKAGE_PIN AA2 [get_ports {txp[0]}]
+
+set_property PACKAGE_PIN Y3 [get_ports {rxn[1]}]
+set_property PACKAGE_PIN Y4 [get_ports {rxp[1]}]
+set_property PACKAGE_PIN W1 [get_ports {txn[1]}]
+set_property PACKAGE_PIN W2 [get_ports {txp[1]}]
+
+set_property PACKAGE_PIN R6 [get_ports pci_clk_p]
+set_property PACKAGE_PIN R5 [get_ports pci_clk_n]
+create_clock -period 10.000 -name pci_clk_p [get_ports pci_clk_p]
+
+set_property PACKAGE_PIN D13 [get_ports perst_n]
+set_property IOSTANDARD LVCMOS18 [get_ports perst_n]
 
 #   ---------------------------------------------------------------------------
 #   -- SFP I/O for transceiver
@@ -122,14 +134,6 @@ set_property PACKAGE_PIN G12 [get_ports sfp_tx_disable_o]
 set_property IOSTANDARD LVCMOS18 [get_ports sfp_tx_disable_o]
 set_property PACKAGE_PIN K13 [get_ports sfp_los_i]
 set_property IOSTANDARD LVCMOS18 [get_ports sfp_los_i]
-
-#   ---------------------------------------------------------------------------
-#   -- PCIe PERST#
-#   ---------------------------------------------------------------------------
-
-# Bank 35 (HP) VCCO - 1.8 V
-#set_property PACKAGE_PIN D13 [get_ports perst_n]
-#set_property IOSTANDARD LVCMOS18 [get_ports perst_n]
 
 #   ---------------------------------------------------------------------------
 #   -- UART
@@ -225,18 +229,18 @@ set_property IOSTANDARD LVCMOS18 [get_ports sda_b]
 # PPS_OUT
 # Bulls-Eye A01, A02
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN G16 [get_ports pps_p_o]
 set_property IOSTANDARD LVDS [get_ports pps_p_o]
 # Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN G16 [get_ports pps_p_o]
 set_property PACKAGE_PIN G15 [get_ports pps_n_o]
 set_property IOSTANDARD LVDS [get_ports pps_n_o]
 
 # 10MHz_out
 # Bulls-Eye A03, A04
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN F15 [get_ports clk_10m_p_o]
 set_property IOSTANDARD LVDS [get_ports clk_10m_p_o]
 # Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN F15 [get_ports clk_10m_p_o]
 set_property PACKAGE_PIN E15 [get_ports clk_10m_n_o]
 set_property IOSTANDARD LVDS [get_ports clk_10m_n_o]
 
@@ -251,9 +255,9 @@ set_property IOSTANDARD LVDS [get_ports clk_10m_n_o]
 # ABSCAL_TXTS
 # Bulls-Eye A09, A10
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN C17 [get_ports abscal_txts_p_o]
 set_property IOSTANDARD LVDS [get_ports abscal_txts_p_o]
 # Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN C17 [get_ports abscal_txts_p_o]
 set_property PACKAGE_PIN C16 [get_ports abscal_txts_n_o]
 set_property IOSTANDARD LVDS [get_ports abscal_txts_n_o]
 
@@ -269,18 +273,18 @@ set_property IOSTANDARD LVDS [get_ports abscal_txts_n_o]
 # PPS_IN
 # Bulls-Eye B01, B02
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN G14 [get_ports pps_p_i]
 set_property IOSTANDARD LVDS [get_ports pps_p_i]
 # Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN G14 [get_ports pps_p_i]
 set_property PACKAGE_PIN F14 [get_ports pps_n_i]
 set_property IOSTANDARD LVDS [get_ports pps_n_i]
 
 # 10MHZ_in
 # Bulls-Eye B03, B04
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN J14 [get_ports clk_10m_p_i]
 set_property IOSTANDARD LVDS [get_ports clk_10m_p_i]
 # Bank 35 (HP) VCCO - 1.8 V
+set_property PACKAGE_PIN J14 [get_ports clk_10m_p_i]
 set_property PACKAGE_PIN H14 [get_ports clk_10m_n_i]
 set_property IOSTANDARD LVDS [get_ports clk_10m_n_i]
 
@@ -337,7 +341,7 @@ set_property IOSTANDARD LVDS [get_ports clk_10m_n_i]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 9
 #set_property PACKAGE_PIN AE17 [get_ports fmc_la02_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la02_p]
- #Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 11
+#Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 11
 #set_property PACKAGE_PIN AF17 [get_ports fmc_la02_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la02_n]
 # Bank 13 VCCO - 2.5 V  FMC_XM105 J1 pin 13
