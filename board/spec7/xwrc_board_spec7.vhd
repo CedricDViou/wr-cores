@@ -128,7 +128,7 @@ entity xwrc_board_spec7 is
     pll_miso_i        : in  std_logic := '0';
     pll_sck_o         : out std_logic;
     pll_cs_n_o        : out std_logic;
-    pll_sync_n_o      : out std_logic;
+    pll_sync_o        : out std_logic;
     pll_reset_n_o     : out std_logic;
     pll_lock_i        : in  std_logic := '0';
     pll_wr_mode_o     : out std_logic_vector(1 downto 0);
@@ -507,7 +507,7 @@ begin  -- architecture struct
       pll_miso_i           => pll_miso_i,
       pll_sck_o            => pll_sck_o,
       pll_cs_n_o           => pll_cs_n_o,
-      pll_sync_n_o         => pll_sync_n_o,
+      pll_sync_o           => pll_sync_o,
       pll_reset_n_o        => pll_reset_n_o,
       pll_lock_i           => pll_lock_i,
       pll_wr_mode_o        => pll_wr_mode_o,

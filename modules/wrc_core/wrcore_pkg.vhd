@@ -283,7 +283,7 @@ package wrcore_pkg is
       pll_miso_i     : in  std_logic := '0';
       pll_sck_o      : out std_logic;
       pll_cs_n_o     : out std_logic;
-      pll_sync_n_o   : out std_logic;
+      pll_sync_o     : out std_logic;
       pll_reset_n_o  : out std_logic;
       pll_lock_i     : in  std_logic;
       pll_wr_mode_o  : out std_logic_vector(1 downto 0);
@@ -417,7 +417,7 @@ package wrcore_pkg is
       pll_miso_i           : in  std_logic := '0';
       pll_sck_o            : out std_logic;
       pll_cs_n_o           : out std_logic;
-      pll_sync_n_o         : out std_logic;
+      pll_sync_o           : out std_logic;
       pll_reset_n_o        : out std_logic;
       pll_lock_i           : in  std_logic := '0';
       pll_wr_mode_o        : out std_logic_vector(1 downto 0);
@@ -647,7 +647,7 @@ package wrcore_pkg is
       pll_miso_i    : in  std_logic := '0';
       pll_sck_o     : out std_logic;
       pll_cs_n_o    : out std_logic;
-      pll_sync_n_o  : out std_logic;
+      pll_sync_o    : out std_logic;
       pll_reset_n_o : out std_logic;
       pll_lock_i    : in  std_logic := '0';
       pll_wr_mode_o : out std_logic_vector(1 downto 0);

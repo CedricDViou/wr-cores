@@ -92,7 +92,7 @@ entity wrc_periph is
     pll_miso_i    : in  std_logic;
     pll_sck_o     : out std_logic;
     pll_cs_n_o    : out std_logic;
-    pll_sync_n_o  : out std_logic;
+    pll_sync_o    : out std_logic;
     pll_reset_n_o : out std_logic;
     pll_lock_i    : in  std_logic;
     pll_wr_mode_o : out std_logic_vector(1 downto 0);
@@ -587,6 +587,6 @@ begin
      end if;
    end process;
 
-   pll_sync_n_o  <= '1';  -- Not Used by PLL, default drive '1'
+   pll_sync_o  <= '0';  -- Not Used by PLL, default drive '0'
 
 end struct;
