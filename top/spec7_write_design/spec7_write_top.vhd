@@ -58,6 +58,7 @@ use work.wishbone_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_spec7_pkg.all;
 use work.axi4_pkg.all;
+
 library unisim;
 use unisim.vcomponents.all;
 
@@ -97,7 +98,7 @@ entity spec7_write_top is
     dac_dmtd_din_o    : out std_logic;
 
     -------------------------------------------------------------------------------
-    -- AD9516 PLL Control signals
+    -- PLL Control signals
     -------------------------------------------------------------------------------    
 
     pll_status_i      : in  std_logic;
@@ -105,10 +106,9 @@ entity spec7_write_top is
     pll_miso_i        : in  std_logic;
     pll_sck_o         : out std_logic;
     pll_cs_n_o        : out std_logic;
-    pll_sync_n_o      : out std_logic;
-    pll_reset_n_o     : out std_logic;
-    pll_refsel_o      : out std_logic;
+    pll_sync_o        : out std_logic;
     pll_lock_i        : in  std_logic;
+    pll_wr_mode_o     : out std_logic_vector(1 downto 0);
     
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver
@@ -154,21 +154,24 @@ entity spec7_write_top is
     ------------------------------------------------------------------------------
     -- Digital I/O Bulls-Eye connections
     ------------------------------------------------------------------------------
-    --  3, 4 ABSCAL_TXTS                 (Bank 35 C17,C16)
+    -- A09,A10 ABSCAL_TXTS                 (Bank 35 C17,C16)
     abscal_txts_p_o   : out std_logic;
     abscal_txts_n_o   : out std_logic;
-    --  5, 6 PPS_OUT                     (Bank 35 G16,G15)
+    -- A01,A02 PPS_OUT                     (Bank 35 G16,G15)
     pps_p_o           : out std_logic;
     pps_n_o           : out std_logic;
-    --  7, 8 PPS_IN                      (Bank 35 G14,F14)
+    -- B01,B02 PPS_IN                      (Bank 35 G14,F14)
     pps_p_i           : in std_logic;
     pps_n_i           : in std_logic;
-    --  9,10 10MHz_out                   (Bank 35 F15,E15)
+    -- A03,A04 10MHz_out                   (Bank 35 F15,E15)
     clk_10m_p_o       : out std_logic;
     clk_10m_n_o       : out std_logic;
-    -- 11,12 10MHZ_in                    (Bank 35 J14,H14)
+    -- B03,B04 10MHZ_in                    (Bank 13 AF24,AF25)
     clk_10m_p_i       : in std_logic;
     clk_10m_n_i       : in std_logic;
+
+    -- B11 Single ended PPS_IN             (Bank 13 AE23)
+    pps_i             : in std_logic;
 
     -- blink 1-PPS.
     led_pps : out std_logic;
@@ -192,7 +195,7 @@ entity spec7_write_top is
     rxn       : in  std_logic_vector(1 downto 0);
     rxp       : in  std_logic_vector(1 downto 0);
     txn       : out std_logic_vector(1 downto 0);
-    txp       : out std_logic_vector(1 downto 0);
+    txp       : out std_logic_vector(1 downto 0)
 
     ---------------------------------------------------------------------------
     -- Processing system
@@ -294,7 +297,6 @@ architecture top of spec7_write_top is
   --Axi4
   signal m_axil_i :  t_axi4_lite_master_in_32;
   signal m_axil_o :  t_axi4_lite_master_out_32;
-  signal axis_icap: t_axis_64;
   
   --Wishbone
   signal wb_master_i : t_wishbone_master_in; 
@@ -302,7 +304,6 @@ architecture top of spec7_write_top is
 
   --PCIe 
   signal pci_clk : std_logic;
-  signal axi_clk : std_logic;
 
 
   component pll_62m5_500m is
@@ -383,10 +384,10 @@ AXI2WB : xwb_axi4lite_bridge
       pll_miso_i          => pll_miso_i,
       pll_sck_o           => pll_sck_o,
       pll_cs_n_o          => pll_cs_n_o,
-      pll_sync_n_o        => pll_sync_n_o,
-      pll_reset_n_o       => pll_reset_n_o,
-      pll_refsel_o        => pll_refsel_o,
+      pll_sync_o          => pll_sync_o,
+      pll_reset_n_o       => open,
       pll_lock_i          => pll_lock_i,
+      pll_wr_mode_o       => pll_wr_mode_o,
 
       sfp_txp_o           => sfp_txp_o,
       sfp_txn_o           => sfp_txn_o,
@@ -473,7 +474,7 @@ AXI2WB : xwb_axi4lite_bridge
       O  => clk_10m_p_o,
       OB => clk_10m_n_o);
 
-  cmp_ibufgds_10mhz_in: IBUFGDS
+  cmp_ibufds_10mhz_in: IBUFDS
     generic map (
       DIFF_TERM => true)
     port map (

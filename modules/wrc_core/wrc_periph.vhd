@@ -86,18 +86,18 @@ entity wrc_periph is
     spi_mosi_o  : out std_logic;
     spi_miso_i  : in  std_logic;
 
-    -- AD9516 signals
+    -- PLL signals
     pll_status_i  : in  std_logic;
     pll_mosi_o    : out std_logic;
     pll_miso_i    : in  std_logic;
     pll_sck_o     : out std_logic;
     pll_cs_n_o    : out std_logic;
-    pll_sync_n_o  : out std_logic;
+    pll_sync_o    : out std_logic;
     pll_reset_n_o : out std_logic;
-    pll_refsel_o  : out std_logic;
     pll_lock_i    : in  std_logic;
+    pll_wr_mode_o : out std_logic_vector(1 downto 0);
     -- SPEC7 Select clk_sys source (either always running clk_dmtd or
-    -- 125 MHz from AD9516 after PLL initialisation.)
+    -- 125 MHz from PLL after PLL initialisation.)
     pll_clk_sel_o      : out std_logic;
 
     slave_i : in  t_wishbone_slave_in_array(0 to 4);
@@ -531,7 +531,7 @@ begin
    wrpc_diag_regs_in.wdiag_temp_i              <= sysc_regs_o.wdiag_temp_o;
 
    -------------------------------------------------------------------------------
-   -- AD9516 PLL Control signals
+   -- PLL Control signals
    -------------------------------------------------------------------------------    
 
    U_SPI_Master : xwb_spi
@@ -552,10 +552,13 @@ begin
        pad_mosi_o           => pll_mosi_o,
        pad_miso_i           => pll_miso_i);
 
-   process(clk_sys_i)
+   process(clk_sys_i, rst_n_i)
    begin
-     if rising_edge(clk_sys_i) then
-
+     if (rst_n_i = '0') then
+       pll_reset_n_o <= '0';
+	   pll_clk_sel_o <= '0';
+	   pll_wr_mode_o <= (others => '0');
+	 elsif rising_edge(clk_sys_i) then
        if(sysc_regs_o.gpsr_pll_reset_o = '1') then
          pll_reset_n_o <= '0';
        elsif(sysc_regs_o.gpcr_pll_reset_o = '1') then
@@ -568,12 +571,22 @@ begin
          pll_clk_sel_o <= '1';
        end if;
 
+       if(sysc_regs_o.gpsr_pll_wr_mode0_o = '1') then
+         pll_wr_mode_o(0) <= '1';
+       elsif(sysc_regs_o.gpcr_pll_wr_mode0_o = '1') then
+         pll_wr_mode_o(0) <= '0';
+       end if;
+       if(sysc_regs_o.gpsr_pll_wr_mode1_o = '1') then
+         pll_wr_mode_o(1) <= '1';
+       elsif(sysc_regs_o.gpcr_pll_wr_mode1_o = '1') then
+         pll_wr_mode_o(1) <= '0';
+       end if;
+
        sysc_regs_i.gpsr_pll_lock_i <= pll_lock_i;
        sysc_regs_i.gpsr_pll_status_i <= pll_status_i;
      end if;
    end process;
 
-   pll_sync_n_o  <= '1';  -- Not Used by AD9516, default drive '1'
-   pll_refsel_o  <= '0';  -- Not Used by AD9516, default drive '0'
+   pll_sync_o  <= '0';  -- Not Used by PLL, default drive '0'
 
 end struct;

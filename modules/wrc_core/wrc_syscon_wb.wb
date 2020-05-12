@@ -208,9 +208,25 @@ peripheral {
       field {
         name = "PLL_CLK_SEL";
         prefix = "pll_clk_sel";
-        description = "write 1: SPEC7, Select clk_sys source from AD9516";
+        description = "write 1: Select clk_sys source from external PLL";
         type = MONOSTABLE;
         align = 17;
+      };
+
+      field {
+        name = "PLL_WR_MODE0";
+        prefix = "pll_wr_mode0";
+        description = "write 1: Set WR_Mode bit 0";
+        type = MONOSTABLE;
+        align = 18;
+      };
+
+      field {
+        name = "PLL_WR_MODE1";
+        prefix = "pll_wr_mode1";
+        description = "write 1: Set WR_Mode bit 1";
+        type = MONOSTABLE;
+        align = 19;
       };
    };
 
@@ -299,9 +315,25 @@ peripheral {
       field {
          name = "PLL_CLK_SEL";
          prefix = "pll_clk_sel";
-         description = "write 1: SPEC7, Select clk_sys source from free running clk_dmtd";
+         description = "write 1: Select clk_sys source from free running clk_dmtd";
          type = MONOSTABLE;
          align = 17;
+      };
+
+      field {
+        name = "PLL_WR_MODE0";
+        prefix = "pll_wr_mode0";
+        description = "write 1: Clear WR_Mode bit 0";
+        type = MONOSTABLE;
+        align = 18;
+      };
+
+      field {
+        name = "PLL_WR_MODE1";
+        prefix = "pll_wr_mode1";
+        description = "write 1: Clear WR_Mode bit 1";
+        type = MONOSTABLE;
+        align = 19;
       };
    };
 

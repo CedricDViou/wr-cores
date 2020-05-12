@@ -1,3 +1,43 @@
+#-----------------------------------------------------------------------------
+# Title      : Pcie.tcl
+# Project    : White Rabbit SPEC7
+#-----------------------------------------------------------------------------
+# File       : Pcie.tcl
+# Author     : Pascal Bos, Peter Jansweijer
+# Company    : Nikhef
+# Created    : 2020-02-24
+# Last update: 2020-02-24
+# Platform   : FPGA-generic
+# Standard   : TCL
+#-----------------------------------------------------------------------------
+# Description: Script to generate PCIe endpoint for Xilinx 7-series FPGA
+#-----------------------------------------------------------------------------
+#
+# Copyright (c) 2020 Nikhef
+#
+# This source file is free software; you can redistribute it   
+# and/or modify it under the terms of the GNU Lesser General   
+# Public License as published by the Free Software Foundation; 
+# either version 2.1 of the License, or (at your option) any   
+# later version.                                               
+#
+# This source is distributed in the hope that it will be       
+# useful, but WITHOUT ANY WARRANTY; without even the implied   
+# warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
+# PURPOSE.  See the GNU Lesser General Public License for more 
+# details.                                                     
+#
+# You should have received a copy of the GNU Lesser General    
+# Public License along with this source; if not, download it   
+# from http://www.gnu.org/licenses/lgpl-2.1.html
+# 
+#
+#-----------------------------------------------------------------------------
+# Revisions  :
+# Date        Version  Author      Description
+# 2020-02-24  0.1      Pascal Bos  Initial release based on Vivado block design generator
+#-----------------------------------------------------------------------------
+
 
 ################################################################
 # This is a generated script based on design: Pcie
@@ -18,19 +58,6 @@ variable script_folder
 set script_folder [_tcl::get_script_folder]
 
 ################################################################
-# Check if script is running in correct Vivado version.
-################################################################
-# I "hacked" this, for the sake of compatability, Vivado gives a warning during synthesis if a different version really doesn't work.
-set current_vivado_version [version -short]
-set scripts_vivado_version $current_vivado_version  
-if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
-   puts ""
-   catch {common::send_msg_id "BD_TCL-109" "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
-
-   return 1
-}
-
-################################################################
 # START
 ################################################################
 
@@ -43,7 +70,7 @@ if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7z030fbg676-1
+   create_project project_1 myproj -part $device
 }
 
 
@@ -275,6 +302,9 @@ proc create_root_design { parentCell } {
 ##################################################################
 
 create_root_design ""
-make_wrapper -files [get_files ./work/spec7_write_top.srcs/sources_1/bd/Pcie/Pcie.bd] -top
-add_files -norecurse ./work/spec7_write_top.srcs/sources_1/bd/Pcie/hdl/Pcie_wrapper.vhd
-close_bd_design [get_bd_designs Pcie]
+set dir [get_property DIRECTORY [current_project]]
+close_bd_design $design_name
+make_wrapper -files [get_files $dir/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd] -top
+add_files -norecurse $dir/${proj_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.vhd
+
+
