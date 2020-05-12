@@ -195,7 +195,7 @@ entity spec7_write_top is
     rxn       : in  std_logic_vector(1 downto 0);
     rxp       : in  std_logic_vector(1 downto 0);
     txn       : out std_logic_vector(1 downto 0);
-    txp       : out std_logic_vector(1 downto 0)
+    txp       : out std_logic_vector(1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Processing system
