@@ -71,7 +71,8 @@ entity spec7_write_top is
     -- Simulation-mode enable parameter. Set by default (synthesis) to 0, and
     -- changed to non-zero in the instantiation of the top level DUT in the testbench.
     -- Its purpose is to reduce some internal counters/timeouts to speed up simulations.
-    g_simulation : integer := 0
+    g_simulation : integer := 0;
+	g_use_pps_in_single : boolean := TRUE
   );
   port (
     ---------------------------------------------------------------------------`
@@ -469,7 +470,7 @@ AXI2WB : xwb_axi4lite_bridge
   -- B05, B06  125 MHz Reference Clock In  (Bank 111 W6,W5)
   -- B07, B08  RX Spare GTX Out            (Bank 112 GTX3 T4, T3)
   -- B09, B10  NC
-  -- B11, B12  NC
+  -- B11, B12  PPS_IN single ended, NC     (Bank 13 AE23, )
 
   cmp_obuf_abscal_txts : OBUFDS
     port map (
@@ -483,14 +484,26 @@ AXI2WB : xwb_axi4lite_bridge
       O  => pps_p_o,
       OB => pps_n_o);
 
-  cmp_ibuf_pps_in: IBUFDS
-    generic map (
-      DIFF_TERM => true)
-    port map (
-      O  => wrc_pps_in,
-      I  => pps_p_i,
-      IB => pps_n_i);
+  -- Type of PPS_IN input:
+  -- Differential LVDS
+  --   Or
+  -- Single ended 5V capable
+  gen_pps_in_single : if (g_use_pps_in_single = TRUE) generate
+  begin
+    wrc_pps_in <= pps_i;
+  end generate gen_pps_in_single;
   
+  gen_pps_in_diff : if (g_use_pps_in_single = FALSE) generate
+  begin
+    cmp_ibuf_pps_in: IBUFDS
+      generic map (
+        DIFF_TERM => true)
+      port map (
+        O  => wrc_pps_in,
+        I  => pps_p_i,
+        IB => pps_n_i);
+  end generate gen_pps_in_diff;
+
   cmp_obuf_10mhz_out : OBUFDS
     port map (
       I  => clk_10m_out,
