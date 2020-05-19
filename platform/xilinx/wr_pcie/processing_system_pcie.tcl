@@ -18,17 +18,17 @@ variable script_folder
 set script_folder [_tcl::get_script_folder]
 
 ################################################################
-# Don't Check if script is running in correct Vivado version.
+# Check if script is running in correct Vivado version.
 ################################################################
-#set scripts_vivado_version 2019.2
-#set current_vivado_version [version -short]
+set scripts_vivado_version 2019.2
+set current_vivado_version [version -short]
 
-#if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
-#   puts ""
-#   catch {common::send_msg_id "BD_TCL-109" "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
-#
-#   return 1
-#}
+if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
+   puts ""
+   catch {common::send_msg_id "BD_TCL-109" "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
+
+   return 1
+}
 
 ################################################################
 # START
@@ -43,7 +43,7 @@ set script_folder [_tcl::get_script_folder]
 
 set list_projs [get_projects -quiet]
 if { $list_projs eq "" } {
-   create_project project_1 myproj -part xc7z035fbg676-1
+   create_project project_1 myproj -part xc7z030fbg676-1
 }
 
 
@@ -316,7 +316,8 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_DM_WIDTH {4} \
    CONFIG.PCW_DQS_WIDTH {4} \
    CONFIG.PCW_DQ_WIDTH {32} \
-   CONFIG.PCW_DUAL_STACK_QSPI_DATA_MODE {x4} \
+   CONFIG.PCW_DUAL_PARALLEL_QSPI_DATA_MODE {x8} \
+   CONFIG.PCW_DUAL_STACK_QSPI_DATA_MODE {<Select>} \
    CONFIG.PCW_ENET0_BASEADDR {0xE000B000} \
    CONFIG.PCW_ENET0_ENET0_IO {MIO 16 .. 27} \
    CONFIG.PCW_ENET0_GRP_MDIO_ENABLE {1} \
@@ -454,7 +455,7 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_I2C0_BASEADDR {0xE0004000} \
    CONFIG.PCW_I2C0_GRP_INT_ENABLE {0} \
    CONFIG.PCW_I2C0_HIGHADDR {0xE0004FFF} \
-   CONFIG.PCW_I2C0_I2C0_IO {MIO 10 .. 11} \
+   CONFIG.PCW_I2C0_I2C0_IO {MIO 14 .. 15} \
    CONFIG.PCW_I2C0_PERIPHERAL_ENABLE {1} \
    CONFIG.PCW_I2C0_RESET_ENABLE {0} \
    CONFIG.PCW_I2C1_BASEADDR {0xE0005000} \
@@ -686,13 +687,13 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_MIO_8_IOTYPE {LVCMOS 3.3V} \
    CONFIG.PCW_MIO_8_PULLUP {disabled} \
    CONFIG.PCW_MIO_8_SLEW {slow} \
-   CONFIG.PCW_MIO_9_DIRECTION {inout} \
+   CONFIG.PCW_MIO_9_DIRECTION {out} \
    CONFIG.PCW_MIO_9_IOTYPE {LVCMOS 3.3V} \
    CONFIG.PCW_MIO_9_PULLUP {enabled} \
    CONFIG.PCW_MIO_9_SLEW {slow} \
    CONFIG.PCW_MIO_PRIMITIVE {54} \
-   CONFIG.PCW_MIO_TREE_PERIPHERALS {Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#Quad SPI Flash#GPIO#I2C 0#I2C 0#GPIO#GPIO#GPIO#GPIO#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#USB Reset#ENET Reset#UART 0#UART 0#I2C 1#I2C 1} \
-   CONFIG.PCW_MIO_TREE_SIGNALS {qspi1_ss_b#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#qspi_fbclk#gpio[9]#scl#sda#gpio[12]#gpio[13]#gpio[14]#gpio[15]#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#wp#cd#reset#reset#rx#tx#scl#sda} \
+   CONFIG.PCW_MIO_TREE_PERIPHERALS {Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#GPIO#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#Quad SPI Flash#I2C 0#I2C 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#Enet 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#USB 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#SD 0#USB Reset#ENET Reset#UART 0#UART 0#I2C 1#I2C 1} \
+   CONFIG.PCW_MIO_TREE_SIGNALS {qspi1_ss_b#qspi0_ss_b#qspi0_io[0]#qspi0_io[1]#qspi0_io[2]#qspi0_io[3]/HOLD_B#qspi0_sclk#gpio[7]#qspi_fbclk#qspi1_sclk#qspi1_io[0]#qspi1_io[1]#qspi1_io[2]#qspi1_io[3]#scl#sda#tx_clk#txd[0]#txd[1]#txd[2]#txd[3]#tx_ctl#rx_clk#rxd[0]#rxd[1]#rxd[2]#rxd[3]#rx_ctl#data[4]#dir#stp#nxt#data[0]#data[1]#data[2]#data[3]#clk#data[5]#data[6]#data[7]#clk#cmd#data[0]#data[1]#data[2]#data[3]#wp#cd#reset#reset#rx#tx#scl#sda} \
    CONFIG.PCW_M_AXI_GP0_ENABLE_STATIC_REMAP {0} \
    CONFIG.PCW_M_AXI_GP0_ID_WIDTH {12} \
    CONFIG.PCW_M_AXI_GP0_SUPPORT_NARROW_BURST {0} \
@@ -793,11 +794,12 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_PS7_SI_REV {PRODUCTION} \
    CONFIG.PCW_QSPI_GRP_FBCLK_ENABLE {1} \
    CONFIG.PCW_QSPI_GRP_FBCLK_IO {MIO 8} \
-   CONFIG.PCW_QSPI_GRP_IO1_ENABLE {0} \
+   CONFIG.PCW_QSPI_GRP_IO1_ENABLE {1} \
+   CONFIG.PCW_QSPI_GRP_IO1_IO {MIO 0 9 .. 13} \
    CONFIG.PCW_QSPI_GRP_SINGLE_SS_ENABLE {0} \
    CONFIG.PCW_QSPI_GRP_SINGLE_SS_IO {<Select>} \
-   CONFIG.PCW_QSPI_GRP_SS1_ENABLE {1} \
-   CONFIG.PCW_QSPI_GRP_SS1_IO {MIO 0} \
+   CONFIG.PCW_QSPI_GRP_SS1_ENABLE {0} \
+   CONFIG.PCW_QSPI_GRP_SS1_IO {<Select>} \
    CONFIG.PCW_QSPI_INTERNAL_HIGHADDRESS {0xFDFFFFFF} \
    CONFIG.PCW_QSPI_PERIPHERAL_CLKSRC {DDR PLL} \
    CONFIG.PCW_QSPI_PERIPHERAL_DIVISOR0 {6} \
@@ -1065,17 +1067,18 @@ proc create_root_design { parentCell } {
    CONFIG.PF0_DEVICE_ID_mqdma {9022} \
    CONFIG.PF2_DEVICE_ID_mqdma {9022} \
    CONFIG.PF3_DEVICE_ID_mqdma {9022} \
+   CONFIG.axil_master_64bit_en {true} \
    CONFIG.axilite_master_en {true} \
    CONFIG.axilite_master_scale {Gigabytes} \
-   CONFIG.axilite_master_size {2} \
+   CONFIG.axilite_master_size {1} \
    CONFIG.axisten_freq {125} \
    CONFIG.cfg_mgmt_if {false} \
    CONFIG.pcie_extended_tag {false} \
    CONFIG.pf0_device_id {7022} \
    CONFIG.pf0_link_status_slot_clock_config {true} \
    CONFIG.pf0_msi_enabled {false} \
-   CONFIG.pf0_msix_cap_pba_bir {BAR_1} \
-   CONFIG.pf0_msix_cap_table_bir {BAR_1} \
+   CONFIG.pf0_msix_cap_pba_bir {BAR_2} \
+   CONFIG.pf0_msix_cap_table_bir {BAR_2} \
    CONFIG.pl_link_cap_max_link_speed {5.0_GT/s} \
    CONFIG.pl_link_cap_max_link_width {X2} \
    CONFIG.plltype {QPLL1} \
@@ -1113,7 +1116,7 @@ proc create_root_design { parentCell } {
   assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] -force
   assign_bd_address -offset 0x10000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs axi_hwicap_0/S_AXI_LITE/Reg] -force
   assign_bd_address -offset 0xE0000000 -range 0x00400000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs processing_system7_0/S_AXI_GP0/GP0_IOP] -force
-  assign_bd_address -offset 0x40000000 -range 0x40000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs processing_system7_0/S_AXI_GP0/GP0_M_AXI_GP0] -force
+  assign_bd_address -offset 0x40000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs processing_system7_0/S_AXI_GP0/GP0_M_AXI_GP0] -force
 
 
   # Restore current instance
