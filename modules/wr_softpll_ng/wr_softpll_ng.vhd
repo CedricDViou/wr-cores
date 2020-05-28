@@ -138,6 +138,10 @@ entity wr_softpll_ng is
     dac_out_sel_o  : out std_logic_vector(3 downto 0);
     dac_out_load_o : out std_logic;
 
+-- Holdover oscillator drive
+    dac_ho_data_o  : out std_logic_vector(15 downto 0);
+    dac_ho_load_o  : out std_logic;
+
 -- Output enable input: when HI, enables locking the output(s)
 -- to the reference clock(s)
     out_enable_i : in  std_logic_vector(g_num_outputs-1 downto 0);
@@ -849,6 +853,9 @@ begin  -- rtl
   dac_out_data_o <= regs_in.dac_main_value_o;
   dac_out_sel_o  <= regs_in.dac_main_dac_sel_o;
   dac_out_load_o <= regs_in.dac_main_value_wr_o;
+
+  dac_ho_data_o  <= regs_in.dac_ho_value_o;
+  dac_ho_load_o  <= regs_in.dac_ho_value_wr_o;
 
   wb_irq_o <= wb_irq_out;
 

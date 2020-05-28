@@ -304,12 +304,24 @@ peripheral {
 			field {
 				 name = "DAC select";
 				 prefix = "DAC_SEL";
-				 description = "Selects the output DAC to be updated with VALUE";
+				 description = "Selects the output DAC to be updated with VALUE:\n";
 				 type = PASS_THROUGH;
 				 size = 4;
 			};
 	 }; 
 
+	 reg {
+			name = "Holdover DAC Output";
+			prefix = "DAC_HO";
+			
+			field {
+				 name = "DAC value";
+				 prefix = "VALUE";
+				 type = PASS_THROUGH;
+				 size = 16;
+			};
+	 }; 
+	 
 	 reg {
 			name = "DDMTD Deglitcher threshold";
 			prefix = "DEGLITCH_THR";

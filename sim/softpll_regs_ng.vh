@@ -53,8 +53,11 @@
 `define SPLL_DAC_MAIN_VALUE 32'h0000ffff
 `define SPLL_DAC_MAIN_DAC_SEL_OFFSET 16
 `define SPLL_DAC_MAIN_DAC_SEL 32'h000f0000
-`define ADDR_SPLL_DEGLITCH_THR         8'h48
-`define ADDR_SPLL_DFR_SPLL             8'h4c
+`define ADDR_SPLL_DAC_HO               8'h48
+`define SPLL_DAC_HO_VALUE_OFFSET 0
+`define SPLL_DAC_HO_VALUE 32'h0000ffff
+`define ADDR_SPLL_DEGLITCH_THR         8'h4c
+`define ADDR_SPLL_DFR_SPLL             8'h50
 `define SPLL_DFR_SPLL_VALUE_OFFSET 0
 `define SPLL_DFR_SPLL_VALUE 32'h7fffffff
 `define SPLL_DFR_SPLL_EOS_OFFSET 31

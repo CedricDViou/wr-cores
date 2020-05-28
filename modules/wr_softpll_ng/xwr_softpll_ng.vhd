@@ -120,6 +120,10 @@ entity xwr_softpll_ng is
     dac_out_sel_o  : out std_logic_vector(3 downto 0);
     dac_out_load_o : out std_logic;
 
+-- Holdover oscillator drive
+    dac_ho_data_o  : out std_logic_vector(15 downto 0);
+    dac_ho_load_o  : out std_logic;
+
     out_enable_i : in  std_logic_vector(g_num_outputs-1 downto 0);
     out_locked_o : out std_logic_vector(g_num_outputs-1 downto 0);
     out_status_o : out std_logic_vector(4*g_num_outputs-1 downto 0);
@@ -165,6 +169,8 @@ architecture wrapper of xwr_softpll_ng is
       dac_out_data_o  : out std_logic_vector(15 downto 0);
       dac_out_sel_o   : out std_logic_vector(3 downto 0);
       dac_out_load_o  : out std_logic;
+      dac_ho_data_o   : out std_logic_vector(15 downto 0);
+      dac_ho_load_o   : out std_logic;
       out_enable_i    : in  std_logic_vector(g_num_outputs-1 downto 0);
       out_locked_o    : out std_logic_vector(g_num_outputs-1 downto 0);
       out_status_o    : out std_logic_vector(4*g_num_outputs-1 downto 0);
@@ -217,6 +223,8 @@ begin  -- behavioral
       dac_out_data_o  => dac_out_data_o,
       dac_out_sel_o   => dac_out_sel_o,
       dac_out_load_o  => dac_out_load_o,
+      dac_ho_data_o   => dac_ho_data_o,
+      dac_ho_load_o   => dac_ho_load_o,
       out_enable_i    => out_enable_i,
       out_locked_o    => out_locked_o,
       wb_adr_i        => slave_i.adr,
