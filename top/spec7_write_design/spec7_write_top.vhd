@@ -7,9 +7,10 @@
 -------------------------------------------------------------------------------
 -- File       : spec7_write_top.vhd
 -- Author(s)  : Peter Jansweijer <peterj@nikhef.nl>
+-- Author(s)  : Guido Visser HPSEC mods <guidov@nikhef.nl>
 -- Company    : Nikhef
 -- Created    : 2018-12-10
--- Last update: 2018-12-10
+-- Last update: 2020-06-25
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level file for the WRPC reference design on the SPEC7
@@ -90,10 +91,17 @@ entity spec7_write_top is
     -- SPI interface to DACs
     ---------------------------------------------------------------------------
 
-    dac_refclk_cs_n_o : out std_logic;
-    dac_refclk_sclk_o : out std_logic;
-    dac_refclk_din_o  : out std_logic;
+    --dac_refclk_cs_n_o : out std_logic;
+    --dac_refclk_sclk_o : out std_logic;
+    --dac_refclk_din_o  : out std_logic;
 
+    dac_refclk_sclk_p_o :  out std_logic;
+    dac_refclk_sclk_n_o :  out std_logic;
+    dac_refclk_din_p_o  :  out std_logic;
+    dac_refclk_din_n_o  :  out std_logic;
+    dac_refclk_cs_n_p_o :  out std_logic;
+    dac_refclk_cs_n_n_o :  out std_logic;
+     
     dac_dmtd_cs_n_o   : out std_logic;
     dac_dmtd_sclk_o   : out std_logic;
     dac_dmtd_din_o    : out std_logic;
@@ -262,6 +270,10 @@ architecture top of spec7_write_top is
   -- Signals
   -----------------------------------------------------------------------------
 
+  signal dac_refclk_sclk : std_logic;
+  signal dac_refclk_din  : std_logic;
+  signal dac_refclk_cs_n : std_logic;
+ 
   -- clock and reset
 --  signal clk_125m_pllref : std_logic;
   signal clk_sys_62m5    : std_logic;
@@ -438,9 +450,11 @@ AXI2WB : xwb_axi4lite_bridge
       clk_ref_62m5_o      => clk_ref_62m5,
       rst_sys_62m5_n_o    => rst_sys_62m5_n,
       rst_ref_62m5_n_o    => rst_ref_62m5_n,
-      dac_refclk_cs_n_o   => dac_refclk_cs_n_o,
-      dac_refclk_sclk_o   => dac_refclk_sclk_o,
-      dac_refclk_din_o    => dac_refclk_din_o,
+      --HPSEC------------------------------------
+      dac_refclk_sclk_o   => dac_refclk_sclk,
+      dac_refclk_din_o    => dac_refclk_din,
+      dac_refclk_cs_n_o   => dac_refclk_cs_n,
+
       dac_dmtd_cs_n_o     => dac_dmtd_cs_n_o,
       dac_dmtd_sclk_o     => dac_dmtd_sclk_o, 
       dac_dmtd_din_o      => dac_dmtd_din_o, 
@@ -523,6 +537,27 @@ AXI2WB : xwb_axi4lite_bridge
       I  => wrc_pps_out,
       O  => pps_p_o,
       OB => pps_n_o);
+
+  ------------------------------------------------------------------------------
+  -- HPSEC this part will pass the DAC SPI to the FMC connnector to the HPSEC
+  ------------------------------------------------------------------------------
+  dac_refclk_sclk_diff : OBUFDS
+    port map (
+      I  =>  dac_refclk_sclk,
+      O  => dac_refclk_sclk_p_o,
+      OB => dac_refclk_sclk_n_o);
+
+  dac_refclk_din_diff : OBUFDS
+    port map (
+      I  => dac_refclk_din,
+      O  => dac_refclk_din_p_o,
+      OB => dac_refclk_din_n_o);
+
+  dac_refclk_cs_diff : OBUFDS
+    port map (
+      I  => dac_refclk_cs_n,
+      O  => dac_refclk_cs_n_p_o,
+      OB => dac_refclk_cs_n_n_o);
 
   -- Type of PPS_IN input:
   -- Differential LVDS

@@ -6,6 +6,7 @@
 # Bank 112 -- 125.000 MHz GTX reference
 set_property PACKAGE_PIN U6 [get_ports clk_125m_gtx_p_i]
 set_property PACKAGE_PIN U5 [get_ports clk_125m_gtx_n_i]
+# Set for extren 125MHz
 # Bank 111 -- 125.000 MHz GTX reference
 #set_property PACKAGE_PIN W6 [get_ports clk_125m_gtx_p_i]
 #set_property PACKAGE_PIN W5 [get_ports clk_125m_gtx_n_i]
@@ -68,12 +69,16 @@ set_property PACKAGE_PIN E10 [get_ports dac_dmtd_sclk_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_dmtd_sclk_o]
 set_property PACKAGE_PIN F12 [get_ports dac_dmtd_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_dmtd_cs_n_o]
-set_property PACKAGE_PIN D11 [get_ports dac_refclk_din_o]
-set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_din_o]
-set_property PACKAGE_PIN F10 [get_ports dac_refclk_sclk_o]
-set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
-set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
-set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
+
+#set_property PACKAGE_PIN D11 [get_ports dac_refclk_din_o]
+#set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_din_o]
+#set_property PACKAGE_PIN F10 [get_ports dac_refclk_sclk_o]
+#set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
+#set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
+#set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
+
+# To control the DAC on the HPSEC the dac signals are routed via the FMC connector.
+# See below for the pins definitions.
 
 #   -------------------------------------------------------------------------------
 #   -- PLL Control signals
@@ -371,9 +376,13 @@ set_property IOSTANDARD LVCMOS25 [get_ports pps_i]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 9
 #set_property PACKAGE_PIN AE17 [get_ports fmc_la02_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la02_p]
- #Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 11
+set_property PACKAGE_PIN AE17 [get_ports dac_refclk_sclk_p_o]
+set_property IOSTANDARD LVDS_25 [get_ports dac_refclk_sclk_p_o]
+#Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 11
 #set_property PACKAGE_PIN AF17 [get_ports fmc_la02_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la02_n]
+set_property PACKAGE_PIN AF17   [get_ports dac_refclk_sclk_n_o]
+set_property IOSTANDARD LVDS_25 [get_ports dac_refclk_sclk_n_o]
 # Bank 13 VCCO - 2.5 V  FMC_XM105 J1 pin 13
 #set_property PACKAGE_PIN AA24 [get_ports fmc_la03_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la03_p]
@@ -383,9 +392,13 @@ set_property IOSTANDARD LVCMOS25 [get_ports pps_i]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 17
 #set_property PACKAGE_PIN AE16 [get_ports fmc_la04_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la04_p]
+set_property PACKAGE_PIN AE16   [get_ports dac_refclk_din_p_o]
+set_property IOSTANDARD LVDS_25 [get_ports dac_refclk_din_p_o]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 19
 #set_property PACKAGE_PIN AE15 [get_ports fmc_la04_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la04_n]
+set_property PACKAGE_PIN AE15 [get_ports dac_refclk_din_n_o]
+set_property IOSTANDARD LVDS_25 [get_ports dac_refclk_din_n_o]
 # Bank 13 VCCO - 2.5 V  FMC_XM105 J1 pin 21
 #set_property PACKAGE_PIN W20 [get_ports fmc_la05_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la05_p]
@@ -401,9 +414,13 @@ set_property IOSTANDARD LVCMOS25 [get_ports pps_i]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 29
 #set_property PACKAGE_PIN AB17 [get_ports fmc_la07_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la07_p]
+set_property PACKAGE_PIN AB17   [get_ports dac_refclk_cs_n_p_o]
+set_property IOSTANDARD LVDS_25 [get_ports dac_refclk_cs_n_p_o]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 31
 #set_property PACKAGE_PIN AB16 [get_ports fmc_la07_n]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la07_n]
+set_property PACKAGE_PIN AB16   [get_ports dac_refclk_cs_n_n_o]
+set_property IOSTANDARD LVDS_25 [get_ports dac_refclk_cs_n_n_o]
 # Bank 12 VCCO - 2.5 V  FMC_XM105 J1 pin 33
 #set_property PACKAGE_PIN Y17 [get_ports fmc_la08_p]
 #set_property IOSTANDARD LVCMOS25 [get_ports fmc_la08_p]
