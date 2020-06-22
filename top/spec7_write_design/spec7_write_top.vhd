@@ -93,10 +93,22 @@ entity spec7_write_top is
     dac_refclk_cs_n_o : out std_logic;
     dac_refclk_sclk_o : out std_logic;
     dac_refclk_din_o  : out std_logic;
-
+    
+    dac_refclk_sclk_p_o :  out std_logic;
+    dac_refclk_sclk_n_o :  out std_logic;
+    dac_refclk_din_p_o  :  out std_logic;
+    dac_refclk_din_n_o  :  out std_logic;
+    dac_refclk_cs_n_p_o :  out std_logic;
+    dac_refclk_cs_n_n_o :  out std_logic;
+     
     dac_dmtd_cs_n_o   : out std_logic;
     dac_dmtd_sclk_o   : out std_logic;
     dac_dmtd_din_o    : out std_logic;
+    
+    
+--    dac_refclk_cs_n_s_o : out std_logic;
+--    dac_refclk_sclk_s_o : out std_logic;
+--    dac_refclk_din_s_o  : out std_logic;
 
     -------------------------------------------------------------------------------
     -- PLL Control signals
@@ -236,6 +248,15 @@ architecture top of spec7_write_top is
   -- Signals
   -----------------------------------------------------------------------------
 
+  
+ signal   dac_refclk_sclk_int_o  : std_logic;
+ signal   dac_refclk_din_int_o   :  std_logic;
+ signal   dac_refclk_cs_n_int_o  :  std_logic;
+ 
+--signal   dac_refclk_sclk_s_int_o  : std_logic;
+--signal   dac_refclk_din_s_int_o   :  std_logic;
+--signal   dac_refclk_cs_n_s_int_o  :  std_logic;
+
   -- clock and reset
 --  signal clk_125m_pllref : std_logic;
   signal clk_sys_62m5    : std_logic;
@@ -281,6 +302,7 @@ architecture top of spec7_write_top is
 
   --PCIe 
   signal pci_clk : std_logic;
+
 
 
   component pll_62m5_500m is
@@ -396,13 +418,15 @@ AXI2WB : xwb_axi4lite_bridge
       clk_ref_62m5_o      => clk_ref_62m5,
       rst_sys_62m5_n_o    => rst_sys_62m5_n,
       rst_ref_62m5_n_o    => rst_ref_62m5_n,
-      dac_refclk_cs_n_o   => dac_refclk_cs_n_o,
-      dac_refclk_sclk_o   => dac_refclk_sclk_o,
-      dac_refclk_din_o    => dac_refclk_din_o,
-      dac_dmtd_cs_n_o     => dac_dmtd_cs_n_o,
-      dac_dmtd_sclk_o     => dac_dmtd_sclk_o, 
-      dac_dmtd_din_o      => dac_dmtd_din_o, 
-
+      --HPSEC------------------------------------
+      dac_refclk_sclk_o   => dac_refclk_sclk_int_o,
+      dac_refclk_din_o    => dac_refclk_din_int_o,
+      dac_refclk_cs_n_o   => dac_refclk_cs_n_int_o,
+      
+      dac_dmtd_cs_n_o      => dac_dmtd_cs_n_o,
+      dac_dmtd_sclk_o      => dac_dmtd_sclk_o,
+      dac_dmtd_din_o       => dac_dmtd_din_o ,
+      
       pll_status_i        => pll_status_i,
       pll_mosi_o          => pll_mosi_o,
       pll_miso_i          => pll_miso_i,
@@ -483,6 +507,44 @@ AXI2WB : xwb_axi4lite_bridge
       I  => wrc_pps_out,
       O  => pps_p_o,
       OB => pps_n_o);
+      
+      
+  ------------------------------------------------------------------------------
+  -- HPSEC 
+  ------------------------------------------------------------------------------
+    dac_refclk_sclk_diff : OBUFDS
+    port map (
+      I  =>  dac_refclk_sclk_int_o,
+      O  => dac_refclk_sclk_p_o,
+      OB => dac_refclk_sclk_n_o);
+	  
+	dac_refclk_din_diff : OBUFDS
+    port map (
+      I  => dac_refclk_din_int_o,
+      O  => dac_refclk_din_p_o,
+      OB => dac_refclk_din_n_o);
+	dac_refclk_cs_diff : OBUFDS
+    port map (
+      I  => dac_refclk_cs_n_int_o,
+      O  => dac_refclk_cs_n_p_o,
+      OB => dac_refclk_cs_n_n_o);
+      
+  -- test crap   crap 
+          dac_refclk_sclk_single : OBUF
+    port map (
+      I  =>  dac_refclk_sclk_int_o,
+      O  =>  dac_refclk_sclk_o);
+	  
+	dac_refclk_din_single : OBUF
+    port map (
+      I  => dac_refclk_din_int_o,
+      O  => dac_refclk_din_o);
+	dac_refclk_cs_single : OBUF
+    port map (
+      I  => dac_refclk_cs_n_int_o,
+      O  => dac_refclk_cs_n_o);
+    -- end test crap        
+      
 
   -- Type of PPS_IN input:
   -- Differential LVDS
@@ -538,7 +600,10 @@ AXI2WB : xwb_axi4lite_bridge
       pps_i       => wrc_pps_out,
       clk_10mhz_o => clk_10m_out
     );
-  
+ 
+
+
+ 
   ------------------------------------------------------------------------------
   -- EEPROM I2C tri-states
   ------------------------------------------------------------------------------

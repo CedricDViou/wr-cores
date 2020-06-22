@@ -573,7 +573,7 @@ begin  -- architecture struct
       btn2_i               => btn2_i,
       pps_p_o              => pps_p_o,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o);
+      link_ok_o            => link_ok_o);   
 
   sfp_rate_select_o <= '1';
 
