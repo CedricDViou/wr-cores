@@ -7,9 +7,10 @@
 -------------------------------------------------------------------------------
 -- File       : spec7_write_top.vhd
 -- Author(s)  : Peter Jansweijer <peterj@nikhef.nl>
+-- Author(s)  : Guido Visser HPSEC mods <guidov@nikhef.nl>
 -- Company    : Nikhef
 -- Created    : 2018-12-10
--- Last update: 2018-12-10
+-- Last update: 2020-06-25
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level file for the WRPC reference design on the SPEC7
@@ -510,7 +511,7 @@ AXI2WB : xwb_axi4lite_bridge
       
       
   ------------------------------------------------------------------------------
-  -- HPSEC 
+  -- HPSEC this part will pass the DAC SPI to the FMC connnector to the HPSEC
   ------------------------------------------------------------------------------
     dac_refclk_sclk_diff : OBUFDS
     port map (
@@ -528,8 +529,8 @@ AXI2WB : xwb_axi4lite_bridge
       I  => dac_refclk_cs_n_int_o,
       O  => dac_refclk_cs_n_p_o,
       OB => dac_refclk_cs_n_n_o);
-      
-  -- test crap   crap 
+-- test crap  should be turn off when using the hpspec it was just voor testing tbat the FMC io was working 
+--  Now it wil tune the on board vcxo when running in slave. 
           dac_refclk_sclk_single : OBUF
     port map (
       I  =>  dac_refclk_sclk_int_o,
