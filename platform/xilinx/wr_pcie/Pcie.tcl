@@ -285,7 +285,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net xdma_0_usr_irq_ack [get_bd_ports usr_irq_ack_0] [get_bd_pins xdma_0/usr_irq_ack]
 
   # Create address segments
-  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] -force
+  assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] -force
 
 
   # Restore current instance
@@ -302,9 +302,5 @@ proc create_root_design { parentCell } {
 ##################################################################
 
 create_root_design ""
-set dir [get_property DIRECTORY [current_project]]
-close_bd_design $design_name
-make_wrapper -files [get_files $dir/${proj_name}.srcs/sources_1/bd/${design_name}/${design_name}.bd] -top
-add_files -norecurse $dir/${proj_name}.srcs/sources_1/bd/${design_name}/hdl/${design_name}_wrapper.vhd
 
 
