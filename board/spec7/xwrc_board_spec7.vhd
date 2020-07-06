@@ -119,6 +119,20 @@ entity xwrc_board_spec7 is
     dac_dmtd_sclk_o   : out std_logic;
     dac_dmtd_din_o    : out std_logic;
 
+    -------------------------------------------------------------------------------
+    -- PLL Control signals
+    -------------------------------------------------------------------------------    
+
+    pll_status_i      : in  std_logic := '0';
+    pll_mosi_o        : out std_logic;
+    pll_miso_i        : in  std_logic := '0';
+    pll_sck_o         : out std_logic;
+    pll_cs_n_o        : out std_logic;
+    pll_sync_o        : out std_logic;
+    pll_reset_n_o     : out std_logic;
+    pll_lock_i        : in  std_logic := '0';
+    pll_wr_mode_o     : out std_logic_vector(1 downto 0);
+
     ---------------------------------------------------------------------------
     -- SFP I/O for transceiver and SFP management info
     ---------------------------------------------------------------------------
@@ -258,6 +272,7 @@ architecture struct of xwrc_board_spec7 is
 
   -- IBUFDS
   signal clk_125m_dmtd_buf : std_logic;
+  signal clk_sys_62m5      : std_logic;
   signal clk_dmtd          : std_logic;
 
   -- PLLs, clocks
@@ -265,6 +280,7 @@ architecture struct of xwrc_board_spec7 is
   signal clk_ref_62m5 : std_logic;
   signal pll_locked   : std_logic;
   signal clk_10m_ext  : std_logic;
+  signal pll_clk_sel  : std_logic;
 
   -- Reset logic
   signal areset_edge_ppulse : std_logic;
@@ -292,6 +308,31 @@ architecture struct of xwrc_board_spec7 is
   signal ext_ref_mul_locked  : std_logic;
   signal ext_ref_mul_stopped : std_logic;
   signal ext_ref_rst         : std_logic;
+
+  -- wr-cores Aux WB bus to SPEC7 WB Crossbar
+  constant c_cnx_slave_ports  : integer := 1;
+  signal cnx_slave_in  : t_wishbone_slave_in_array(c_cnx_slave_ports-1 downto 0);
+  signal cnx_slave_out : t_wishbone_slave_out_array(c_cnx_slave_ports-1 downto 0);
+
+  constant c_master_wrpc      : integer := 0;
+
+  -- SPEC7 WB bus
+  constant c_cnx_master_ports : integer := 1;
+  signal cnx_master_in  : t_wishbone_master_in_array(c_cnx_master_ports-1 downto 0);
+  signal cnx_master_out : t_wishbone_master_out_array(c_cnx_master_ports-1 downto 0);
+
+  constant c_slave_gpio       : integer := 0;
+
+  constant c_cfg_base_addr : t_wishbone_address_array(c_cnx_master_ports-1 downto 0) :=
+    (c_slave_gpio    => x"00000000"
+     );
+
+  constant c_cfg_base_mask : t_wishbone_address_array(c_cnx_master_ports-1 downto 0) :=
+    (c_slave_gpio    => x"00000f00"
+     );
+
+  constant c_num_gpio_pins : integer := 11;
+  signal gpio_out, gpio_in, gpio_oen : std_logic_vector(c_num_gpio_pins-1 downto 0);
 
 begin  -- architecture struct
 
@@ -344,7 +385,6 @@ begin  -- architecture struct
   -- Avoid a deadlock. The clk_dmtd is always present and is first used to bring alive
   -- the LM32 that exectutes a PLL initialisation before switching to clk_pll_62m5.
 
-  clk_sys_62m5_o <= clk_pll_62m5;
 
   cmp_bufgmux: BUFGMUX
     port map (
@@ -368,16 +408,21 @@ begin  -- architecture struct
     generic map (
       g_sync_edge => "positive")
     port map (
-      clk_i    => clk_pll_62m5,
+      clk_i    => clk_sys_62m5,
       rst_n_i  => '1',
       data_i   => areset_edge_n_i,
       ppulse_o => areset_edge_ppulse);
 
   -- logic AND of all async reset sources (active low)
-  rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
+  -- Note: pll_locked = pll_dmtd_locked and pll_sys_locked. SPEC7 uses
+  -- direct_dmtd thus pll_dmtd_locked is always '1'. SPEC7 initial clk_sys_62m5
+  -- is clk_dmtd (selected by BUFGMUX) and clk_pll_62m5 is not yet driven by the PLL
+  -- so pll_sys_locked = '0' and can't be used for synchronous reset generation.
+  --rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
+  rstlogic_arst_n <= areset_n_i and (not areset_edge_ppulse);
 
   -- concatenation of all clocks required to have synced resets
-  rstlogic_clk_in(0) <= clk_pll_62m5;
+  rstlogic_clk_in(0) <= clk_sys_62m5;
   rstlogic_clk_in(1) <= clk_ref_62m5;
 
   cmp_rstlogic_reset : gc_reset
@@ -408,7 +453,7 @@ begin  -- architecture struct
       g_num_cs_select => 1,
       g_sclk_polarity => 0)
     port map (
-      clk_i         => clk_pll_62m5,
+      clk_i         => clk_sys_62m5,
       rst_n_i       => rst_62m5_n,
       value_i       => dac_dmtd_data,
       cs_sel_i      => "1",
@@ -425,7 +470,7 @@ begin  -- architecture struct
       g_num_cs_select => 1,
       g_sclk_polarity => 0)
     port map (
-      clk_i         => clk_pll_62m5,
+      clk_i         => clk_sys_62m5,
       rst_n_i       => rst_62m5_n,
       value_i       => dac_refclk_data,
       cs_sel_i      => "1",
@@ -467,7 +512,7 @@ begin  -- architecture struct
       g_fabric_iface              => g_fabric_iface
       )
     port map (
-      clk_sys_i            => clk_pll_62m5,
+      clk_sys_i            => clk_sys_62m5,
       clk_dmtd_i           => clk_dmtd,
       clk_ref_i            => clk_ref_62m5,
       clk_aux_i            => clk_aux_i,
@@ -504,6 +549,8 @@ begin  -- architecture struct
       owr_i                => onewire_in,
       wb_slave_i           => wb_slave_i,
       wb_slave_o           => wb_slave_o,
+      aux_master_o         => cnx_slave_in(c_master_wrpc),
+      aux_master_i         => cnx_slave_out(c_master_wrpc),
       wrf_src_o            => wrf_src_o,
       wrf_src_i            => wrf_src_i,
       wrf_snk_o            => wrf_snk_o,
@@ -545,6 +592,51 @@ begin  -- architecture struct
       pps_led_o            => pps_led_o,
       link_ok_o            => link_ok_o);
 
+  WB_SPEC7_CON : xwb_crossbar
+    generic map (
+      g_num_masters => c_cnx_slave_ports,
+      g_num_slaves  => c_cnx_master_ports,
+      g_registered  => true,
+      g_address     => c_cfg_base_addr,
+      g_mask        => c_cfg_base_mask)
+    port map (
+      clk_sys_i => clk_sys_62m5,
+      rst_n_i   => rst_62m5_n,
+      slave_i   => cnx_slave_in,
+      slave_o   => cnx_slave_out,
+      master_i  => cnx_master_in,
+      master_o  => cnx_master_out);
+
+  U_GPIO : xwb_gpio_port
+    generic map (
+      g_interface_mode         => PIPELINED,
+      g_address_granularity    => BYTE,
+      g_num_pins               => c_num_gpio_pins,
+      g_with_builtin_tristates => false)
+    port map (
+      clk_sys_i  => clk_sys_62m5,
+      rst_n_i    => rst_62m5_n,
+      slave_i    => cnx_master_out(c_slave_gpio),
+      slave_o    => cnx_master_in(c_slave_gpio),
+      gpio_out_o => gpio_out,
+      gpio_in_i  => gpio_in,
+      gpio_oen_o => gpio_oen);
+
+  -- PLL signals bit-banged SPI
+  pll_cs_n_o       <= gpio_out(0);
+  pll_mosi_o       <= gpio_out(1);
+  gpio_in(2)       <= pll_miso_i;
+  pll_sck_o        <= gpio_out(3);
+  pll_reset_n_o    <= gpio_out(4);
+  gpio_in(5)       <= pll_lock_i;
+  gpio_in(6)       <= pll_status_i;
+  pll_sync_o       <= gpio_out(7); --'0';  -- Not Used by PLL, default drive '0'
+
+  -- External clock multiplexers
+  pll_wr_mode_o    <= gpio_out(9 downto 8);
+  -- Bootstrap clock
+  pll_clk_sel      <= gpio_out(10);
+  
   sfp_rate_select_o <= '1';
 
   onewire_oen_o <= onewire_en(0);
