@@ -273,12 +273,6 @@ architecture top of spec7_write_top is
   signal clk_10m_out     : std_logic;
   signal clk_500m        : std_logic;
 
-  -- I2C EEPROM
-  signal eeprom_sda_in   : std_logic;
-  signal eeprom_sda_out  : std_logic;
-  signal eeprom_scl_in   : std_logic;
-  signal eeprom_scl_out  : std_logic;
-
   -- SFP
   signal sfp_sda_in  : std_logic;
   signal sfp_sda_out : std_logic;
@@ -475,10 +469,8 @@ AXI2WB : xwb_axi4lite_bridge
       sfp_tx_disable_o    => sfp_tx_disable_o,
       sfp_los_i           => sfp_los_i,
 
-      eeprom_sda_i        => eeprom_sda_in,
-      eeprom_sda_o        => eeprom_sda_out,
-      eeprom_scl_i        => eeprom_scl_in,
-      eeprom_scl_o        => eeprom_scl_out,
+      eeprom_scl          => scl_b,
+      eeprom_sda          => sda_b,
 
       onewire_i           => '1',  -- No onewire, Unique ID now via
       onewire_oen_o       => open, -- 24AA025EU48 (I2C Addr 1010.001x)
@@ -586,14 +578,6 @@ AXI2WB : xwb_axi4lite_bridge
       pps_i       => wrc_pps_out,
       clk_10mhz_o => clk_10m_out
     );
-  
-  ------------------------------------------------------------------------------
-  -- EEPROM I2C tri-states
-  ------------------------------------------------------------------------------
-  sda_b <= '0' when (eeprom_sda_out = '0') else 'Z';
-  eeprom_sda_in <= sda_b;
-  scl_b <= '0' when (eeprom_scl_out = '0') else 'Z';
-  eeprom_scl_in <= scl_b;
 
   -- LEDs
   U_Extend_PPS : gc_extend_pulse

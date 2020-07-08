@@ -153,10 +153,8 @@ entity xwrc_board_spec7 is
     ---------------------------------------------------------------------------
     -- I2C EEPROM
     ---------------------------------------------------------------------------
-    eeprom_sda_i : in  std_logic;
-    eeprom_sda_o : out std_logic;
-    eeprom_scl_i : in  std_logic;
-    eeprom_scl_o : out std_logic;
+    eeprom_sda : inout std_logic;
+    eeprom_scl : inout std_logic;
 
     ---------------------------------------------------------------------------
     -- Onewire interface
@@ -331,7 +329,7 @@ architecture struct of xwrc_board_spec7 is
     (c_slave_gpio    => x"00000f00"
      );
 
-  constant c_num_gpio_pins : integer := 11;
+  constant c_num_gpio_pins : integer := 13;
   signal gpio_out, gpio_in, gpio_oen : std_logic_vector(c_num_gpio_pins-1 downto 0);
 
 begin  -- architecture struct
@@ -529,10 +527,10 @@ begin  -- architecture struct
       dac_dpll_data_o      => dac_refclk_data,
       phy16_o              => phy16_from_wrc,
       phy16_i              => phy16_to_wrc,
-      scl_o                => eeprom_scl_o,
-      scl_i                => eeprom_scl_i,
-      sda_o                => eeprom_sda_o,
-      sda_i                => eeprom_sda_i,
+      scl_o                => open,
+      scl_i                => '1',
+      sda_o                => open,
+      sda_i                => '1',
       sfp_scl_o            => sfp_scl_o,
       sfp_scl_i            => sfp_scl_i,
       sfp_sda_o            => sfp_sda_o,
@@ -636,7 +634,13 @@ begin  -- architecture struct
   pll_wr_mode_o    <= gpio_out(9 downto 8);
   -- Bootstrap clock
   pll_clk_sel      <= gpio_out(10);
-  
+
+  -- EEPROM I2C tri-states
+  eeprom_scl  <= '0' when (gpio_out(11) = '0') else 'Z';
+  gpio_in(11) <= eeprom_scl;
+  eeprom_sda  <= '0' when (gpio_out(12) = '0') else 'Z';
+  gpio_in(12) <= eeprom_sda;
+
   sfp_rate_select_o <= '1';
 
   onewire_oen_o <= onewire_en(0);
