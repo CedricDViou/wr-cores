@@ -274,17 +274,16 @@ architecture struct of xwrc_board_spec7 is
   signal clk_dmtd          : std_logic;
 
   -- PLLs, clocks
-  signal clk_pll_62m5 : std_logic;
-  signal clk_ref_62m5 : std_logic;
-  signal pll_locked   : std_logic;
-  signal clk_10m_ext  : std_logic;
-  signal pll_clk_sel  : std_logic;
+  signal clk_pll_62m5    : std_logic;
+  signal clk_ref_62m5    : std_logic;
+  signal pll_locked      : std_logic;
+  signal clk_10m_ext     : std_logic;
+  signal pll_clk_sel     : std_logic;
+  signal pll_clk_select  : std_logic;
 
   -- Reset logic
-  signal areset_edge_ppulse : std_logic;
-  signal rst_62m5_n         : std_logic;
-  signal rstlogic_arst_n    : std_logic;
-  signal rstlogic_clk_in    : std_logic_vector(1 downto 0);
+    signal rst_62m5_n         : std_logic;
+    signal rstlogic_clk_in    : std_logic_vector(1 downto 0);
   signal rstlogic_rst_out   : std_logic_vector(1 downto 0);
 
   -- PLL DACs
@@ -383,13 +382,12 @@ begin  -- architecture struct
   -- Avoid a deadlock. The clk_dmtd is always present and is first used to bring alive
   -- the LM32 that exectutes a PLL initialisation before switching to clk_pll_62m5.
 
-
   cmp_bufgmux: BUFGMUX
     port map (
       O  => clk_sys_62m5,
       I0 => clk_dmtd,
       I1 => clk_pll_62m5,
-      S  => pll_clk_sel
+      S  => pll_clk_select
     );
 
   clk_sys_62m5_o <= clk_sys_62m5;
@@ -398,26 +396,12 @@ begin  -- architecture struct
   -----------------------------------------------------------------------------
   -- Reset logic
   -----------------------------------------------------------------------------
-  -- Detect when areset_edge_n_i goes high (end of reset) and use this edge to
-  -- generate rstlogic_arst_n. This is needed to connect optional reset like PCIe
-  -- reset. When baord runs standalone, we need to ignore PCIe reset being
-  -- constantly low.
-  cmp_arst_edge: gc_sync_ffs
-    generic map (
-      g_sync_edge => "positive")
-    port map (
-      clk_i    => clk_sys_62m5,
-      rst_n_i  => '1',
-      data_i   => areset_edge_n_i,
-      ppulse_o => areset_edge_ppulse);
-
-  -- logic AND of all async reset sources (active low)
-  -- Note: pll_locked = pll_dmtd_locked and pll_sys_locked. SPEC7 uses
-  -- direct_dmtd thus pll_dmtd_locked is always '1'. SPEC7 initial clk_sys_62m5
-  -- is clk_dmtd (selected by BUFGMUX) and clk_pll_62m5 is not yet driven by the PLL
-  -- so pll_sys_locked = '0' and can't be used for synchronous reset generation.
-  --rstlogic_arst_n <= pll_locked and areset_n_i and (not areset_edge_ppulse);
-  rstlogic_arst_n <= areset_n_i and (not areset_edge_ppulse);
+  -- SPEC7 uses direct_dmtd thus pll_dmtd_locked is always '1'. SPEC7 initial clk_sys_62m5
+  -- is clk_dmtd (selected by BUFGMUX) and clk_pll_62m5 is not yet driven by the PLL.
+  -- Logic AND of async reset source (active low) with pll_clk_sel to ensure free running
+  -- bootstrap clk_dmtd at reset. Once reset is released and the PLL is configured using
+  -- clk_dmtd then pll_clk_sel is asserted to switch over to the reference clock.
+  pll_clk_select <= pll_clk_sel and areset_n_i;
 
   -- concatenation of all clocks required to have synced resets
   rstlogic_clk_in(0) <= clk_sys_62m5;
@@ -430,7 +414,7 @@ begin  -- architecture struct
       g_syncdepth => 3)                           -- length of sync chains
     port map (
       free_clk_i => clk_125m_dmtd_buf,
-      locked_i   => rstlogic_arst_n,
+      locked_i   => areset_n_i,
       clks_i     => rstlogic_clk_in,
       rstn_o     => rstlogic_rst_out);
 
@@ -590,7 +574,7 @@ begin  -- architecture struct
       pps_led_o            => pps_led_o,
       link_ok_o            => link_ok_o);
 
-  WB_SPEC7_CON : xwb_crossbar
+  cmp_wb_spec7_con : xwb_crossbar
     generic map (
       g_num_masters => c_cnx_slave_ports,
       g_num_slaves  => c_cnx_master_ports,
@@ -605,7 +589,7 @@ begin  -- architecture struct
       master_i  => cnx_master_in,
       master_o  => cnx_master_out);
 
-  U_GPIO : xwb_gpio_port
+  cmp_spec7_gpio : xwb_gpio_port
     generic map (
       g_interface_mode         => PIPELINED,
       g_address_granularity    => BYTE,
