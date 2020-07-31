@@ -364,8 +364,8 @@ begin  -- syn
     generic map (
       g_sync_edge => "positive")
     port map (
-      clk_i    => clk_sys_i,
-      rst_n_i  => rst_n_sys_i,
+      clk_i    => clk_ref_i,
+      rst_n_i  => rst_n_ref_i,
       data_i   => tx_sync_delay(0),
       synced_o => open,
       npulse_o => tx_ts_done,

@@ -228,7 +228,8 @@ proc create_root_design { parentCell } {
 
 
   # Create ports
-  set aclk1_0 [ create_bd_port -dir I -type clk -freq_hz 62500000 aclk1_0 ]
+  set aclk1_0 [ create_bd_port -dir I -type clk aclk1_0 ]
+  set_property CONFIG.FREQ_HZ 62500000 [get_bd_ports /aclk1_0]
   set_property -dict [ list \
    CONFIG.ASSOCIATED_BUSIF {M00_AXI_0} \
  ] $aclk1_0
@@ -285,7 +286,7 @@ proc create_root_design { parentCell } {
   connect_bd_net -net xdma_0_usr_irq_ack [get_bd_ports usr_irq_ack_0] [get_bd_pins xdma_0/usr_irq_ack]
 
   # Create address segments
-  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] -force
+  assign_bd_address -offset 0x44A00000 -range 0x00010000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] 
 
 
   # Restore current instance
