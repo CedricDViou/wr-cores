@@ -72,7 +72,8 @@ entity xwrc_platform_xilinx is
       g_phy_refclk_sel            : integer range 0 to 7 := 4;
       g_gtp_mux_enable            : boolean := FALSE;
       -- Set to TRUE will speed up some initialization processes
-      g_simulation                : integer := 0);
+      g_simulation                : integer := 0;
+      g_phy_lpcalib               : boolean := FALSE);
   port (
     ---------------------------------------------------------------------------
     -- Asynchronous reset (active low)
@@ -180,6 +181,7 @@ architecture rtl of xwrc_platform_xilinx is
 
   signal pll_arst            : std_logic := '0';
   signal clk_125m_pllref_buf : std_logic;
+  signal clk_dmtd_phy_lp     : std_logic := '0';
 
 begin  -- architecture rtl
 
@@ -709,6 +711,9 @@ begin  -- architecture rtl
           O => clk_62m5_dmtd_o,
           I => clk_dmtd);
 
+      -- low-phase-drift PHY's need clk_dmtd
+      clk_dmtd_phy_lp <= clk_dmtd;
+
       -- External 10MHz reference PLL for Kintex7
       gen_kintex7_artix7_ext_ref_pll : if (g_with_external_clock_input = TRUE) generate
         
@@ -1131,32 +1136,80 @@ begin  -- architecture rtl
         I => clk_125m_gtx_buf,
         O => clk_125m_pllref_buf);
 
-    cmp_gtx: wr_gtx_phy_family7
-      generic map(
-        g_simulation => g_simulation)
-      port map(
-        clk_gtx_i      => clk_125m_gtx_buf,
-        tx_out_clk_o   => clk_ref,
-        tx_data_i      => phy16_i.tx_data,
-        tx_k_i         => phy16_i.tx_k,
-        tx_disparity_o => phy16_o.tx_disparity,
-        tx_enc_err_o   => phy16_o.tx_enc_err,
-        rx_rbclk_o     => phy16_o.rx_clk,
-        rx_data_o      => phy16_o.rx_data,
-        rx_k_o         => phy16_o.rx_k,
-        rx_enc_err_o   => phy16_o.rx_enc_err,
-        rx_bitslide_o  => phy16_o.rx_bitslide,
-        rst_i          => phy16_i.rst,
-        loopen_i       => phy16_i.loopen_vec,
-        tx_prbs_sel_i  => phy16_i.tx_prbs_sel,
-        rdy_o          => phy16_o.rdy,
+    gen_lp: if g_phy_lpcalib generate
+      cmp_gtx_lp: wr_gtx_phy_family7_lp
+        generic map(
+          g_simulation => g_simulation)
+        port map(
+          clk_gtx_i      => clk_125m_gtx_buf,
+          clk_dmtd_i     => clk_dmtd_phy_lp,
+          clk_ref_i      => clk_125m_gtx_buf,
+          tx_data_i      => phy16_i.tx_data,
+          tx_k_i         => phy16_i.tx_k,
+          tx_disparity_o => phy16_o.tx_disparity,
+          tx_enc_err_o   => phy16_o.tx_enc_err,
+          rx_rbclk_o     => phy16_o.rx_clk,
+          clk_sampled_o  => phy16_o.rx_sampled_clk,
+          rx_data_o      => phy16_o.rx_data,
+          rx_k_o         => phy16_o.rx_k,
+          rx_enc_err_o   => phy16_o.rx_enc_err,
+          rx_bitslide_o  => phy16_o.rx_bitslide,
+          rst_i          => phy16_i.rst,
+          lpc_ctrl_i     => phy16_i.lpc_ctrl,
+          lpc_stat_o     => phy16_o.lpc_stat,
+          loopen_i       => phy16_i.loopen,
+          tx_prbs_sel_i  => phy16_i.tx_prbs_sel,
+          rdy_o          => phy16_o.rdy,
 
-        pad_txn_o => sfp_txn_o,
-        pad_txp_o => sfp_txp_o,
-        pad_rxn_i => sfp_rxn_i,
-        pad_rxp_i => sfp_rxp_i,
+          pad_txn_o => sfp_txn_o,
+          pad_txp_o => sfp_txp_o,
+          pad_rxn_i => sfp_rxn_i,
+          pad_rxp_i => sfp_rxp_i,
 
-        tx_locked_o   => clk_ref_locked);
+          tx_locked_o   => clk_ref_locked
+        );
+
+      -- clk_ref (62,500 MHz) = clk_125m_gtx_buf (125.000 MHz Div2)
+        process(clk_125m_pllref_buf)
+        begin
+          if rising_edge(clk_125m_pllref_buf) then
+            clk_ref <= not clk_ref;
+          end if;
+        end process;
+    end generate gen_lp;
+
+    -- Instantiate regular GTX for non low-phase-dript ports
+    gen_no_lp: if not g_phy_lpcalib generate
+      cmp_gtx: wr_gtx_phy_family7
+        generic map(
+          g_simulation => g_simulation)
+        port map(
+          clk_gtx_i      => clk_125m_gtx_buf,
+          tx_out_clk_o   => clk_ref,
+          tx_data_i      => phy16_i.tx_data,
+          tx_k_i         => phy16_i.tx_k,
+          tx_disparity_o => phy16_o.tx_disparity,
+          tx_enc_err_o   => phy16_o.tx_enc_err,
+          rx_rbclk_o     => phy16_o.rx_clk,
+          rx_data_o      => phy16_o.rx_data,
+          rx_k_o         => phy16_o.rx_k,
+          rx_enc_err_o   => phy16_o.rx_enc_err,
+          rx_bitslide_o  => phy16_o.rx_bitslide,
+          rst_i          => phy16_i.rst,
+          loopen_i       => phy16_i.loopen_vec,
+          tx_prbs_sel_i  => phy16_i.tx_prbs_sel,
+          rdy_o          => phy16_o.rdy,
+
+          pad_txn_o => sfp_txn_o,
+          pad_txp_o => sfp_txp_o,
+          pad_rxn_i => sfp_rxn_i,
+          pad_rxp_i => sfp_rxp_i,
+
+          tx_locked_o   => clk_ref_locked);
+
+      phy16_o.rx_sampled_clk <= '0';
+      phy16_o.lpc_stat       <= (others => '0');
+    end generate gen_no_lp;
 
     clk_125m_ref_o       <= clk_ref;
     clk_ref_locked_o     <= clk_ref_locked;
