@@ -33,7 +33,10 @@ elif (syn_device[0:4].upper()=="XC7K" or # Family 7 GTX (Kintex7 and Virtex7 585
       syn_device[0:6].upper()=="XC7Z03" or
       syn_device[0:7].upper()=="XC7Z045"):
 	files.extend(["family7-gtx/wr_gtx_phy_family7.vhd",
-                "family7-gtx/whiterabbit_gtxe2_channel_wrapper_gt.vhd"]);
+                "family7-gtx/whiterabbit_gtxe2_channel_wrapper_gt.vhd",
+                "family7-gtx-lp/whiterabbit_gtxe2_channel_wrapper_gt_lp.vhd",
+                "family7-gtx-lp/gtx_comma_detect_lp.vhd",
+                "family7-gtx-lp/wr_gtx_phy_family7_lp.vhd" ]);
 elif (syn_device[0:4].upper()=="XC7V"): # Family 7 GTH (other Virtex7 devices)
 	files.extend(["family7-gth/wr_gth_phy_family7.vhd",
                 "whiterabbit_gthe2_channel_wrapper_gt.vhd",
