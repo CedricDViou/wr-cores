@@ -352,7 +352,8 @@ begin  -- architecture struct
       g_direct_dmtd               => TRUE,
       g_with_external_clock_input => g_with_external_clock_input,
       g_use_default_plls          => TRUE,
-      g_simulation                => g_simulation)
+      g_simulation                => g_simulation,
+      g_phy_lpcalib               => TRUE)
     port map (
       areset_n_i            => areset_n_i,
       clk_10m_ext_i         => clk_10m_ext_i,
@@ -482,6 +483,7 @@ begin  -- architecture struct
       g_address_granularity       => BYTE,
       g_aux_sdb                   => c_wrc_periph3_sdb,
       g_softpll_enable_debugger   => FALSE,
+      g_softpll_use_sampled_ref_clocks => TRUE,
       g_vuart_fifo_size           => 1024,
       g_pcs_16bit                 => TRUE,
       g_diag_id                   => g_diag_id,
