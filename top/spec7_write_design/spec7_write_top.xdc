@@ -169,8 +169,8 @@ set_property IOSTANDARD LVCMOS25 [get_ports led_link_o]
 set_property PACKAGE_PIN AB25 [get_ports led_act_o]
 set_property IOSTANDARD LVCMOS25 [get_ports led_act_o]
 # LED_0
-set_property PACKAGE_PIN AC26 [get_ports led_pps]
-set_property IOSTANDARD LVCMOS25 [get_ports led_pps]
+set_property PACKAGE_PIN AC26 [get_ports led_pps_o]
+set_property IOSTANDARD LVCMOS25 [get_ports led_pps_o]
 # LED_1
 #set_property PACKAGE_PIN AB26 [get_ports led_1]
 #set_property IOSTANDARD LVCMOS25 [get_ports led_1]

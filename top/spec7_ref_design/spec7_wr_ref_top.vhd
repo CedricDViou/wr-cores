@@ -201,6 +201,7 @@ entity spec7_wr_ref_top is
     -- blink 1-PPS.
     dio_led_top_o : out std_logic;
     dio_led_bot_o : out std_logic;
+    led_pps_o     : out std_logic;
 
     ---------------------------------------------------------------------------
     -- EEPROM interface
@@ -280,6 +281,7 @@ architecture top of spec7_wr_ref_top is
   signal wrc_abscal_rxts_out : std_logic;
   signal wrc_pps_out : std_logic;
   signal wrc_pps_led : std_logic;
+  signal pps_led_ext : std_logic;
   signal wrc_pps_in  : std_logic;
   signal svec_led    : std_logic_vector(15 downto 0);
 
@@ -561,8 +563,10 @@ begin  -- architecture top
     clk_i      => clk_ref_62m5,
     rst_n_i    => rst_ref_62m5_n,
     pulse_i    => wrc_pps_led,
-    extended_o => dio_led_top_o);
+    extended_o => pps_led_ext);
 
+  led_pps_o <= pps_led_ext;
+  dio_led_top_o <= pps_led_ext;
   dio_led_bot_o <= '0';
 
 end architecture top;

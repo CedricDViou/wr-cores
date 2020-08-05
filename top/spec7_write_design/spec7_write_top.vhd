@@ -175,7 +175,7 @@ entity spec7_write_top is
     pps_i             : in std_logic;
 
     -- blink 1-PPS.
-    led_pps : out std_logic;
+    led_pps_o         : out std_logic;
 
     ---------------------------------------------------------------------------
     -- EEPROM interface
@@ -587,6 +587,6 @@ AXI2WB : xwb_axi4lite_bridge
     clk_i      => clk_ref_62m5,
     rst_n_i    => rst_ref_62m5_n,
     pulse_i    => wrc_pps_led,
-    extended_o => led_pps);
+    extended_o => led_pps_o);
 
 end architecture top;
