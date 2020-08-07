@@ -91,9 +91,9 @@ entity spec7_write_top is
     -- SPI interface to DACs
     ---------------------------------------------------------------------------
 
-    --dac_refclk_cs_n_o : out std_logic;
-    --dac_refclk_sclk_o : out std_logic;
-    --dac_refclk_din_o  : out std_logic;
+    dac_refclk_cs_n_o : out std_logic;
+    dac_refclk_sclk_o : out std_logic;
+    dac_refclk_din_o  : out std_logic;
 
     dac_refclk_sclk_p_o :  out std_logic;
     dac_refclk_sclk_n_o :  out std_logic;
@@ -272,8 +272,8 @@ architecture top of spec7_write_top is
 
   signal dac_refclk_sclk : std_logic;
   signal dac_refclk_din  : std_logic;
-  signal dac_refclk_cs_n : std_logic;
- 
+  signal dac_refclk_cs_n : std_logic; 
+
   -- clock and reset
 --  signal clk_125m_pllref : std_logic;
   signal clk_sys_62m5    : std_logic;
@@ -558,6 +558,24 @@ AXI2WB : xwb_axi4lite_bridge
       I  => dac_refclk_cs_n,
       O  => dac_refclk_cs_n_p_o,
       OB => dac_refclk_cs_n_n_o);
+
+-- test crap  should be turn off when using the hpspec it was just voor testing tbat the FMC io was working 
+--  Now it wil tune the on board vcxo when running in slave. 
+  dac_refclk_sclk_single : OBUF
+    port map (
+      I  =>  dac_refclk_sclk,
+      O  =>  dac_refclk_sclk_o);
+
+  dac_refclk_din_single : OBUF
+    port map (
+      I  => dac_refclk_din,
+      O  => dac_refclk_din_o);
+
+  dac_refclk_cs_single : OBUF
+    port map (
+      I  => dac_refclk_cs_n,
+      O  => dac_refclk_cs_n_o);
+-- end test crap        
 
   -- Type of PPS_IN input:
   -- Differential LVDS

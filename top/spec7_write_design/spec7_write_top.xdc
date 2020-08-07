@@ -70,12 +70,12 @@ set_property IOSTANDARD LVCMOS18 [get_ports dac_dmtd_sclk_o]
 set_property PACKAGE_PIN F12 [get_ports dac_dmtd_cs_n_o]
 set_property IOSTANDARD LVCMOS18 [get_ports dac_dmtd_cs_n_o]
 
-#set_property PACKAGE_PIN D11 [get_ports dac_refclk_din_o]
-#set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_din_o]
-#set_property PACKAGE_PIN F10 [get_ports dac_refclk_sclk_o]
-#set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
-#set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
-#set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
+set_property PACKAGE_PIN D11 [get_ports dac_refclk_din_o]
+set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_din_o]
+set_property PACKAGE_PIN F10 [get_ports dac_refclk_sclk_o]
+set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_sclk_o]
+set_property PACKAGE_PIN D10 [get_ports dac_refclk_cs_n_o]
+set_property IOSTANDARD LVCMOS18 [get_ports dac_refclk_cs_n_o]
 
 # To control the DAC on the HPSEC the dac signals are routed via the FMC connector.
 # See below for the pins definitions.
