@@ -22,17 +22,17 @@ set_property IOSTANDARD LVDS [get_ports clk_125m_dmtd_n_i]
 create_clock -period 8.000 -name clk_125m_gtx -waveform {0.000 4.000} [get_ports clk_125m_gtx_p_i]
 create_clock -period 8.000 -name clk_125m_dmtd -waveform {0.000 4.000} [get_ports clk_125m_dmtd_p_i]
 
-# Set divide by 2 property for generated clk_dmtd (platform xilinx: g_direct_dmtd = TRUE)
-create_generated_clock -name clk_125m_dmtd_div2 -source [get_ports clk_125m_dmtd_p_i] -divide_by 2 [get_pins cmp_xwrc_board_spec7/cmp_xwrc_platform/gen_default_plls.gen_kintex7_artix7_default_plls.gen_kintex7_artix7_direct_dmtd.clk_dmtd_reg/Q]
+# Set divide by 2 property for generated clk_dmtd (former platform xilinx: g_direct_dmtd = TRUE)
+create_generated_clock -name clk_125m_dmtd_div2 -source [get_ports clk_125m_dmtd_p_i] -divide_by 2 [get_pins cmp_xwrc_board_spec7/clk_dmtd_reg/Q]
 
-# Set divide by 2 property for generated clk_ref (platform xilinx: g_phy_lpcalib = TRUE)
-create_generated_clock -name clk_ref_62m5_div2 -source [get_ports clk_125m_gtx_p_i] -divide_by 2 [get_pins cmp_xwrc_board_spec7/cmp_xwrc_platform/gen_phy_kintex7.gen_lp.clk_ref_reg/Q]
+# Set divide by 2 property for generated clk_ref (former platform xilinx: g_phy_lpcalib = TRUE)
+create_generated_clock -name clk_ref_62m5_div2 -source [get_ports clk_125m_gtx_p_i] -divide_by 2 [get_pins cmp_xwrc_board_spec7/clk_ref_62m5_reg/Q]
 
-# Set 10 -> 62.5 MHz (*25 /4) generated clk_ext_mul (platform xilinx: g_direct_dmtd = TRUE)
-#create_generated_clock -name clk_ext_mul -source [get_pins cmp_xwrc_board_spec7/clk_ext_10m] -multiply 25 -divide 4 [get_pins cmp_xwrc_board_spec7/cmp_xwrc_platform/clk_ext_mul_i]
+# Set 10 -> 62.5 MHz (*25 /4) generated clk_ext_mul (former platform xilinx: g_direct_dmtd = TRUE)
+#create_generated_clock -name clk_ext_mul -source [get_pins cmp_xwrc_board_spec7/clk_ext_10m] -multiply 25 -divide 4 [get_pins cmp_xwrc_board_spec7/gen_ext_ref_pll.mmcm_adv_inst/CLKOUT0]
 
-create_clock -period 16.000 -name RXOUTCLK -waveform {0.000 8.000} [get_pins cmp_xwrc_board_spec7/cmp_xwrc_platform/gen_phy_kintex7.gen_lp.cmp_gtx_lp/U_GTX_INST/gtxe2_i/RXOUTCLK]
-create_clock -period 16.000 -name TXOUTCLK -waveform {0.000 8.000} [get_pins cmp_xwrc_board_spec7/cmp_xwrc_platform/gen_phy_kintex7.gen_lp.cmp_gtx_lp/U_GTX_INST/gtxe2_i/TXOUTCLK]
+create_clock -period 16.000 -name RXOUTCLK -waveform {0.000 8.000} [get_pins cmp_xwrc_board_spec7/cmp_gtx_lp/U_GTX_INST/gtxe2_i/RXOUTCLK]
+create_clock -period 16.000 -name TXOUTCLK -waveform {0.000 8.000} [get_pins cmp_xwrc_board_spec7/cmp_gtx_lp/U_GTX_INST/gtxe2_i/TXOUTCLK]
 
 create_clock -period 100.000 -name dio_clk -waveform {0.000 50.000} [get_ports dio_clk_p_i]
 
@@ -43,7 +43,6 @@ set_clock_groups -asynchronous \
 -group clk_125m_dmtd_div2 \
 -group RXOUTCLK \
 -group TXOUTCLK \
--group clk_sys \
 -group dio_clk \
 -group clk_ext_mul
 

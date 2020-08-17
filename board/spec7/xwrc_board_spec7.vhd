@@ -42,7 +42,6 @@ library work;
 use work.gencores_pkg.all;
 use work.wrcore_pkg.all;
 use work.wishbone_pkg.all;
---use work.etherbone_pkg.all;
 use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.streamers_pkg.all;
@@ -261,30 +260,32 @@ entity xwrc_board_spec7 is
 
 end entity xwrc_board_spec7;
 
-
 architecture struct of xwrc_board_spec7 is
 
   -----------------------------------------------------------------------------
   -- Signals
   -----------------------------------------------------------------------------
 
-  -- IBUFDS
+  -- IBUFDS, BUFG
+  signal clk_125m_gtx_buf  : std_logic;
+  signal clk_ref_125m      : std_logic;
   signal clk_125m_dmtd_buf : std_logic;
-  signal clk_sys_62m5      : std_logic;
-  signal clk_dmtd          : std_logic;
+  signal clk_dmtd          : std_logic   := '0';
 
   -- PLLs, clocks
-  signal clk_pll_62m5    : std_logic;
-  signal clk_ref_62m5    : std_logic;
-  signal pll_locked      : std_logic;
-  signal clk_10m_ext     : std_logic;
-  signal pll_clk_sel     : std_logic;
-  signal pll_clk_select  : std_logic;
+  signal clk_ref_62m5      : std_logic     := '0';
+  signal clk_ref_sync      : std_logic     := '0';
+  signal clk_ref_locked    : std_logic;
+  signal clk_sys_62m5      : std_logic;
+  --signal pll_locked      : std_logic;
+  signal clk_10m_ext       : std_logic;
+  signal pll_clk_sel       : std_logic;
+  signal pll_clk_select    : std_logic;
 
   -- Reset logic
-    signal rst_62m5_n         : std_logic;
-    signal rstlogic_clk_in    : std_logic_vector(1 downto 0);
-  signal rstlogic_rst_out   : std_logic_vector(1 downto 0);
+  signal rst_62m5_n        : std_logic;
+  signal rstlogic_clk_in   : std_logic_vector(1 downto 0);
+  signal rstlogic_rst_out  : std_logic_vector(1 downto 0);
 
   -- PLL DACs
   signal dac_dmtd_load   : std_logic;
@@ -334,7 +335,7 @@ architecture struct of xwrc_board_spec7 is
 begin  -- architecture struct
 
   -----------------------------------------------------------------------------
-  -- Platform-dependent part (PHY, PLLs, buffers, etc)
+  -- Direct dmtd clock.
   -----------------------------------------------------------------------------
 
   cmp_ibufgds_dmtd : IBUFGDS
@@ -345,54 +346,196 @@ begin  -- architecture struct
       I   => clk_125m_dmtd_p_i,
       IB  => clk_125m_dmtd_n_i);
 
+  -- DMTD Div2 (124.9920 MHz -> 62,496 MHz)
+  process(clk_125m_dmtd_buf)
+  begin
+    if rising_edge(clk_125m_dmtd_buf) then
+      clk_dmtd <= not clk_dmtd;
+    end if;
+  end process;
+ 
   clk_dmtd_62m5_o <= clk_dmtd;
-  cmp_xwrc_platform : xwrc_platform_xilinx
-    generic map (
-      g_fpga_family               => "kintex7",
-      g_direct_dmtd               => TRUE,
-      g_with_external_clock_input => g_with_external_clock_input,
-      g_use_default_plls          => TRUE,
-      g_simulation                => g_simulation,
-      g_phy_lpcalib               => TRUE)
-    port map (
-      areset_n_i            => areset_n_i,
-      clk_10m_ext_i         => clk_10m_ext_i,
-      clk_125m_dmtd_i       => clk_125m_dmtd_buf,
-      clk_125m_gtp_p_i      => clk_125m_gtx_p_i,
-      clk_125m_gtp_n_i      => clk_125m_gtx_n_i,
-      sfp_txn_o             => sfp_txn_o,
-      sfp_txp_o             => sfp_txp_o,
-      sfp_rxn_i             => sfp_rxn_i,
-      sfp_rxp_i             => sfp_rxp_i,
-      sfp_tx_fault_i        => sfp_tx_fault_i,
-      sfp_los_i             => sfp_los_i,
-      sfp_tx_disable_o      => sfp_tx_disable_o,
-      clk_62m5_sys_o        => clk_pll_62m5,
-      clk_125m_ref_o        => clk_ref_62m5,  -- Note: This is a 62m5 Clock for 16 bit PHYs!
-      clk_62m5_dmtd_o       => clk_dmtd,
-      pll_locked_o          => pll_locked,
-      clk_10m_ext_o         => clk_10m_ext,
-      phy16_o               => phy16_to_wrc,
-      phy16_i               => phy16_from_wrc,
-      ext_ref_mul_o         => ext_ref_mul,
-      ext_ref_mul_locked_o  => ext_ref_mul_locked,
-      ext_ref_mul_stopped_o => ext_ref_mul_stopped,
-      ext_ref_rst_i         => ext_ref_rst);
 
+  -----------------------------------------------------------------------------
+  -- Dedicated GTX clock.
+  -----------------------------------------------------------------------------
+
+  cmp_gtx_dedicated_clk : IBUFDS_GTE2
+    generic map(
+      CLKCM_CFG    => true,
+      CLKRCV_TRST  => true,
+      CLKSWING_CFG => "11")
+    port map (
+      O     => clk_125m_gtx_buf,
+      ODIV2 => open,
+      CEB   => '0',
+      I     => clk_125m_gtx_p_i,
+      IB    => clk_125m_gtx_n_i);
+
+  -- GTX clock buffer
+  cmp_gtx_buf_i : BUFG
+    port map (
+      I => clk_125m_gtx_buf,
+      O => clk_ref_125m);
+
+  clk_ref_sync <= '0';
+
+  -- clk_ref_62m5 = clk_125m_gtx_buf (125.000 MHz Div2)
+  -- Possibly synchronize the divider.
+  process(clk_ref_125m)
+  begin
+    if rising_edge(clk_ref_125m) then
+      if clk_ref_sync = '1' then
+        clk_ref_62m5 <= '0';
+      else
+        clk_ref_62m5 <= not clk_ref_62m5;
+      end if;
+    end if;
+  end process;
+
+  ---------------------------------------------------------------------------
   -- The PLL on the SPEC7 needs to be initialized before it outputs clk_125m_gtx_p/n_i.
   -- Avoid a deadlock. The clk_dmtd is always present and is first used to bring alive
   -- the LM32 that exectutes a PLL initialisation before switching to clk_pll_62m5.
+  ---------------------------------------------------------------------------
 
   cmp_bufgmux: BUFGMUX
     port map (
       O  => clk_sys_62m5,
       I0 => clk_dmtd,
-      I1 => clk_pll_62m5,
+      I1 => clk_ref_62m5,
       S  => pll_clk_select
     );
 
   clk_sys_62m5_o <= clk_sys_62m5;
   clk_ref_62m5_o <= clk_ref_62m5;
+
+  ---------------------------------------------------------------------------
+  --   Kintex7 low phase drift PHY
+  ---------------------------------------------------------------------------
+
+  cmp_gtx_lp: wr_gtx_phy_family7_lp
+    generic map(
+      g_simulation => g_simulation)
+    port map(
+      clk_gtx_i      => clk_125m_gtx_buf,
+      clk_dmtd_i     => clk_dmtd,
+      clk_ref_i      => clk_125m_gtx_buf,
+      tx_data_i      => phy16_from_wrc.tx_data,
+      tx_k_i         => phy16_from_wrc.tx_k,
+      tx_disparity_o => phy16_to_wrc.tx_disparity,
+      tx_enc_err_o   => phy16_to_wrc.tx_enc_err,
+      rx_rbclk_o     => phy16_to_wrc.rx_clk,
+      clk_sampled_o  => phy16_to_wrc.rx_sampled_clk,
+      rx_data_o      => phy16_to_wrc.rx_data,
+      rx_k_o         => phy16_to_wrc.rx_k,
+      rx_enc_err_o   => phy16_to_wrc.rx_enc_err,
+      rx_bitslide_o  => phy16_to_wrc.rx_bitslide,
+      rst_i          => phy16_from_wrc.rst,
+      lpc_ctrl_i     => phy16_from_wrc.lpc_ctrl,
+      lpc_stat_o     => phy16_to_wrc.lpc_stat,
+      loopen_i       => phy16_from_wrc.loopen,
+      tx_prbs_sel_i  => phy16_from_wrc.tx_prbs_sel,
+      rdy_o          => phy16_to_wrc.rdy,
+
+      pad_txn_o => sfp_txn_o,
+      pad_txp_o => sfp_txp_o,
+      pad_rxn_i => sfp_rxn_i,
+      pad_rxp_i => sfp_rxp_i,
+
+      tx_locked_o   => clk_ref_locked
+    );
+
+  phy16_to_wrc.ref_clk      <= clk_ref_62m5;
+  phy16_to_wrc.sfp_tx_fault <= sfp_tx_fault_i;
+  phy16_to_wrc.sfp_los      <= sfp_los_i;
+  sfp_tx_disable_o          <= phy16_from_wrc.sfp_tx_disable;
+
+  ---------------------------------------------------------------------------
+  -- External 10MHz reference PLL for Kintex7
+  ---------------------------------------------------------------------------
+
+  gen_ext_ref_pll : if (g_with_external_clock_input = TRUE) generate
+    
+    signal clk_ext_fbi : std_logic;
+    signal clk_ext_fbo : std_logic;
+    signal clk_ext_mul : std_logic;
+    signal pll_ext_rst : std_logic;
+
+  begin
+    mmcm_adv_inst : MMCME2_ADV
+      generic map (
+        BANDWIDTH            => "OPTIMIZED",
+        CLKOUT4_CASCADE      => FALSE,
+        COMPENSATION         => "ZHOLD",
+        STARTUP_WAIT         => FALSE,
+        DIVCLK_DIVIDE        => 1,
+        CLKFBOUT_MULT_F      => 62.500,
+        CLKFBOUT_PHASE       => 0.000,
+        CLKFBOUT_USE_FINE_PS => FALSE,
+        CLKOUT0_DIVIDE_F     => 10.000,
+        CLKOUT0_PHASE        => 0.000,
+        CLKOUT0_DUTY_CYCLE   => 0.500,
+        CLKOUT0_USE_FINE_PS  => FALSE,
+        CLKIN1_PERIOD        => 100.000,
+        REF_JITTER1          => 0.005)
+      port map (
+        -- Output clocks
+        CLKFBOUT  => clk_ext_fbo,
+        CLKOUT0   => clk_ext_mul,
+        -- Input clock control
+        CLKFBIN   => clk_ext_fbi,
+        CLKIN1    => clk_10m_ext,
+        CLKIN2    => '0',
+        -- Tied to always select the primary input clock
+        CLKINSEL  => '1',
+        -- Ports for dynamic reconfiguration
+        DADDR     => (others => '0'),
+        DCLK      => '0',
+        DEN       => '0',
+        DI        => (others => '0'),
+        DO        => open,
+        DRDY      => open,
+        DWE       => '0',
+        -- Ports for dynamic phase shift
+        PSCLK     => '0',
+        PSEN      => '0',
+        PSINCDEC  => '0',
+        PSDONE    => open, -- Other control and status signals
+        LOCKED    => ext_ref_mul_locked,
+        CLKINSTOPPED => ext_ref_mul_stopped,
+        CLKFBSTOPPED => open,
+        PWRDWN   => '0',
+        RST      => pll_ext_rst);
+
+    -- External reference input buffer
+    cmp_clk_ext_buf_i : BUFG
+      port map (
+        O => clk_10m_ext,
+        I => clk_10m_ext_i);
+
+    -- External reference feedback buffer
+    cmp_clk_ext_buf_fb : BUFG
+      port map (
+        O => clk_ext_fbi,
+        I => clk_ext_fbo);
+
+    -- External reference output buffer
+    cmp_clk_ext_buf_o : BUFG
+      port map (
+        O => ext_ref_mul,
+        I => clk_ext_mul);
+
+    cmp_extend_ext_reset : gc_extend_pulse
+      generic map (
+        g_width => 1000)
+      port map (
+        clk_i      => clk_sys_62m5,
+        rst_n_i    => '1',
+        pulse_i    => ext_ref_rst,
+        extended_o => pll_ext_rst);
+
+  end generate gen_ext_ref_pll;
 
   -----------------------------------------------------------------------------
   -- Reset logic
