@@ -247,6 +247,7 @@ entity xwrc_board_spec7 is
     ---------------------------------------------------------------------------
     -- Buttons, LEDs and PPS output
     ---------------------------------------------------------------------------
+
     led_act_o  : out std_logic;
     led_link_o : out std_logic;
     btn1_i     : in  std_logic := '1';
@@ -275,6 +276,11 @@ architecture struct of xwrc_board_spec7 is
   -- PLLs, clocks
   signal clk_ref_62m5      : std_logic     := '0';
   signal clk_ref_sync      : std_logic     := '0';
+  signal sync_enable       : std_logic;
+  signal even_odd_n        : std_logic;
+  signal sync_polarity     : std_logic;
+  signal sync_done         : std_logic;
+  signal sync_clk_ref_62m5 : std_logic;
   signal clk_ref_locked    : std_logic;
   signal clk_sys_62m5      : std_logic;
   --signal pll_locked      : std_logic;
@@ -329,8 +335,22 @@ architecture struct of xwrc_board_spec7 is
     (c_slave_gpio    => x"00000f00"
      );
 
-  constant c_num_gpio_pins : integer := 13;
+  constant c_num_gpio_pins : integer := 15;
   signal gpio_out, gpio_in, gpio_oen : std_logic_vector(c_num_gpio_pins-1 downto 0);
+
+  component even_odd_det is
+    port (
+  	  rst_n_i        : in  std_logic;
+      clk_ref_i      : in  std_logic;
+      clk_10m_ext_i  : in  std_logic;
+      clk_sys_62m5_i : in  std_logic;
+      pps_i          : in  std_logic;
+      even_odd_n_o   : out std_logic;
+      enable_sync_i  : in  std_logic;
+      sync_done_o    : out std_logic;
+      sync_o         : out std_logic
+    );
+  end component even_odd_det;
 
 begin  -- architecture struct
 
@@ -378,14 +398,33 @@ begin  -- architecture struct
       I => clk_125m_gtx_buf,
       O => clk_ref_125m);
 
-  clk_ref_sync <= '0';
+  cmp_even_odd_det: even_odd_det
+    port map (
+  	  rst_n_i        => areset_n_i,
+      clk_ref_i      => clk_ref_125m,
+      clk_10m_ext_i  => clk_10m_ext_i,
+      clk_sys_62m5_i => clk_sys_62m5,
+      pps_i          => pps_ext_i,
+      even_odd_n_o   => even_odd_n,
+      enable_sync_i  => sync_enable,
+      sync_done_o    => sync_done,
+      sync_o         => sync_clk_ref_62m5);
+
+  -- PLL sync signal synchronizes the LTC6950 but it waits for the proper
+  -- 10 MHz cycle before re-enabling the clock. This means that it shifts
+  -- one 10 Mhz cycle which means that the PPS/10MHz relation to 125 MHz
+  -- generated clock isn't affected. So the sync signal doesn't have the
+  -- wanted effect => so don't use it.
+  pll_sync_o <= '0';
 
   -- clk_ref_62m5 = clk_125m_gtx_buf (125.000 MHz Div2)
-  -- Possibly synchronize the divider.
+  -- Synchronize the divider as well whenever the pll is synced.
+  -- Asynchronous reset is used since clk_ref_125m is lost during
+  -- pll_sync action.
   process(clk_ref_125m)
   begin
     if rising_edge(clk_ref_125m) then
-      if clk_ref_sync = '1' then
+      if sync_clk_ref_62m5 = '1' then
         clk_ref_62m5 <= '0';
       else
         clk_ref_62m5 <= not clk_ref_62m5;
@@ -757,8 +796,8 @@ begin  -- architecture struct
   pll_reset_n_o    <= gpio_out(4);
   gpio_in(5)       <= pll_lock_i;
   gpio_in(6)       <= pll_status_i;
-  pll_sync_o       <= gpio_out(7); --'0';  -- Not Used by PLL, default drive '0'
-
+  sync_enable      <= gpio_out(7);  -- trigger PLL sync sequence
+  
   -- External clock multiplexers
   pll_wr_mode_o    <= gpio_out(9 downto 8);
   -- Bootstrap clock
@@ -769,6 +808,9 @@ begin  -- architecture struct
   gpio_in(11) <= eeprom_scl;
   eeprom_sda  <= '0' when (gpio_out(12) = '0') else 'Z';
   gpio_in(12) <= eeprom_sda;
+
+  gpio_in(13) <= even_odd_n;         -- 10MHz/1PPS phase w.r.t. clk_ref_125m
+  gpio_in(14) <= sync_done; 
 
   sfp_rate_select_o <= '1';
 

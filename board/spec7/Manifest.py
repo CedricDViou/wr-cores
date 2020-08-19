@@ -1,4 +1,5 @@
 files = [
+    "even_odd_det.vhd",
     "wr_spec7_pkg.vhd",
     "xwrc_board_spec7.vhd",
 ]
