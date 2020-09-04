@@ -13,7 +13,7 @@ job_wrpc_compile:
   - 10.0c
   script:
     - source ~/setup_modelsim.sh
-    - cd testbench/wrc_core; hdlmake; make clean; make
+    - cd testbench/wrc_core; hdlmake makefile; make clean; make
 
 job_wrpc_sim:
   stage: wrpc_sim
@@ -38,7 +38,7 @@ job_wrpc_spec:
   - ise
   script:
   - source ~/setup_ise.sh
-  - cd syn/spec_ref_design && hdlmake && make
+  - cd syn/spec_ref_design && hdlmake makefile && make
   artifacts:
     name: WRPC_SPEC_CI_$CI_JOB_ID
     paths:
