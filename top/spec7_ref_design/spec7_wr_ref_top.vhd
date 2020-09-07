@@ -221,7 +221,32 @@ entity spec7_wr_ref_top is
     rxn       : in  std_logic_vector(1 downto 0);
     rxp       : in  std_logic_vector(1 downto 0);
     txn       : out std_logic_vector(1 downto 0);
-    txp       : out std_logic_vector(1 downto 0)
+    txp       : out std_logic_vector(1 downto 0);
+    ---------------------------------------------------------------------------
+    -- Processing System interface
+    ---------------------------------------------------------------------------
+    
+    DDR_addr : inout STD_LOGIC_VECTOR ( 14 downto 0 );
+    DDR_ba : inout STD_LOGIC_VECTOR ( 2 downto 0 );
+    DDR_cas_n : inout STD_LOGIC;
+    DDR_ck_n : inout STD_LOGIC;
+    DDR_ck_p : inout STD_LOGIC;
+    DDR_cke : inout STD_LOGIC;
+    DDR_cs_n : inout STD_LOGIC;
+    DDR_dm : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
+    DDR_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR_odt : inout STD_LOGIC;
+    DDR_ras_n : inout STD_LOGIC;
+    DDR_reset_n : inout STD_LOGIC;
+    DDR_we_n : inout STD_LOGIC;
+    FIXED_IO_ddr_vrn : inout STD_LOGIC;
+    FIXED_IO_ddr_vrp : inout STD_LOGIC;
+    FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
+    FIXED_IO_ps_clk : inout STD_LOGIC;
+    FIXED_IO_ps_porb : inout STD_LOGIC;
+    FIXED_IO_ps_srstb : inout STD_LOGIC
 
   );
 end entity spec7_wr_ref_top;
@@ -296,6 +321,8 @@ architecture top of spec7_wr_ref_top is
   --Axi4
   signal m_axil_i :  t_axi4_lite_master_in_32;
   signal m_axil_o :  t_axi4_lite_master_out_32;
+  signal araddr : std_logic_vector(31 downto 0);
+  signal awaddr : std_logic_vector(31 downto 0);
 
   --Wishbone
   signal wb_master_i : t_wishbone_master_in; 
@@ -320,53 +347,82 @@ begin  -- architecture top
       CEB => '0'
     ); 
 
-  Pcie: Pcie_wrapper
-    port map (
-      M00_AXI_0_araddr  => m_axil_o.araddr,
-      M00_AXI_0_arburst => open,
-      M00_AXI_0_arcache => open,
-      M00_AXI_0_arlen   => open,
-      M00_AXI_0_arlock  => open,
-      M00_AXI_0_arprot  => open,
-      M00_AXI_0_arqos   => open,
-      M00_AXI_0_arready => m_axil_i.arready,
-      M00_AXI_0_arsize  => open,
-      M00_AXI_0_arvalid => m_axil_o.arvalid,
-      M00_AXI_0_awaddr  => m_axil_o.awaddr,
-      M00_AXI_0_awburst => open,
-      M00_AXI_0_awcache => open,
-      M00_AXI_0_awlen   => open,
-      M00_AXI_0_awlock  => open,
-      M00_AXI_0_awprot  => open,
-      M00_AXI_0_awqos   => open,
-      M00_AXI_0_awready => m_axil_i.awready,
-      M00_AXI_0_awsize  => open,
-      M00_AXI_0_awvalid => m_axil_o.awvalid,
-      M00_AXI_0_bready  => m_axil_o.bready,
-      M00_AXI_0_bresp   => m_axil_i.bresp,
-      M00_AXI_0_bvalid  => m_axil_i.bvalid,
-      M00_AXI_0_rdata   => m_axil_i.rdata,
-      M00_AXI_0_rlast   => m_axil_i.rlast,
-      M00_AXI_0_rready  => m_axil_o.rready,
-      M00_AXI_0_rresp   => m_axil_i.rresp,
-      M00_AXI_0_rvalid  => m_axil_i.rvalid,
-      M00_AXI_0_wdata   => m_axil_o.wdata,
-      M00_AXI_0_wlast   => m_axil_o.wlast,
-      M00_AXI_0_wready  => m_axil_i.wready,
-      M00_AXI_0_wstrb   => m_axil_o.wstrb,
-      M00_AXI_0_wvalid  => m_axil_o.wvalid,
-      aclk1_0           => clk_sys_62m5,
-      pcie_mgt_0_rxn    => rxn,
-      pcie_mgt_0_rxp    => rxp,
-      pcie_mgt_0_txn    => txn,
-      pcie_mgt_0_txp    => txp,
-      pcie_clk          => pci_clk,
-      pcie_rst_n        => perst_n,
-      user_lnk_up_0     => open,
-      usr_irq_ack_0     => open,
-      usr_irq_req_0     => "0"
-    );
-
+  Pcie: processing_system_pcie_wrapper
+  port map (
+    DDR_addr          =>DDR_addr         ,
+    DDR_ba            =>DDR_ba           ,
+    DDR_cas_n         =>DDR_cas_n        ,
+    DDR_ck_n          =>DDR_ck_n         ,
+    DDR_ck_p          =>DDR_ck_p         ,
+    DDR_cke           =>DDR_cke          ,
+    DDR_cs_n          =>DDR_cs_n         ,
+    DDR_dm            =>DDR_dm           ,
+    DDR_dq            =>DDR_dq           ,
+    DDR_dqs_n         =>DDR_dqs_n        ,
+    DDR_dqs_p         =>DDR_dqs_p        ,
+    DDR_odt           =>DDR_odt          ,
+    DDR_ras_n         =>DDR_ras_n        ,
+    DDR_reset_n       =>DDR_reset_n      ,
+    DDR_we_n          =>DDR_we_n         ,
+    FIXED_IO_ddr_vrn  =>FIXED_IO_ddr_vrn ,
+    FIXED_IO_ddr_vrp  =>FIXED_IO_ddr_vrp ,
+    FIXED_IO_mio      =>FIXED_IO_mio     ,
+    FIXED_IO_ps_clk   =>FIXED_IO_ps_clk  ,
+    FIXED_IO_ps_porb  =>FIXED_IO_ps_porb ,
+    FIXED_IO_ps_srstb =>FIXED_IO_ps_srstb,
+    M00_AXI_0_araddr  => araddr,
+    M00_AXI_0_arburst => open,              
+    M00_AXI_0_arcache => open,              
+    M00_AXI_0_arlen   => open,              
+    M00_AXI_0_arlock  => open,              
+    M00_AXI_0_arprot  => open,              
+    M00_AXI_0_arqos   => open,              
+    M00_AXI_0_arready => m_axil_i.arready,  
+    M00_AXI_0_arsize  => open,              
+    M00_AXI_0_arvalid => m_axil_o.arvalid,
+    M00_AXI_0_awaddr  => awaddr,
+    M00_AXI_0_awburst => open,              
+    M00_AXI_0_awcache => open,              
+    M00_AXI_0_awlen   => open,              
+    M00_AXI_0_awlock  => open,              
+    M00_AXI_0_awprot  => open,              
+    M00_AXI_0_awqos   => open,              
+    M00_AXI_0_awready => m_axil_i.awready,  
+    M00_AXI_0_awsize  => open,              
+    M00_AXI_0_awvalid => m_axil_o.awvalid,  
+    M00_AXI_0_bready  => m_axil_o.bready,   
+    M00_AXI_0_bresp   => m_axil_i.bresp,    
+    M00_AXI_0_bvalid  => m_axil_i.bvalid,   
+    M00_AXI_0_rdata   => m_axil_i.rdata,    
+    M00_AXI_0_rlast   => m_axil_i.rlast,    
+    M00_AXI_0_rready  => m_axil_o.rready,   
+    M00_AXI_0_rresp   => m_axil_i.rresp,    
+    M00_AXI_0_rvalid  => m_axil_i.rvalid,   
+    M00_AXI_0_wdata   => m_axil_o.wdata,    
+    M00_AXI_0_wlast   => m_axil_o.wlast,    
+    M00_AXI_0_wready  => m_axil_i.wready,   
+    M00_AXI_0_wstrb   => m_axil_o.wstrb,    
+    M00_AXI_0_wvalid  => m_axil_o.wvalid,
+    aclk1_0           => clk_sys_62m5,
+    pcie_clk          => pci_clk,
+    pcie_mgt_0_rxn    => rxn,
+    pcie_mgt_0_rxp    => rxp,
+    pcie_mgt_0_txn    => txn,
+    pcie_mgt_0_txp    => txp,
+    pcie_rst_n        => perst_n,
+    user_lnk_up_0     => open,
+    usr_irq_ack_0     => open,
+    usr_irq_req_0     => "0"
+  );
+  m_axil_o.araddr(31 downto 28) <= x"0";
+  m_axil_o.araddr(27 downto 0) <= araddr(27 downto 0); --compensates for the PCI 0x4XXXXXXX offset
+  m_axil_o.awaddr(31 downto 28) <= x"0";               --not my cleanest fix....
+  m_axil_o.awaddr(27 downto 0) <= awaddr(27 downto 0); 
+  
+  -----------------------------------------------------------------------------
+  -- Axi to Wishbone converter
+  -----------------------------------------------------------------------------
+  
   AXI2WB : xwb_axi4lite_bridge 
     port map(
       clk_sys_i => clk_sys_62m5,

@@ -210,7 +210,6 @@ package wr_spec7_pkg is
     user_lnk_up_0 : out STD_LOGIC;
     usr_irq_ack_0 : out STD_LOGIC_VECTOR ( 0 to 0 );
     usr_irq_req_0 : in STD_LOGIC_VECTOR ( 0 to 0 );
-    gpio_rtl_0_tri_o : out STD_LOGIC_VECTOR ( 3 downto 0 );
     DDR_cas_n : inout STD_LOGIC;
     DDR_cke : inout STD_LOGIC;
     DDR_ck_n : inout STD_LOGIC;
