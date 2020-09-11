@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-05-11
--- Last update: 2019-02-01
+-- Last update: 2020-08-19
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -216,7 +216,7 @@ package wrcore_pkg is
     wbd_width     => x"7",                 -- 8/16/32-bit port granularity
     sdb_component => (
       addr_first  => x"0000000000000000",
-      addr_last   => x"00000000000000ff",
+      addr_last   => x"0000000000007fff",
       product     => (
         vendor_id => x"000000000000CE42",  -- CERN
         device_id => x"779c5445",
@@ -253,7 +253,10 @@ package wrcore_pkg is
       g_diag_id         : integer := 0;
       g_diag_ver        : integer := 0;
       g_diag_ro_size    : integer := 0;
-      g_diag_rw_size    : integer := 0
+      g_diag_rw_size    : integer := 0;
+      g_with_phys_uart_fifo       : boolean                        := false;
+      g_phys_uart_tx_fifo_size    : integer                        := 1024;
+      g_phys_uart_rx_fifo_size    : integer                        := 1024
       );
     port(
       clk_sys_i   : in  std_logic;
@@ -320,6 +323,7 @@ package wrcore_pkg is
       g_divide_input_by_2    : boolean;
       g_ref_clock_rate       : integer;
       g_ext_clock_rate       : integer;
+      g_use_sampled_ref_clocks : boolean := false;
       g_interface_mode       : t_wishbone_interface_mode;
       g_address_granularity  : t_wishbone_address_granularity);
     port (
@@ -330,6 +334,7 @@ package wrcore_pkg is
       rst_dmtd_n_i    : in  std_logic;
       clk_ref_i       : in  std_logic_vector(g_num_ref_inputs-1 downto 0);
       clk_fb_i        : in  std_logic_vector(g_num_outputs-1 downto 0);
+      clk_ref_sampled_i : in std_logic_vector(g_num_ref_inputs-1 downto 0) := (others => '0');
       clk_dmtd_i      : in  std_logic;
       clk_ext_i       : in  std_logic;
       clk_ext_mul_i        : in std_logic_vector(f_nonzero_vector(g_num_exts)-1 downto 0);
@@ -366,7 +371,11 @@ package wrcore_pkg is
       g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
       g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
       g_phys_uart                 : boolean                        := true;
+      g_with_phys_uart_fifo       : boolean                        := false;
+      g_phys_uart_tx_fifo_size    : integer                        := 1024;
+      g_phys_uart_rx_fifo_size    : integer                        := 1024;
       g_virtual_uart              : boolean                        := true;
+
       g_with_external_clock_input : boolean                        := true;
       g_aux_clks                  : integer                        := 0;
       g_ep_rxbuf_size             : integer                        := 1024;
@@ -377,6 +386,7 @@ package wrcore_pkg is
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
       g_softpll_enable_debugger   : boolean                        := false;
+      g_softpll_use_sampled_ref_clocks : boolean := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
       g_records_for_phy           : boolean                        := false;
@@ -422,6 +432,11 @@ package wrcore_pkg is
       phy_sfp_tx_fault_i   : in std_logic := '0';
       phy_sfp_los_i        : in std_logic := '0';
       phy_sfp_tx_disable_o : out std_logic;
+      phy_rx_rbclk_sampled_i : in std_logic := '0';
+
+      phy_lpc_ctrl_o : out std_logic_vector(15 downto 0);
+      phy_lpc_stat_i : in std_logic_vector(15 downto 0) := x"0000";
+
       -----------------------------------------
       -- PHY I/f - record-based
       -- selection done with g_records_for_phy
@@ -511,6 +526,9 @@ package wrcore_pkg is
       g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
       g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
       g_phys_uart                 : boolean                        := true;
+      g_with_phys_uart_fifo       : boolean                        := false;
+      g_phys_uart_tx_fifo_size    : integer                        := 1024;
+      g_phys_uart_rx_fifo_size    : integer                        := 1024;
       g_virtual_uart              : boolean                        := true;
       g_aux_clks                  : integer                        := 0;
       g_rx_buffer_size            : integer                        := 1024;
@@ -521,6 +539,7 @@ package wrcore_pkg is
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
       g_softpll_enable_debugger   : boolean                        := false;
+      g_softpll_use_sampled_ref_clocks : boolean := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
       g_records_for_phy           : boolean                        := false;
@@ -591,6 +610,11 @@ package wrcore_pkg is
       phy_sfp_tx_fault_i   : in std_logic := '0';
       phy_sfp_los_i        : in std_logic := '0';
       phy_sfp_tx_disable_o : out std_logic;
+
+      phy_rx_rbclk_sampled_i : in std_logic := '0';
+      phy_lpc_ctrl_o : out std_logic_vector(15 downto 0);
+      phy_lpc_stat_i : in std_logic_vector(15 downto 0) := x"0000";
+
       -----------------------------------------
       -- PHY I/f - record-based
       -- selection done with g_records_for_phy

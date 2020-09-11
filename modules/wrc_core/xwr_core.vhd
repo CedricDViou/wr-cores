@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2019-02-01
+-- Last update: 2020-08-19
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -81,6 +81,9 @@ entity xwr_core is
     g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart                 : boolean                        := true;
+    g_with_phys_uart_fifo       : boolean                        := false;
+    g_phys_uart_tx_fifo_size    : integer                        := 1024;
+    g_phys_uart_rx_fifo_size    : integer                        := 1024;
     g_virtual_uart              : boolean                        := true;
     g_aux_clks                  : integer                        := 0;
     g_ep_rxbuf_size             : integer                        := 1024;
@@ -91,6 +94,7 @@ entity xwr_core is
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
     g_softpll_enable_debugger   : boolean                        := false;
+    g_softpll_use_sampled_ref_clocks : boolean := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
     g_records_for_phy           : boolean                        := false;
@@ -149,10 +153,14 @@ entity xwr_core is
 
     phy_rx_data_i        : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
     phy_rx_rbclk_i       : in std_logic;
+    phy_rx_rbclk_sampled_i : in std_logic;
     phy_rx_k_i           : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
     phy_rx_enc_err_i     : in std_logic;
     phy_rx_bitslide_i    : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
 
+    phy_lpc_stat_i       : in std_logic_vector(15 downto 0);
+    phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
+    
     phy_rst_o            : out std_logic;
     phy_rdy_i            : in  std_logic := '1';
     phy_loopen_o         : out std_logic;
@@ -282,6 +290,9 @@ begin
       g_flash_secsz_kb            => g_flash_secsz_kb,
       g_flash_sdbfs_baddr         => g_flash_sdbfs_baddr,
       g_phys_uart                 => g_phys_uart,
+      g_with_phys_uart_fifo       => g_with_phys_uart_fifo,
+      g_phys_uart_tx_fifo_size    => g_phys_uart_tx_fifo_size,
+      g_phys_uart_rx_fifo_size    => g_phys_uart_rx_fifo_size,
       g_virtual_uart              => g_virtual_uart,
       g_rx_buffer_size            => g_ep_rxbuf_size,
       g_tx_runt_padding           => g_tx_runt_padding,
@@ -293,6 +304,7 @@ begin
       g_address_granularity       => g_address_granularity,
       g_aux_sdb                   => g_aux_sdb,
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
+      g_softpll_use_sampled_ref_clocks => g_softpll_use_sampled_ref_clocks,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
       g_records_for_phy           => g_records_for_phy,
@@ -326,6 +338,7 @@ begin
       phy_tx_enc_err_i     => phy_tx_enc_err_i,
       phy_rx_data_i        => phy_rx_data_i,
       phy_rx_rbclk_i       => phy_rx_rbclk_i,
+      phy_rx_rbclk_sampled_i => phy_rx_rbclk_sampled_i,
       phy_rx_k_i           => phy_rx_k_i,
       phy_rx_enc_err_i     => phy_rx_enc_err_i,
       phy_rx_bitslide_i    => phy_rx_bitslide_i,
@@ -333,6 +346,8 @@ begin
       phy_rdy_i            => phy_rdy_i,
       phy_loopen_o         => phy_loopen_o,
       phy_loopen_vec_o     => phy_loopen_vec_o,
+      phy_lpc_ctrl_o => phy_lpc_ctrl_o,
+      phy_lpc_stat_i => phy_lpc_stat_i,
       phy_tx_prbs_sel_o    => phy_tx_prbs_sel_o,
       phy_sfp_tx_fault_i   => phy_sfp_tx_fault_i,
       phy_sfp_los_i        => phy_sfp_los_i,
