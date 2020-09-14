@@ -44,7 +44,7 @@
 -------------------------------------------------------------------------------
 -- Memory map:
 --  0x00000000: I/D Memory
---  0x00020000: Peripheral interconnect
+--  0x00040000: Peripheral interconnect
 --      +0x000: Minic
 --      +0x100: Endpoint
 --      +0x200: Softpll
