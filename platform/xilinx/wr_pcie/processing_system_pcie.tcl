@@ -17,18 +17,6 @@ proc get_script_folder {} {
 variable script_folder
 set script_folder [_tcl::get_script_folder]
 
-################################################################
-# Check if script is running in correct Vivado version.
-################################################################
-set scripts_vivado_version 2019.2
-set current_vivado_version [version -short]
-
-if { [string first $scripts_vivado_version $current_vivado_version] == -1 } {
-   puts ""
-   catch {common::send_msg_id "BD_TCL-109" "ERROR" "This script was generated using Vivado <$scripts_vivado_version> and is being run in <$current_vivado_version> of Vivado. Please run the script in Vivado <$scripts_vivado_version> then open the design in Vivado <$current_vivado_version>. Upgrade the design by running \"Tools => Report => Report IP Status...\", then run write_bd_tcl to create an updated script."}
-
-   return 1
-}
 
 ################################################################
 # START
@@ -123,10 +111,7 @@ set bCheckIPsPassed 1
 set bCheckIPs 1
 if { $bCheckIPs == 1 } {
    set list_check_ips "\ 
-xilinx.com:ip:axi_gpio:2.0\
-xilinx.com:ip:axi_hwicap:3.0\
 xilinx.com:ip:processing_system7:5.5\
-xilinx.com:ip:proc_sys_reset:5.0\
 xilinx.com:ip:smartconnect:1.0\
 xilinx.com:ip:xdma:4.1\
 "
@@ -204,8 +189,6 @@ proc create_root_design { parentCell } {
    CONFIG.PROTOCOL {AXI4} \
    ] $M00_AXI_0
 
-  set gpio_rtl_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:gpio_rtl:1.0 gpio_rtl_0 ]
-
   set pcie_mgt_0 [ create_bd_intf_port -mode Master -vlnv xilinx.com:interface:pcie_7x_mgt_rtl:1.0 pcie_mgt_0 ]
 
 
@@ -219,16 +202,6 @@ proc create_root_design { parentCell } {
   set user_lnk_up_0 [ create_bd_port -dir O user_lnk_up_0 ]
   set usr_irq_ack_0 [ create_bd_port -dir O -from 0 -to 0 usr_irq_ack_0 ]
   set usr_irq_req_0 [ create_bd_port -dir I -from 0 -to 0 usr_irq_req_0 ]
-
-  # Create instance: axi_gpio_0, and set properties
-  set axi_gpio_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_gpio:2.0 axi_gpio_0 ]
-  set_property -dict [ list \
-   CONFIG.C_ALL_OUTPUTS {1} \
-   CONFIG.C_GPIO_WIDTH {4} \
- ] $axi_gpio_0
-
-  # Create instance: axi_hwicap_0, and set properties
-  set axi_hwicap_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_hwicap:3.0 axi_hwicap_0 ]
 
   # Create instance: processing_system7_0, and set properties
   set processing_system7_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:processing_system7:5.5 processing_system7_0 ]
@@ -1044,20 +1017,11 @@ proc create_root_design { parentCell } {
    CONFIG.PCW_WDT_PERIPHERAL_FREQMHZ {133.333333} \
  ] $processing_system7_0
 
-  # Create instance: ps7_0_axi_periph, and set properties
-  set ps7_0_axi_periph [ create_bd_cell -type ip -vlnv xilinx.com:ip:axi_interconnect:2.1 ps7_0_axi_periph ]
-  set_property -dict [ list \
-   CONFIG.NUM_MI {1} \
- ] $ps7_0_axi_periph
-
-  # Create instance: rst_ps7_0_50M, and set properties
-  set rst_ps7_0_50M [ create_bd_cell -type ip -vlnv xilinx.com:ip:proc_sys_reset:5.0 rst_ps7_0_50M ]
-
   # Create instance: smartconnect_0, and set properties
   set smartconnect_0 [ create_bd_cell -type ip -vlnv xilinx.com:ip:smartconnect:1.0 smartconnect_0 ]
   set_property -dict [ list \
    CONFIG.NUM_CLKS {2} \
-   CONFIG.NUM_MI {3} \
+   CONFIG.NUM_MI {2} \
    CONFIG.NUM_SI {1} \
  ] $smartconnect_0
 
@@ -1069,11 +1033,12 @@ proc create_root_design { parentCell } {
    CONFIG.PF3_DEVICE_ID_mqdma {9022} \
    CONFIG.axil_master_64bit_en {true} \
    CONFIG.axilite_master_en {true} \
-   CONFIG.axilite_master_scale {Gigabytes} \
+   CONFIG.axilite_master_scale {Megabytes} \
    CONFIG.axilite_master_size {1} \
    CONFIG.axisten_freq {125} \
    CONFIG.cfg_mgmt_if {false} \
    CONFIG.pcie_extended_tag {false} \
+   CONFIG.pciebar2axibar_axil_master {0x40000000} \
    CONFIG.pf0_device_id {7022} \
    CONFIG.pf0_link_status_slot_clock_config {true} \
    CONFIG.pf0_msi_enabled {false} \
@@ -1086,37 +1051,28 @@ proc create_root_design { parentCell } {
  ] $xdma_0
 
   # Create interface connections
-  connect_bd_intf_net -intf_net axi_gpio_0_GPIO [get_bd_intf_ports gpio_rtl_0] [get_bd_intf_pins axi_gpio_0/GPIO]
   connect_bd_intf_net -intf_net processing_system7_0_DDR [get_bd_intf_ports DDR] [get_bd_intf_pins processing_system7_0/DDR]
   connect_bd_intf_net -intf_net processing_system7_0_FIXED_IO [get_bd_intf_ports FIXED_IO] [get_bd_intf_pins processing_system7_0/FIXED_IO]
-  connect_bd_intf_net -intf_net processing_system7_0_M_AXI_GP0 [get_bd_intf_pins processing_system7_0/M_AXI_GP0] [get_bd_intf_pins ps7_0_axi_periph/S00_AXI]
-  connect_bd_intf_net -intf_net ps7_0_axi_periph_M00_AXI [get_bd_intf_pins axi_gpio_0/S_AXI] [get_bd_intf_pins ps7_0_axi_periph/M00_AXI]
   connect_bd_intf_net -intf_net smartconnect_0_M00_AXI [get_bd_intf_ports M00_AXI_0] [get_bd_intf_pins smartconnect_0/M00_AXI]
-  connect_bd_intf_net -intf_net smartconnect_0_M01_AXI [get_bd_intf_pins axi_hwicap_0/S_AXI_LITE] [get_bd_intf_pins smartconnect_0/M01_AXI]
-  connect_bd_intf_net -intf_net smartconnect_0_M02_AXI [get_bd_intf_pins processing_system7_0/S_AXI_GP0] [get_bd_intf_pins smartconnect_0/M02_AXI]
+  connect_bd_intf_net -intf_net smartconnect_0_M01_AXI [get_bd_intf_pins processing_system7_0/S_AXI_GP0] [get_bd_intf_pins smartconnect_0/M01_AXI]
   connect_bd_intf_net -intf_net xdma_0_M_AXIS_H2C_0 [get_bd_intf_pins xdma_0/M_AXIS_H2C_0] [get_bd_intf_pins xdma_0/S_AXIS_C2H_0]
   connect_bd_intf_net -intf_net xdma_0_M_AXI_LITE [get_bd_intf_pins smartconnect_0/S00_AXI] [get_bd_intf_pins xdma_0/M_AXI_LITE]
   connect_bd_intf_net -intf_net xdma_0_pcie_mgt [get_bd_intf_ports pcie_mgt_0] [get_bd_intf_pins xdma_0/pcie_mgt]
 
   # Create port connections
-  connect_bd_net -net aclk1_0_1 [get_bd_ports aclk1_0] [get_bd_pins axi_hwicap_0/icap_clk] [get_bd_pins smartconnect_0/aclk1]
-  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins axi_gpio_0/s_axi_aclk] [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK] [get_bd_pins ps7_0_axi_periph/ACLK] [get_bd_pins ps7_0_axi_periph/M00_ACLK] [get_bd_pins ps7_0_axi_periph/S00_ACLK] [get_bd_pins rst_ps7_0_50M/slowest_sync_clk]
-  connect_bd_net -net processing_system7_0_FCLK_RESET0_N [get_bd_pins processing_system7_0/FCLK_RESET0_N] [get_bd_pins rst_ps7_0_50M/ext_reset_in]
-  connect_bd_net -net rst_ps7_0_50M_peripheral_aresetn [get_bd_pins axi_gpio_0/s_axi_aresetn] [get_bd_pins ps7_0_axi_periph/ARESETN] [get_bd_pins ps7_0_axi_periph/M00_ARESETN] [get_bd_pins ps7_0_axi_periph/S00_ARESETN] [get_bd_pins rst_ps7_0_50M/peripheral_aresetn]
+  connect_bd_net -net aclk1_0_1 [get_bd_ports aclk1_0] [get_bd_pins smartconnect_0/aclk1]
+  connect_bd_net -net processing_system7_0_FCLK_CLK0 [get_bd_pins processing_system7_0/FCLK_CLK0] [get_bd_pins processing_system7_0/M_AXI_GP0_ACLK]
   connect_bd_net -net sys_clk_0_1 [get_bd_ports pcie_clk] [get_bd_pins xdma_0/sys_clk]
   connect_bd_net -net sys_rst_n_0_1 [get_bd_ports pcie_rst_n] [get_bd_pins xdma_0/sys_rst_n]
   connect_bd_net -net usr_irq_req_0_1 [get_bd_ports usr_irq_req_0] [get_bd_pins xdma_0/usr_irq_req]
-  connect_bd_net -net xdma_0_axi_aclk [get_bd_pins axi_hwicap_0/s_axi_aclk] [get_bd_pins processing_system7_0/S_AXI_GP0_ACLK] [get_bd_pins smartconnect_0/aclk] [get_bd_pins xdma_0/axi_aclk]
-  connect_bd_net -net xdma_0_axi_aresetn [get_bd_pins axi_hwicap_0/s_axi_aresetn] [get_bd_pins smartconnect_0/aresetn] [get_bd_pins xdma_0/axi_aresetn]
+  connect_bd_net -net xdma_0_axi_aclk [get_bd_pins processing_system7_0/S_AXI_GP0_ACLK] [get_bd_pins smartconnect_0/aclk] [get_bd_pins xdma_0/axi_aclk]
+  connect_bd_net -net xdma_0_axi_aresetn [get_bd_pins smartconnect_0/aresetn] [get_bd_pins xdma_0/axi_aresetn]
   connect_bd_net -net xdma_0_user_lnk_up [get_bd_ports user_lnk_up_0] [get_bd_pins xdma_0/user_lnk_up]
   connect_bd_net -net xdma_0_usr_irq_ack [get_bd_ports usr_irq_ack_0] [get_bd_pins xdma_0/usr_irq_ack]
 
   # Create address segments
-  assign_bd_address -offset 0x41200000 -range 0x00010000 -target_address_space [get_bd_addr_spaces processing_system7_0/Data] [get_bd_addr_segs axi_gpio_0/S_AXI/Reg] -force
-  assign_bd_address -offset 0x00000000 -range 0x10000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] -force
-  assign_bd_address -offset 0x10000000 -range 0x00010000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs axi_hwicap_0/S_AXI_LITE/Reg] -force
-  assign_bd_address -offset 0xE0000000 -range 0x00400000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs processing_system7_0/S_AXI_GP0/GP0_IOP] -force
-  assign_bd_address -offset 0x40000000 -range 0x20000000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs processing_system7_0/S_AXI_GP0/GP0_M_AXI_GP0] -force
+  assign_bd_address -offset 0x40000000 -range 0x00080000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs M00_AXI_0/Reg] -force
+  assign_bd_address -offset 0x40080000 -range 0x00080000 -target_address_space [get_bd_addr_spaces xdma_0/M_AXI_LITE] [get_bd_addr_segs processing_system7_0/S_AXI_GP0/GP0_M_AXI_GP0] -force
 
 
   # Restore current instance

@@ -294,6 +294,8 @@ architecture top of spec7_write_top is
   --Axi4
   signal m_axil_i :  t_axi4_lite_master_in_32;
   signal m_axil_o :  t_axi4_lite_master_out_32;
+  signal araddr : std_logic_vector(31 downto 0);
+  signal awaddr : std_logic_vector(31 downto 0);
   
   --Wishbone
   signal wb_master_i : t_wishbone_master_in; 
@@ -360,7 +362,7 @@ Pcie: processing_system_pcie_wrapper
     FIXED_IO_ps_clk   =>FIXED_IO_ps_clk  ,
     FIXED_IO_ps_porb  =>FIXED_IO_ps_porb ,
     FIXED_IO_ps_srstb =>FIXED_IO_ps_srstb,
-    M00_AXI_0_araddr  => m_axil_o.araddr,
+    M00_AXI_0_araddr  => araddr,
     M00_AXI_0_arburst => open,              
     M00_AXI_0_arcache => open,              
     M00_AXI_0_arlen   => open,              
@@ -370,7 +372,7 @@ Pcie: processing_system_pcie_wrapper
     M00_AXI_0_arready => m_axil_i.arready,  
     M00_AXI_0_arsize  => open,              
     M00_AXI_0_arvalid => m_axil_o.arvalid,
-    M00_AXI_0_awaddr  => m_axil_o.awaddr,   
+    M00_AXI_0_awaddr  => awaddr,
     M00_AXI_0_awburst => open,              
     M00_AXI_0_awcache => open,              
     M00_AXI_0_awlen   => open,              
@@ -392,9 +394,8 @@ Pcie: processing_system_pcie_wrapper
     M00_AXI_0_wlast   => m_axil_o.wlast,    
     M00_AXI_0_wready  => m_axil_i.wready,   
     M00_AXI_0_wstrb   => m_axil_o.wstrb,    
-    M00_AXI_0_wvalid  => m_axil_o.wvalid,   
+    M00_AXI_0_wvalid  => m_axil_o.wvalid,
     aclk1_0           => clk_sys_62m5,
-    gpio_rtl_0_tri_o  => open,
     pcie_clk          => pci_clk,
     pcie_mgt_0_rxn    => rxn,
     pcie_mgt_0_rxp    => rxp,
@@ -405,7 +406,15 @@ Pcie: processing_system_pcie_wrapper
     usr_irq_ack_0     => open,
     usr_irq_req_0     => "0"
   );
-
+  m_axil_o.araddr(31 downto 28) <= x"0";
+  m_axil_o.araddr(27 downto 0) <= araddr(27 downto 0); --compensates for the PCI 0x4XXXXXXX offset
+  m_axil_o.awaddr(31 downto 28) <= x"0";               --not my cleanest fix....
+  m_axil_o.awaddr(27 downto 0) <= awaddr(27 downto 0); 
+  
+  -----------------------------------------------------------------------------
+  -- Axi to Wishbone converter
+  -----------------------------------------------------------------------------
+  
 AXI2WB : xwb_axi4lite_bridge 
   port map(
     clk_sys_i => clk_sys_62m5,
