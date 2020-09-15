@@ -4,12 +4,12 @@
 
 #   -- Local oscillators
 # Bank 112 -- 125.000 MHz GTX reference
-set_property PACKAGE_PIN U6 [get_ports clk_125m_gtx_p_i]
-set_property PACKAGE_PIN U5 [get_ports clk_125m_gtx_n_i]
+#set_property PACKAGE_PIN U6 [get_ports clk_125m_gtx_p_i]
+#set_property PACKAGE_PIN U5 [get_ports clk_125m_gtx_n_i]
 # Set for extren 125MHz
 # Bank 111 -- 125.000 MHz GTX reference
-#set_property PACKAGE_PIN W6 [get_ports clk_125m_gtx_p_i]
-#set_property PACKAGE_PIN W5 [get_ports clk_125m_gtx_n_i]
+set_property PACKAGE_PIN W6 [get_ports clk_125m_gtx_p_i]
+set_property PACKAGE_PIN W5 [get_ports clk_125m_gtx_n_i]
 # Bank 111 -- FMC GBTCLK0_M2C
 #set_property PACKAGE_PIN AA6 [get_ports fmc_gbtclk0_m2c_p]
 #set_property PACKAGE_PIN AA5 [get_ports fmc_gbtclk0_m2c_n]
