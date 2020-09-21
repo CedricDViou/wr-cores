@@ -566,9 +566,9 @@ begin
        end if;
 
        if(sysc_regs_o.gpsr_pll_clk_sel_o = '1') then
-         pll_clk_sel_o <= '0';
-       elsif(sysc_regs_o.gpcr_pll_clk_sel_o = '1') then
          pll_clk_sel_o <= '1';
+       elsif(sysc_regs_o.gpcr_pll_clk_sel_o = '1') then
+         pll_clk_sel_o <= '0';
        end if;
 
        if(sysc_regs_o.gpsr_pll_wr_mode0_o = '1') then
