@@ -6,7 +6,7 @@
 -- Author     : Peter Jansweijer, Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2013-04-08
--- Last update: 2013-04-08
+-- Last update: 2020-09-21
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -58,7 +58,8 @@ entity wr_gtx_phy_family7 is
 
   generic (
     -- set to non-zero value to speed up the simulation by reducing some delays
-    g_simulation         : integer := 0
+    g_simulation         : integer := 0;
+    g_use_slave_tx_clk : integer := 0
     );
 
   port (
@@ -66,6 +67,7 @@ entity wr_gtx_phy_family7 is
     clk_gtx_i : in std_logic;
 
     -- TX path, synchronous to tx_out_clk_o (62.5 MHz):
+    tx_out_clk_i : in std_logic:='0';
     tx_out_clk_o : out std_logic;
     tx_locked_o  : out std_logic;
 
@@ -307,15 +309,21 @@ begin  -- rtl
 
   tx_enc_err_o <= '0';
 
-  U_BUF_TxOutClk : BUFG
+  gen_with_txoutclk_buf: if g_use_slave_tx_clk = 0 generate
+    U_BUF_TxOutClk : BUFG
     port map (
       I => tx_out_clk_bufin,
       O => tx_out_clk);
+  end generate gen_with_txoutclk_buf;
 
-   tx_out_clk_o <= tx_out_clk;
-   tx_locked_o  <= cpll_lockdet;
+  gen_without_txoutclk_buf: if g_use_slave_tx_clk /= 0 generate
+    tx_out_clk <= tx_out_clk_i;
+  end generate gen_without_txoutclk_buf;
+  
+  tx_out_clk_o <= tx_out_clk;
+  tx_locked_o  <= cpll_lockdet;
 
-      U_BUF_RxRecClk : BUFG
+  U_BUF_RxRecClk : BUFG
     port map (
       I => rx_rec_clk_bufin,
       O => rx_rec_clk);
