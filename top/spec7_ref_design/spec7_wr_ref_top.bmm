@@ -1,0 +1,66 @@
+/* FILE : spec7_wr_ref_top.bmm
+*  Define a BRAM map for the LM32 memory.
+*  ISE: Run Translate -> "Floorplan Area/IO/Logic (PlanAhead)" once (without this BMM file
+*  attached to the ISE Project) to find out that there are 16 ramloops and each RAMB36E1
+*  VIVADO: find brams (see also viv_find_brams.tcl)
+*        set my_rams [get_cells -hierarchical -filter { PRIMITIVE_TYPE =~ BMEM.bram.* }]
+*        foreach ram_block $my_rams {
+*          puts $ram_block
+*        }
+*  Note: *THE RAMLOOP ORDER WITHIN A BUS BLOCK IS VERY IMPORTANT!!!*
+*        Define ramloop 15 downto 0 and databits 31 downto 0 !!! Otherwise the memory
+*        content will be swapped and the program fails to execute. Apparently the ramloop
+*        number and bit definitions are not read by data2mem.
+*
+* Address space LM32 memory
+* g_dpram_size = 128 KB = 131072 bytes / 4 = 32768 32-bit words
+*
+* ATTENTION PARITY!
+* Although the memory is implemented in RAMB36E1 the address same MUST be defined as
+* RAMB32 (instead of RAMB36) since we are NOT using parity! If the address space is
+* defined as RAMB36 then data2mem is expecting an extra nibble for each 32 bit instruction
+* in the ".elf" file and since this nibble is not provided, the ramblocks will be filled
+* such that a nibble shift is accumulating in the data.
+* Note that this can be examined using the data2mem command
+* "data2mem -bm spec7_wr_ref_top_bd.bmm -bt spec7_wr_ref_top_elf.bit -d > dump.txt"
+*
+****************************************************************************************/
+
+ADDRESS_SPACE lm32_wrpc_memory COMBINED [0x00000000:0x0001FFFF]
+  ADDRESS_RANGE RAMB32
+     BUS_BLOCK
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_7 [31:31] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_6 [30:30] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_5 [29:29] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_4 [28:28] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_3 [27:27] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_2 [26:26] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_1 [25:25] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram3_reg_0_0 [24:24] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_7 [23:23] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_6 [22:22] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_5 [21:21] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_4 [20:20] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_3 [19:19] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_2 [18:18] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_1 [17:17] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram2_reg_0_0 [16:16] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_7 [15:15] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_6 [14:14] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_5 [13:13] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_4 [12:12] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_3 [11:11] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_2 [10:10] [0:32767];
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_1 [9:9] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram1_reg_0_0 [8:8] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_7 [7:7] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_6 [6:6] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_5 [5:5] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_4 [4:4] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_3 [3:3] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_2 [2:2] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_1 [1:1] [0:32767]; 
+      cmp_xwrc_board_spec7/cmp_board_common/cmp_xwr_core/WRPC/DPRAM/U_DPRAM/gen_splitram.U_RAM_SPLIT/ram0_reg_0_0 [0:0] [0:32767]; 
+    END_BUS_BLOCK;
+  END_ADDRESS_RANGE;
+END_ADDRESS_SPACE;
