@@ -72,7 +72,7 @@ use unisim.vcomponents.all;
 entity spec7_wr_ref_top is
   generic (
     g_design      : string := "spec7_ref_top";
-    g_dpram_initf : string := "../../../../bin/wrpc/wrc_phy16_direct_dmtd.bram";
+    g_dpram_initf : string := "../../../../bin/wrpc/wrc_v5_spec7.bram";
     -- In Vivado Project-Mode, during a Synthesis run or an Implementation run, the Vivado working
     -- directory temporarily changes to the "project_name/project_name.runs/run_name" directory.
 
