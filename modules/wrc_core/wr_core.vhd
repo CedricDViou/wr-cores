@@ -677,7 +677,8 @@ begin
       slave_i => spll_wb_in,
       slave_o => spll_wb_out,
 
-      debug_o => open);
+      debug_o => open,
+      int_o   => softpll_irq);
 
   clk_fb(0)                       <= clk_ref_i;
   clk_fb(g_aux_clks downto 1)     <= clk_aux_i;

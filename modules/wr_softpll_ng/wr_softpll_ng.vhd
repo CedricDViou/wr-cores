@@ -593,7 +593,6 @@ begin  -- rtl
     wb_out.err   <= '0';
     wb_out.rty   <= '0';
     wb_out.stall <= '0';
-    wb_out.int   <= '0';
 
   p_ocer_rcer_regs : process(clk_sys_i)
   begin
@@ -807,3 +806,4 @@ begin  -- rtl
   regs_out.trr_disc_i          <= '0';
 
 end rtl;
+
