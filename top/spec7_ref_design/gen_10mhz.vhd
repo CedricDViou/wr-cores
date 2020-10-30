@@ -58,9 +58,9 @@ end gen_10mhz;
 
 architecture rtl of gen_10mhz is
 
-  signal rst_synced  : std_logic := '0';
-  signal pps_synced  : std_logic := '0';
-  signal pps_delayed : std_logic := '0';
+  signal rst_n_synced  : std_logic := '0';
+  signal pps_synced    : std_logic := '0';
+  signal pps_delayed   : std_logic := '0';
   
 begin  -- rtl
   process (clk_500m_i)
@@ -69,16 +69,16 @@ begin  -- rtl
       -- clk_500m is locked to the reference clock domain
       -- although clocks are phase locked, first synchronize pps_i
       -- and rst_n_i to 500 MHz to ease timing closure.
-      rst_synced <= not rst_n_i;
-      pps_synced <= pps_i;
-      pps_delayed <= pps_synced;
+      rst_n_synced  <= rst_n_i;
+      pps_synced    <= pps_i;
+      pps_delayed   <= pps_synced;
     end if;
   end process;
   
-  pr_10mhz_gen : process (clk_500m_i, rst_synced)
+  pr_10mhz_gen : process (clk_500m_i, rst_n_synced)
     variable cntr: integer range 0 to 99;
   begin  -- process pr_10mhz_gen
-    if rst_synced = '1' then
+    if rst_n_synced = '0' then
       cntr       := 0;
     elsif rising_edge(clk_500m_i) then
       if ((pps_synced = '1' and pps_delayed = '0') or cntr = 49) then

@@ -49,12 +49,13 @@ set_clock_groups -asynchronous \
 -group be_clk_ext_10m \
 -group clk_ext_mul
 
-# TXOUTCLK = 16 ns = 8 clock periods of clk_500m which has 2 ns period
+# clk_ref_62m5_div2 = 16 ns = 8 clock periods of clk_500m which has 2 ns period
 # Setup requirement at edge 8, hold requirement at edge 7
 # See also:
 # https://www.xilinx.com/video/hardware/timing-exception-multicycle-path-constraints.html
-set_multicycle_path 8 -setup -from [get_clocks clk_ref_62m5_div2] -to [get_clocks  "*clk_500m*"]
-set_multicycle_path 7 -hold -from [get_clocks clk_ref_62m5_div2] -to [get_clocks  "*clk_500m*"]
+# See: "Multicycle Path and Positive phase shift" (due to the clk_ref_62m5_div2 to clk_500 delay through MMCME2_ADV)
+set_multicycle_path 2 -setup -from [get_clocks clk_ref_62m5_div2] -to [get_clocks  "*clk_500m*"]
+set_multicycle_path 1 -hold -from [get_clocks clk_ref_62m5_div2] -to [get_clocks  "*clk_500m*"]
 
 # Set BMM_INFO_DESIGN property to avoid ERROR during "Write Bitstream"
 set_property BMM_INFO_DESIGN spec7_wr_ref_top.bmm [current_design]
