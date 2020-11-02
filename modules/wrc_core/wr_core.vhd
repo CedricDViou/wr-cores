@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2020-08-19
+-- Last update: 2020-11-02
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -76,16 +76,14 @@ entity wr_core is
     g_simulation                : integer                        := 0;
     -- set to false to reduce the number of information printed during simulation
     g_verbose                   : boolean                        := true;
-    g_with_external_clock_input : boolean                        := true;
-    --
+    g_with_external_clock_input : boolean                        := true; 
+    g_ram_address_space_size_kb : integer                        := 128;
+   --
     g_board_name                : string                         := "NA  ";
     g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart                 : boolean                        := true;
     g_virtual_uart              : boolean                        := true;
-    g_with_phys_uart_fifo       : boolean                        := false;
-    g_phys_uart_tx_fifo_size    : integer                        := 1024;
-    g_phys_uart_rx_fifo_size    : integer                        := 1024;
     g_aux_clks                  : integer                        := 0;
     g_rx_buffer_size            : integer                        := 1024;
     g_tx_runt_padding           : boolean                        := true;
@@ -440,8 +438,8 @@ architecture struct of wr_core is
      4 => f_sdb_embed_device(c_wrc_periph0_sdb, x"00000400"),  -- Syscon
      5 => f_sdb_embed_device(c_wrc_periph1_sdb, x"00000500"),  -- UART
      6 => f_sdb_embed_device(c_wrc_periph2_sdb, x"00000600"),  -- 1-Wire
-     7 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800"),  -- WRPC diag registers
-     8 => f_sdb_embed_device(g_aux_sdb,         x"00008000")   -- aux WB bus
+     7 => f_sdb_embed_device(g_aux_sdb,         x"00008000"),  -- aux WB bus
+     8 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800")   -- WRPC diag registers
      );
 
   constant c_secbar_sdb_address : t_wishbone_address := x"00000C00";
@@ -451,13 +449,31 @@ architecture struct of wr_core is
   signal secbar_master_i : t_wishbone_master_in_array(8 downto 0);
   signal secbar_master_o : t_wishbone_master_out_array(8 downto 0);
 
+  impure function f_pick_secbar_base return std_logic_vector is
+  begin
+    if g_ram_address_space_size_kb = 128 then
+      return x"00020000";
+    else
+      return x"00040000";
+    end if;
+  end f_pick_secbar_base;
+
+  impure function f_pick_sdb_base return std_logic_vector is
+  begin
+    if g_ram_address_space_size_kb = 128 then
+      return x"00030000";
+    else
+      return x"00050000";
+    end if;
+  end f_pick_sdb_base;
+  
   -----------------------------------------------------------------------------
   --WB intercon
   -----------------------------------------------------------------------------
   constant c_layout : t_sdb_record_array(1 downto 0) :=
     (0 => f_sdb_embed_device(f_xwb_dpram(g_dpram_size), x"00000000"),
-     1 => f_sdb_embed_bridge(c_secbar_bridge_sdb, x"00040000"));
-  constant c_sdb_address : t_wishbone_address := x"00050000";
+     1 => f_sdb_embed_bridge(c_secbar_bridge_sdb, f_pick_secbar_base));
+  constant c_sdb_address : t_wishbone_address := f_pick_sdb_base;
 
   signal cbar_slave_i  : t_wishbone_slave_in_array (2 downto 0);
   signal cbar_slave_o  : t_wishbone_slave_out_array(2 downto 0);
@@ -819,7 +835,7 @@ begin
       led_act_o            => led_act_o);
 
   led_link_o   <= ep_led_link;
-  link_ok_o    <= ep_led_link;
+  link_ok_o    <= '1'; --ep_led_link;
 
   tm_link_up_o <= ep_led_link;
 
@@ -915,9 +931,6 @@ begin
       g_virtual_uart    => g_virtual_uart,
       g_mem_words       => g_dpram_size,
       g_vuart_fifo_size => g_vuart_fifo_size,
-      g_with_phys_uart_fifo   => g_with_phys_uart_fifo,
-      g_phys_uart_tx_fifo_size => g_phys_uart_tx_fifo_size,
-      g_phys_uart_rx_fifo_size => g_phys_uart_rx_fifo_size,
       g_diag_id         => g_diag_id,
       g_diag_ver        => g_diag_ver,
       g_diag_ro_size    => g_diag_ro_size,
@@ -1091,25 +1104,42 @@ begin
   secbar_master_i(4) <= periph_slave_o(0);
   secbar_master_i(5) <= periph_slave_o(1);
   secbar_master_i(6) <= periph_slave_o(2);
-  secbar_master_i(7) <= periph_slave_o(3);
+  secbar_master_i(8) <= periph_slave_o(3);
   periph_slave_i(0)  <= secbar_master_o(4);
   periph_slave_i(1)  <= secbar_master_o(5);
   periph_slave_i(2)  <= secbar_master_o(6);
-  periph_slave_i(3)  <= secbar_master_o(7);
+  periph_slave_i(3)  <= secbar_master_o(8);
 
 
-  aux_adr_o <= secbar_master_o(8).adr;
-  aux_dat_o <= secbar_master_o(8).dat;
-  aux_sel_o <= secbar_master_o(8).sel;
-  aux_cyc_o <= secbar_master_o(8).cyc;
-  aux_stb_o <= secbar_master_o(8).stb;
-  aux_we_o  <= secbar_master_o(8).we;
+  aux_adr_o <= secbar_master_o(7).adr;
+  aux_dat_o <= secbar_master_o(7).dat;
+  aux_sel_o <= secbar_master_o(7).sel;
+  aux_cyc_o <= secbar_master_o(7).cyc;
+  aux_stb_o <= secbar_master_o(7).stb;
+  aux_we_o  <= secbar_master_o(7).we;
 
-  secbar_master_i(8).dat   <= aux_dat_i;
-  secbar_master_i(8).ack   <= aux_ack_i;
-  secbar_master_i(8).stall <= aux_stall_i;
-  secbar_master_i(8).err   <= '0';
-  secbar_master_i(8).rty   <= '0';
+  secbar_master_i(7).dat   <= aux_dat_i;
+  secbar_master_i(7).ack   <= aux_ack_i;
+  secbar_master_i(7).stall <= aux_stall_i;
+  secbar_master_i(7).err   <= '0';
+  secbar_master_i(7).rty   <= '0';
+
+  --secbar_master_i(6).err <= '0';
+  --secbar_master_i(5).err <= '0';
+  --secbar_master_i(4).err <= '0';
+  --secbar_master_i(3).err <= '0';
+  --secbar_master_i(2).err <= '0';
+  --secbar_master_i(1).err <= '0';
+  --secbar_master_i(0).err <= '0';
+
+  --secbar_master_i(6).rty <= '0';
+  --secbar_master_i(5).rty <= '0';
+  --secbar_master_i(4).rty <= '0';
+  --secbar_master_i(3).rty <= '0';
+  --secbar_master_i(2).rty <= '0';
+  --secbar_master_i(1).rty <= '0';
+  --secbar_master_i(0).rty <= '0';
+
 
 
   -----------------------------------------------------------------------------
