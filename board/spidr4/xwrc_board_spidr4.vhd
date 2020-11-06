@@ -4,16 +4,16 @@
 -- URL        : http://www.ohwr.org/projects/wr-cores/wiki/Wrpc_core
 -------------------------------------------------------------------------------
 -- File       : xwrc_board_spidr4.vhd
--- Author(s)  : Peter Jansweijer <peterj@nikhef.nl>
+-- Author(s)  : Pascal BOs <bosp@nikhef.nl>
 -- Company    : Nikhef
--- Created    : 2017-26-08
--- Last update: 2017-26-08
+-- Created    : 2020-26-08
+-- Last update: 2020-26-08
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
 -- needed to operate the core on the SPIDR4 board.
 -------------------------------------------------------------------------------
--- Copyright (c) 2017 Nikhef
+-- Copyright (c) 2020 Nikhef
 -------------------------------------------------------------------------------
 -- GNU LESSER GENERAL PUBLIC LICENSE
 --
@@ -334,7 +334,7 @@ begin  -- architecture struct
       areset_n_i            => areset_n_i,
       clk_10m_ext_i         => clk_10m_ext_i,
       clk_125m_dmtd_i       => clk_125m_dmtd_buf,
-      clk_125m_gtp_p_i      => clk_125m_gtx_p_i, --Note clbv4 used GTX instead of GTPs
+      clk_125m_gtp_p_i      => clk_125m_gtx_p_i,
       clk_125m_gtp_n_i      => clk_125m_gtx_n_i,
       sfp_txn_o             => sfp_txn_o,
       sfp_txp_o             => sfp_txp_o,
@@ -444,7 +444,7 @@ begin  -- architecture struct
     generic map (
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
-      g_board_name                => "CLB4",
+      g_board_name                => "SPIDR4",
       g_phys_uart                 => TRUE,
       g_virtual_uart              => TRUE,
       g_aux_clks                  => g_aux_clks,
