@@ -876,7 +876,7 @@ begin  -- architecture rtl
         ch0_rx_k_o         => ch0_phy8_out.rx_k(0),
         ch0_rx_enc_err_o   => ch0_phy8_out.rx_enc_err,
         ch0_rx_bitslide_o  => ch0_phy8_out.rx_bitslide,
-        ch0_rst_i          => phy8_i.rst,
+        ch0_rst_i          => phy8_i.rst, -- sys_clk domain
         ch0_loopen_i       => phy8_i.loopen,
         ch0_loopen_vec_i   => phy8_i.loopen_vec,
         ch0_tx_prbs_sel_i  => phy8_i.tx_prbs_sel,
@@ -893,7 +893,7 @@ begin  -- architecture rtl
         ch1_rx_k_o         => ch1_phy8_out.rx_k(0),
         ch1_rx_enc_err_o   => ch1_phy8_out.rx_enc_err,
         ch1_rx_bitslide_o  => ch1_phy8_out.rx_bitslide,
-        ch1_rst_i          => phy8_i.rst,
+        ch1_rst_i          => phy8_i.rst,-- sys_clk domain
         ch1_loopen_i       => phy8_i.loopen,
         ch1_loopen_vec_i   => phy8_i.loopen_vec,
         ch1_tx_prbs_sel_i  => phy8_i.tx_prbs_sel,
@@ -994,7 +994,7 @@ begin  -- architecture rtl
         ch0_rx_k_o         => ch0_phy8_out.rx_k(0),
         ch0_rx_enc_err_o   => ch0_phy8_out.rx_enc_err,
         ch0_rx_bitslide_o  => ch0_phy8_out.rx_bitslide,
-        ch0_rst_i          => phy8_i.rst,
+        ch0_rst_i          => phy8_i.rst, -- sys_clk domain
         ch0_loopen_i       => phy8_i.loopen,
         ch0_rdy_o          => ch0_phy8_out.rdy,
         ch1_tx_data_i      => phy8_i.tx_data,
@@ -1006,7 +1006,7 @@ begin  -- architecture rtl
         ch1_rx_k_o         => ch1_phy8_out.rx_k(0),
         ch1_rx_enc_err_o   => ch1_phy8_out.rx_enc_err,
         ch1_rx_bitslide_o  => ch1_phy8_out.rx_bitslide,
-        ch1_rst_i          => phy8_i.rst,
+        ch1_rst_i          => phy8_i.rst, -- sys_clk domain
         ch1_loopen_i       => phy8_i.loopen,
         ch1_rdy_o          => ch1_phy8_out.rdy,
         pad_txn0_o         => ch0_sfp_txn,
@@ -1146,7 +1146,7 @@ begin  -- architecture rtl
         rx_k_o         => phy16_o.rx_k,
         rx_enc_err_o   => phy16_o.rx_enc_err,
         rx_bitslide_o  => phy16_o.rx_bitslide,
-        rst_i          => phy16_i.rst,
+        rst_i          => phy16_i.rst, -- sys_clk domain
         loopen_i       => phy16_i.loopen_vec,
         tx_prbs_sel_i  => phy16_i.tx_prbs_sel,
         rdy_o          => phy16_o.rdy,
@@ -1222,7 +1222,7 @@ begin  -- architecture rtl
         rx_k_o         => phy16_o.rx_k,
         rx_enc_err_o   => phy16_o.rx_enc_err,
         rx_bitslide_o  => phy16_o.rx_bitslide,
-        rst_i          => phy16_i.rst,
+        rst_i          => phy16_i.rst, -- sys_clk domain
         loopen_i       => phy16_i.loopen_vec,
         tx_prbs_sel_i  => phy16_i.tx_prbs_sel,
         rdy_o          => phy16_o.rdy,

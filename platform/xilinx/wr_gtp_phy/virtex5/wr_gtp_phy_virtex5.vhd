@@ -372,6 +372,9 @@ architecture rtl of wr_gtp_phy_virtex5 is
 
   signal ch0_rdy, ch1_rdy : std_logic;
   
+  signal ch0_rx_clk_rst: std_logic;
+  signal ch1_rx_clk_rst: std_logic;
+  
 begin  -- rtl
   -------------------------------------------------------------------------------
   -- Channel 0 logic
@@ -407,7 +410,7 @@ begin  -- rtl
     begin
       if rising_edge(ch01_ref_clk_i) then
 
-        ch0_rst_d0     <= ch0_rst_i;
+        ch0_rst_d0     <= ch0_rst_i; -- pass from sys_clk to ref_clk
         ch0_rst_synced <= ch0_rst_d0;
 
         if(ch0_rst_synced = '1') then
@@ -431,7 +434,7 @@ begin  -- rtl
     U_Align_Detect_CH0: v5_gtp_align_detect
       port map (
         clk_rx_i  => ch0_rx_rec_clk,
-        rst_i   => ch01_gtp_reset,
+        rst_i     => ch0_rx_clk_rst,
         data_i    => ch0_rx_data_int,
         k_i       => ch0_rx_k_int,
         aligned_o => ch0_rx_byte_is_aligned);
@@ -441,7 +444,7 @@ begin  -- rtl
       generic map (
         g_simulation => g_simulation)
       port map (
-        gtp_rst_i                => ch01_gtp_reset,
+        gtp_rst_i                => ch0_rx_clk_rst,
         gtp_rx_clk_i             => ch0_rx_rec_clk,
         gtp_rx_comma_det_i       => ch0_rx_comma_det,
         gtp_rx_byte_is_aligned_i => ch0_rx_byte_is_aligned,
@@ -487,9 +490,9 @@ begin  -- rtl
       end if;
     end process;
 
-    p_gen_output_ch0 : process(ch0_rx_rec_clk, ch01_gtp_reset)
+    p_gen_output_ch0 : process(ch0_rx_rec_clk, ch0_rx_clk_rst)
     begin
-      if(ch01_gtp_reset = '1') then
+      if(ch0_rx_clk_rst = '1') then
         ch0_rx_data_o    <= (others => '0');
         ch0_rx_k_o       <= '0';
         ch0_rx_enc_err_o <= '0';
@@ -512,6 +515,15 @@ begin  -- rtl
 
 -- drive the recovered clock output
     ch0_rx_rbclk_o <= ch0_rx_rec_clk;
+
+    U_sync_rx_clk_rst_ch0 : gc_sync_ffs
+      generic map (
+        g_sync_edge => "positive")
+      port map (
+        clk_i    => ch0_rx_rec_clk,
+        rst_n_i  => '1',
+        data_i   => ch0_gtp_reset,
+        synced_o => ch0_rx_clk_rst);
 
   end generate gen_with_channel0;
 
@@ -572,7 +584,7 @@ begin  -- rtl
     U_Align_Detect_CH1: v5_gtp_align_detect
       port map (
         clk_rx_i  => ch1_rx_rec_clk,
-        rst_i   => ch01_gtp_reset,
+        rst_i     => ch1_rx_clk_rst,
         data_i    => ch1_rx_data_int,
         k_i       => ch1_rx_k_int,
         aligned_o => ch1_rx_byte_is_aligned);
@@ -584,7 +596,7 @@ begin  -- rtl
       generic map (
         g_simulation => g_simulation)
       port map (
-        gtp_rst_i                => ch01_gtp_reset,
+        gtp_rst_i                => ch1_rx_clk_rst,
         gtp_rx_clk_i             => ch1_rx_rec_clk,
         gtp_rx_comma_det_i       => ch1_rx_comma_det,
         gtp_rx_byte_is_aligned_i => ch1_rx_byte_is_aligned,
@@ -631,9 +643,9 @@ begin  -- rtl
       end if;
     end process;
 
-    p_gen_output_ch1 : process(ch1_rx_rec_clk, ch1_rst_i)
+    p_gen_output_ch1 : process(ch1_rx_rec_clk, ch1_rx_clk_rst)
     begin
-      if(ch1_rst_i = '1') then
+      if(ch1_rx_clk_rst = '1') then
         ch1_rx_data_o    <= (others => '0');
         ch1_rx_k_o       <= '0';
         ch1_rx_enc_err_o <= '0';
@@ -654,6 +666,16 @@ begin  -- rtl
     end process;
 
     ch1_rx_rbclk_o <= ch1_rx_rec_clk;
+
+    U_sync_rx_clk_rst_ch1 : gc_sync_ffs
+      generic map (
+        g_sync_edge => "positive")
+      port map (
+        clk_i    => ch1_rx_rec_clk,
+        rst_n_i  => '1',
+        data_i   => ch1_gtp_reset,
+        synced_o => ch1_rx_clk_rst);
+
   end generate gen_with_channel1;
 
   ch1_gtp_loopback <= "000";
@@ -664,7 +686,7 @@ begin  -- rtl
 
   gen_with_common : if(g_enable_ch0 /= 0) or (g_enable_ch1 /= 0) generate
     
-    ch01_gtp_reset <= ch0_gtp_reset;    -- or ch1_gtp_reset;
+    ch01_gtp_reset <= ch0_gtp_reset or ch1_gtp_reset;
 
     ch01_ref_clk_in <= gtp_clk_i;
 
@@ -767,6 +789,9 @@ begin  -- rtl
   -- ML:
   ch0_rdy_o <= '1'; -- todo
   ch1_rdy_o <= '1'; -- todo
+--   ch0_rdy  <= ch0_rx_enable_output_synced when (g_enable_ch0 = 1) else '0';
+--   ch1_rdy  <= ch1_rx_enable_output_synced when (g_enable_ch1 = 1) else '0';
+
 --   ch0_rdy  <= ch01_gtp_locked and ch01_align_done when (g_enable_ch0 = 1) else '0';
 --   ch1_rdy  <= ch01_gtp_locked and ch01_align_done when (g_enable_ch1 = 1) else '0';
 -- 
