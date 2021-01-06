@@ -658,6 +658,7 @@ begin  -- architecture struct
     generic map (
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,
+      g_ram_address_space_size_kb => 256,
       g_board_name                => "SPC7",
       g_phys_uart                 => TRUE,
       g_virtual_uart              => TRUE,
