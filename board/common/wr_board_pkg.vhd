@@ -100,6 +100,7 @@ package wr_board_pkg is
     generic (
       g_simulation                : integer                        := 0;
       g_verbose                   : boolean                        := TRUE;
+      g_ram_address_space_size_kb : integer                        := 128;
       g_with_external_clock_input : boolean                        := TRUE;
       g_board_name                : string                         := "NA  ";
       g_flash_secsz_kb            : integer                        := 256;        -- default for M25P128

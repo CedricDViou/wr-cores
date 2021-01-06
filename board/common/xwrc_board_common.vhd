@@ -50,6 +50,7 @@ entity xwrc_board_common is
   generic(
     g_simulation                : integer                        := 0;
     g_verbose                   : boolean                        := TRUE;
+    g_ram_address_space_size_kb : integer                        := 128;
     g_with_external_clock_input : boolean                        := TRUE;
     g_board_name                : string                         := "NA  ";
     g_flash_secsz_kb            : integer                        := 256;        -- default for M25P128
@@ -372,6 +373,7 @@ begin  -- architecture struct
     generic map (
       g_simulation                => g_simulation,
       g_verbose                   => g_verbose,
+      g_ram_address_space_size_kb => g_ram_address_space_size_kb,
       g_with_external_clock_input => g_with_external_clock_input,
       g_board_name                => g_board_name,
       g_flash_secsz_kb            => g_flash_secsz_kb,
