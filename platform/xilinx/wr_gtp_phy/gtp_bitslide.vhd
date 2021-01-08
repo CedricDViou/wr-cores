@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-11-18
--- Last update: 2013-12-20
+-- Last update: 2020-07-08
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -87,6 +87,16 @@ end gtp_bitslide;
 architecture behavioral of gtp_bitslide is
 
 
+  function f_eval_link_down_threshold return integer is
+  begin
+    if(g_simulation /= 0) then
+      return 256;
+    else
+      return 10000; -- 10000 bytes without comma = link down
+    end if;
+  end f_eval_link_down_threshold;
+  
+  
 
   function f_eval_sync_detect_threshold
     return integer is
@@ -201,7 +211,15 @@ begin  -- behavioral
 
         when S_PAUSE =>
           counter        <= counter + 1;
-          gtp_rx_slide_o <= '0';
+          if g_target = "ultrascale" then
+            if counter = 1 then
+              gtp_rx_slide_o <= '0'; -- ultrascale requires 2 RXUSRCLK2 ticks
+                                     -- for slide pulse
+            end if;
+          else
+            gtp_rx_slide_o <= '0';
+          end if;
+            
 
           if(counter = to_unsigned(c_pause_tics, counter'length)) then
 
@@ -209,6 +227,7 @@ begin  -- behavioral
               state <= S_SLIDE;
             else
               state <= S_GOT_SYNC;
+              counter <= to_unsigned(0, counter'length);
             end if;
           end if;
 
@@ -216,7 +235,15 @@ begin  -- behavioral
           gtp_rx_slide_o <= '0';
           bitslide_o     <= std_logic_vector(cur_slide(4 downto 0));
           synced_o       <= '1';
-          if(gtp_rx_byte_is_aligned_i = '0' or serdes_ready_i = '0') then
+          if gtp_rx_comma_det_i = '1' then
+            counter <= to_unsigned(0, counter'length);
+          else
+            counter <= counter + 1;
+          end if;
+          
+          -- gtp_rx_byte_is_aligned_i = '0' or serdes_ready_i = '0' or 
+          if(counter = f_eval_link_down_threshold) then
+            report "serdes: link down" severity error;
             gtp_rx_cdr_rst_o <= '1';
             state            <= S_SYNC_LOST;
           end if;

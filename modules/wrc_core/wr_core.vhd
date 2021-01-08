@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2019-02-01
+-- Last update: 2020-11-02
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -76,13 +76,17 @@ entity wr_core is
     g_simulation                : integer                        := 0;
     -- set to false to reduce the number of information printed during simulation
     g_verbose                   : boolean                        := true;
-    g_with_external_clock_input : boolean                        := true;
-    --
+    g_with_external_clock_input : boolean                        := true; 
+    g_ram_address_space_size_kb : integer                        := 128;
+   --
     g_board_name                : string                         := "NA  ";
     g_flash_secsz_kb            : integer                        := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr         : integer                        := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart                 : boolean                        := true;
     g_virtual_uart              : boolean                        := true;
+    g_with_phys_uart_fifo       : boolean                        := false;
+    g_phys_uart_tx_fifo_size    : integer                        := 1024;
+    g_phys_uart_rx_fifo_size    : integer                        := 1024;
     g_aux_clks                  : integer                        := 0;
     g_rx_buffer_size            : integer                        := 1024;
     g_tx_runt_padding           : boolean                        := true;
@@ -92,6 +96,7 @@ entity wr_core is
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
     g_softpll_enable_debugger   : boolean                        := false;
+    g_softpll_use_sampled_ref_clocks : boolean := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
     g_records_for_phy           : boolean                        := false;
@@ -161,6 +166,11 @@ entity wr_core is
     phy_sfp_los_i        : in std_logic := '0';
     phy_sfp_tx_disable_o : out std_logic;
 
+    phy_rx_rbclk_sampled_i : in std_logic;
+    phy_lpc_stat_i       : in std_logic_vector(15 downto 0);
+    phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
+
+    
     -- PHY I/F record-based
     phy8_o  : out t_phy_8bits_from_wrc;
     phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
@@ -316,18 +326,18 @@ architecture struct of wr_core is
     if(g_dpram_initf = "default") then
       if(g_simulation /= 0) then
         if g_verbose then
-          report "[WR Core] Using simulation LM32 firmware." severity note;
+        report "[WR Core] Using simulation LM32 firmware." severity note;
         end if;
         return "wrc-simulation.ram";
       else
         if g_verbose then
-          report "[WR Core] Using release LM32 firmware." severity note;
+        report "[WR Core] Using release LM32 firmware." severity note;
         end if;
         return "wrc-release.ram";
       end if;
     else
       if g_verbose then
-        report "[WR Core] Using user-provided LM32 firmware." severity note;
+      report "[WR Core] Using user-provided LM32 firmware." severity note;
       end if;
       return g_dpram_initf;
     end if;
@@ -431,8 +441,8 @@ architecture struct of wr_core is
      4 => f_sdb_embed_device(c_wrc_periph0_sdb, x"00000400"),  -- Syscon
      5 => f_sdb_embed_device(c_wrc_periph1_sdb, x"00000500"),  -- UART
      6 => f_sdb_embed_device(c_wrc_periph2_sdb, x"00000600"),  -- 1-Wire
-     7 => f_sdb_embed_device(g_aux_sdb,         x"00000700"),  -- aux WB bus
-     8 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800")   -- WRPC diag registers
+     7 => f_sdb_embed_device(c_wrc_periph4_sdb, x"00000800"),  -- WRPC diag registers
+     8 => f_sdb_embed_device(g_aux_sdb,         x"00008000")   -- aux WB bus
      );
 
   constant c_secbar_sdb_address : t_wishbone_address := x"00000C00";
@@ -442,13 +452,31 @@ architecture struct of wr_core is
   signal secbar_master_i : t_wishbone_master_in_array(8 downto 0);
   signal secbar_master_o : t_wishbone_master_out_array(8 downto 0);
 
+  impure function f_pick_secbar_base return std_logic_vector is
+  begin
+    if g_ram_address_space_size_kb = 128 then
+      return x"00020000";
+    else
+      return x"00040000";
+    end if;
+  end f_pick_secbar_base;
+
+  impure function f_pick_sdb_base return std_logic_vector is
+  begin
+    if g_ram_address_space_size_kb = 128 then
+      return x"00030000";
+    else
+      return x"00050000";
+    end if;
+  end f_pick_sdb_base;
+  
   -----------------------------------------------------------------------------
   --WB intercon
   -----------------------------------------------------------------------------
   constant c_layout : t_sdb_record_array(1 downto 0) :=
     (0 => f_sdb_embed_device(f_xwb_dpram(g_dpram_size), x"00000000"),
-     1 => f_sdb_embed_bridge(c_secbar_bridge_sdb, x"00020000"));
-  constant c_sdb_address : t_wishbone_address := x"00030000";
+     1 => f_sdb_embed_bridge(c_secbar_bridge_sdb, f_pick_secbar_base));
+  constant c_sdb_address : t_wishbone_address := f_pick_sdb_base;
 
   signal cbar_slave_i  : t_wishbone_slave_in_array (2 downto 0);
   signal cbar_slave_o  : t_wishbone_slave_out_array(2 downto 0);
@@ -655,6 +683,7 @@ begin
       g_num_outputs          => 1 + g_aux_clks,
       g_num_exts             => f_num_ext_clks,
       g_ref_clock_rate       => f_refclk_rate(g_pcs_16bit),
+      g_use_sampled_ref_clocks => g_softpll_use_sampled_ref_clocks,
       g_ext_clock_rate       => 10000000)
     port map(
       clk_sys_i    => clk_sys_i,
@@ -665,12 +694,13 @@ begin
 
       -- Reference inputs (i.e. the RX clocks recovered by the PHYs)
       clk_ref_i(0) => phy_rx_clk,
+      clk_ref_sampled_i(0) => phy_rx_rbclk_sampled_i,
       -- Feedback clocks (i.e. the outputs of the main or aux oscillator)
       clk_fb_i     => clk_fb,
       -- DMTD Offset clock
       clk_dmtd_i   => clk_dmtd_i,
 
-      clk_ext_i            => clk_ext_i,
+      clk_ext_i     => clk_ext_i,
       clk_ext_mul_i(0)     => clk_ext_mul_i,
       clk_ext_mul_locked_i => clk_ext_mul_locked_i,
       clk_ext_stopped_i    => clk_ext_stopped_i,
@@ -777,6 +807,8 @@ begin
       phy_rx_k_i           => phy_rx_k_i,
       phy_rx_enc_err_i     => phy_rx_enc_err_i,
       phy_rx_bitslide_i    => phy_rx_bitslide_i,
+      phy_lpc_stat_i       => phy_lpc_stat_i,
+      phy_lpc_ctrl_o       => phy_lpc_ctrl_o,
 
       phy8_o  => phy8_o,
       phy8_i  => phy8_i,
@@ -902,6 +934,9 @@ begin
       g_virtual_uart    => g_virtual_uart,
       g_mem_words       => g_dpram_size,
       g_vuart_fifo_size => g_vuart_fifo_size,
+      g_with_phys_uart_fifo   => g_with_phys_uart_fifo,
+      g_phys_uart_tx_fifo_size => g_phys_uart_tx_fifo_size,
+      g_phys_uart_rx_fifo_size => g_phys_uart_rx_fifo_size,
       g_diag_id         => g_diag_id,
       g_diag_ver        => g_diag_ver,
       g_diag_ro_size    => g_diag_ro_size,
@@ -1075,42 +1110,25 @@ begin
   secbar_master_i(4) <= periph_slave_o(0);
   secbar_master_i(5) <= periph_slave_o(1);
   secbar_master_i(6) <= periph_slave_o(2);
-  secbar_master_i(8) <= periph_slave_o(3);
+  secbar_master_i(7) <= periph_slave_o(3);
   periph_slave_i(0)  <= secbar_master_o(4);
   periph_slave_i(1)  <= secbar_master_o(5);
   periph_slave_i(2)  <= secbar_master_o(6);
-  periph_slave_i(3)  <= secbar_master_o(8);
+  periph_slave_i(3)  <= secbar_master_o(7);
 
 
-  aux_adr_o <= secbar_master_o(7).adr;
-  aux_dat_o <= secbar_master_o(7).dat;
-  aux_sel_o <= secbar_master_o(7).sel;
-  aux_cyc_o <= secbar_master_o(7).cyc;
-  aux_stb_o <= secbar_master_o(7).stb;
-  aux_we_o  <= secbar_master_o(7).we;
+  aux_adr_o <= secbar_master_o(8).adr;
+  aux_dat_o <= secbar_master_o(8).dat;
+  aux_sel_o <= secbar_master_o(8).sel;
+  aux_cyc_o <= secbar_master_o(8).cyc;
+  aux_stb_o <= secbar_master_o(8).stb;
+  aux_we_o  <= secbar_master_o(8).we;
 
-  secbar_master_i(7).dat   <= aux_dat_i;
-  secbar_master_i(7).ack   <= aux_ack_i;
-  secbar_master_i(7).stall <= aux_stall_i;
-  secbar_master_i(7).err   <= '0';
-  secbar_master_i(7).rty   <= '0';
-
-  --secbar_master_i(6).err <= '0';
-  --secbar_master_i(5).err <= '0';
-  --secbar_master_i(4).err <= '0';
-  --secbar_master_i(3).err <= '0';
-  --secbar_master_i(2).err <= '0';
-  --secbar_master_i(1).err <= '0';
-  --secbar_master_i(0).err <= '0';
-
-  --secbar_master_i(6).rty <= '0';
-  --secbar_master_i(5).rty <= '0';
-  --secbar_master_i(4).rty <= '0';
-  --secbar_master_i(3).rty <= '0';
-  --secbar_master_i(2).rty <= '0';
-  --secbar_master_i(1).rty <= '0';
-  --secbar_master_i(0).rty <= '0';
-
+  secbar_master_i(8).dat   <= aux_dat_i;
+  secbar_master_i(8).ack   <= aux_ack_i;
+  secbar_master_i(8).stall <= aux_stall_i;
+  secbar_master_i(8).err   <= '0';
+  secbar_master_i(8).rty   <= '0';
 
 
   -----------------------------------------------------------------------------

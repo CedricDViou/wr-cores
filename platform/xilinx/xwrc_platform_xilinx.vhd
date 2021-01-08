@@ -39,6 +39,10 @@
 --
 -------------------------------------------------------------------------------
 
+-------------------------------------------------------------------------------
+-- THIS FILE PROVIDES THE WRAPPER FOR ISE-SYNTHESIZED PLATFORMS
+-- FOR VIVADO-SYNTHESIZED PLATFORMS PLEASE SEE xwrc_platform_vivado.vhd
+-------------------------------------------------------------------------------
 library ieee;
 use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
@@ -180,6 +184,7 @@ architecture rtl of xwrc_platform_xilinx is
 
   signal pll_arst            : std_logic := '0';
   signal clk_125m_pllref_buf : std_logic;
+  signal clk_sys             : std_logic;
 
 begin  -- architecture rtl
 
@@ -242,7 +247,6 @@ begin  -- architecture rtl
     gen_spartan6_default_plls : if (g_fpga_family = "spartan6") generate
 
       signal clk_20m          : std_logic;
-      signal clk_sys          : std_logic;
       signal clk_sys_out      : std_logic;
       signal clk_sys_fb       : std_logic;
       signal pll_sys_locked   : std_logic;
@@ -467,7 +471,6 @@ begin  -- architecture rtl
 
     gen_virtex5_default_plls : if (g_fpga_family = "virtex5") generate
 
-      signal clk_sys          : std_logic;
       signal clk_sys_out      : std_logic;
       signal clk_sys_fb       : std_logic;
       signal pll_sys_locked   : std_logic;
@@ -558,7 +561,6 @@ begin  -- architecture rtl
     ---------------------------------------------------------------------------
     gen_kintex7_artix7_default_plls : if (g_fpga_family = "kintex7" or g_fpga_family = "artix7") generate
 
-      signal clk_sys          : std_logic;
       signal clk_sys_out      : std_logic;
       signal clk_sys_fb       : std_logic;
       signal pll_sys_locked   : std_logic;
@@ -796,6 +798,7 @@ begin  -- architecture rtl
       end generate gen_kintex7_artix7_ext_ref_pll;
 
     end generate gen_kintex7_artix7_default_plls;
+
 
     ---------------------------------------------------------------------------
     
@@ -1252,6 +1255,7 @@ begin  -- architecture rtl
 
 
   end generate gen_phy_artix7;
+
 
   ---------------------------------------------------------------------------
 
