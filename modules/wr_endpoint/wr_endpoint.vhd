@@ -483,7 +483,7 @@ begin
       synced_o => rst_n_ref);
 
   rst_n_sys <= rst_n_i;
-  rst_n_rx  <= rst_n_rxsync and phy_rdy_i;
+  rst_n_rx  <= rst_n_rxsync;-- and phy_rdy_i;
 
 -------------------------------------------------------------------------------
 -- 1000Base-X PCS
