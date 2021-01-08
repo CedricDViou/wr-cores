@@ -479,9 +479,9 @@ begin
       data_i   => phy_rdy_i,
       synced_o => phy_rdy_resync_sys);
 
-  rst_n_rx  <= rst_rxclk_n_i and phy_rdy_i;
+  rst_n_rx  <= rst_rxclk_n_i;-- and phy_rdy_i;
 
-  rst_n_rx_resync_sys <= rst_sys_n_i and phy_rdy_resync_sys;
+  rst_n_rx_resync_sys <= rst_sys_n_i;-- and phy_rdy_resync_sys;
 
 -------------------------------------------------------------------------------
 -- 1000Base-X PCS
