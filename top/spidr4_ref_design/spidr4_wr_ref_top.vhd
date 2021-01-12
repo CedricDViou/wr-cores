@@ -114,8 +114,8 @@ entity spidr4_wr_ref_top is
     -- UART
     ---------------------------------------------------------------------------
 
---    uart_rxd_i : in  std_logic;
---    uart_txd_o : out std_logic;
+    uart_rxd_i : in  std_logic;
+    uart_txd_o : out std_logic;
 
     ---------------------------------------------------------------------------
     -- EEPROM interface
@@ -329,9 +329,7 @@ begin  -- architecture top
 			SPI_0_0_ss2_o             => PS_SPI_0_0_ss2_o,
 			SPI_0_0_ss_i              => '1',
 			SPI_0_0_ss_o              => PS_SPI_0_0_ss_o,
-			SPI_0_0_ss_t              => PS_SPI_0_0_ss_t,
-			uart_0_0_rxd              => PS_UART_rxd,
-			uart_0_0_txd              => PS_UART_txd
+			SPI_0_0_ss_t              => PS_SPI_0_0_ss_t
 		);
 
   -----------------------------------------------------------------------------
@@ -382,8 +380,8 @@ begin  -- architecture top
       onewire_i           => '1',  -- No onewire, Unique ID now via
       onewire_oen_o       => open, -- 24AA025EU48 (I2C Addr 1010.001x)
       -- Uart
-      uart_rxd_i          => PS_UART_rxd,
-      uart_txd_o          => PS_UART_txd,
+      uart_rxd_i          => uart_rxd_i,
+      uart_txd_o          => uart_txd_o,
       
       -- Wishbone
       --wb_slave_i          => wb_master_o,

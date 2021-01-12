@@ -151,6 +151,7 @@ package wr_spidr4_pkg is
       pps_led_o            : out std_logic;
       link_ok_o            : out std_logic);
   end component xwrc_board_spidr4;
+  
   component zynq_subsystem is
     port (
     ARESETN : out STD_LOGIC_VECTOR ( 0 to 0 );
@@ -210,9 +211,7 @@ package wr_spidr4_pkg is
     SPI_0_0_ss_o : out STD_LOGIC;
     SPI_0_0_ss_t : out STD_LOGIC;
     SYS_CLK_20MHz : out STD_LOGIC;
-    SYS_CLK_40MHz : out STD_LOGIC;
-    UART_0_0_rxd : in STD_LOGIC;
-    UART_0_0_txd : out STD_LOGIC
+    SYS_CLK_40MHz : out STD_LOGIC
   );
   end component zynq_subsystem;
   
