@@ -157,6 +157,12 @@ entity xwrc_board_spec7 is
     eeprom_scl : inout std_logic;
 
     ---------------------------------------------------------------------------
+    -- I2C AUXiliary
+    ---------------------------------------------------------------------------
+    aux_sda : inout std_logic;
+    aux_scl : inout std_logic;
+
+    ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
     onewire_i     : in  std_logic;
@@ -336,7 +342,7 @@ architecture struct of xwrc_board_spec7 is
     (c_slave_gpio    => x"00000f00"
      );
 
-  constant c_num_gpio_pins : integer := 15;
+  constant c_num_gpio_pins : integer := 17;
   signal gpio_out, gpio_in, gpio_oen : std_logic_vector(c_num_gpio_pins-1 downto 0);
 
   component even_odd_det is
@@ -817,6 +823,12 @@ begin  -- architecture struct
 
   gpio_in(13) <= even_odd_n;         -- 10MHz/1PPS phase w.r.t. clk_ref_125m
   gpio_in(14) <= sync_done; 
+
+  -- AUXiliary I2C tri-states
+  aux_scl  <= '0' when (gpio_out(15) = '0') else 'Z';
+  gpio_in(15) <= aux_scl;
+  aux_sda  <= '0' when (gpio_out(16) = '0') else 'Z';
+  gpio_in(16) <= aux_sda;
 
   sfp_rate_select_o <= '1';
 

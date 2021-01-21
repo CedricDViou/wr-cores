@@ -156,6 +156,12 @@ entity wrc_board_spec7 is
     eeprom_scl : inout std_logic;
 
     ---------------------------------------------------------------------------
+    -- I2C AUXiliary
+    ---------------------------------------------------------------------------
+    aux_sda : inout std_logic;
+    aux_scl : inout std_logic;
+
+    ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
     onewire_i     : in  std_logic;
@@ -464,6 +470,8 @@ begin  -- architecture struct
       sfp_los_i            => sfp_los_i,
       eeprom_scl           => eeprom_scl,
       eeprom_sda           => eeprom_sda,
+      aux_scl              => aux_scl,
+      aux_sda              => aux_sda,
       onewire_i            => onewire_i,
       onewire_oen_o        => onewire_oen_o,
       uart_rxd_i           => uart_rxd_i,

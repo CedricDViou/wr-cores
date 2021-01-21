@@ -589,6 +589,9 @@ AXI2WB : xwb_axi4lite_bridge
       eeprom_scl          => scl_b,
       eeprom_sda          => sda_b,
 
+      aux_scl             => fmc_la23_p,
+      aux_sda             => fmc_la06_p,
+
       onewire_i           => '1',  -- No onewire, Unique ID now via
       onewire_oen_o       => open, -- 24AA025EU48 (I2C Addr 1010.001x)
 

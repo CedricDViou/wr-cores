@@ -104,6 +104,8 @@ package wr_spec7_pkg is
       sfp_los_i            : in  std_logic                                        := '0';
       eeprom_scl           : inout  std_logic;
       eeprom_sda           : inout  std_logic;
+      aux_scl              : inout  std_logic;
+      aux_sda              : inout  std_logic;
       onewire_i            : in  std_logic;
       onewire_oen_o        : out std_logic;
       uart_rxd_i           : in  std_logic;
