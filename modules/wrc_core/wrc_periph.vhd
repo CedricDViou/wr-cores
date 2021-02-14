@@ -67,17 +67,17 @@ entity wrc_periph is
     rst_net_n_o : out std_logic;
     rst_wrc_n_o : out std_logic;
 
-    led_red_o   : out std_logic;
-    led_green_o : out std_logic;
+    led_link_o  : out std_logic_vector(3 downto 0);
+    led_stat_o  : out std_logic_vector(3 downto 0);
     scl_o       : out std_logic;
     scl_i       : in  std_logic;
     sda_o       : out std_logic;
     sda_i       : in  std_logic;
-    sfp_scl_o   : out std_logic;
-    sfp_scl_i   : in  std_logic;
-    sfp_sda_o   : out std_logic;
-    sfp_sda_i   : in  std_logic;
-    sfp_det_i   : in  std_logic;
+    sfp_scl_o   : out std_logic_vector(3 downto 0);
+    sfp_scl_i   : in  std_logic_vector(3 downto 0);
+    sfp_sda_o   : out std_logic_vector(3 downto 0);
+    sfp_sda_i   : in  std_logic_vector(3 downto 0);
+    sfp_det_i   : in  std_logic_vector(3 downto 0);
     memsize_i   : in  std_logic_vector(3 downto 0);
     btn1_i      : in  std_logic;
     btn2_i      : in  std_logic;
@@ -167,15 +167,15 @@ begin
   begin
     if rising_edge(clk_sys_i) then
       if(sysc_regs_o.gpsr_led_link_o = '1') then
-        led_red_o <= '1';
+        led_link_o(0) <= '1';
       elsif(sysc_regs_o.gpcr_led_link_o = '1') then
-        led_red_o <= '0';
+        led_link_o(0) <= '0';
       end if;
 
       if(sysc_regs_o.gpsr_led_stat_o = '1') then
-        led_green_o <= '1';
+        led_stat_o(0) <= '1';
       elsif(sysc_regs_o.gpcr_led_stat_o = '1') then
-        led_green_o <= '0';
+        led_stat_o(0) <= '0';
       end if;
     end if;
   end process;
@@ -264,34 +264,121 @@ begin
   sysc_regs_i.gpsr_fmc_scl_i <= scl_i;
 
   -------------------------------------
-  -- I2C - SFP
+  -- I2C - SFP 0
   -------------------------------------
   p_drive_sfpi2c : process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i) then
       if rst_n_i = '0' then
-        sfp_scl_o <= '1';
-        sfp_sda_o <= '1';
+        sfp_scl_o(0) <= '1';
+        sfp_sda_o(0) <= '1';
       else
         if(sysc_regs_o.gpsr_sfp_sda_load_o = '1' and sysc_regs_o.gpsr_sfp_sda_o = '1') then
-          sfp_sda_o <= '1';
+          sfp_sda_o(0) <= '1';
         elsif(sysc_regs_o.gpcr_sfp_sda_o = '1') then
-          sfp_sda_o <= '0';
+          sfp_sda_o(0) <= '0';
         end if;
 
         if(sysc_regs_o.gpsr_sfp_scl_load_o = '1' and sysc_regs_o.gpsr_sfp_scl_o = '1') then
-          sfp_scl_o <= '1';
+          sfp_scl_o(0) <= '1';
         elsif(sysc_regs_o.gpcr_sfp_scl_o = '1') then
-          sfp_scl_o <= '0';
+          sfp_scl_o(0) <= '0';
         end if;
       end if;
     end if;
   end process;
 
-  sysc_regs_i.gpsr_sfp_sda_i <= sfp_sda_i;
-  sysc_regs_i.gpsr_sfp_scl_i <= sfp_scl_i;
+  sysc_regs_i.gpsr_sfp_sda_i <= sfp_sda_i(0);
+  sysc_regs_i.gpsr_sfp_scl_i <= sfp_scl_i(0);
 
-  sysc_regs_i.gpsr_sfp_det_i <= sfp_det_i;
+  sysc_regs_i.gpsr_sfp_det_i <= sfp_det_i(0);
+
+  -------------------------------------
+  -- I2C - SFP 1
+  -------------------------------------
+  p_drive_sfp1i2c : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        sfp_scl_o(1) <= '1';
+        sfp_sda_o(1) <= '1';
+      else
+        if(sysc_regs_o.gpsr_sfp1_sda_load_o = '1' and sysc_regs_o.gpsr_sfp1_sda_o = '1') then
+          sfp_sda_o(1) <= '1';
+        elsif(sysc_regs_o.gpcr_sfp1_sda_o = '1') then
+          sfp_sda_o(1) <= '0';
+        end if;
+
+        if(sysc_regs_o.gpsr_sfp1_scl_load_o = '1' and sysc_regs_o.gpsr_sfp1_scl_o = '1') then
+          sfp_scl_o(1) <= '1';
+        elsif(sysc_regs_o.gpcr_sfp1_scl_o = '1') then
+          sfp_scl_o(1) <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  sysc_regs_i.gpsr_sfp1_sda_i <= sfp_sda_i(1);
+  sysc_regs_i.gpsr_sfp1_scl_i <= sfp_scl_i(1);
+  sysc_regs_i.gpsr_sfp1_det_i <= sfp_det_i(1);
+
+    -------------------------------------
+  -- I2C - SFP 2
+  -------------------------------------
+  p_drive_sfp2i2c : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        sfp_scl_o(2) <= '1';
+        sfp_sda_o(2) <= '1';
+      else
+        if(sysc_regs_o.gpsr_sfp2_sda_load_o = '1' and sysc_regs_o.gpsr_sfp2_sda_o = '1') then
+          sfp_sda_o(2) <= '1';
+        elsif(sysc_regs_o.gpcr_sfp2_sda_o = '1') then
+          sfp_sda_o(2) <= '0';
+        end if;
+
+        if(sysc_regs_o.gpsr_sfp2_scl_load_o = '1' and sysc_regs_o.gpsr_sfp2_scl_o = '1') then
+          sfp_scl_o(2) <= '1';
+        elsif(sysc_regs_o.gpcr_sfp2_scl_o = '1') then
+          sfp_scl_o(2) <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  sysc_regs_i.gpsr_sfp2_sda_i <= sfp_sda_i(2);
+  sysc_regs_i.gpsr_sfp2_scl_i <= sfp_scl_i(2);
+  sysc_regs_i.gpsr_sfp2_det_i <= sfp_det_i(2);
+
+    -------------------------------------
+  -- I2C - SFP 3
+  -------------------------------------
+  p_drive_sfp3i2c : process(clk_sys_i)
+  begin
+    if rising_edge(clk_sys_i) then
+      if rst_n_i = '0' then
+        sfp_scl_o(3) <= '1';
+        sfp_sda_o(3) <= '1';
+      else
+        if(sysc_regs_o.gpsr_sfp3_sda_load_o = '1' and sysc_regs_o.gpsr_sfp3_sda_o = '1') then
+          sfp_sda_o(3) <= '1';
+        elsif(sysc_regs_o.gpcr_sfp3_sda_o = '1') then
+          sfp_sda_o(3) <= '0';
+        end if;
+
+        if(sysc_regs_o.gpsr_sfp3_scl_load_o = '1' and sysc_regs_o.gpsr_sfp3_scl_o = '1') then
+          sfp_scl_o(3) <= '1';
+        elsif(sysc_regs_o.gpcr_sfp3_scl_o = '1') then
+          sfp_scl_o(3) <= '0';
+        end if;
+      end if;
+    end if;
+  end process;
+
+  sysc_regs_i.gpsr_sfp3_sda_i <= sfp_sda_i(3);
+  sysc_regs_i.gpsr_sfp3_scl_i <= sfp_scl_i(3);
+  sysc_regs_i.gpsr_sfp3_det_i <= sfp_det_i(3);
 
   -------------------------------------
   -- SPI - Flash

@@ -375,7 +375,7 @@ peripheral {
 			direction = CORE_TO_BUS;		 		 
 			size = 32;
 
-			flags_dev = {FIFO_FULL, FIFO_EMPTY};
+			flags_dev = {FIFO_FULL, FIFO_EMPTY, FIFO_COUNT};
 			flags_bus = {FIFO_EMPTY};
 
 			field {

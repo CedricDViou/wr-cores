@@ -23,6 +23,7 @@ elif (syn_device[0:4].upper()=="XC5V"): # Virtex5
                 "virtex5/v5_gtp_align_detect.vhd"])
 elif (syn_device[0:4].upper()=="XC7A"): # Family 7 GTP (Artix7)
 	files.extend(["family7-gtp/wr_gtp_phy_family7.vhd",
+                "family7-gtp/wr_gtp_phy_pkg.vhd",
                 "family7-gtp/whiterabbit_gtpe2_channel_wrapper.vhd",
                 "family7-gtp/whiterabbit_gtpe2_channel_wrapper_gt.vhd",
                 "family7-gtp/whiterabbit_gtpe2_channel_wrapper_gtrxreset_seq.vhd" ]);

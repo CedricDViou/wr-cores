@@ -90,14 +90,23 @@ entity xwr_core is
     g_interface_mode            : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
+    g_ref_clock_rate            : integer                        := 62500000;
+    g_sys_clock_rate            : integer                        := 62500000;
+    g_ref_clock_hz              : integer                        := 62500000;
+    g_sys_clock_hz              : integer                        := 62500000;
+    g_ext_clock_rate            : integer                        := 1000000;    
     g_records_for_phy           : boolean                        := false;
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
-    g_diag_rw_size              : integer                        := 0);
+    g_diag_rw_size              : integer                        := 0;
+    g_num_phys                  : integer                        := 1;
+    g_num_softpll_inputs        : integer                        := 2;
+    g_with_10M_output           : boolean                        := true);
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
@@ -125,6 +134,7 @@ entity xwr_core is
 
     -- External PPS input (cesium, GPSDO, etc.), used in Grandmaster mode
     pps_ext_i : in std_logic := '0';
+    ppsin_term_o : out std_logic;
 
     rst_n_i : in std_logic;
 
@@ -140,18 +150,18 @@ entity xwr_core is
     -----------------------------------------
     -- PHY I/f
     -----------------------------------------
-    phy_ref_clk_i : in std_logic;
+    phy_ref_clk_i        : in std_logic:='0';
 
     phy_tx_data_o        : out std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
     phy_tx_k_o           : out std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
-    phy_tx_disparity_i   : in  std_logic;
-    phy_tx_enc_err_i     : in  std_logic;
+    phy_tx_disparity_i   : in  std_logic:='0';
+    phy_tx_enc_err_i     : in  std_logic:='0';
 
-    phy_rx_data_i        : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0);
-    phy_rx_rbclk_i       : in std_logic;
-    phy_rx_k_i           : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0);
-    phy_rx_enc_err_i     : in std_logic;
-    phy_rx_bitslide_i    : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0);
+    phy_rx_data_i        : in std_logic_vector(f_pcs_data_width(g_pcs_16bit)-1 downto 0):=(others=>'0');
+    phy_rx_rbclk_i       : in std_logic:='0';
+    phy_rx_k_i           : in std_logic_vector(f_pcs_k_width(g_pcs_16bit)-1 downto 0):=(others=>'0');
+    phy_rx_enc_err_i     : in std_logic:='0';
+    phy_rx_bitslide_i    : in std_logic_vector(f_pcs_bts_width(g_pcs_16bit)-1 downto 0):=(others=>'0');
 
     phy_rst_o            : out std_logic;
     phy_rdy_i            : in  std_logic := '1';
@@ -165,45 +175,59 @@ entity xwr_core is
     -- PHY I/f - record-based
     -- selection done with g_records_for_phy
     -----------------------------------------
-    phy8_o               : out t_phy_8bits_from_wrc;
-    phy8_i               : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
-    phy16_o              : out t_phy_16bits_from_wrc;
-    phy16_i              : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
-   
+    phy8_o               : out t_phy_8bits_from_wrc_array(g_num_phys-1 downto 0);
+    phy8_i               : in  t_phy_8bits_to_wrc_array(g_num_phys-1 downto 0):=(others=>c_dummy_phy8_to_wrc);
+    phy16_o              : out t_phy_16bits_from_wrc_array(g_num_phys-1 downto 0);
+    phy16_i              : in  t_phy_16bits_to_wrc_array(g_num_phys-1 downto 0):=(others=>c_dummy_phy16_to_wrc);
     -----------------------------------------
     --GPIO
     -----------------------------------------
-    led_act_o  : out std_logic;
-    led_link_o : out std_logic;
+    led_act_o  : out std_logic_vector(g_num_phys-1 downto 0);
+    led_link_o : out std_logic_vector(g_num_phys-1 downto 0);
     scl_o      : out std_logic;
     scl_i      : in  std_logic := '1';
     sda_o      : out std_logic;
     sda_i      : in  std_logic := '1';
-    sfp_scl_o  : out std_logic;
-    sfp_scl_i  : in  std_logic := '1';
-    sfp_sda_o  : out std_logic;
-    sfp_sda_i  : in  std_logic := '1';
-    sfp_det_i  : in  std_logic;
+    sfp_scl_o  : out std_logic_vector(g_num_phys-1 downto 0);
+    sfp_scl_i  : in  std_logic_vector(g_num_phys-1 downto 0):= (others=>'1');
+    sfp_sda_o  : out std_logic_vector(g_num_phys-1 downto 0);
+    sfp_sda_i  : in  std_logic_vector(g_num_phys-1 downto 0):= (others=>'1');
+    sfp_det_i  : in  std_logic_vector(g_num_phys-1 downto 0):= (others=>'1');
     btn1_i     : in  std_logic := '1';
     btn2_i     : in  std_logic := '1';
     spi_sclk_o : out std_logic;
     spi_ncs_o  : out std_logic;
     spi_mosi_o : out std_logic;
     spi_miso_i : in  std_logic := '0';
-
     -----------------------------------------
     --UART
     -----------------------------------------
     uart_rxd_i : in  std_logic := '0';
     uart_txd_o : out std_logic;
-
     -----------------------------------------
     -- 1-wire
     -----------------------------------------
     owr_pwren_o : out std_logic_vector(1 downto 0);
     owr_en_o    : out std_logic_vector(1 downto 0);
     owr_i       : in  std_logic_vector(1 downto 0) := (others => '1');
-
+    -----------------------------------------
+    -- PLL chip configuration
+    -----------------------------------------
+    pll_mosi_o    : out std_logic;
+    pll_miso_i    : in  std_logic:='0';
+    pll_sck_o     : out std_logic;
+    pll_cs_n_o    : out std_logic;
+    pll_sync_n_o  : out std_logic;
+    pll_reset_n_o : out std_logic;
+    -----------------------------------------
+    -- EXT IN PLL chip configuration
+    -----------------------------------------
+    ext_pll_mosi_o    : out std_logic;
+    ext_pll_miso_i    : in  std_logic:='0';
+    ext_pll_sck_o     : out std_logic;
+    ext_pll_cs_n_o    : out std_logic;
+    ext_pll_sync_n_o  : out std_logic;
+    ext_pll_reset_n_o : out std_logic;
     -----------------------------------------
     --External WB interface
     -----------------------------------------
@@ -212,39 +236,46 @@ entity xwr_core is
 
     aux_master_o : out t_wishbone_master_out;
     aux_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
+    aux1_master_o : out t_wishbone_master_out;
+    aux1_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
 
+    -----------------------------------------
+    -- Etherbone config master
+    -----------------------------------------
+    eb_cfg_master_o : out t_wishbone_master_out;
+    eb_cfg_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
+    
     -----------------------------------------
     -- External Fabric I/F
     -----------------------------------------
-    wrf_src_o : out t_wrf_source_out;
-    wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
-    wrf_snk_o : out t_wrf_sink_out;
-    wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
+    wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
+    wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+    wrf_snk_o : out t_wrf_sink_out_array(g_num_phys-1 downto 0);
+    wrf_snk_i : in  t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
 
     -----------------------------------------
     -- External Tx Timestamping I/F
     -----------------------------------------
-    timestamps_o     : out t_txtsu_timestamp;
-    timestamps_ack_i : in  std_logic := '1';
+    timestamps_o     : out t_txtsu_timestamp_array(g_num_phys-1 downto 0);
+    timestamps_ack_i : in  std_logic_vector(g_num_phys-1 downto 0):=(others=>'1');
 
     -----------------------------------------
     -- Timestamp helper signals, used for Absolute Calibration
     -----------------------------------------
-    abscal_txts_o       : out std_logic;
-    abscal_rxts_o       : out std_logic;
+    abscal_txts_o        : out std_logic_vector(g_num_phys-1 downto 0);
+    abscal_rxts_o        : out std_logic_vector(g_num_phys-1 downto 0);
 
     -----------------------------------------
     -- Pause Frame Control
     -----------------------------------------
-    fc_tx_pause_req_i   : in  std_logic                     := '0';
-    fc_tx_pause_delay_i : in  std_logic_vector(15 downto 0) := x"0000";
-    fc_tx_pause_ready_o : out std_logic;
+    fc_tx_pause_req_i   : in  std_logic_vector(g_num_phys-1 downto 0):=(others=>'0');
+    fc_tx_pause_delay_i : in  std_logic_vector(16*g_num_phys-1 downto 0):=(others=>'0');
+    fc_tx_pause_ready_o : out std_logic_vector(g_num_phys-1 downto 0);
 
     -----------------------------------------
     -- Timecode/Servo Control
     -----------------------------------------
-
-    tm_link_up_o         : out std_logic;
+    tm_link_up_o         : out std_logic_vector(g_num_phys-1 downto 0);
     -- DAC Control
     tm_dac_value_o       : out std_logic_vector(23 downto 0);
     tm_dac_wr_o          : out std_logic_vector(g_aux_clks-1 downto 0);
@@ -261,13 +292,15 @@ entity xwr_core is
     pps_valid_o          : out std_logic;
     pps_p_o              : out std_logic;
     pps_led_o            : out std_logic;
+    sync_data_p_o        : out std_logic;
+    sync_data_n_o        : out std_logic;
 
-    rst_aux_n_o : out std_logic;
+    rst_aux_n_o          : out std_logic;
 
-    aux_diag_i    : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
-    aux_diag_o    : out t_generic_word_array(g_diag_rw_size-1 downto 0);
+    aux_diag_i           : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
+    aux_diag_o           : out t_generic_word_array(g_diag_rw_size-1 downto 0);
 
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic_vector(g_num_phys-1 downto 0)
     );
 end xwr_core;
 
@@ -292,27 +325,37 @@ begin
       g_interface_mode            => g_interface_mode,
       g_address_granularity       => g_address_granularity,
       g_aux_sdb                   => g_aux_sdb,
+      g_aux1_sdb                  => g_aux1_sdb,
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
+      g_ref_clock_rate            => g_ref_clock_rate,
+      g_sys_clock_rate            => g_sys_clock_rate,
+      g_ref_clock_hz              => g_ref_clock_hz,
+      g_sys_clock_hz              => g_sys_clock_hz,
+      g_ext_clock_rate            => g_ext_clock_rate,
       g_records_for_phy           => g_records_for_phy,
       g_diag_id                   => g_diag_id,
       g_diag_ver                  => g_diag_ver,
       g_diag_ro_size              => g_diag_ro_size,
-      g_diag_rw_size              => g_diag_rw_size
+      g_diag_rw_size              => g_diag_rw_size,
+      g_num_phys                  => g_num_phys,
+      g_num_softpll_inputs        => g_num_softpll_inputs,
+      g_with_10M_output           => g_with_10M_output
       )
     port map(
-      clk_sys_i     => clk_sys_i,
-      clk_dmtd_i    => clk_dmtd_i,
-      clk_ref_i     => clk_ref_i,
-      clk_aux_i     => clk_aux_i,
-      clk_ext_i     => clk_ext_i,
-      clk_ext_mul_i => clk_ext_mul_i,
-      clk_ext_mul_locked_i  => clk_ext_mul_locked_i,
-      clk_ext_stopped_i => clk_ext_stopped_i,
-      clk_ext_rst_o     => clk_ext_rst_o,
-      pps_ext_i     => pps_ext_i,
-      rst_n_i       => rst_n_i,
+      clk_sys_i            => clk_sys_i,
+      clk_dmtd_i           => clk_dmtd_i,
+      clk_ref_i            => clk_ref_i,
+      clk_aux_i            => clk_aux_i,
+      clk_ext_i            => clk_ext_i,
+      clk_ext_mul_i        => clk_ext_mul_i,
+      clk_ext_mul_locked_i => clk_ext_mul_locked_i,
+      clk_ext_stopped_i    => clk_ext_stopped_i,
+      clk_ext_rst_o        => clk_ext_rst_o,
+      pps_ext_i            => pps_ext_i,
+      ppsin_term_o         => ppsin_term_o,
+      rst_n_i              => rst_n_i,
 
       dac_hpll_load_p1_o   => dac_hpll_load_p1_o,
       dac_hpll_data_o      => dac_hpll_data_o,
@@ -367,6 +410,20 @@ begin
       owr_en_o    => owr_en_o,
       owr_i       => owr_i,
 
+      ext_pll_mosi_o    => ext_pll_mosi_o,
+      ext_pll_miso_i    => ext_pll_miso_i,
+      ext_pll_sck_o     => ext_pll_sck_o,
+      ext_pll_cs_n_o    => ext_pll_cs_n_o,
+      ext_pll_sync_n_o  => ext_pll_sync_n_o,
+      ext_pll_reset_n_o => ext_pll_reset_n_o,
+
+      pll_mosi_o    => pll_mosi_o,
+      pll_miso_i    => pll_miso_i,
+      pll_sck_o     => pll_sck_o,
+      pll_cs_n_o    => pll_cs_n_o,
+      pll_sync_n_o  => pll_sync_n_o,
+      pll_reset_n_o => pll_reset_n_o,      
+
       wb_adr_i   => slave_i.adr,
       wb_dat_i   => slave_i.dat,
       wb_dat_o   => slave_o.dat,
@@ -389,31 +446,32 @@ begin
       aux_ack_i   => aux_master_i.ack,
       aux_dat_i   => aux_master_i.dat,
 
-      ext_snk_adr_i   => wrf_snk_i.adr,
-      ext_snk_dat_i   => wrf_snk_i.dat,
-      ext_snk_sel_i   => wrf_snk_i.sel,
-      ext_snk_cyc_i   => wrf_snk_i.cyc,
-      ext_snk_we_i    => wrf_snk_i.we,
-      ext_snk_stb_i   => wrf_snk_i.stb,
-      ext_snk_ack_o   => wrf_snk_o.ack,
-      ext_snk_err_o   => wrf_snk_o.err,
-      ext_snk_stall_o => wrf_snk_o.stall,
+      aux1_adr_o   => aux1_master_o.adr,
+      aux1_dat_o   => aux1_master_o.dat,
+      aux1_sel_o   => aux1_master_o.sel,
+      aux1_cyc_o   => aux1_master_o.cyc,
+      aux1_stb_o   => aux1_master_o.stb,
+      aux1_we_o    => aux1_master_o.we,
+      aux1_stall_i => aux1_master_i.stall,
+      aux1_ack_i   => aux1_master_i.ack,
+      aux1_dat_i   => aux1_master_i.dat,
+    
+      eb_cfg_adr_o   => eb_cfg_master_o.adr,
+      eb_cfg_dat_o   => eb_cfg_master_o.dat,
+      eb_cfg_dat_i   => eb_cfg_master_i.dat,
+      eb_cfg_sel_o   => eb_cfg_master_o.sel,
+      eb_cfg_we_o    => eb_cfg_master_o.we,
+      eb_cfg_cyc_o   => eb_cfg_master_o.cyc,
+      eb_cfg_stb_o   => eb_cfg_master_o.stb,
+      eb_cfg_ack_i   => eb_cfg_master_i.ack,
+      eb_cfg_stall_i => eb_cfg_master_i.stall,
+    
+      wrf_snk_i   => wrf_snk_i,
+      wrf_snk_o   => wrf_snk_o,
+      wrf_src_i   => wrf_src_i,
+      wrf_src_o   => wrf_src_o,
 
-      ext_src_adr_o   => wrf_src_o.adr,
-      ext_src_dat_o   => wrf_src_o.dat,
-      ext_src_sel_o   => wrf_src_o.sel,
-      ext_src_cyc_o   => wrf_src_o.cyc,
-      ext_src_stb_o   => wrf_src_o.stb,
-      ext_src_we_o    => wrf_src_o.we,
-      ext_src_ack_i   => wrf_src_i.ack,
-      ext_src_err_i   => wrf_src_i.err,
-      ext_src_stall_i => wrf_src_i.stall,
-
-      txtsu_port_id_o      => timestamps_o.port_id(4 downto 0),
-      txtsu_frame_id_o     => timestamps_o.frame_id,
-      txtsu_ts_value_o     => timestamps_o.tsval,
-      txtsu_ts_incorrect_o => timestamps_o.incorrect,
-      txtsu_stb_o          => timestamps_o.stb,
+      timestamps_o         => timestamps_o,
       txtsu_ack_i          => timestamps_ack_i,
 
       abscal_txts_o        => abscal_txts_o,
@@ -435,17 +493,12 @@ begin
       pps_valid_o          => pps_valid_o,
       pps_p_o              => pps_p_o,
       pps_led_o            => pps_led_o,
-
-      rst_aux_n_o => rst_aux_n_o,
-
-      link_ok_o => link_ok_o,
-
+      sync_data_p_o        => sync_data_p_o,
+      sync_data_n_o        => sync_data_n_o,
+      rst_aux_n_o          => rst_aux_n_o,
+      link_ok_o            => link_ok_o,
       aux_diag_i => aux_diag_i,
       aux_diag_o => aux_diag_o
       );
-
-  timestamps_o.port_id(5) <= '0';
-
-  wrf_snk_o.rty <= '0';
 
 end struct;

@@ -52,6 +52,7 @@ entity xwr_endpoint is
     g_tx_force_gap_length   : integer                        := 0;
     g_tx_runt_padding       : boolean                        := false;
     g_pcs_16bit             : boolean                        := false;
+    g_ref_clock_rate        : integer                        := 62500000;
     g_records_for_phy       : boolean                        := false;
     g_rx_buffer_size        : integer                        := 1024;
     g_with_rx_buffer        : boolean                        := true;
@@ -313,6 +314,7 @@ begin
       g_tx_runt_padding     => g_tx_runt_padding,
       g_simulation            => g_simulation,
       g_pcs_16bit             => g_pcs_16bit,
+      g_ref_clock_rate        => g_ref_clock_rate,
       g_rx_buffer_size        => g_rx_buffer_size,
       g_with_rx_buffer        => g_with_rx_buffer,
       g_with_flow_control     => g_with_flow_control,

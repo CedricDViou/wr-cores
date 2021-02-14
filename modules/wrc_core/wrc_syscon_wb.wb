@@ -175,6 +175,102 @@ peripheral {
         align = 13;
       };
 
+      field {
+         name = "SFP1 detect (MOD_DEF0 signal)";
+         prefix = "sfp1_det";
+         description = "read : returns the state of the SFP1's MOD_DEF0 line";
+         type = BIT;
+         align = 16;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SFP1 I2C bitbanged SCL";
+         prefix = "sfp1_scl";
+         description = "write 1: Set SFP1 SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         align = 17;         
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+      
+      field {
+         name = "SFP1 I2C bitbanged SDA";
+         prefix = "sfp1_sda";
+         description = "write 1: Set SFP1 SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+      field {
+         name = "SFP2 detect (MOD_DEF0 signal)";
+         prefix = "sfp2_det";
+         description = "read : returns the state of the SFP1's MOD_DEF0 line";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SFP2 I2C bitbanged SCL";
+         prefix = "sfp2_scl";
+         description = "write 1: Set SFP1 SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         align = 20;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+      
+      field {
+         name = "SFP2 I2C bitbanged SDA";
+         prefix = "sfp2_sda";
+         description = "write 1: Set SFP1 SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+
+      field {
+         name = "SFP3 detect (MOD_DEF0 signal)";
+         prefix = "sfp3_det";
+         description = "read : returns the state of the SFP1's MOD_DEF0 line";
+         type = BIT;
+         access_bus = READ_ONLY;
+         access_dev = WRITE_ONLY;
+      };
+
+      field {
+         name = "SFP3 I2C bitbanged SCL";
+         prefix = "sfp3_scl";
+         description = "write 1: Set SFP1 SCL line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         align = 23;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
+      
+      field {
+         name = "SFP3 I2C bitbanged SDA";
+         prefix = "sfp3_sda";
+         description = "write 1: Set SFP1 SDA line to 1 (pullup)\
+                        read : returns the current status of the SCL line.";
+         type = BIT;
+         access_bus = READ_WRITE;
+         access_dev = READ_WRITE;
+         load = LOAD_EXT;
+      };
    };
 
    reg {
@@ -251,6 +347,50 @@ peripheral {
         align = 12;
       };
 
+      field {
+         name = "SFP1 I2C bitbanged SCL";
+         prefix = "sfp1_scl";
+         description = "write 1: Set SFP1 SCL line to 0.";
+         type = MONOSTABLE;
+         align = 17;
+      };
+
+      field {
+         name = "SFP1 I2C bitbanged SDA";
+         prefix = "sfp1_sda";
+         description = "write 1: Set SFP1 SDA line to 0.";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "SFP2 I2C bitbanged SCL";
+         prefix = "sfp2_scl";
+         description = "write 1: Set SFP1 SCL line to 0.";
+         type = MONOSTABLE;
+         align = 20;
+      };
+
+      field {
+         name = "SFP2 I2C bitbanged SDA";
+         prefix = "sfp2_sda";
+         description = "write 1: Set SFP1 SDA line to 0.";
+         type = MONOSTABLE;
+      };
+
+      field {
+         name = "SFP3 I2C bitbanged SCL";
+         prefix = "sfp3_scl";
+         description = "write 1: Set SFP1 SCL line to 0.";
+         type = MONOSTABLE;
+         align = 23;
+      };
+
+      field {
+         name = "SFP3 I2C bitbanged SDA";
+         prefix = "sfp3_sda";
+         description = "write 1: Set SFP1 SDA line to 0.";
+         type = MONOSTABLE;
+      };
    };
 
    reg {

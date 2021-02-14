@@ -43,6 +43,7 @@ use ieee.std_logic_1164.all;
 use ieee.numeric_std.all;
 
 use work.gencores_pkg.all;
+use work.genram_pkg.all;
 use work.wishbone_pkg.all;
 use work.softpll_pkg.all;
 use work.spll_wbgen2_pkg.all;
@@ -115,7 +116,7 @@ entity wr_softpll_ng is
     clk_ext_i : in std_logic;
 
 -- External clock, multiplied to 125 MHz using the FPGA's PLL
-    clk_ext_mul_i        : in std_logic_vector(g_num_exts-1 downto 0);
+    clk_ext_mul_i        : in std_logic_vector(f_nonzero_vector(g_num_exts)-1 downto 0);
     clk_ext_mul_locked_i : in std_logic := '1';
     clk_ext_stopped_i : in std_logic := '0';
     clk_ext_rst_o : out std_logic;
@@ -154,7 +155,13 @@ entity wr_softpll_ng is
     irq_o      : out std_logic;
     debug_o    : out std_logic_vector(5 downto 0);
 
--- Debug FIFO readout interrupt
+    netdbg_almost_full  : out  std_logic;
+    netdbg_empty        : out  std_logic;
+    netdbg_rd_data      : out  std_logic_vector(47 downto 0);
+    netdbg_rd           : in   std_logic:='0';
+    netdbg_clk_rd       : in   std_logic:='0';
+
+    -- Debug FIFO readout interrupt
     dbg_fifo_irq_o : out std_logic
     );
 
@@ -307,6 +314,13 @@ architecture rtl of wr_softpll_ng is
   signal dbg_seq_id            : unsigned(15 downto 0);
   signal dbg_fifo_permit_write : std_logic;
   signal dbg_fifo_irq          : std_logic := '0';
+
+  -- Net Debug FIFO signals
+  signal netdbg_seq_id            : unsigned(15 downto 0);
+  signal netdbg_permit_write      : std_logic;
+  signal netdbg_full              : std_logic;
+  signal netdbg_wr                : std_logic;
+  signal netdbg_wr_data           : std_logic_vector(47 downto 0);
 
   -- Temporary vectors for DDMTD clock selection (straight/reversed)
   signal dmtd_ref_clk_in, dmtd_ref_clk_dmtd : std_logic_vector(g_num_ref_inputs-1 downto 0);
@@ -477,7 +491,7 @@ begin  -- rtl
       generic map (
         g_counter_bits      => g_tag_bits,
         g_divide_input_by_2 => g_divide_input_by_2,
-				g_reverse	=> g_reverse_dmtds,
+        g_reverse           => g_reverse_dmtds,
         g_use_sampled_clock => false)
       port map (
         rst_n_dmtdclk_i => rst_dmtd_n_i,
@@ -729,7 +743,8 @@ begin  -- rtl
 
   out_locked_o <= regs_in.occr_out_lock_o(g_num_outputs-1 downto 0);
 
-  irq_tag <= not regs_in.trr_wr_empty_o;
+  irq_tag <= '1' when (to_integer(unsigned(regs_in.trr_wr_usedw_o))>=3) else
+             '0';
 
   deglitch_thr_slv <= regs_in.deglitch_thr_o;
 
@@ -821,5 +836,60 @@ begin  -- rtl
   regs_out.f_ref_valid_i       <= '0';
   regs_out.f_ext_valid_i       <= '0';
   regs_out.trr_disc_i          <= '0';
+
+  -- Debug to Network
+    netdbg_fifo: generic_async_fifo_dual_rst
+    generic map (
+      g_data_width             => 48,
+      g_size                   => 256,
+      g_show_ahead             => false,
+      g_with_wr_full           => true,
+      g_with_rd_empty          => true,
+      g_with_rd_almost_full    => true,
+      g_almost_full_threshold  => 128)
+    port map (
+      rst_wr_n_i     => rst_sys_n_i,
+      clk_wr_i       => clk_sys_i,
+      d_i            => netdbg_wr_data,
+      we_i           => netdbg_wr,
+      wr_full_o      => netdbg_full,
+      rst_rd_n_i     => rst_ref_n_i,
+      clk_rd_i       => netdbg_clk_rd,
+      q_o            => netdbg_rd_data,
+      rd_i           => netdbg_rd,
+      rd_empty_o     => netdbg_empty,
+      rd_almost_full_o  => netdbg_almost_full);
+    
+    netdbg_wr       <= regs_in.dfr_spll_value_wr_o and netdbg_permit_write;
+    netdbg_wr_data(31 downto 0)    <= regs_in.dfr_spll_eos_o & regs_in.dfr_spll_value_o;
+    netdbg_wr_data(47 downto 32)   <= std_logic_vector(netdbg_seq_id);
+
+    p_request_counter : process(clk_sys_i)
+    begin
+      if rising_edge(clk_sys_i) then
+        if rst_n_i = '0' then
+          netdbg_seq_id <= (others => '0');
+        else
+          if(regs_in.dfr_spll_eos_o = '1' and regs_in.dfr_spll_eos_wr_o = '1') then
+            netdbg_seq_id <= netdbg_seq_id + 1;
+          end if;
+        end if;
+      end if;
+    end process;
+
+    p_fifo_permit_write : process(clk_sys_i)
+    begin
+      if rising_edge(clk_sys_i) then
+        if rst_n_i = '0' then
+          netdbg_permit_write <= '1';
+        else
+          if(netdbg_full = '0') then
+            netdbg_permit_write <= '1';
+          elsif(regs_in.dfr_spll_eos_o = '1' and regs_in.dfr_spll_eos_wr_o = '1') then
+            netdbg_permit_write <= '0';
+          end if;
+        end if;
+      end if;
+    end process;
 
 end rtl;

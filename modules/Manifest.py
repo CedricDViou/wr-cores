@@ -15,5 +15,6 @@ modules =  {
         "wr_streamers",
         "wr_nic",
         "wr_txtsu",
+        "wr_gen_10mhz",
     ]
 }

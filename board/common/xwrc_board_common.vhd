@@ -64,6 +64,7 @@ entity xwrc_board_common is
     g_interface_mode            : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
     g_softpll_enable_debugger   : boolean                        := FALSE;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := FALSE;
@@ -77,7 +78,11 @@ entity xwrc_board_common is
     -- if WRPC supports only one SFP but we have two connected that are muxed, 
     -- mux also the I2C acess to their memory
     g_sfp_i2c_mux_enable        : boolean                        := FALSE;
-    g_fabric_iface              : t_board_fabric_iface           := PLAIN);
+    g_fabric_iface              : t_board_fabric_iface           := PLAIN;
+    g_num_phys                  : integer                        := 1;
+    g_num_softpll_inputs        : integer                        := 1;
+    g_with_10M_output           : boolean                        := FALSE
+  );
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
@@ -104,7 +109,7 @@ entity xwrc_board_common is
 
     -- External PPS input (cesium, GPSDO, etc.), used in Grandmaster mode
     pps_ext_i : in std_logic := '0';
-
+    ppsin_term_o : out std_logic;
     rst_n_i : in std_logic;
 
     ---------------------------------------------------------------------------
@@ -119,10 +124,10 @@ entity xwrc_board_common is
     ---------------------------------------------------------------------------
     -- PHY I/f
     ---------------------------------------------------------------------------
-    phy8_o  : out t_phy_8bits_from_wrc;
-    phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
-    phy16_o : out t_phy_16bits_from_wrc;
-    phy16_i : in  t_phy_16bits_to_wrc := c_dummy_phy16_to_wrc;
+    phy8_o    : out t_phy_8bits_from_wrc_array(g_num_phys-1 downto 0);
+    phy8_i    : in  t_phy_8bits_to_wrc_array(g_num_phys-1 downto 0):=(others=>c_dummy_phy8_to_wrc);
+    phy16_o   : out t_phy_16bits_from_wrc_array(g_num_phys-1 downto 0);
+    phy16_i   : in  t_phy_16bits_to_wrc_array(g_num_phys-1 downto 0):=(others=>c_dummy_phy16_to_wrc);
 
     ---------------------------------------------------------------------------
     -- I2C EEPROM
@@ -135,20 +140,11 @@ entity xwrc_board_common is
     ---------------------------------------------------------------------------
     -- SFP management info
     ---------------------------------------------------------------------------
-    -- ch0
-    sfp_scl_o : out std_logic;
-    sfp_scl_i : in  std_logic := '1';
-    sfp_sda_o : out std_logic;
-    sfp_sda_i : in  std_logic := '1';
-    sfp_det_i : in  std_logic;
-
-    sfp_mux_sel_i : in std_logic := '0';
-    -- ch1
-    sfp1_scl_o : out std_logic;
-    sfp1_scl_i : in  std_logic := '1';
-    sfp1_sda_o : out std_logic;
-    sfp1_sda_i : in  std_logic := '1';
-    sfp1_det_i : in  std_logic := '0';
+    sfp_scl_o  : out std_logic_vector(g_num_phys-1 downto 0);
+    sfp_scl_i  : in  std_logic_vector(g_num_phys-1 downto 0):= (others=>'1');
+    sfp_sda_o  : out std_logic_vector(g_num_phys-1 downto 0);
+    sfp_sda_i  : in  std_logic_vector(g_num_phys-1 downto 0):= (others=>'1');
+    sfp_det_i  : in  std_logic_vector(g_num_phys-1 downto 0):= (others=>'1');
 
     ---------------------------------------------------------------------------
     -- Flash memory SPI interface
@@ -179,14 +175,16 @@ entity xwrc_board_common is
 
     aux_master_o : out t_wishbone_master_out;
     aux_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
+    aux1_master_o : out t_wishbone_master_out;
+    aux1_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
 
     ---------------------------------------------------------------------------
     -- External Fabric I/F (when g_fabric_iface = PLAIN)
     ---------------------------------------------------------------------------
-    wrf_src_o : out t_wrf_source_out;
-    wrf_src_i : in  t_wrf_source_in := c_dummy_src_in;
-    wrf_snk_o : out t_wrf_sink_out;
-    wrf_snk_i : in  t_wrf_sink_in   := c_dummy_snk_in;
+    wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
+    wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+    wrf_snk_o : out t_wrf_sink_out_array(g_num_phys-1 downto 0);
+    wrf_snk_i : in  t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
 
     ---------------------------------------------------------------------------
     -- WR streamers (when g_fabric_iface = STREAMERS)
@@ -226,26 +224,26 @@ entity xwrc_board_common is
     ---------------------------------------------------------------------------
     -- External Tx Timestamping I/F
     ---------------------------------------------------------------------------
-    timestamps_o     : out t_txtsu_timestamp;
-    timestamps_ack_i : in  std_logic := '1';
+    timestamps_o     : out t_txtsu_timestamp_array(g_num_phys-1 downto 0);
+    timestamps_ack_i : in  std_logic_vector(g_num_phys-1 downto 0):=(others=>'1');
 
     -----------------------------------------
     -- Timestamp helper signals, used for Absolute Calibration
     -----------------------------------------
-    abscal_txts_o               : out std_logic;
-    abscal_rxts_o               : out std_logic;
+    abscal_txts_o        : out std_logic_vector(g_num_phys-1 downto 0);
+    abscal_rxts_o        : out std_logic_vector(g_num_phys-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Pause Frame Control
     ---------------------------------------------------------------------------
-    fc_tx_pause_req_i   : in  std_logic                     := '0';
-    fc_tx_pause_delay_i : in  std_logic_vector(15 downto 0) := x"0000";
-    fc_tx_pause_ready_o : out std_logic;
+    fc_tx_pause_req_i   : in  std_logic_vector(g_num_phys-1 downto 0):=(others=>'0');
+    fc_tx_pause_delay_i : in  std_logic_vector(16*g_num_phys-1 downto 0):=(others=>'0');
+    fc_tx_pause_ready_o : out std_logic_vector(g_num_phys-1 downto 0);
 
     ---------------------------------------------------------------------------
     -- Timecode I/F
     ---------------------------------------------------------------------------
-    tm_link_up_o    : out std_logic;
+    tm_link_up_o    : out std_logic_vector(g_num_phys-1 downto 0);
     tm_time_valid_o : out std_logic;
     tm_tai_o        : out std_logic_vector(39 downto 0);
     tm_cycles_o     : out std_logic_vector(27 downto 0);
@@ -253,8 +251,8 @@ entity xwrc_board_common is
     ---------------------------------------------------------------------------
     -- Buttons, LEDs and PPS output
     ---------------------------------------------------------------------------
-    led_act_o  : out std_logic;
-    led_link_o : out std_logic;
+    led_act_o  : out std_logic_vector(g_num_phys-1 downto 0);
+    led_link_o : out std_logic_vector(g_num_phys-1 downto 0);
     btn1_i     : in  std_logic := '1';
     btn2_i     : in  std_logic := '1';
     -- 1PPS output
@@ -263,7 +261,7 @@ entity xwrc_board_common is
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
     -- Link ok indication
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic_vector(g_num_phys-1 downto 0)
     );
 
 end entity xwrc_board_common;
@@ -278,7 +276,7 @@ architecture struct of xwrc_board_common is
       g_mtu            : natural := 1500);
     port(
       clk_i       : in  std_logic;
-      nRst_i      : in  std_logic;
+      nrst_i      : in  std_logic;
       snk_i       : in  t_wrf_sink_in;
       snk_o       : out t_wrf_sink_out;
       src_o       : out t_wrf_source_out;
@@ -299,10 +297,10 @@ architecture struct of xwrc_board_common is
   signal tm_cycles     : std_logic_vector(27 downto 0);
 
   -- WR fabric interface
-  signal wrf_src_out : t_wrf_source_out;
-  signal wrf_src_in  : t_wrf_source_in;
-  signal wrf_snk_out : t_wrf_sink_out;
-  signal wrf_snk_in  : t_wrf_sink_in;
+  signal wrf_src_out : t_wrf_source_out_array(g_num_phys-1 downto 0);
+  signal wrf_src_in  : t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+  signal wrf_snk_out : t_wrf_sink_out_array(g_num_phys-1 downto 0);
+  signal wrf_snk_in  : t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
 
   -- Aux WB interface
   signal aux_master_out : t_wishbone_master_out;
@@ -333,14 +331,7 @@ architecture struct of xwrc_board_common is
   signal aux_diag_out : t_generic_word_array(c_diag_rw_size-1 downto 0);
 
   -- link state
-  signal link_ok      : std_logic;
-
-  -- ch0
-  signal sfp_scl_out  : std_logic;
-  signal sfp_scl_in   : std_logic;
-  signal sfp_sda_out  : std_logic;
-  signal sfp_sda_in   : std_logic;
-  signal sfp_det_in   : std_logic;
+  signal link_ok      : std_logic_vector(g_num_phys-1 downto 0);
 
   -- ch1 - currently unconnected - not supported at the moment (TODO)
 --   signal sfp1_scl_out : std_logic;
@@ -385,14 +376,23 @@ begin  -- architecture struct
       g_interface_mode            => g_interface_mode,
       g_address_granularity       => g_address_granularity,
       g_aux_sdb                   => g_aux_sdb,
+      g_aux1_sdb                  => g_aux1_sdb,
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
+      g_ref_clock_rate            => f_pick_clk_ref_rate(g_pcs_16bit),
+      g_ref_clock_hz              => f_pick_clk_ref_rate(g_pcs_16bit),
+      g_sys_clock_rate            => 62500000,
+      g_sys_clock_hz              => 62500000,
+      g_ext_clock_rate            => 10000000,
       g_records_for_phy           => TRUE,
       g_diag_id                   => c_diag_id,
       g_diag_ver                  => c_diag_ver,
       g_diag_ro_size              => c_diag_ro_size,
-      g_diag_rw_size              => c_diag_rw_size)
+      g_diag_rw_size              => c_diag_rw_size,
+      g_num_phys                  => g_num_phys,
+      g_num_softpll_inputs        => g_num_softpll_inputs,
+      g_with_10M_output           => g_with_10M_output)
     port map (
       clk_sys_i            => clk_sys_i,
       clk_dmtd_i           => clk_dmtd_i,
@@ -404,6 +404,7 @@ begin  -- architecture struct
       clk_ext_stopped_i    => clk_ext_stopped_i,
       clk_ext_rst_o        => clk_ext_rst_o,
       pps_ext_i            => pps_ext_i,
+      ppsin_term_o         => ppsin_term_o,
       rst_n_i              => rst_n_i,
       dac_hpll_load_p1_o   => dac_hpll_load_p1_o,
       dac_hpll_data_o      => dac_hpll_data_o,
@@ -437,11 +438,11 @@ begin  -- architecture struct
       scl_i                => scl_i,
       sda_o                => sda_o,
       sda_i                => sda_i,
-      sfp_scl_o            => sfp_scl_out,
-      sfp_scl_i            => sfp_scl_in,
-      sfp_sda_o            => sfp_sda_out,
-      sfp_sda_i            => sfp_sda_in,
-      sfp_det_i            => sfp_det_in,
+      sfp_scl_o            => sfp_scl_o,
+      sfp_scl_i            => sfp_scl_i,
+      sfp_sda_o            => sfp_sda_o,
+      sfp_sda_i            => sfp_sda_i,
+      sfp_det_i            => sfp_det_i,
       btn1_i               => btn1_i,
       btn2_i               => btn2_i,
       spi_sclk_o           => spi_sclk_o,
@@ -457,6 +458,8 @@ begin  -- architecture struct
       slave_o              => wb_slave_o,
       aux_master_o         => aux_master_out,
       aux_master_i         => aux_master_in,
+      aux1_master_o        => aux1_master_o,
+      aux1_master_i        => aux1_master_i,
       wrf_src_o            => wrf_src_out,
       wrf_src_i            => wrf_src_in,
       wrf_snk_o            => wrf_snk_out,
@@ -504,10 +507,10 @@ begin  -- architecture struct
       port map (
         clk_sys_i       => clk_sys_i,
         rst_n_i         => rst_n_i,
-        src_i           => wrf_snk_out,
-        src_o           => wrf_snk_in,
-        snk_i           => wrf_src_out,
-        snk_o           => wrf_src_in,
+        src_i           => wrf_snk_out(0),
+        src_o           => wrf_snk_in(0),
+        snk_i           => wrf_src_out(0),
+        snk_o           => wrf_src_in(0),
         tx_data_i       => wrs_tx_data_i,
         tx_valid_i      => wrs_tx_valid_i,
         tx_dreq_o       => wrs_tx_dreq_o,
@@ -522,7 +525,7 @@ begin  -- architecture struct
         tm_time_valid_i => tm_time_valid,
         tm_tai_i        => tm_tai,
         tm_cycles_i     => tm_cycles,
-        link_ok_i       => link_ok,
+        link_ok_i       => link_ok(0),
         wb_slave_i      => aux_master_out,
         wb_slave_o      => aux_master_in,
         snmp_array_o    => aux_diag_in(c_WR_STREAMERS_ARR_SIZE_OUT-1 downto 0),
@@ -531,8 +534,8 @@ begin  -- architecture struct
         rx_streamer_cfg_i=> wrs_rx_cfg_i);
 
     -- unused output ports
-    wrf_src_o <= c_dummy_snk_in;
-    wrf_snk_o <= c_dummy_src_in;
+    wrf_src_o <= (others=>c_dummy_snk_in);
+    wrf_snk_o <= (others=>c_dummy_src_in);
 
     aux_master_o    <= cc_dummy_master_out;
     wb_eth_master_o <= cc_dummy_master_out;
@@ -549,19 +552,19 @@ begin  -- architecture struct
         g_sdb_address => x"0000000000030000")
       port map (
         clk_i       => clk_sys_i,
-        nRst_i      => aux_rst_n,
-        src_o       => wrf_snk_in,
-        src_i       => wrf_snk_out,
-        snk_o       => wrf_src_in,
-        snk_i       => wrf_src_out,
+        nrst_i      => aux_rst_n,
+        src_o       => wrf_snk_in(0),
+        src_i       => wrf_snk_out(0),
+        snk_o       => wrf_src_in(0),
+        snk_i       => wrf_src_out(0),
         cfg_slave_o => aux_master_in,
         cfg_slave_i => aux_master_out,
         master_o    => wb_eth_master_o,
         master_i    => wb_eth_master_i);
 
     -- unused output ports
-    wrf_src_o <= c_dummy_snk_in;
-    wrf_snk_o <= c_dummy_src_in;
+    wrf_src_o <= (others=>c_dummy_snk_in);
+    wrf_snk_o <= (others=>c_dummy_src_in);
 
     wrs_tx_dreq_o  <= '0';
     wrs_rx_first_o <= '0';
@@ -586,12 +589,16 @@ begin  -- architecture struct
       port map(
         clk_sys_i => clk_sys_i,
         rst_n_i   => rst_n_i,
-        wrf_snk_i => wrf_src_out,
-        wrf_snk_o => wrf_src_in,
-        wrf_src_o => wrf_snk_in,
-        wrf_src_i => wrf_snk_out,
+        wrf_snk_i => wrf_src_out(0),
+        wrf_snk_o => wrf_src_in(0),
+        wrf_src_o => wrf_snk_in(0),
+        wrf_src_i => wrf_snk_out(0),
         wb_i      => aux_master_out,
         wb_o      => aux_master_in);
+
+    wrf_src_o <= (others=>c_dummy_snk_in);
+    wrf_snk_o <= (others=>c_dummy_src_in);
+    
   end generate gen_loopback;
 
   gen_wr_fabric : if (g_fabric_iface = PLAIN) generate
@@ -619,39 +626,5 @@ begin  -- architecture struct
     aux_diag_o  <= aux_diag_out;
 
   end generate gen_wr_fabric;
-
-  gen_sfp_i2c_mux : if (g_sfp_i2c_mux_enable =  TRUE) generate
-    -- mux one WRPC SFP I2C channel with two channels on the outside
-    -- world
-    sfp_scl_o   <= sfp_scl_out when sfp_mux_sel_i = '0' else '0';
-    sfp1_scl_o  <= sfp_scl_out when sfp_mux_sel_i = '1' else '0';
-
-    sfp_scl_in  <= sfp_scl_i   when sfp_mux_sel_i = '0' else sfp1_scl_i;
-
-    sfp_sda_o   <= sfp_sda_out when sfp_mux_sel_i = '0' else '0';
-    sfp1_sda_o  <= sfp_sda_out when sfp_mux_sel_i = '1' else '0';
-
-    sfp_sda_in  <= sfp_sda_i   when sfp_mux_sel_i = '0' else sfp1_sda_i;
-
-    sfp_det_in  <= sfp_det_i   when sfp_mux_sel_i = '0' else sfp1_det_i;
-
-  end generate gen_sfp_i2c_mux;
-
-  gen_sfp_i2c_dual : if (g_sfp_i2c_mux_enable =  FALSE) generate
-
-    sfp_scl_o  <= sfp_scl_out;
-    sfp_scl_in <= sfp_scl_i;
-    sfp_sda_o  <= sfp_sda_out;
-    sfp_sda_in <= sfp_sda_i;
-    sfp_det_in <= sfp_det_i;
-
-    -- at the moment, only one channel si supported (TODO)
---     sfp1_scl_o <= sfp1_scl_out;
---     sfp1_scl_in<= sfp1_scl_i;
---     sfp1_sda_o <= sfp1_sda_out;
---     sfp1_sda_in<= sfp1_sda_i;
---     sfp1_det_in<= sfp1_det_i;
-
-  end generate gen_sfp_i2c_dual;
 
 end architecture struct;

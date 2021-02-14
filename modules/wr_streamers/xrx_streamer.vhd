@@ -215,9 +215,6 @@ architecture rtl of xrx_streamer is
   signal rx_latency_valid   : std_logic;
   signal is_vlan            : std_logic;
 
-  constant c_fixed_latency_zero : unsigned(27 downto 0) := (others => '0');
-  constant c_timestamper_delay  : unsigned(27 downto 0) := to_unsigned(12, 28); -- cycles
-
   signal fifo_last_int : std_logic;
 
   signal rst_int_n : std_logic;
@@ -370,7 +367,7 @@ begin  -- rtl
 
   U_RestoreTAITimeFromRXTimestamp : entity work.ts_restore_tai
     generic map (
-      g_tm_sample_period        => 20,
+      g_tm_sample_period        => 30,
       g_clk_ref_rate            => g_clk_ref_rate,
       g_simulation              => g_simulation,
       g_sim_cycle_counter_range => g_sim_cycle_counter_range)

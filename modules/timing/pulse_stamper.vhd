@@ -95,9 +95,9 @@ architecture rtl of pulse_stamper is
     variable out_cyc : std_logic_vector(27 downto 0);
   begin
 
-    if (ref_clk = 125000000) then
+    if (ref_clk > 80000000) then
       out_cyc := in_cyc;
-    elsif(ref_clk = 62500000) then
+    elsif(ref_clk < 80000000) then
       out_cyc := in_cyc(26 downto 0) & '0';
     else
       assert FALSE report

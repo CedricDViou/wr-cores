@@ -80,72 +80,76 @@ generic
 );
 port 
 (
-  RST_IN         : in   std_logic;          -- Connect to System Reset
-  DRP_BUSY_OUT   : out  std_logic;          -- Indicates that the DRP bus is not accessible to the User
+    RST_IN                                  : in   std_logic;          -- Connect to System Reset
+    DRP_BUSY_OUT                            : out  std_logic;          -- Indicates that the DRP bus is not accessible to the User
     ---------------------------- Channel - DRP Ports  --------------------------
-    drpaddr_in                              : in   std_logic_vector(8 downto 0);
-    drpclk_in                               : in   std_logic;
-    drpdi_in                                : in   std_logic_vector(15 downto 0);
-    drpdo_out                               : out  std_logic_vector(15 downto 0);
-    drpen_in                                : in   std_logic;
-    drprdy_out                              : out  std_logic;
-    drpwe_in                                : in   std_logic;
+    DRPADDR_IN                              : in   std_logic_vector(8 downto 0);
+    DRPCLK_IN                               : in   std_logic;
+    DRPDI_IN                                : in   std_logic_vector(15 downto 0);
+    DRPDO_OUT                               : out  std_logic_vector(15 downto 0);
+    DRPEN_IN                                : in   std_logic;
+    DRPRDY_OUT                              : out  std_logic;
+    DRPWE_IN                                : in   std_logic;
     ------------------------ GTPE2_CHANNEL Clocking Ports ----------------------
-    pll0clk_in                              : in   std_logic;
-    pll0refclk_in                           : in   std_logic;
-    pll1clk_in                              : in   std_logic;
-    pll1refclk_in                           : in   std_logic;
+    RXSYSCLKSEL_IN                          : in   std_logic_vector(1 downto 0);
+    TXSYSCLKSEL_IN                          : in   std_logic_vector(1 downto 0);
+    PLL0CLK_IN                              : in   std_logic;
+    PLL0REFCLK_IN                           : in   std_logic;
+    PLL1CLK_IN                              : in   std_logic;
+    PLL1REFCLK_IN                           : in   std_logic;
     ------------------------------- Loopback Ports -----------------------------
-    loopback_in                             : in   std_logic_vector(2 downto 0);
+    LOOPBACK_IN                             : in   std_logic_vector(2 downto 0);
     --------------------- RX Initialization and Reset Ports --------------------
-    rxuserrdy_in                            : in   std_logic;
+    RXUSERRDY_IN                            : in   std_logic;
     -------------------------- RX Margin Analysis Ports ------------------------
-    eyescandataerror_out                    : out  std_logic;
+    EYESCANDATAERROR_OUT                    : out  std_logic;
+    ------------------ Receive Ports - CDR Ports -------------------------------
+    RXCDRLOCK_OUT                           : out  std_logic;
     ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-    rxdata_out                              : out  std_logic_vector(15 downto 0);
-    rxusrclk_in                             : in   std_logic;
-    rxusrclk2_in                            : in   std_logic;
+    RXDATA_OUT                              : out  std_logic_vector(31 downto 0);
+    RXUSRCLK_IN                             : in   std_logic;
+    RXUSRCLK2_IN                            : in   std_logic;
     ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-    rxchariscomma_out                       : out  std_logic_vector(1 downto 0);
-    rxcharisk_out                           : out  std_logic_vector(1 downto 0);
-    rxdisperr_out                           : out  std_logic_vector(1 downto 0);
-    rxnotintable_out                        : out  std_logic_vector(1 downto 0);
+    RXCHARISCOMMA_OUT                       : out  std_logic_vector(3 downto 0);
+    RXCHARISK_OUT                           : out  std_logic_vector(3 downto 0);
+    RXDISPERR_OUT                           : out  std_logic_vector(3 downto 0);
+    RXNOTINTABLE_OUT                        : out  std_logic_vector(3 downto 0);
     ------------------------ Receive Ports - RX AFE Ports ----------------------
-    gtprxn_in                               : in   std_logic;
-    gtprxp_in                               : in   std_logic;
+    GTPRXN_IN                               : in   std_logic;
+    GTPRXP_IN                               : in   std_logic;
     -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-    rxbyteisaligned_out                     : out  std_logic;
-    rxcommadet_out                          : out  std_logic;
-    rxslide_in                              : in   std_logic;
+    RXBYTEISALIGNED_OUT                     : out  std_logic;
+    RXCOMMADET_OUT                          : out  std_logic;
+    RXSLIDE_IN                              : in   std_logic;
     --------------------- Receive Ports - RX Equilizer Ports -------------------
-    rxlpmhfhold_in                          : in   std_logic;
-    rxlpmlfhold_in                          : in   std_logic;
+    RXLPMHFHOLD_IN                          : in   std_logic;
+    RXLPMLFHOLD_IN                          : in   std_logic;
     --------------- Receive Ports - RX Fabric Output Control Ports -------------
-    rxoutclk_out                            : out  std_logic;
+    RXOUTCLK_OUT                            : out  std_logic;
     ------------- Receive Ports - RX Initialization and Reset Ports ------------
-    gtrxreset_in                            : in   std_logic;
+    GTRXRESET_IN                            : in   std_logic;
     -------------- Receive Ports -RX Initialization and Reset Ports ------------
-    rxresetdone_out                         : out  std_logic;
+    RXRESETDONE_OUT                         : out  std_logic;
     --------------------- TX Initialization and Reset Ports --------------------
-    gttxreset_in                            : in   std_logic;
-    txuserrdy_in                            : in   std_logic;
+    GTTXRESET_IN                            : in   std_logic;
+    TXUSERRDY_IN                            : in   std_logic;
     ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-    txdata_in                               : in   std_logic_vector(15 downto 0);
-    txusrclk_in                             : in   std_logic;
-    txusrclk2_in                            : in   std_logic;
+    TXDATA_IN                               : in   std_logic_vector(31 downto 0);
+    TXUSRCLK_IN                             : in   std_logic;
+    TXUSRCLK2_IN                            : in   std_logic;
     ------------------ Transmit Ports - TX 8B/10B Encoder Ports ----------------
-    txcharisk_in                            : in   std_logic_vector(1 downto 0);
+    TXCHARISK_IN                            : in   std_logic_vector(3 downto 0);
     --------------- Transmit Ports - TX Configurable Driver Ports --------------
-    gtptxn_out                              : out  std_logic;
-    gtptxp_out                              : out  std_logic;
+    GTPTXN_OUT                              : out  std_logic;
+    GTPTXP_OUT                              : out  std_logic;
     ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
-    txoutclk_out                            : out  std_logic;
-    txoutclkfabric_out                      : out  std_logic;
-    txoutclkpcs_out                         : out  std_logic;
+    TXOUTCLK_OUT                            : out  std_logic;
+    TXOUTCLKFABRIC_OUT                      : out  std_logic;
+    TXOUTCLKPCS_OUT                         : out  std_logic;
     ------------- Transmit Ports - TX Initialization and Reset Ports -----------
-    txresetdone_out                         : out  std_logic;
+    TXRESETDONE_OUT                         : out  std_logic;
     ------------------ Transmit Ports - pattern Generator Ports ----------------
-    txprbssel_in                            : in   std_logic_vector(2 downto 0)
+    TXPRBSSEL_IN                            : in   std_logic_vector(2 downto 0)
 
 );
 
@@ -173,45 +177,6 @@ component whiterabbit_gtpe2_channel_wrapper_gtrxreset_seq
 );
 end component;
 
---component whiterabbitgtp_wrapper_rxpmarst_seq 
---  port ( 
---    RST                : IN  std_logic;
---    RXPMARESET_IN      : IN  std_logic;    
---    RXPMARESETDONE     : IN  std_logic;
---    RXPMARESET_OUT     : OUT std_logic;
---
---    DRPCLK             : IN  std_logic;
---    DRPADDR            : OUT std_logic_vector(8 downto 0);
---    DRPDO              : IN  std_logic_vector(15 downto 0);
---    DRPDI              : OUT std_logic_vector(15 downto 0);
---    DRPRDY             : IN  std_logic;
---    DRPEN              : OUT std_logic;
---    DRPWE              : OUT std_logic;
---    DRP_BUSY_IN        : IN  std_logic;
---    DRP_PMA_BUSY_OUT   : OUT std_logic
---);
---end component;
---
---
---component whiterabbitgtp_wrapper_rxrate_seq 
---  port ( 
---    RST                : IN  std_logic;
---    RXRATE_IN          : IN  std_logic_vector(2 downto 0);    
---    RXPMARESETDONE     : IN  std_logic;
---    RXRATE_OUT         : OUT std_logic_vector(2 downto 0);
---
---    DRPCLK             : IN  std_logic;
---    DRPADDR            : OUT std_logic_vector(8 downto 0);
---    DRPDO              : IN  std_logic_vector(15 downto 0);
---    DRPDI              : OUT std_logic_vector(15 downto 0);
---    DRPRDY             : IN  std_logic;
---    DRPEN              : OUT std_logic;
---    DRPWE              : OUT std_logic;
---    DRP_BUSY_IN        : IN  std_logic;
---    DRP_RATE_BUSY_OUT  : OUT std_logic
---);
---end component;
-
 --**************************** Signal Declarations ****************************
 
     -- ground and tied_to_vcc_i signals
@@ -223,7 +188,6 @@ end component;
     signal    rxpmaresetdone_t                : std_logic;
     signal    gtrxreset_out                   : std_logic;
     signal    rxpmareset_out                  : std_logic;
-    signal    rxrate_out                      : std_logic_vector(2 downto 0);
     signal    drp_op_done                     : std_logic;
     signal    drp_pma_busy                    : std_logic;
     signal    drp_rate_busy                   : std_logic;
@@ -247,24 +211,19 @@ end component;
     signal    drpdo_rate_t                    : std_logic_vector(15 downto 0);
     signal    drpdi_rate_t                    : std_logic_vector(15 downto 0);
     signal    drprdy_rate_t                   : std_logic;
-    signal    drpen_i                         : std_logic;
-    signal    drpaddr_i                       : std_logic_vector(8 downto 0);
-    signal    drpwe_i                         : std_logic;
-    signal    drpdo_i                         : std_logic_vector(15 downto 0);
-    signal    drpdi_i                         : std_logic_vector(15 downto 0);
-    signal    drprdy_i                        : std_logic;
+    signal    drpen                           : std_logic;
+    signal    drpaddr                         : std_logic_vector(8 downto 0);
+    signal    drpwe                           : std_logic;
+    signal    drpdo                           : std_logic_vector(15 downto 0);
+    signal    drpdi                           : std_logic_vector(15 downto 0);
+    signal    drprdy                          : std_logic;
 
     -- RX Datapath signals
-    signal rxdata_i                         :   std_logic_vector(31 downto 0);      
-    signal rxchariscomma_float_i            :   std_logic_vector(1 downto 0);
-    signal rxcharisk_float_i                :   std_logic_vector(1 downto 0);
-    signal rxdisperr_float_i                :   std_logic_vector(1 downto 0);
     signal rxnotintable_float_i             :   std_logic_vector(1 downto 0);
     signal rxrundisp_float_i                :   std_logic_vector(1 downto 0);
 
 
     -- TX Datapath signals
-    signal txdata_i                         :   std_logic_vector(31 downto 0);
     signal txkerr_float_i                   :   std_logic_vector(1 downto 0);
     signal txrundisp_float_i                :   std_logic_vector(1 downto 0);
     signal rxdatavalid_float_i              :   std_logic;
@@ -278,13 +237,6 @@ begin
     tied_to_ground_i                    <= '0';
     tied_to_ground_vec_i(63 downto 0)   <= (others => '0');
     tied_to_vcc_i                       <= '1';
-
-    -------------------  GT Datapath byte mapping  -----------------
-    RXDATA_OUT    <=   rxdata_i(15 downto 0);
-
-    txdata_i    <=   (tied_to_ground_vec_i(15 downto 0) & TXDATA_IN);
-
-
 
     ----------------------------- GTPE2 Instance  --------------------------   
 
@@ -382,8 +334,8 @@ begin
         PMA_RSV4                                =>     ("0000"),
         RX_BIAS_CFG                             =>     ("0000111100110011"),
         DMONITOR_CFG                            =>     (x"000A00"),
-        RX_CM_SEL                               =>     ("01"),
-        RX_CM_TRIM                              =>     ("0000"),
+        RX_CM_SEL                               =>     ("11"),   --according to AR 51448
+        RX_CM_TRIM                              =>     ("1010"), -- according to AR 51448
         RX_DEBUG_CFG                            =>     ("00000000000000"),
         RX_OS_CFG                               =>     ("0000010000000"),
         TERM_RCAL_CFG                           =>     ("100001000010000"),
@@ -581,8 +533,8 @@ begin
         RXLPM_HF_CFG2                           =>     ("01010"),
         RXLPM_HF_CFG3                           =>     ("0000"),
         RXLPM_HOLD_DURING_EIDLE                 =>     ('0'),
-        RXLPM_INCM_CFG                          =>     ('0'),
-        RXLPM_IPCM_CFG                          =>     ('1'),
+        RXLPM_INCM_CFG                          =>     ('1'),  -- according to AR 51448
+        RXLPM_IPCM_CFG                          =>     ('0'),  -- according to AR 51448
         RXLPM_LF_CFG                            =>     ("000000001111110000"),
         RXLPM_LF_CFG2                           =>     ("01010"),
         RXLPM_OSINT_CFG                         =>     ("100"),
@@ -611,7 +563,7 @@ begin
         TXOOB_CFG                               =>     ('0'),
 
        ------------------RX Buffer Attributes---------------
-        RXSYNC_MULTILANE                        =>     ('0'),
+        RXSYNC_MULTILANE                        =>     ('1'),  -- Changed from 0 according to Vivado wizard. 
         RXSYNC_OVRD                             =>     ('0'),
         RXSYNC_SKIP_DA                          =>     ('0'),
 
@@ -624,21 +576,21 @@ begin
     )
     port map
     (
-                                --------------------------------- CPLL Ports -------------------------------
+        --------------------------------- CPLL Ports -------------------------------
         GTRSVD                          =>      "0000000000000000",
         PCSRSVDIN                       =>      "0000000000000000",
         TSTIN                           =>      "11111111111111111111",
         ---------------------------- Channel - DRP Ports  --------------------------
-        DRPADDR                         =>      drpaddr_i,
+        DRPADDR                         =>      drpaddr,
         DRPCLK                          =>      DRPCLK_IN,
-        DRPDI                           =>      drpdi_i,
-        DRPDO                           =>      drpdo_i,
-        DRPEN                           =>      drpen_i,
-        DRPRDY                          =>      drprdy_i,
-        DRPWE                           =>      drpwe_i,
+        DRPDI                           =>      drpdi,
+        DRPDO                           =>      drpdo,
+        DRPEN                           =>      drpen,
+        DRPRDY                          =>      drprdy,
+        DRPWE                           =>      drpwe,
         ------------------------------- Clocking Ports -----------------------------
-        RXSYSCLKSEL                     =>      "11",
-        TXSYSCLKSEL                     =>      "11",
+        RXSYSCLKSEL                     =>      RXSYSCLKSEL_IN,
+        TXSYSCLKSEL                     =>      TXSYSCLKSEL_IN,
         ----------------- FPGA TX Interface Datapath Configuration  ----------------
         TX8B10BEN                       =>      tied_to_vcc_i,
         ------------------------ GTPE2_CHANNEL Clocking Ports ----------------------
@@ -677,7 +629,7 @@ begin
         ------------------------- Receive Ports - CDR Ports ------------------------
         RXCDRFREQRESET                  =>      tied_to_ground_i,
         RXCDRHOLD                       =>      tied_to_ground_i,
-        RXCDRLOCK                       =>      open,
+        RXCDRLOCK                       =>      RXCDRLOCK_OUT,
         RXCDROVRDEN                     =>      tied_to_ground_i,
         RXCDRRESET                      =>      tied_to_ground_i,
         RXCDRRESETRSV                   =>      tied_to_ground_i,
@@ -696,7 +648,7 @@ begin
         ---------- Receive Ports - FPGA RX Interface Datapath Configuration --------
         RX8B10BEN                       =>      tied_to_vcc_i,
         ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-        RXDATA                          =>      rxdata_i,
+        RXDATA                          =>      RXDATA_OUT,
         RXUSRCLK                        =>      RXUSRCLK_IN,
         RXUSRCLK2                       =>      RXUSRCLK2_IN,
         ------------------- Receive Ports - Pattern Checker Ports ------------------
@@ -705,14 +657,10 @@ begin
         ------------------- Receive Ports - Pattern Checker ports ------------------
         RXPRBSCNTRESET                  =>      tied_to_ground_i,
         ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-        RXCHARISCOMMA(3 downto 2)       =>      rxchariscomma_float_i,
-        RXCHARISCOMMA(1 downto 0)       =>      RXCHARISCOMMA_OUT,
-        RXCHARISK(3 downto 2)           =>      rxcharisk_float_i,
-        RXCHARISK(1 downto 0)           =>      RXCHARISK_OUT,
-        RXDISPERR(3 downto 2)           =>      rxdisperr_float_i,
-        RXDISPERR(1 downto 0)           =>      RXDISPERR_OUT,
-        RXNOTINTABLE(3 downto 2)        =>      rxnotintable_float_i,
-        RXNOTINTABLE(1 downto 0)        =>      RXNOTINTABLE_OUT,
+        RXCHARISCOMMA                   =>      RXCHARISCOMMA_OUT,
+        RXCHARISK                       =>      RXCHARISK_OUT,
+        RXDISPERR                       =>      RXDISPERR_OUT,
+        RXNOTINTABLE                    =>      RXNOTINTABLE_OUT,
         ------------------------ Receive Ports - RX AFE Ports ----------------------
         GTPRXN                          =>      GTPRXN_IN,
         GTPRXP                          =>      GTPRXP_IN,
@@ -787,7 +735,7 @@ begin
         RXOUTCLK                        =>      RXOUTCLK_OUT,
         RXOUTCLKFABRIC                  =>      open,
         RXOUTCLKPCS                     =>      open,
-        RXOUTCLKSEL                     =>      "010",
+        RXOUTCLKSEL                     =>      "010", -- RXOUTCLKPMA
         ---------------------- Receive Ports - RX Gearbox Ports --------------------
         RXDATAVALID                     =>      open,
         RXHEADER                        =>      open,
@@ -842,7 +790,7 @@ begin
         PMARSVDIN0                      =>      '0',
         PMARSVDIN1                      =>      '0',
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-        TXDATA                          =>      txdata_i,
+        TXDATA                          =>      TXDATA_IN,
         TXUSRCLK                        =>      TXUSRCLK_IN,
         TXUSRCLK2                       =>      TXUSRCLK2_IN,
         --------------------- Transmit Ports - PCI Express Ports -------------------
@@ -856,8 +804,7 @@ begin
         TX8B10BBYPASS                   =>      tied_to_ground_vec_i(3 downto 0),
         TXCHARDISPMODE                  =>      tied_to_ground_vec_i(3 downto 0),
         TXCHARDISPVAL                   =>      tied_to_ground_vec_i(3 downto 0),
-        TXCHARISK(3 downto 2)           =>      tied_to_ground_vec_i(1 downto 0),
-        TXCHARISK(1 downto 0)           =>      TXCHARISK_IN,
+        TXCHARISK                       =>      TXCHARISK_IN,
         ------------------ Transmit Ports - TX Buffer Bypass Ports -----------------
         TXDLYBYPASS                     =>      tied_to_vcc_i,
         TXDLYEN                         =>      tied_to_ground_i,
@@ -896,7 +843,7 @@ begin
         TXOUTCLK                        =>      TXOUTCLK_OUT,
         TXOUTCLKFABRIC                  =>      TXOUTCLKFABRIC_OUT,
         TXOUTCLKPCS                     =>      TXOUTCLKPCS_OUT,
-        TXOUTCLKSEL                     =>      "010",
+        TXOUTCLKSEL                     =>      "010",  --  TXOUTCLK from PMA = 010. TXPLLREFCLK_DIV1 = 011. TXPLLREFCLK_DIV2 = 100
         TXRATEDONE                      =>      open,
         --------------------- Transmit Ports - TX Gearbox Ports --------------------
         TXGEARBOXREADY                  =>      open,
@@ -923,9 +870,9 @@ begin
     );
 
      ------------------------- Soft Fix for Production Silicon----------------------
-       gtrxreset_seq_i  : whiterabbit_gtpe2_channel_wrapper_gtrxreset_seq 
-       port map
-            (
+     gtrxreset_seq_i  : whiterabbit_gtpe2_channel_wrapper_gtrxreset_seq 
+     port map
+     (
         RST                             =>      RST_IN,
         GTRXRESET_IN                    =>      GTRXRESET_IN,
         RXPMARESETDONE                  =>      rxpmaresetdone_t,
@@ -938,46 +885,46 @@ begin
         DRPDO                           =>      drpdo_rst_t,
         DRPDI                           =>      drpdi_rst_t,
         DRPRDY                          =>      drprdy_rst_t
-            ); 
+      ); 
 
 
-      drpen_i       <= drpen_rst_t     when drp_op_done ='0'   else
+      drpen       <= drpen_rst_t     when drp_op_done ='0'   else
                        drpen_pma_t     when drp_pma_busy = '1' else
                        drpen_rate_t    when drp_rate_busy ='1' else DRPEN_IN;
 
 
-      drpaddr_i     <= drpaddr_rst_t   when drp_op_done ='0'   else
+      drpaddr     <= drpaddr_rst_t   when drp_op_done ='0'   else
                        drpaddr_pma_t   when drp_pma_busy = '1' else
                        drpaddr_rate_t  when drp_rate_busy ='1' else DRPADDR_IN;
 
 
-      drpwe_i       <= drpwe_rst_t     when drp_op_done ='0'   else
+      drpwe       <= drpwe_rst_t     when drp_op_done ='0'   else
                        drpwe_pma_t     when drp_pma_busy = '1' else
                        drpwe_rate_t    when drp_rate_busy ='1' else DRPWE_IN;
 
 
 
-      DRPDO_OUT      <=  drpdo_i when (drp_op_done='1' or drp_pma_busy='0' or drp_rate_busy='0') else x"0000";
+      DRPDO_OUT      <=  drpdo when (drp_op_done='1' or drp_pma_busy='0' or drp_rate_busy='0') else x"0000";
 
-      drpdo_rst_t    <=  drpdo_i;
+      drpdo_rst_t    <=  drpdo;
 
-      drpdo_pma_t    <=  drpdo_i;
+      drpdo_pma_t    <=  drpdo;
 
-      drpdo_rate_t   <=  drpdo_i;
+      drpdo_rate_t   <=  drpdo;
 
 
-      drpdi_i        <=  drpdi_rst_t     when drp_op_done ='0'   else
+      drpdi        <=  drpdi_rst_t     when drp_op_done ='0'   else
                          drpdi_pma_t     when drp_pma_busy = '1' else
                          drpdi_rate_t    when drp_rate_busy ='1' else DRPDI_IN;
 
 
-      DRPRDY_OUT     <=  drprdy_i when (drp_op_done='1' or drp_pma_busy='0' or drp_rate_busy='0') else '0';
+      DRPRDY_OUT     <=  drprdy when (drp_op_done='1' or drp_pma_busy='0' or drp_rate_busy='0') else '0';
 
-      drprdy_rst_t   <=  drprdy_i;
+      drprdy_rst_t   <=  drprdy;
 
-      drprdy_pma_t   <=  drprdy_i;
+      drprdy_pma_t   <=  drprdy;
 
-      drprdy_rate_t  <=  drprdy_i;
+      drprdy_rate_t  <=  drprdy;
 
 
    drp_pma_busy <= '0';
@@ -1006,8 +953,5 @@ begin
   end process;
 
     DRP_BUSY_OUT <= drp_busy_i1 or drp_busy_i2;
-
-
-
 
  end RTL;

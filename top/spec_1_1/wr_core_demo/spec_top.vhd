@@ -624,7 +624,7 @@ begin
       g_sdb_address => x"0000000000030000")
     port map (
       clk_i       => clk_62m5_sys,
-      nRst_i      => etherbone_rst_n,
+      nrst_i      => etherbone_rst_n,
       src_o       => etherbone_src_out,
       src_i       => etherbone_src_in,
       snk_o       => etherbone_snk_out,

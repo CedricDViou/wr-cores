@@ -67,6 +67,7 @@ use ieee.numeric_std.all;
 library UNISIM;
 use UNISIM.VCOMPONENTS.ALL;
 
+use work.wr_gtp_phy_pkg.all;
 
 --***************************** Entity Declaration ****************************
 
@@ -74,86 +75,43 @@ entity whiterabbit_gtpe2_channel_wrapper is
 generic
 (
     -- Simulation attributes
+    PLL0_FBDIV                     : integer := 4;
+    PLL0_FBDIV_45                  : integer := 5;
+    PLL0_REFCLK_DIV                : integer := 1;
+    PLL1_FBDIV                     : integer := 4;
+    PLL1_FBDIV_45                  : integer := 5;
+    PLL1_REFCLK_DIV                : integer := 1;
+    g_num_phys                     : integer := 1;
     EXAMPLE_SIMULATION             : integer  := 0;      -- Set to 1 for simulation
     WRAPPER_SIM_GTRESET_SPEEDUP    : string   := "FALSE" -- Set to "true" to speed up sim reset
 );
 port
 (
-    --_________________________________________________________________________
-    --_________________________________________________________________________
-    --____________________________CHANNEL PORTS________________________________
-    GT0_DRP_BUSY_OUT                        : out  std_logic; 
-    ---------------------------- Channel - DRP Ports  --------------------------
-    GT0_DRPADDR_IN                          : in   std_logic_vector(8 downto 0);
-    GT0_DRPCLK_IN                           : in   std_logic;
-    GT0_DRPDI_IN                            : in   std_logic_vector(15 downto 0);
-    GT0_DRPDO_OUT                           : out  std_logic_vector(15 downto 0);
-    GT0_DRPEN_IN                            : in   std_logic;
-    GT0_DRPRDY_OUT                          : out  std_logic;
-    GT0_DRPWE_IN                            : in   std_logic;
-    ------------------------------- Loopback Ports -----------------------------
-    GT0_LOOPBACK_IN                         : in   std_logic_vector(2 downto 0);
-    --------------------- RX Initialization and Reset Ports --------------------
-    GT0_RXUSERRDY_IN                        : in   std_logic;
-    -------------------------- RX Margin Analysis Ports ------------------------
-    GT0_EYESCANDATAERROR_OUT                : out  std_logic;
-    ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-    GT0_RXDATA_OUT                          : out  std_logic_vector(15 downto 0);
-    GT0_RXUSRCLK_IN                         : in   std_logic;
-    GT0_RXUSRCLK2_IN                        : in   std_logic;
-    ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-    GT0_RXCHARISCOMMA_OUT                   : out  std_logic_vector(1 downto 0);
-    GT0_RXCHARISK_OUT                       : out  std_logic_vector(1 downto 0);
-    GT0_RXDISPERR_OUT                       : out  std_logic_vector(1 downto 0);
-    GT0_RXNOTINTABLE_OUT                    : out  std_logic_vector(1 downto 0);
-    ------------------------ Receive Ports - RX AFE Ports ----------------------
-    GT0_GTPRXN_IN                           : in   std_logic;
-    GT0_GTPRXP_IN                           : in   std_logic;
-    -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-    GT0_RXBYTEISALIGNED_OUT                 : out  std_logic;
-    GT0_RXCOMMADET_OUT                      : out  std_logic;
-    GT0_RXSLIDE_IN                          : in   std_logic;
-    --------------------- Receive Ports - RX Equilizer Ports -------------------
-    GT0_RXLPMHFHOLD_IN                      : in   std_logic;
-    GT0_RXLPMLFHOLD_IN                      : in   std_logic;
-    --------------- Receive Ports - RX Fabric Output Control Ports -------------
-    GT0_RXOUTCLK_OUT                        : out  std_logic;
-    ------------- Receive Ports - RX Initialization and Reset Ports ------------
-    GT0_GTRXRESET_IN                        : in   std_logic;
-    -------------- Receive Ports -RX Initialization and Reset Ports ------------
-    GT0_RXRESETDONE_OUT                     : out  std_logic;
-    --------------------- TX Initialization and Reset Ports --------------------
-    GT0_GTTXRESET_IN                        : in   std_logic;
-    GT0_TXUSERRDY_IN                        : in   std_logic;
-    ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-    GT0_TXDATA_IN                           : in   std_logic_vector(15 downto 0);
-    GT0_TXUSRCLK_IN                         : in   std_logic;
-    GT0_TXUSRCLK2_IN                        : in   std_logic;
-    ------------------ Transmit Ports - TX 8B/10B Encoder Ports ----------------
-    GT0_TXCHARISK_IN                        : in   std_logic_vector(1 downto 0);
-    --------------- Transmit Ports - TX Configurable Driver Ports --------------
-    GT0_GTPTXN_OUT                          : out  std_logic;
-    GT0_GTPTXP_OUT                          : out  std_logic;
-    ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
-    GT0_TXOUTCLK_OUT                        : out  std_logic;
-    GT0_TXOUTCLKFABRIC_OUT                  : out  std_logic;
-    GT0_TXOUTCLKPCS_OUT                     : out  std_logic;
-    ------------- Transmit Ports - TX Initialization and Reset Ports -----------
-    GT0_TXRESETDONE_OUT                     : out  std_logic;
-    ------------------ Transmit Ports - pattern Generator Ports ----------------
-    GT0_TXPRBSSEL_IN                        : in   std_logic_vector(2 downto 0);
-
-	
-    --____________________________COMMON PORTS________________________________
+    GT_CHANNEL_SIG_i               : in   t_gtpe2_channel_in_array(g_num_phys-1 downto 0);
+    GT_CHANNEL_SIG_o               : out  t_gtpe2_channel_out_array(g_num_phys-1 downto 0);
+    -----------------------------COMMON PORTS-----------------------------------
     ----------------- Common Block - GTPE2_COMMON Clocking Ports ---------------
-    GT0_GTREFCLK0_IN                        : in   std_logic;
+    GTREFCLK0                      : in   std_logic;
+    GTREFCLK1                      : in   std_logic;
+    ----------------- Select the input reference clock to the CPLL -------------
+    PLL0REFCLKSEL                  : in   std_logic_vector:="001";
+    PLL1REFCLKSEL                  : in   std_logic_vector:="001";
     -------------------------- Common Block - PLL Ports ------------------------
-    GT0_PLL1LOCK_OUT                        : out  std_logic;
-    GT0_PLL1LOCKDETCLK_IN                   : in   std_logic;
-    GT0_PLL1REFCLKLOST_OUT                  : out  std_logic;
-    GT0_PLL1RESET_IN                        : in   std_logic
+    PLL0PD                         : in   std_logic:='0';
+    PLL1PD                         : in   std_logic:='0';
+    PLL0RESET                      : in   std_logic:='0';
+    PLL1RESET                      : in   std_logic:='0';
+    PLL0LOCK                       : out  std_logic;
+    PLL1LOCK                       : out  std_logic;
+    PLL0REFCLKLOST                 : out  std_logic;
+    PLL1REFCLKLOST                 : out  std_logic;
 
-
+    PLL0OUTCLK_OUT                 : out  std_logic;
+    PLL0OUTREFCLK_OUT              : out  std_logic;
+    PLL0LOCK_OUT                   : out  std_logic;
+    PLL0LOCKDETCLK_IN              : in   std_logic;
+    PLL0REFCLKLOST_OUT             : out  std_logic;
+    PLL0RESET_IN                   : in   std_logic
 );
 
 
@@ -172,43 +130,29 @@ architecture RTL of whiterabbit_gtpe2_channel_wrapper is
 --***************************** Signal Declarations *****************************
 
     -- ground and tied_to_vcc_i signals
-    signal  tied_to_ground_i                :   std_logic;
-    signal  tied_to_ground_vec_i            :   std_logic_vector(63 downto 0);
-    signal  tied_to_vcc_i                   :   std_logic;
-    signal   gt0_pll0outclk_i       :   std_logic;
-    signal   gt0_pll0outrefclk_i    :   std_logic;
-    signal   gt0_pll1outclk_i       :   std_logic;
-    signal   gt0_pll1outrefclk_i    :   std_logic;
+    signal  tied_to_ground_i        :   std_logic;
+    signal  tied_to_ground_vec_i    :   std_logic_vector(63 downto 0);
+    signal  tied_to_vcc_i           :   std_logic;
 
+    signal  PLL0OUTCLK              :   std_logic;
+    signal  PLL1OUTCLK              :   std_logic;
+    signal  PLL0OUTREFCLK           :   std_logic;
+    signal  PLL1OUTREFCLK           :   std_logic;
  
-    signal  gt0_mgtrefclktx_i           :   std_logic_vector(1 downto 0);
-    signal  gt0_mgtrefclkrx_i           :   std_logic_vector(1 downto 0);
- 
-
-    signal   gt0_pll0clk_i       :   std_logic;
-    signal   gt0_pll0refclk_i    :   std_logic;
-    signal   gt0_pll1clk_i       :   std_logic;
-    signal   gt0_pll1refclk_i    :   std_logic;
-    signal    gt0_rst_i                       : std_logic;
-      
-
-
-
 --*************************** Component Declarations **************************
 component whiterabbit_gtpe2_channel_wrapper_gt
 generic
 (
     -- Simulation attributes
     GT_SIM_GTRESET_SPEEDUP    : string := "false";
-    EXAMPLE_SIMULATION        : integer  := 0;  
+    EXAMPLE_SIMULATION        : integer:= 0;  
     TXSYNC_OVRD_IN            : bit    := '0';
-    TXSYNC_MULTILANE_IN       : bit    := '0'     
+    TXSYNC_MULTILANE_IN       : bit    := '0'
 );
 port 
-(   
+(
+    ---------------------------- Channel - Reset   -----------------------------   
     RST_IN                                  : in   std_logic;
-    DRP_BUSY_OUT                            : out  std_logic;
-   
     ---------------------------- Channel - DRP Ports  --------------------------
     DRPADDR_IN                              : in   std_logic_vector(8 downto 0);
     DRPCLK_IN                               : in   std_logic;
@@ -217,7 +161,10 @@ port
     DRPEN_IN                                : in   std_logic;
     DRPRDY_OUT                              : out  std_logic;
     DRPWE_IN                                : in   std_logic;
+    DRP_BUSY_OUT                            : out  std_logic;
     ------------------------ GTPE2_CHANNEL Clocking Ports ----------------------
+    RXSYSCLKSEL_IN                          : in   std_logic_vector(1 downto 0);
+    TXSYSCLKSEL_IN                          : in   std_logic_vector(1 downto 0);
     PLL0CLK_IN                              : in   std_logic;
     PLL0REFCLK_IN                           : in   std_logic;
     PLL1CLK_IN                              : in   std_logic;
@@ -229,14 +176,14 @@ port
     -------------------------- RX Margin Analysis Ports ------------------------
     EYESCANDATAERROR_OUT                    : out  std_logic;
     ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-    RXDATA_OUT                              : out  std_logic_vector(15 downto 0);
+    RXDATA_OUT                              : out  std_logic_vector(31 downto 0);
     RXUSRCLK_IN                             : in   std_logic;
     RXUSRCLK2_IN                            : in   std_logic;
     ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-    RXCHARISCOMMA_OUT                       : out  std_logic_vector(1 downto 0);
-    RXCHARISK_OUT                           : out  std_logic_vector(1 downto 0);
-    RXDISPERR_OUT                           : out  std_logic_vector(1 downto 0);
-    RXNOTINTABLE_OUT                        : out  std_logic_vector(1 downto 0);
+    RXCHARISCOMMA_OUT                       : out  std_logic_vector(3 downto 0);
+    RXCHARISK_OUT                           : out  std_logic_vector(3 downto 0);
+    RXDISPERR_OUT                           : out  std_logic_vector(3 downto 0);
+    RXNOTINTABLE_OUT                        : out  std_logic_vector(3 downto 0);
     ------------------------ Receive Ports - RX AFE Ports ----------------------
     GTPRXN_IN                               : in   std_logic;
     GTPRXP_IN                               : in   std_logic;
@@ -257,11 +204,11 @@ port
     GTTXRESET_IN                            : in   std_logic;
     TXUSERRDY_IN                            : in   std_logic;
     ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-    TXDATA_IN                               : in   std_logic_vector(15 downto 0);
+    TXDATA_IN                               : in   std_logic_vector(31 downto 0);
     TXUSRCLK_IN                             : in   std_logic;
     TXUSRCLK2_IN                            : in   std_logic;
     ------------------ Transmit Ports - TX 8B/10B Encoder Ports ----------------
-    TXCHARISK_IN                            : in   std_logic_vector(1 downto 0);
+    TXCHARISK_IN                            : in   std_logic_vector(3 downto 0);
     --------------- Transmit Ports - TX Configurable Driver Ports --------------
     GTPTXN_OUT                              : out  std_logic;
     GTPTXP_OUT                              : out  std_logic;
@@ -273,18 +220,8 @@ port
     TXRESETDONE_OUT                         : out  std_logic;
     ------------------ Transmit Ports - pattern Generator Ports ----------------
     TXPRBSSEL_IN                            : in   std_logic_vector(2 downto 0)
-
-
 );
 end component;
-
-
-    constant PLL0_FBDIV_IN      :   integer := 1;
-    constant PLL1_FBDIV_IN      :   integer := 4;
-    constant PLL0_FBDIV_45_IN   :   integer := 4;
-    constant PLL1_FBDIV_45_IN   :   integer := 5;
-    constant PLL0_REFCLK_DIV_IN :   integer := 1;
-    constant PLL1_REFCLK_DIV_IN :   integer := 1;
 
 --********************************* Main Body of Code**************************
 
@@ -293,17 +230,103 @@ begin
     tied_to_ground_i                    <= '0';
     tied_to_ground_vec_i(63 downto 0)   <= (others => '0');
     tied_to_vcc_i                       <= '1';
-    gt0_pll0clk_i    <= gt0_pll0outclk_i;  
-    gt0_pll0refclk_i <= gt0_pll0outrefclk_i; 
-    gt0_pll1clk_i    <= gt0_pll1outclk_i;  
-    gt0_pll1refclk_i <= gt0_pll1outrefclk_i; 
-      
-    gt0_rst_i        <= GT0_PLL1RESET_IN;
-   
-    
-    --------------------------- GT Instances  -------------------------------   
-    --_________________________________________________________________________
-    --_________________________________________________________________________
+
+    --------------------------- GTPE2_COMMON -------------------------------
+    gtpe2_common_0_i : GTPE2_COMMON
+    generic map
+    (
+        -- Simulation attributes
+        SIM_RESET_SPEEDUP               => WRAPPER_SIM_GTRESET_SPEEDUP,
+        SIM_PLL0REFCLK_SEL              => ("001"),
+        SIM_PLL1REFCLK_SEL              => ("001"),
+        SIM_VERSION                     => ("1.0"),
+
+        PLL0_FBDIV                      => PLL0_FBDIV,
+        PLL0_FBDIV_45                   => PLL0_FBDIV_45,
+        PLL0_REFCLK_DIV                 => PLL0_REFCLK_DIV,
+        PLL1_FBDIV                      => PLL1_FBDIV,
+        PLL1_FBDIV_45                   => PLL1_FBDIV_45,
+        PLL1_REFCLK_DIV                 => PLL1_REFCLK_DIV,
+
+       ------------------COMMON BLOCK Attributes---------------
+        BIAS_CFG                        =>     (x"0000000000050001"),
+        COMMON_CFG                      =>     (x"00000000"),
+
+       ----------------------------PLL Attributes----------------------------
+        PLL0_CFG                        =>     (x"01F03DC"),
+        PLL0_DMON_CFG                   =>     ('0'),
+        PLL0_INIT_CFG                   =>     (x"00001E"),
+        PLL0_LOCK_CFG                   =>     (x"1E8"),
+        PLL1_CFG                        =>     (x"01F03DC"),
+        PLL1_DMON_CFG                   =>     ('0'),
+        PLL1_INIT_CFG                   =>     (x"00001E"),
+        PLL1_LOCK_CFG                   =>     (x"1E8"),
+        PLL_CLKOUT_CFG                  =>     (x"00"),
+
+       ----------------------------Reserved Attributes----------------------------
+        RSVD_ATTR0                      =>     (x"0000"),
+        RSVD_ATTR1                      =>     (x"0000")
+    )
+    port map
+    (
+        DMONITOROUT                     =>      open,
+        ------------- Common Block  - Dynamic Reconfiguration Port (DRP) -----------
+        DRPADDR                         =>      tied_to_ground_vec_i(7 downto 0),
+        DRPCLK                          =>      tied_to_ground_i,
+        DRPDI                           =>      tied_to_ground_vec_i(15 downto 0),
+        DRPDO                           =>      open,
+        DRPEN                           =>      tied_to_ground_i,
+        DRPRDY                          =>      open,
+        DRPWE                           =>      tied_to_ground_i,
+        ----------------- Common Block - GTPE2_COMMON Clocking Ports ---------------
+        GTGREFCLK0                      =>      tied_to_ground_i,
+        GTGREFCLK1                      =>      tied_to_ground_i,
+        GTREFCLK0                       =>      GTREFCLK0,
+        GTREFCLK1                       =>      GTREFCLK1,
+        GTWESTREFCLK0                   =>      tied_to_ground_i,
+        GTWESTREFCLK1                   =>      tied_to_ground_i,
+        GTEASTREFCLK0                   =>      tied_to_ground_i,
+        GTEASTREFCLK1                   =>      tied_to_ground_i,
+        PLL0OUTCLK                      =>      PLL0OUTCLK_OUT,
+        PLL1OUTCLK                      =>      PLL1OUTCLK,
+        PLL0OUTREFCLK                   =>      PLL0OUTREFCLK_OUT,
+        PLL1OUTREFCLK                   =>      PLL1OUTREFCLK,
+        PLL0REFCLKSEL                   =>      PLL0REFCLKSEL,
+        PLL1REFCLKSEL                   =>      PLL1REFCLKSEL,
+        -------------------------- Common Block - PLL Ports ------------------------
+        PLL0LOCKDETCLK                  =>      PLL0LOCKDETCLK_IN,
+        PLL1LOCKDETCLK                  =>      tied_to_ground_i,
+        PLL0LOCKEN                      =>      tied_to_vcc_i,
+        PLL1LOCKEN                      =>      tied_to_vcc_i,
+        PLL0PD                          =>      PLL0PD,
+        PLL1PD                          =>      PLL1PD,
+        BGBYPASSB                       =>      tied_to_vcc_i,
+        BGMONITORENB                    =>      tied_to_vcc_i,
+        BGPDB                           =>      tied_to_vcc_i,
+        BGRCALOVRD                      =>      "11111",
+        RCALENB                         =>      tied_to_vcc_i,
+        PLL0RESET                       =>      PLL0RESET_IN,
+        PLL1RESET                       =>      PLL1RESET,
+        PLL0FBCLKLOST                   =>      open,
+        PLL1FBCLKLOST                   =>      open,
+        PLL0LOCK                        =>      PLL0LOCK_OUT,
+        PLL1LOCK                        =>      PLL1LOCK,
+        PLL0REFCLKLOST                  =>      PLL0REFCLKLOST_OUT,
+        PLL1REFCLKLOST                  =>      PLL1REFCLKLOST,
+        ---------------------------- Common Block - Ports --------------------------
+        BGRCALOVRDENB                   =>      tied_to_vcc_i,
+        PLLRSVD1                        =>      "0000000000000000",
+        PLLRSVD2                        =>      "00000",
+        REFCLKOUTMONITOR0               =>      open,
+        REFCLKOUTMONITOR1               =>      open,
+        ------------------------ Common Block - RX AFE Ports -----------------------
+        PMARSVDOUT                      =>      open,
+        --------------------------------- QPLL Ports -------------------------------
+        PMARSVD                         =>      "00000000"
+    );
+
+gen_GT_INTS: for i in 0 to g_num_phys-1 generate
+
     GT_INST : whiterabbit_gtpe2_channel_wrapper_gt
     generic map
     (
@@ -315,177 +338,75 @@ begin
     )
     port map
     (
-        RST_IN                          =>      gt0_rst_i,
-        DRP_BUSY_OUT                    =>      GT0_DRP_BUSY_OUT,
-    
+        PLL0CLK_IN                      =>      PLL0OUTCLK,
+        PLL0REFCLK_IN                   =>      PLL0OUTREFCLK,
+        PLL1CLK_IN                      =>      PLL1OUTCLK,
+        PLL1REFCLK_IN                   =>      PLL1OUTREFCLK,
+        RST_IN                          =>      GT_CHANNEL_SIG_i(i).RST_IN,
+        DRP_BUSY_OUT                    =>      GT_CHANNEL_SIG_o(i).DRP_BUSY_OUT,
         ---------------------------- Channel - DRP Ports  --------------------------
-        DRPADDR_IN                      =>      GT0_DRPADDR_IN,
-        DRPCLK_IN                       =>      GT0_DRPCLK_IN,
-        DRPDI_IN                        =>      GT0_DRPDI_IN,
-        DRPDO_OUT                       =>      GT0_DRPDO_OUT,
-        DRPEN_IN                        =>      GT0_DRPEN_IN,
-        DRPRDY_OUT                      =>      GT0_DRPRDY_OUT,
-        DRPWE_IN                        =>      GT0_DRPWE_IN,
+        DRPADDR_IN                      =>      GT_CHANNEL_SIG_i(i).DRPADDR_IN,
+        DRPCLK_IN                       =>      GT_CHANNEL_SIG_i(i).DRPCLK_IN,
+        DRPDI_IN                        =>      GT_CHANNEL_SIG_i(i).DRPDI_IN,
+        DRPDO_OUT                       =>      GT_CHANNEL_SIG_o(i).DRPDO_OUT,
+        DRPEN_IN                        =>      GT_CHANNEL_SIG_i(i).DRPEN_IN,
+        DRPRDY_OUT                      =>      GT_CHANNEL_SIG_o(i).DRPRDY_OUT,
+        DRPWE_IN                        =>      GT_CHANNEL_SIG_i(i).DRPWE_IN,
         ------------------------ GTPE2_CHANNEL Clocking Ports ----------------------
-        PLL0CLK_IN                      =>      gt0_pll0clk_i,
-        PLL0REFCLK_IN                   =>      gt0_pll0refclk_i,
-        PLL1CLK_IN                      =>      gt0_pll1clk_i,
-        PLL1REFCLK_IN                   =>      gt0_pll1refclk_i,
+        RXSYSCLKSEL_IN                  =>      GT_CHANNEL_SIG_i(i).RXSYSCLKSEL,
+        TXSYSCLKSEL_IN                  =>      GT_CHANNEL_SIG_i(i).TXSYSCLKSEL,
         ------------------------------- Loopback Ports -----------------------------
-        LOOPBACK_IN                     =>      GT0_LOOPBACK_IN,
-        --------------------- RX Initialization and Reset Ports --------------------
-        RXUSERRDY_IN                    =>      GT0_RXUSERRDY_IN,
+        LOOPBACK_IN                     =>      GT_CHANNEL_SIG_i(i).LOOPBACK,
+        --------------------- RX Initialization and Reset Ports -------------------
+        RXUSERRDY_IN                    =>      GT_CHANNEL_SIG_i(i).RXUSERRDY,
         -------------------------- RX Margin Analysis Ports ------------------------
-        EYESCANDATAERROR_OUT            =>      GT0_EYESCANDATAERROR_OUT,
+        EYESCANDATAERROR_OUT            =>      GT_CHANNEL_SIG_o(i).EYESCANDATAERROR,
         ------------------ Receive Ports - FPGA RX Interface Ports -----------------
-        RXDATA_OUT                      =>      GT0_RXDATA_OUT,
-        RXUSRCLK_IN                     =>      GT0_RXUSRCLK_IN,
-        RXUSRCLK2_IN                    =>      GT0_RXUSRCLK2_IN,
+        RXDATA_OUT                      =>      GT_CHANNEL_SIG_o(i).RXDATA,
+        RXUSRCLK_IN                     =>      GT_CHANNEL_SIG_i(i).RXUSRCLK,
+        RXUSRCLK2_IN                    =>      GT_CHANNEL_SIG_i(i).RXUSRCLK2,
         ------------------ Receive Ports - RX 8B/10B Decoder Ports -----------------
-        RXCHARISCOMMA_OUT               =>      GT0_RXCHARISCOMMA_OUT,
-        RXCHARISK_OUT                   =>      GT0_RXCHARISK_OUT,
-        RXDISPERR_OUT                   =>      GT0_RXDISPERR_OUT,
-        RXNOTINTABLE_OUT                =>      GT0_RXNOTINTABLE_OUT,
+        RXCHARISCOMMA_OUT               =>      GT_CHANNEL_SIG_o(i).RXCHARISCOMMA,
+        RXCHARISK_OUT                   =>      GT_CHANNEL_SIG_o(i).RXCHARISK,
+        RXDISPERR_OUT                   =>      GT_CHANNEL_SIG_o(i).RXDISPERR,
+        RXNOTINTABLE_OUT                =>      GT_CHANNEL_SIG_o(i).RXNOTINTABLE,
         ------------------------ Receive Ports - RX AFE Ports ----------------------
-        GTPRXN_IN                       =>      GT0_GTPRXN_IN,
-        GTPRXP_IN                       =>      GT0_GTPRXP_IN,
+        GTPRXN_IN                       =>      GT_CHANNEL_SIG_i(i).GTPRXN,
+        GTPRXP_IN                       =>      GT_CHANNEL_SIG_i(i).GTPRXP,
         -------------- Receive Ports - RX Byte and Word Alignment Ports ------------
-        RXBYTEISALIGNED_OUT             =>      GT0_RXBYTEISALIGNED_OUT,
-        RXCOMMADET_OUT                  =>      GT0_RXCOMMADET_OUT,
-        RXSLIDE_IN                      =>      GT0_RXSLIDE_IN,
+        RXBYTEISALIGNED_OUT             =>      GT_CHANNEL_SIG_o(i).RXBYTEISALIGNED,
+        RXCOMMADET_OUT                  =>      GT_CHANNEL_SIG_o(i).RXCOMMADET,
+        RXSLIDE_IN                      =>      GT_CHANNEL_SIG_i(i).RXSLIDE,
         --------------------- Receive Ports - RX Equilizer Ports -------------------
-        RXLPMHFHOLD_IN                  =>      GT0_RXLPMHFHOLD_IN,
-        RXLPMLFHOLD_IN                  =>      GT0_RXLPMLFHOLD_IN,
-        --------------- Receive Ports - RX Fabric Output Control Ports -------------
-        RXOUTCLK_OUT                    =>      GT0_RXOUTCLK_OUT,
+        RXLPMHFHOLD_IN                  =>      GT_CHANNEL_SIG_i(i).RXLPMHFHOLD,
+        RXLPMLFHOLD_IN                  =>      GT_CHANNEL_SIG_i(i).RXLPMLFHOLD,
+        --------------- Receive Ports - RX Fabric Output Control Pors -------------
+        RXOUTCLK_OUT                    =>      GT_CHANNEL_SIG_o(i).RXOUTCLK,
         ------------- Receive Ports - RX Initialization and Reset Ports ------------
-        GTRXRESET_IN                    =>      GT0_GTRXRESET_IN,
+        GTRXRESET_IN                    =>      GT_CHANNEL_SIG_i(i).GTRXRESET,
         -------------- Receive Ports -RX Initialization and Reset Ports ------------
-        RXRESETDONE_OUT                 =>      GT0_RXRESETDONE_OUT,
+        RXRESETDONE_OUT                 =>      GT_CHANNEL_SIG_o(i).RXRESETDONE,
         --------------------- TX Initialization and Reset Ports --------------------
-        GTTXRESET_IN                    =>      GT0_GTTXRESET_IN,
-        TXUSERRDY_IN                    =>      GT0_TXUSERRDY_IN,
+        GTTXRESET_IN                    =>      GT_CHANNEL_SIG_i(i).GTTXRESET,
+        TXUSERRDY_IN                    =>      GT_CHANNEL_SIG_i(i).TXUSERRDY,
         ------------------ Transmit Ports - FPGA TX Interface Ports ----------------
-        TXDATA_IN                       =>      GT0_TXDATA_IN,
-        TXUSRCLK_IN                     =>      GT0_TXUSRCLK_IN,
-        TXUSRCLK2_IN                    =>      GT0_TXUSRCLK2_IN,
+        TXDATA_IN                       =>      GT_CHANNEL_SIG_i(i).TXDATA,
+        TXUSRCLK_IN                     =>      GT_CHANNEL_SIG_i(i).TXUSRCLK,
+        TXUSRCLK2_IN                    =>      GT_CHANNEL_SIG_i(i).TXUSRCLK2,
         ------------------ Transmit Ports - TX 8B/10B Encoder Ports ----------------
-        TXCHARISK_IN                    =>      GT0_TXCHARISK_IN,
+        TXCHARISK_IN                    =>      GT_CHANNEL_SIG_i(i).TXCHARISK,
         --------------- Transmit Ports - TX Configurable Driver Ports --------------
-        GTPTXN_OUT                      =>      GT0_GTPTXN_OUT,
-        GTPTXP_OUT                      =>      GT0_GTPTXP_OUT,
-        ----------- Transmit Ports - TX Fabric Clock Output Control Ports ----------
-        TXOUTCLK_OUT                    =>      GT0_TXOUTCLK_OUT,
-        TXOUTCLKFABRIC_OUT              =>      GT0_TXOUTCLKFABRIC_OUT,
-        TXOUTCLKPCS_OUT                 =>      GT0_TXOUTCLKPCS_OUT,
+        GTPTXN_OUT                      =>      GT_CHANNEL_SIG_o(i).GTPTXN,
+        GTPTXP_OUT                      =>      GT_CHANNEL_SIG_o(i).GTPTXP,
+        ----------- Transmit Ports - TX Fabric Clock Output Control ports ----------
+        TXOUTCLK_OUT                    =>      GT_CHANNEL_SIG_o(i).TXOUTCLK,
+        TXOUTCLKFABRIC_OUT              =>      GT_CHANNEL_SIG_o(i).TXOUTCLKFABRIC,
+        TXOUTCLKPCS_OUT                 =>      GT_CHANNEL_SIG_o(i).TXOUTCLKPCS,
         ------------- Transmit Ports - TX Initialization and Reset Ports -----------
-        TXRESETDONE_OUT                 =>      GT0_TXRESETDONE_OUT,
-        ------------------ Transmit Ports - pattern Generator Ports ----------------
-        TXPRBSSEL_IN                    =>      GT0_TXPRBSSEL_IN
-
+        TXRESETDONE_OUT                 =>      GT_CHANNEL_SIG_o(i).TXRESETDONE,
+        ------------------ Transmit Ports - pattern Generator Ports ---------------
+        TXPRBSSEL_IN                    =>      GT_CHANNEL_SIG_i(i).TXPRBSSEL
     );
+end generate gen_GT_INTS;
 
-
-    --_________________________________________________________________________
-    --_________________________________________________________________________
-    --_________________________GTPE2_COMMON____________________________________
-
-    gtpe2_common_0_i : GTPE2_COMMON
-    generic map
-    (
-            -- Simulation attributes
-            SIM_RESET_SPEEDUP    => WRAPPER_SIM_GTRESET_SPEEDUP,
-            SIM_PLL0REFCLK_SEL   => ("001"),
-            SIM_PLL1REFCLK_SEL   => ("001"),
-            SIM_VERSION          => ("1.0"),
-
-            PLL0_FBDIV           => PLL0_FBDIV_IN     ,	
-	    PLL0_FBDIV_45        => PLL0_FBDIV_45_IN  ,	
-	    PLL0_REFCLK_DIV      => PLL0_REFCLK_DIV_IN,	
-	    PLL1_FBDIV           => PLL1_FBDIV_IN     ,	
-	    PLL1_FBDIV_45        => PLL1_FBDIV_45_IN  ,	
-	    PLL1_REFCLK_DIV      => PLL1_REFCLK_DIV_IN,	            
-
-
-       ------------------COMMON BLOCK Attributes---------------
-        BIAS_CFG                                =>     (x"0000000000050001"),
-        COMMON_CFG                              =>     (x"00000000"),
-
-       ----------------------------PLL Attributes----------------------------
-        PLL0_CFG                                =>     (x"01F03DC"),
-        PLL0_DMON_CFG                           =>     ('0'),
-        PLL0_INIT_CFG                           =>     (x"00001E"),
-        PLL0_LOCK_CFG                           =>     (x"1E8"),
-        PLL1_CFG                                =>     (x"01F03DC"),
-        PLL1_DMON_CFG                           =>     ('0'),
-        PLL1_INIT_CFG                           =>     (x"00001E"),
-        PLL1_LOCK_CFG                           =>     (x"1E8"),
-        PLL_CLKOUT_CFG                          =>     (x"00"),
-
-       ----------------------------Reserved Attributes----------------------------
-        RSVD_ATTR0                              =>     (x"0000"),
-        RSVD_ATTR1                              =>     (x"0000")
-
-        
-    )
-    port map
-    (
-	     DMONITOROUT             => open,	
-        ------------- Common Block  - Dynamic Reconfiguration Port (DRP) -----------
-        DRPADDR                         =>      tied_to_ground_vec_i(7 downto 0),
-        DRPCLK                          =>      tied_to_ground_i,
-        DRPDI                           =>      tied_to_ground_vec_i(15 downto 0),
-        DRPDO                           =>      open,
-        DRPEN                           =>      tied_to_ground_i,
-        DRPRDY                          =>      open,
-        DRPWE                           =>      tied_to_ground_i,
-        ----------------- Common Block - GTPE2_COMMON Clocking Ports ---------------
-        GTEASTREFCLK0                   =>      tied_to_ground_i,
-        GTEASTREFCLK1                   =>      tied_to_ground_i,
-        GTGREFCLK1                      =>      tied_to_ground_i,
-        GTREFCLK0                       =>      GT0_GTREFCLK0_IN,
-        GTREFCLK1                       =>      tied_to_ground_i,
-        GTWESTREFCLK0                   =>      tied_to_ground_i,
-        GTWESTREFCLK1                   =>      tied_to_ground_i,
-        PLL0OUTCLK                      =>      gt0_pll0outclk_i,
-        PLL0OUTREFCLK                   =>      gt0_pll0outrefclk_i,
-        PLL1OUTCLK                      =>      gt0_pll1outclk_i,
-        PLL1OUTREFCLK                   =>      gt0_pll1outrefclk_i,
-        -------------------------- Common Block - PLL Ports ------------------------
-        PLL0FBCLKLOST                   =>      open,
-        PLL0LOCK                        =>      open,
-        PLL0LOCKDETCLK                  =>      tied_to_ground_i,
-        PLL0LOCKEN                      =>      tied_to_vcc_i,
-        PLL0PD                          =>      '1',
-        PLL0REFCLKLOST                  =>      open,
-        PLL0REFCLKSEL                   =>      "001",
-        PLL0RESET                       =>      tied_to_ground_i,
-        PLL1FBCLKLOST                   =>      open,
-        PLL1LOCK                        =>      GT0_PLL1LOCK_OUT,
-        PLL1LOCKDETCLK                  =>      GT0_PLL1LOCKDETCLK_IN,
-        PLL1LOCKEN                      =>      tied_to_vcc_i,
-        PLL1PD                          =>      tied_to_ground_i,
-        PLL1REFCLKLOST                  =>      GT0_PLL1REFCLKLOST_OUT,
-        PLL1REFCLKSEL                   =>      "001",
-        PLL1RESET                       =>      GT0_PLL1RESET_IN,
-        ---------------------------- Common Block - Ports --------------------------
-        BGRCALOVRDENB                   =>      tied_to_vcc_i,
-        GTGREFCLK0                      =>      tied_to_ground_i,
-        PLLRSVD1                        =>      "0000000000000000",
-        PLLRSVD2                        =>      "00000",
-        REFCLKOUTMONITOR0               =>      open,
-        REFCLKOUTMONITOR1               =>      open,
-        ------------------------ Common Block - RX AFE Ports -----------------------
-        PMARSVDOUT                      =>      open,
-        --------------------------------- QPLL Ports -------------------------------
-        BGBYPASSB                       =>      tied_to_vcc_i,
-        BGMONITORENB                    =>      tied_to_vcc_i,
-        BGPDB                           =>      tied_to_vcc_i,
-        BGRCALOVRD                      =>      "00000",           -- ug482 table 2-8 says "111111"
-        PMARSVD                         =>      "00000000",
-        RCALENB                         =>      tied_to_vcc_i
-
-    );
-
-     
 end RTL;

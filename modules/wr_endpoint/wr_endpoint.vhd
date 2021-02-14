@@ -62,6 +62,7 @@ entity wr_endpoint is
     g_tx_runt_padding       : boolean                        := true;
     g_simulation            : boolean                        := false;
     g_pcs_16bit             : boolean                        := true;
+    g_ref_clock_rate        : integer                        := 62500000;
     g_rx_buffer_size        : integer                        := 1024;
     g_with_rx_buffer        : boolean                        := true;
     g_with_flow_control     : boolean                        := true;
@@ -719,7 +720,7 @@ begin
     generic map (
       g_timestamp_bits_r => 28,
       g_timestamp_bits_f => 4,
-      g_ref_clock_rate   => f_pcs_clock_rate(g_pcs_16bit))
+      g_ref_clock_rate   => g_ref_clock_rate)
     port map (
       clk_ref_i      => clk_ref_i,
       clk_rx_i       => phy_rx_clk_i,
@@ -739,9 +740,10 @@ begin
 
       txts_timestamp_o       => txts_timestamp_value,
       txts_timestamp_valid_o => txts_timestamp_valid,
+      txts_timestamp_stb_o   => txts_timestamp_stb,
 
-      txts_o                 => txts_o,                   -- 2013-Nov-28 peterj added for debugging/calibration
-      rxts_o                 => rxts_o, 		              -- 2013-Nov-28 peterj added for debugging/calibration
+      txts_o                 => txts_o,
+      rxts_o                 => rxts_o,
 
       regs_i => regs_fromwb,
       regs_o => regs_towb_tsu);

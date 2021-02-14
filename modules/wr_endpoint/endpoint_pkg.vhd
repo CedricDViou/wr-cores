@@ -107,6 +107,9 @@ package endpoint_pkg is
     ('0', '0', (others=>'0'), (others=>'0'), (others=>'0'),
     (others=>'0'), '0');
 
+  type t_phy_8bits_to_wrc_array is array(integer range <>) of t_phy_8bits_to_wrc;
+  type t_phy_8bits_from_wrc_array is array(integer range <>) of t_phy_8bits_from_wrc;
+
   -- 16-bit Serdes
   type t_phy_16bits_to_wrc is record
     ref_clk        : std_logic;
@@ -142,6 +145,8 @@ package endpoint_pkg is
     ('0', '0', (others=>'0'), (others=>'0'), (others=>'0'),
     (others=>'0'), '0', (others => '0'));
 
+  type t_phy_16bits_to_wrc_array is array(integer range <>) of t_phy_16bits_to_wrc;
+  type t_phy_16bits_from_wrc_array is array(integer range <>) of t_phy_16bits_from_wrc;
 
   -- debug CS types
   type t_dbg_ep_rxpcs is record
@@ -184,6 +189,7 @@ package endpoint_pkg is
       g_address_granularity   : t_wishbone_address_granularity := WORD;
       g_simulation            : boolean                        := false;
       g_pcs_16bit             : boolean                        := false;
+      g_ref_clock_rate        : integer                        := 62500000;
       g_records_for_phy       : boolean                        := false;
       g_tx_force_gap_length   : integer                        := 0;
       g_tx_runt_padding       : boolean                        := false;
@@ -220,7 +226,7 @@ package endpoint_pkg is
       phy_sfp_tx_fault_i   : in  std_logic                     := '0';
       phy_sfp_los_i        : in  std_logic                     := '0';
       phy_sfp_tx_disable_o : out std_logic;
-      phy_rdy_i            : in  std_logic;
+      phy_rdy_i            : in  std_logic                     := '0';
       phy_lpc_stat_i       : in  std_logic_vector(15 downto 0) := (others=>'0');
       phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
 
@@ -303,6 +309,7 @@ package endpoint_pkg is
       g_tx_runt_padding       : boolean                        := false;
       g_simulation            : boolean                        := false;
       g_pcs_16bit             : boolean                        := true;
+      g_ref_clock_rate        : integer                        := 62500000;
       g_rx_buffer_size        : integer                        := 1024;
       g_with_rx_buffer        : boolean                        := true;
       g_with_flow_control     : boolean                        := true;
@@ -336,7 +343,7 @@ package endpoint_pkg is
       phy_sfp_tx_fault_i   : in  std_logic                     := '0';
       phy_sfp_los_i        : in  std_logic                     := '0';
       phy_sfp_tx_disable_o : out std_logic;
-      phy_rdy_i            : in  std_logic;
+      phy_rdy_i            : in  std_logic                     := '0';
       phy_lpc_stat_i       : in  std_logic_vector(15 downto 0) := (others=>'0');
       phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
       

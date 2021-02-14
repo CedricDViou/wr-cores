@@ -105,7 +105,7 @@ entity xwr_softpll_ng is
     clk_ext_i : in std_logic;
 
 -- External clock, multiplied to 125 MHz using the FPGA's PLL
-    clk_ext_mul_i        : in std_logic_vector(g_num_exts-1 downto 0);
+    clk_ext_mul_i        : in std_logic_vector(f_nonzero_vector(g_num_exts)-1 downto 0);
     clk_ext_mul_locked_i : in std_logic := '1';
     clk_ext_stopped_i    : in std_logic := '0';
     clk_ext_rst_o        : out std_logic;
@@ -135,6 +135,13 @@ entity xwr_softpll_ng is
     int_o: out std_logic;
 
     debug_o        : out std_logic_vector(5 downto 0);
+
+    netdbg_almost_full  : out  std_logic;
+    netdbg_empty        : out  std_logic;
+    netdbg_rd_data      : out  std_logic_vector(47 downto 0);
+    netdbg_rd           : in   std_logic:='0';
+    netdbg_clk_rd       : in   std_logic:='0';
+    
     dbg_fifo_irq_o : out std_logic
     );
 
@@ -166,7 +173,7 @@ architecture wrapper of xwr_softpll_ng is
       clk_fb_i        : in  std_logic_vector(g_num_outputs-1 downto 0);
       clk_dmtd_i      : in  std_logic;
       clk_ext_i       : in  std_logic;
-      clk_ext_mul_i   : in  std_logic_vector(g_num_exts-1 downto 0);
+      clk_ext_mul_i   : in  std_logic_vector(f_nonzero_vector(g_num_exts)-1 downto 0);
       clk_ext_mul_locked_i : in  std_logic;
       clk_ext_stopped_i    : in  std_logic;
       clk_ext_rst_o        : out std_logic;
@@ -191,6 +198,11 @@ architecture wrapper of xwr_softpll_ng is
       wb_stall_o      : out std_logic;
       irq_o           : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
+      netdbg_almost_full  : out std_logic;
+      netdbg_empty        : out std_logic;
+      netdbg_rd_data      : out std_logic_vector(47 downto 0);
+      netdbg_rd           : in  std_logic:='0';
+      netdbg_clk_rd       : in  std_logic:='0';
       dbg_fifo_irq_o  : out std_logic);
   end component;
   
@@ -246,6 +258,11 @@ begin  -- behavioral
       wb_stall_o      => slave_o.stall,
       irq_o           => int_o,
       debug_o         => debug_o,
+      netdbg_almost_full  => netdbg_almost_full,
+      netdbg_empty        => netdbg_empty,
+      netdbg_rd_data      => netdbg_rd_data,
+      netdbg_rd           => netdbg_rd,
+      netdbg_clk_rd       => netdbg_clk_rd,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 
   slave_o.err <= '0';
