@@ -806,3 +806,4 @@ begin  -- rtl
   regs_out.trr_disc_i          <= '0';
 
 end rtl;
+

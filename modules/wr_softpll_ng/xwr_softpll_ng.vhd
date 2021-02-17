@@ -183,6 +183,7 @@ architecture wrapper of xwr_softpll_ng is
       wb_we_i         : in  std_logic;
       wb_ack_o        : out std_logic;
       wb_stall_o      : out std_logic;
+      wb_irq_o        : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
@@ -200,8 +201,8 @@ begin  -- behavioral
       g_with_ext_clock_input => g_with_ext_clock_input,
       g_reverse_dmtds        => g_reverse_dmtds,
       g_divide_input_by_2    => g_divide_input_by_2,
-      g_ref_clock_rate  => g_ref_clock_rate,
-      g_ext_clock_rate  => g_ext_clock_rate
+      g_ref_clock_rate       => g_ref_clock_rate,
+      g_ext_clock_rate       => g_ext_clock_rate
       )
     port map (
       clk_sys_i       => clk_sys_i,
@@ -235,6 +236,7 @@ begin  -- behavioral
       wb_we_i         => slave_i.we,
       wb_ack_o        => slave_o.ack,
       wb_stall_o      => slave_o.stall,
+      wb_irq_o        => int_o,
       debug_o         => debug_o,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 
