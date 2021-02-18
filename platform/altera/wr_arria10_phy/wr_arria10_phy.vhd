@@ -254,7 +254,6 @@ begin
         );
     end generate scu4_phy;
 
-    det_phy : if g_use_det_phy generate
       pex10_phy: if (g_family = "Arria 10 GX PEX10") generate
         inst_phy : wr_arria10_pex10_det_phy
           port map (
@@ -298,7 +297,6 @@ begin
           );
       end generate pex10_phy;
 
-      det_phy : if g_use_det_phy generate
         ftm10_phy: if (g_family = "Arria 10 GX FTM10") generate
           inst_phy : wr_arria10_ftm10_det_phy
             port map (
