@@ -246,7 +246,28 @@ entity spec7_wr_ref_top is
     FIXED_IO_mio : inout STD_LOGIC_VECTOR ( 53 downto 0 );
     FIXED_IO_ps_clk : inout STD_LOGIC;
     FIXED_IO_ps_porb : inout STD_LOGIC;
-    FIXED_IO_ps_srstb : inout STD_LOGIC
+    FIXED_IO_ps_srstb : inout STD_LOGIC;
+
+    ---------------------------------------------------------------------------
+    -- Programmable Logic DDR3
+    ---------------------------------------------------------------------------
+
+    DDR3_dq : inout STD_LOGIC_VECTOR ( 31 downto 0 );
+    DDR3_dqs_p : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR3_dqs_n : inout STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR3_addr : out STD_LOGIC_VECTOR ( 14 downto 0 );
+    DDR3_ba : out STD_LOGIC_VECTOR ( 2 downto 0 );
+    DDR3_ras_n : out STD_LOGIC;
+    DDR3_cas_n : out STD_LOGIC;
+    DDR3_we_n : out STD_LOGIC;
+    DDR3_reset_n : out STD_LOGIC;
+    DDR3_ck_p : out STD_LOGIC_VECTOR ( 0 to 0 );
+    DDR3_ck_n : out STD_LOGIC_VECTOR ( 0 to 0 );
+    DDR3_cke : out STD_LOGIC_VECTOR ( 0 to 0 );
+    DDR3_cs_n : out STD_LOGIC_VECTOR ( 0 to 0 );
+    DDR3_dm : out STD_LOGIC_VECTOR ( 3 downto 0 );
+    DDR3_odt : out STD_LOGIC_VECTOR ( 0 to 0 )
+
 
   );
 end entity spec7_wr_ref_top;
@@ -349,6 +370,21 @@ begin  -- architecture top
 
   Pcie: processing_system_pcie_wrapper
   port map (
+    DDR3_addr         => DDR3_addr,
+    DDR3_ba           => DDR3_ba,
+    DDR3_cas_n        => DDR3_cas_n,
+    DDR3_ck_n         => DDR3_ck_n,
+    DDR3_ck_p         => DDR3_ck_p,
+    DDR3_cke          => DDR3_cke,
+    DDR3_cs_n         => DDR3_cs_n,
+    DDR3_dm           => DDR3_dm,
+    DDR3_dq           => DDR3_dq,
+    DDR3_dqs_n        => DDR3_dqs_n,
+    DDR3_dqs_p        => DDR3_dqs_p,
+    DDR3_odt          => DDR3_odt,
+    DDR3_ras_n        => DDR3_ras_n,
+    DDR3_reset_n      => DDR3_reset_n,
+    DDR3_we_n         => DDR3_we_n,
     DDR_addr          =>DDR_addr         ,
     DDR_ba            =>DDR_ba           ,
     DDR_cas_n         =>DDR_cas_n        ,
