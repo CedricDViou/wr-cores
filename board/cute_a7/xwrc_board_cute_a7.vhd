@@ -71,6 +71,7 @@ entity xwrc_board_cute_a7 is
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
     g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_etherbone_sdb             : t_sdb_device                   := c_etherbone_sdb;
     g_softpll_enable_debugger   : boolean                        := FALSE;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := TRUE;
@@ -301,6 +302,13 @@ architecture struct of xwrc_board_cute_a7 is
   signal tm_tai        : std_logic_vector(39 downto 0);
   signal tm_cycles     : std_logic_vector(27 downto 0);
 
+  -- Etherbone WR fabric interface
+  signal eb_wrf_src_out : t_wrf_source_out_array(g_num_phys-1 downto 0);
+  signal eb_wrf_src_in  : t_wrf_source_in_array(g_num_phys-1 downto 0);
+  signal eb_wrf_snk_out : t_wrf_sink_out_array(g_num_phys-1 downto 0);
+  signal eb_wrf_snk_in  : t_wrf_sink_in_array(g_num_phys-1 downto 0);
+
+
   -- WR fabric interface
   signal wrf_src_out : t_wrf_source_out_array(g_num_phys-1 downto 0);
   signal wrf_src_in  : t_wrf_source_in_array(g_num_phys-1 downto 0);
@@ -377,6 +385,7 @@ begin  -- architecture struct
       g_address_granularity       => g_address_granularity,
       g_aux_sdb                   => g_aux_sdb,
       g_aux1_sdb                  => g_aux1_sdb,
+      g_etherbone_sdb             => g_etherbone_sdb,
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
@@ -460,6 +469,10 @@ begin  -- architecture struct
       wrf_src_i            => wrf_src_in,
       wrf_snk_o            => wrf_snk_out,
       wrf_snk_i            => wrf_snk_in,
+      eb_wrf_src_o         => eb_wrf_src_out,
+      eb_wrf_src_i         => eb_wrf_src_in,
+      eb_wrf_snk_o         => eb_wrf_snk_out,
+      eb_wrf_snk_i         => eb_wrf_snk_in,
       timestamps_o         => timestamps_o,
       timestamps_ack_i     => timestamps_ack_i,
       abscal_txts_o        => abscal_txts_o,
@@ -516,19 +529,21 @@ begin  -- architecture struct
       port map (
         clk_i       => clk_sys_i,
         nRst_i      => aux_rst_n,
-        src_o       => wrf_snk_in(0),
-        src_i       => wrf_snk_out(0),
-        snk_o       => wrf_src_in(0),
-        snk_i       => wrf_src_out(0),
+        src_o       => eb_wrf_snk_in(0),
+        src_i       => eb_wrf_snk_out(0),
+        snk_o       => eb_wrf_src_in(0),
+        snk_i       => eb_wrf_src_out(0),
         cfg_slave_o => eb_cfg_master_in,
         cfg_slave_i => eb_cfg_master_out,
         master_o    => wb_eth_master_o,
         master_i    => wb_eth_master_i);
 
-    -- unused output ports
-    wrf_src_o <= (others=>c_dummy_snk_in);
-    wrf_snk_o <= (others=>c_dummy_src_in);
+    wrf_src_o <= wrf_src_out;
+    wrf_snk_o <= wrf_snk_out;
 
+    wrf_src_in <= wrf_src_i;
+    wrf_snk_in <= wrf_snk_i;
+    
     aux_master_in <= aux_master_i;
     aux_master_o  <= aux_master_out;
 

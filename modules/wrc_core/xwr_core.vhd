@@ -66,7 +66,7 @@ use work.endpoint_pkg.all;
 use work.wr_fabric_pkg.all;
 use work.sysc_wbgen2_pkg.all;
 use work.softpll_pkg.all;
-
+use work.etherbone_pkg.all;
 
 entity xwr_core is
   generic(
@@ -91,6 +91,7 @@ entity xwr_core is
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
     g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_etherbone_sdb             : t_sdb_device                   := c_etherbone_sdb;    
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
@@ -246,6 +247,14 @@ entity xwr_core is
     eb_cfg_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
     
     -----------------------------------------
+    -- Etherbone Fabric I/F
+    -----------------------------------------
+    eb_wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
+    eb_wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+    eb_wrf_snk_o : out t_wrf_sink_out_array(g_num_phys-1 downto 0);
+    eb_wrf_snk_i : in  t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
+
+    -----------------------------------------
     -- External Fabric I/F
     -----------------------------------------
     wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
@@ -326,6 +335,7 @@ begin
       g_address_granularity       => g_address_granularity,
       g_aux_sdb                   => g_aux_sdb,
       g_aux1_sdb                  => g_aux1_sdb,
+      g_etherbone_sdb             => g_etherbone_sdb,
       g_softpll_enable_debugger   => g_softpll_enable_debugger,
       g_vuart_fifo_size           => g_vuart_fifo_size,
       g_pcs_16bit                 => g_pcs_16bit,
@@ -466,6 +476,11 @@ begin
       eb_cfg_ack_i   => eb_cfg_master_i.ack,
       eb_cfg_stall_i => eb_cfg_master_i.stall,
     
+      eb_wrf_snk_i   => eb_wrf_snk_i,
+      eb_wrf_snk_o   => eb_wrf_snk_o,
+      eb_wrf_src_i   => eb_wrf_src_i,
+      eb_wrf_src_o   => eb_wrf_src_o,
+
       wrf_snk_i   => wrf_snk_i,
       wrf_snk_o   => wrf_snk_o,
       wrf_src_i   => wrf_src_i,

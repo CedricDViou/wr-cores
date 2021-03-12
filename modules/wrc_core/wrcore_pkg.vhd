@@ -42,6 +42,7 @@ use work.wrc_diags_wbgen2_pkg.all;
 use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.softpll_pkg.all;
+use work.etherbone_pkg.all;
 
 package wrcore_pkg is
 
@@ -376,6 +377,7 @@ package wrcore_pkg is
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
       g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
+      g_etherbone_sdb             : t_sdb_device                   := c_etherbone_sdb;
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
@@ -489,6 +491,10 @@ package wrcore_pkg is
       
       eb_cfg_master_o : out t_wishbone_master_out;
       eb_cfg_master_i : in  t_wishbone_master_in := cc_dummy_master_in;
+      eb_wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
+      eb_wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+      eb_wrf_snk_o : out t_wrf_sink_out_array(g_num_phys-1 downto 0);
+      eb_wrf_snk_i : in  t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
 
       wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
       wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
@@ -551,6 +557,7 @@ package wrcore_pkg is
       g_address_granularity       : t_wishbone_address_granularity := BYTE;
       g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
       g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
+      g_etherbone_sdb             : t_sdb_device                   := c_etherbone_sdb;
       g_softpll_enable_debugger   : boolean                        := false;
       g_vuart_fifo_size           : integer                        := 1024;
       g_pcs_16bit                 : boolean                        := false;
@@ -742,6 +749,12 @@ package wrcore_pkg is
       eb_cfg_stb_o   : out std_logic;
       eb_cfg_ack_i   : in  std_logic := '1';
       eb_cfg_stall_i : in  std_logic := '0';
+
+      eb_wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
+      eb_wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+      eb_wrf_snk_o : out t_wrf_sink_out_array(g_num_phys-1 downto 0);
+      eb_wrf_snk_i : in  t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
+
       -----------------------------------------
       -- External Fabric I/F
       -----------------------------------------

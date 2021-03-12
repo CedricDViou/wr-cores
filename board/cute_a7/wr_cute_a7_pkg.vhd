@@ -43,6 +43,7 @@ use work.wr_fabric_pkg.all;
 use work.endpoint_pkg.all;
 use work.wr_board_pkg.all;
 use work.streamers_pkg.all;
+use work.etherbone_pkg.all;
 
 package wr_cute_a7_pkg is
 
@@ -65,6 +66,7 @@ generic(
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
     g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_etherbone_sdb             : t_sdb_device                   := c_etherbone_sdb;
     g_softpll_enable_debugger   : boolean                        := FALSE;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := TRUE;
@@ -295,7 +297,7 @@ constant c_null_sdb : t_sdb_device := (
         vendor_id => x"0000000000746875",  -- THU
         device_id => x"11111111",
         version   => x"00000001",
-        date      => x"20191224",
+        date      => x"20201119",
         name      => "WR-NULL            ")));
 
 

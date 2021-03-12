@@ -60,6 +60,7 @@ use work.wr_xilinx_pkg.all;
 use work.wr_board_pkg.all;
 use work.wishbone_pkg.all;
 use work.wr_cute_a7_pkg.all;
+use work.etherbone_pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
@@ -316,6 +317,7 @@ begin
     generic map (
         g_num_phys           => g_num_phys,
         g_aux1_sdb           => c_null_sdb,
+        g_etherbone_sdb      => c_etherbone_sdb,
         g_fabric_iface       => g_fabric_iface,
         g_with_10M_output    => g_with_10M_output,
         g_dpram_initf        => g_dpram_initf,

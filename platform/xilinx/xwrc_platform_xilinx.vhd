@@ -800,7 +800,7 @@ begin  -- architecture rtl
 
     clk_sys_o        <= clk_sys_i;
     clk_dmtd_o       <= clk_dmtd_i;
-    clk_ref_o(0)     <= clk_ref_i;
+    -- clk_ref_o(0)     <= clk_ref_i;
     clk_pllref_buf   <= clk_ref_i;
 
     pll_locked_o     <= clk_sys_locked_i and clk_dmtd_locked_i;

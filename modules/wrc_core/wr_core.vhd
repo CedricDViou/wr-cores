@@ -93,6 +93,7 @@ entity wr_core is
     g_address_granularity       : t_wishbone_address_granularity := BYTE;
     g_aux_sdb                   : t_sdb_device                   := c_wrc_periph3_sdb;
     g_aux1_sdb                  : t_sdb_device                   := c_wrc_periph3_sdb;
+    g_etherbone_sdb             : t_sdb_device                   := c_etherbone_sdb;
     g_softpll_enable_debugger   : boolean                        := false;
     g_vuart_fifo_size           : integer                        := 1024;
     g_pcs_16bit                 : boolean                        := false;
@@ -286,6 +287,14 @@ entity wr_core is
     eb_cfg_stb_o   : out std_logic;
     eb_cfg_ack_i   : in  std_logic := '1';
     eb_cfg_stall_i : in  std_logic := '0';
+
+    -----------------------------------------
+    -- Etherbone Fabric I/F
+    -----------------------------------------
+    eb_wrf_src_o : out t_wrf_source_out_array(g_num_phys-1 downto 0);
+    eb_wrf_src_i : in  t_wrf_source_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_src_in);
+    eb_wrf_snk_o : out t_wrf_sink_out_array(g_num_phys-1 downto 0);
+    eb_wrf_snk_i : in  t_wrf_sink_in_array(g_num_phys-1 downto 0):=(others=>c_dummy_snk_in);
 
     -----------------------------------------
     -- External Fabric I/F
@@ -482,7 +491,7 @@ architecture struct of wr_core is
      11=> f_sdb_embed_device(c_xwr_mini_nic_sdb, x"00000b00"), -- GT1 MINI-NIC. Added.
      12=> f_sdb_embed_device(c_xwr_endpoint_sdb, x"00000c00"), -- GT1 ENDPOINT Added.
      13=> f_sdb_embed_device(g_aux1_sdb, x"00000d00"),         -- Another aux WB bus
-     14=> f_sdb_embed_device(c_etherbone_sdb, x"00000e00")   -- etherbone
+     14=> f_sdb_embed_device(g_etherbone_sdb, x"00000e00")   -- etherbone
      );
 
   constant c_secbar_sdb_address : t_wishbone_address := x"00001000";
@@ -1149,7 +1158,9 @@ begin
       pad_sclk_o           => ext_pll_sck_o,
       pad_mosi_o           => ext_pll_mosi_o,
       pad_miso_i           => ext_pll_miso_i);
-  
+      ext_pll_sync_n_o     <= '1';
+      ext_pll_reset_n_o    <= rst_n_i;
+
   -----------------------------------------------------------------------------
   -- WB intercon
   -----------------------------------------------------------------------------
@@ -1296,12 +1307,34 @@ begin
       wrf_snk_o(i).err   <= mux_snk_out((i+1)*3-1).err;
       wrf_snk_o(i).stall <= mux_snk_out((i+1)*3-1).stall;
       wrf_snk_o(i).rty   <= '0';
+
+      eb_wrf_src_o(i).adr <= mux_src_out((i+1)*3-2).adr;
+      eb_wrf_src_o(i).dat <= mux_src_out((i+1)*3-2).dat;
+      eb_wrf_src_o(i).stb <= mux_src_out((i+1)*3-2).stb;
+      eb_wrf_src_o(i).cyc <= mux_src_out((i+1)*3-2).cyc;
+      eb_wrf_src_o(i).sel <= mux_src_out((i+1)*3-2).sel;
+      eb_wrf_src_o(i).we  <= '1';
+      mux_src_in((i+1)*3-2).ack   <= eb_wrf_src_i(i).ack;
+      mux_src_in((i+1)*3-2).stall <= eb_wrf_src_i(i).stall;
+      mux_src_in((i+1)*3-2).err   <= eb_wrf_src_i(i).err;
+      mux_src_in((i+1)*3-2).rty   <= '0';
+        
+      mux_snk_in((i+1)*3-2).adr <= eb_wrf_snk_i(i).adr;
+      mux_snk_in((i+1)*3-2).dat <= eb_wrf_snk_i(i).dat;
+      mux_snk_in((i+1)*3-2).stb <= eb_wrf_snk_i(i).stb;
+      mux_snk_in((i+1)*3-2).cyc <= eb_wrf_snk_i(i).cyc;
+      mux_snk_in((i+1)*3-2).sel <= eb_wrf_snk_i(i).sel;
+      mux_snk_in((i+1)*3-2).we  <= eb_wrf_snk_i(i).we;
+      eb_wrf_snk_o(i).ack   <= mux_snk_out((i+1)*3-2).ack;
+      eb_wrf_snk_o(i).err   <= mux_snk_out((i+1)*3-2).err;
+      eb_wrf_snk_o(i).stall <= mux_snk_out((i+1)*3-2).stall;
+      eb_wrf_snk_o(i).rty   <= '0';
       
   end generate gen_WBP_MUX;
 
-  mux_class(0)  <= x"0f";
-  mux_class(1)  <= x"80";
-  mux_class(2)  <= x"70";
+  mux_class(0)  <= x"0f"; -- to lm32
+  mux_class(1)  <= x"10"; -- to etherbone
+  mux_class(2)  <= x"e0"; -- other external module
 
   -----------------------------------------------------------------------------
   -- External Tx Timestamping I/F

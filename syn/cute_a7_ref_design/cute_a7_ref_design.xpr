@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="38" Path="/media/wrs-calibration/_dde_data/workspace/02_wrnode/cute-a7-wr/modules/wrpc/syn/cute_a7_ref_design/cute_a7_ref_design.xpr">
+<Project Version="7" Minor="38" Path="/home/wrthu/cute-a7-wr/modules/wrpc/syn/cute_a7_ref_design/cute_a7_ref_design.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="d14071a8a57c4979a2415fe945108260"/>
@@ -966,13 +966,6 @@
           <Attr Name="UsedIn" Val="simulation"/>
         </FileInfo>
       </File>
-      <File Path="$PPRDIR/../../ip_cores/etherbone-core/hdl/eb_slave_core/etherbone_pkg.vhd">
-        <FileInfo>
-          <Attr Name="IsGlobalInclude" Val="1"/>
-          <Attr Name="UsedIn" Val="synthesis"/>
-          <Attr Name="UsedIn" Val="simulation"/>
-        </FileInfo>
-      </File>
       <File Path="$PPRDIR/../../ip_cores/etherbone-core/hdl/eb_slave_core/eb_eth_tx.vhd">
         <FileInfo>
           <Attr Name="IsGlobalInclude" Val="1"/>
@@ -1093,6 +1086,13 @@
         </FileInfo>
       </File>
       <File Path="$PPRDIR/../../modules/wrc_core/wrcore_pkg.vhd">
+        <FileInfo>
+          <Attr Name="IsGlobalInclude" Val="1"/>
+          <Attr Name="UsedIn" Val="synthesis"/>
+          <Attr Name="UsedIn" Val="simulation"/>
+        </FileInfo>
+      </File>
+      <File Path="$PPRDIR/../../ip_cores/etherbone-core/hdl/eb_slave_core/etherbone_pkg.vhd">
         <FileInfo>
           <Attr Name="IsGlobalInclude" Val="1"/>
           <Attr Name="UsedIn" Val="synthesis"/>
