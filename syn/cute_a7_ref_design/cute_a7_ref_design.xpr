@@ -3,7 +3,7 @@
 <!--                                                         -->
 <!-- Copyright 1986-2018 Xilinx, Inc. All Rights Reserved.   -->
 
-<Project Version="7" Minor="38" Path="/home/wrthu/cute-a7-wr/modules/wrpc/syn/cute_a7_ref_design/cute_a7_ref_design.xpr">
+<Project Version="7" Minor="38" Path="/media/wrs-calibration/database/0-hm/01wrnode/90-wrpc/hm-cute-a7/syn/cute_a7_ref_design/cute_a7_ref_design.xpr">
   <DefaultLaunch Dir="$PRUNDIR"/>
   <Configuration>
     <Option Name="Id" Val="d14071a8a57c4979a2415fe945108260"/>

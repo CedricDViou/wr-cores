@@ -103,14 +103,22 @@ set_property IOSTANDARD LVCMOS33 [get_ports {SFP_MOD_DEF2_IO[1]}]
 #####################################################
 ########################  LED  ######################
 #####################################################
-set_property PACKAGE_PIN H14 [get_ports {led_act_o[0]}]
-set_property IOSTANDARD LVCMOS25 [get_ports {led_act_o[0]}]
-set_property PACKAGE_PIN G14 [get_ports {led_link_o[0]}]
-set_property IOSTANDARD LVCMOS25 [get_ports {led_link_o[0]}]
-set_property PACKAGE_PIN H17 [get_ports {led_act_o[1]}]
-set_property IOSTANDARD LVCMOS25 [get_ports {led_act_o[1]}]
-set_property PACKAGE_PIN E18 [get_ports {led_link_o[1]}]
-set_property IOSTANDARD LVCMOS25 [get_ports {led_link_o[1]}]
+set_property PACKAGE_PIN H14 [get_ports {led_green_o[0]}]
+set_property IOSTANDARD LVCMOS25 [get_ports {led_green_o[0]}]
+set_property PACKAGE_PIN G14 [get_ports {led_red_o[0]}]
+set_property IOSTANDARD LVCMOS25 [get_ports {led_red_o[0]}]
+set_property PACKAGE_PIN H17 [get_ports {led_green_o[1]}]
+set_property IOSTANDARD LVCMOS25 [get_ports {led_green_o[1]}]
+set_property PACKAGE_PIN E18 [get_ports {led_red_o[1]}]
+set_property IOSTANDARD LVCMOS25 [get_ports {led_red_o[1]}]
+
+# LA30_N / GREEN
+set_property PACKAGE_PIN T2 [get_ports usr_led_green]
+set_property IOSTANDARD LVCMOS25 [get_ports usr_led_green]
+
+ # LA30_P / YELLOW
+set_property PACKAGE_PIN R3 [get_ports usr_led_orange]
+set_property IOSTANDARD LVCMOS25 [get_ports usr_led_orange]
 
 #####################################################
 ###################### UART #########################

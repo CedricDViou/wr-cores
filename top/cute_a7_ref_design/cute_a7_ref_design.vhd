@@ -127,12 +127,14 @@ port(
     SFP_MOD_DEF1_IO       : inout std_logic_vector(1 downto 0);
     SFP_MOD_DEF2_IO       : inout std_logic_vector(1 downto 0);
 
-    led_act_o             : out   std_logic_vector(1 downto 0);
-    led_link_o            : out   std_logic_vector(1 downto 0);
+    led_green_o           : out   std_logic_vector(1 downto 0);
+    led_red_o             : out   std_logic_vector(1 downto 0);
 
     RX                    : in    std_logic;
     TX                    : out   std_logic;
     TEST                  : out   std_logic;
+    usr_led_orange        : out   std_logic;
+    usr_led_green         : out   std_logic;
     -- CLK_25M_BAK           : in    std_logic;
 
     SYNC_DATA0_N          : out   std_logic;
@@ -339,7 +341,7 @@ begin
         sfp_sda_o            => sfp_sda_o,
         sfp_sda_i            => sfp_sda_i,
         sfp_det_i            => sfp_det,
-        wb_eth_master_o      => wb_eth_master_out,     
+        wb_eth_master_o      => wb_eth_master_out,
         wb_eth_master_i      => wb_eth_master_in,
         wb_slave_i           => wb_slave_in,
         wb_slave_o           => wb_slave_out,
@@ -466,20 +468,24 @@ begin
       delay_sclk_o     => delay_sclk_o
     );
 
-    QSPI_CS    <= flash_ncs_o;
-    QSPI_DQ0   <= flash_qspi_dq0;
+    QSPI_CS        <= flash_ncs_o;
+    QSPI_DQ0       <= flash_qspi_dq0;
     flash_qspi_dq1 <= QSPI_DQ1;
 
-    ONE_WIRE <= '0' when onewire_en(0) = '1' else 'Z';
+    ONE_WIRE       <= '0' when onewire_en(0) = '1' else 'Z';
     onewire_in(0)  <= ONE_WIRE;
     onewire_in(1)  <= '1';
 
-    VERSION    <= VER2 & VER1 & VER0;
-    OE_125M    <= '0';
-    TEST       <= pps_led;
-    TX         <= uart_txd_o;
-    uart_rxd_i <= RX;
-    led_link_o <= led_link;
-    led_act_o  <= led_act;
+    VERSION     <= VER2 & VER1 & VER0;
+    OE_125M     <= '0';
+    TX          <= uart_txd_o;
+    uart_rxd_i  <= RX;
+    led_green_o <= led_link;
+    led_red_o   <= led_act;
+    TEST        <= tm_time_valid;
+
+    -- VADJ should be connected to 2.5V, otherwise LED will not be lighted!
+    usr_led_green  <= tm_time_valid;
+    usr_led_orange <= pps_led;
 
 end rtl;
