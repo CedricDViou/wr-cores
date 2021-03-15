@@ -112,14 +112,6 @@ set_property IOSTANDARD LVCMOS25 [get_ports {led_green_o[1]}]
 set_property PACKAGE_PIN E18 [get_ports {led_red_o[1]}]
 set_property IOSTANDARD LVCMOS25 [get_ports {led_red_o[1]}]
 
-# LA30_N / GREEN
-set_property PACKAGE_PIN T2 [get_ports usr_led_green]
-set_property IOSTANDARD LVCMOS25 [get_ports usr_led_green]
-
- # LA30_P / YELLOW
-set_property PACKAGE_PIN R3 [get_ports usr_led_orange]
-set_property IOSTANDARD LVCMOS25 [get_ports usr_led_orange]
-
 #####################################################
 ###################### UART #########################
 #####################################################

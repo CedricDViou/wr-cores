@@ -132,9 +132,7 @@ port(
 
     RX                    : in    std_logic;
     TX                    : out   std_logic;
-    TEST                  : out   std_logic;
-    usr_led_orange        : out   std_logic;
-    usr_led_green         : out   std_logic;
+    TEST                  : in    std_logic;
     -- CLK_25M_BAK           : in    std_logic;
 
     SYNC_DATA0_N          : out   std_logic;
@@ -285,7 +283,7 @@ begin
     u_reset_gen: reset_gen
     port map (
         clk_i            => clk_dmtd,
-        rst_button_n_a_i => '1',
+        rst_button_n_a_i => TEST,
         rst_pll_locked_i => '1',
         rst_n_o          => pll_reset_n
     );
@@ -480,12 +478,8 @@ begin
     OE_125M     <= '0';
     TX          <= uart_txd_o;
     uart_rxd_i  <= RX;
-    led_green_o <= led_link;
+    led_green_o(0) <= tm_time_valid when led_link(0) = '1' else '0';
+    led_green_o(1) <= tm_time_valid when led_link(1) = '1' else '0';
     led_red_o   <= led_act;
-    TEST        <= tm_time_valid;
-
-    -- VADJ should be connected to 2.5V, otherwise LED will not be lighted!
-    usr_led_green  <= tm_time_valid;
-    usr_led_orange <= pps_led;
 
 end rtl;
