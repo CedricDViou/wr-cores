@@ -19,7 +19,7 @@ end wr_fdelay_ctrl;
 
 architecture struct of wr_fdelay_ctrl is
   
-  constant c_fdelay_ch0 : std_logic_vector(8 downto 0) :=(others=>'0');
+  constant c_fdelay_ch0 : std_logic_vector(8 downto 0) :="000001010";
   constant c_fdelay_ch1 : std_logic_vector(8 downto 0) :=(others=>'0');
 
   type fdly_ctrl_state is (S_IDLE, S_START_CONF_CH0, S_CONFIG_CH0, S_SPI_TRANS_CHO, S_CONFIG_DONE_CH0, S_FINISH_CH0, S_START_CONF_CH1, S_CONFIG_CH1, S_SPI_TRANS_CH1, S_CONFIG_DONE_CH1, S_FINISH_CH1);
