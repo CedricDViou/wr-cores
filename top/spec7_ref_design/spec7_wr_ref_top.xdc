@@ -301,7 +301,7 @@ set_property IOSTANDARD LVDS_25 [get_ports be_clk_10m_p_i]
 # Bank 35 (HR) VCCO - 2.5 V
 set_property PACKAGE_PIN AF25 [get_ports be_clk_10m_n_i]
 set_property IOSTANDARD LVDS_25 [get_ports be_clk_10m_n_i]
-# Signal be_clk_ext_10m (WRITE Design) is soly used for sampling the phase
+# Signal be_clk_ext_10m (HPSEC Design) is soly used for sampling the phase
 # relation w.r.t. refclock. The signals be_clk_10m_p/n_i are routed to a
 # non-clock capable pins. Hence:
 set_property CLOCK_DEDICATED_ROUTE FALSE [get_nets clk_ext_10m]

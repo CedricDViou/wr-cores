@@ -19,8 +19,8 @@
 --              fmc-dio-5chttla => See also:
 --              https://ohwr.org/project/fmc-dio-5chttla/wikis/home
 --
---              SPEC7 WRITE design used Bulls-Eye connector and may be deployed in combination
---              with the High Precision Slaved External Clock (HPSEC) See also:
+--              SPEC7 HPSEC design used Bulls-Eye connector and may be deployed in combination
+--              with the High Precision Slaved External Clock. See also:
 --              https://ohwr.org/project/hpsec/wikis/home
 --
 -- This is a reference top HDL that instanciates the WR PTP Core together with
@@ -747,9 +747,9 @@ AXI2WB : xwb_axi4lite_bridge
   -- It depends on the design what input signals are used for external 10 MHz
   -- and 1 PPS input.
   -- spec7_ref_top   : use DIO Lemo-5 10MHZ_in, Lemo-4 PPS_in
-  -- spec7_write_top : use B03,B04 10MHZ_in, B01,B02 PPS_in
+  -- spec7_hpsec_top : use B03,B04 10MHZ_in, B01,B02 PPS_in
   -- clk_ext_10m is also used as input to IDDR in the "even_odd_det" which poses
-  -- routing restrictions (i.e. clk_ext_10m for refrence and write design can't
+  -- routing restrictions (i.e. clk_ext_10m for refrence and hpsec design can't
   -- be OR-ed).
   -- Note that output signals are available on FMC as well as Bulls-Eye
   ------------------------------------------------------------------------------
@@ -777,9 +777,9 @@ AXI2WB : xwb_axi4lite_bridge
   end generate gen_ref_design;
 
   ------------------------------------------------------------------------------
-  -- Design Specific Bulls-Eye pin mapping WRITE Design (spec7_write_top)
+  -- Design Specific Bulls-Eye pin mapping HPSEC Design (spec7_hpsec_top)
   ------------------------------------------------------------------------------
-  gen_write_design : if (g_design = "spec7_write_top" or g_design = "spec7_hpsec_top") generate
+  gen_hpsec_design : if (g_design = "spec7_hpsec_top") generate
   
     -- Type of PPS_IN input:
     -- Differential LVDS OR Single ended 5V capable
@@ -807,7 +807,7 @@ AXI2WB : xwb_axi4lite_bridge
         I  => be_clk_10m_p_i,
         IB => be_clk_10m_n_i);
 
-  end generate gen_write_design;
+  end generate gen_hpsec_design;
   
   ------------------------------------------------------------------------------
   -- Design Specific Bulls-Eye / FMC pin mapping HPSEC Design (spec7_hpsec_top)
