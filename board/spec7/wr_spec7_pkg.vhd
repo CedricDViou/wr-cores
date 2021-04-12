@@ -151,6 +151,8 @@ package wr_spec7_pkg is
       btn2_i               : in  std_logic                                        := '1';
       pps_p_o              : out std_logic;
       pps_led_o            : out std_logic;
+      aligned_10mhz_o      : out std_logic;
+      clk_10m_out_o        : out std_logic;
       link_ok_o            : out std_logic);
   end component xwrc_board_spec7;
 

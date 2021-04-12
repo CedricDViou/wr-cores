@@ -1,9 +1,6 @@
 fetchto = "../../ip_cores"
 
 files = [
-    "gen_10mhz.vhd",
-    "pll_62m5_500m.vhd",
-    "probe_10mhz.vhd",
     "spec7_wr_ref_top.vhd",
     "spec7_wr_ref_top.xdc",
     "spec7_wr_ref_top.bmm",

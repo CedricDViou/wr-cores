@@ -256,15 +256,17 @@ entity xwrc_board_spec7 is
     -- Buttons, LEDs and PPS output
     ---------------------------------------------------------------------------
 
-    led_act_o  : out std_logic;
-    led_link_o : out std_logic;
-    btn1_i     : in  std_logic := '1';
-    btn2_i     : in  std_logic := '1';
-    -- 1PPS output
-    pps_p_o    : out std_logic;
-    pps_led_o  : out std_logic;
+    led_act_o       : out std_logic;
+    led_link_o      : out std_logic;
+    btn1_i          : in  std_logic := '1';
+    btn2_i          : in  std_logic := '1';
+    -- 1PPS, 10 MHz output
+    pps_p_o         : out std_logic;
+    pps_led_o       : out std_logic;
+    aligned_10mhz_o : out std_logic;
+    clk_10m_out_o   : out std_logic;
     -- Link ok indication
-    link_ok_o  : out std_logic
+    link_ok_o       : out std_logic
     );
 
 end entity xwrc_board_spec7;
@@ -295,8 +297,14 @@ architecture struct of xwrc_board_spec7 is
   signal pll_clk_sel       : std_logic;
   signal pll_clk_select    : std_logic;
 
+  signal clk_500m          : std_logic;
+  signal pps_out           : std_logic;
+  signal clk_10m_out       : std_logic;
+  signal aligned_10mhz     : std_logic;
+
   -- Reset logic
-  signal rst_62m5_n        : std_logic;
+  signal rst_sys_62m5_n    : std_logic;
+  signal rst_ref_62m5_n    : std_logic;
   signal rstlogic_clk_in   : std_logic_vector(1 downto 0);
   signal rstlogic_rst_out  : std_logic_vector(1 downto 0);
 
@@ -345,6 +353,24 @@ architecture struct of xwrc_board_spec7 is
   constant c_num_gpio_pins : integer := 17;
   signal gpio_out, gpio_in, gpio_oen : std_logic_vector(c_num_gpio_pins-1 downto 0);
 
+  component pll_62m5_500m is
+    port (
+      areset_n_i        : in  std_logic;
+      clk_62m5_pllref_i : in  std_logic;             
+      clk_500m_o        : out std_logic;
+      pll_500m_locked_o : out std_logic
+    );
+  end component pll_62m5_500m;
+
+  component gen_10mhz is
+    port (
+      clk_500m_i       : in  std_logic;
+      rst_n_i     : in  std_logic;
+      pps_i       : in  std_logic;
+      clk_10mhz_o : out std_logic
+    );
+  end component gen_10mhz;
+
   component even_odd_det is
     port (
   	  rst_n_i        : in  std_logic;
@@ -358,6 +384,16 @@ architecture struct of xwrc_board_spec7 is
       sync_o         : out std_logic
     );
   end component even_odd_det;
+
+  component probe_10mhz is
+    port (
+  	  rst_n_i        : in  std_logic;
+      clk_ref_i      : in  std_logic;
+      clk_10mhz_a_i  : in  std_logic;
+      clk_10mhz_b_i  : in  std_logic;
+      aligned_o      : out std_logic
+    );
+  end component probe_10mhz;
 
 begin  -- architecture struct
 
@@ -405,9 +441,30 @@ begin  -- architecture struct
       I => clk_125m_gtx_buf,
       O => clk_ref_125m);
 
+  ------------------------------------------------------------------------------
+  -- 10MHz output generation
+  ------------------------------------------------------------------------------
+  -- A 500 MHz reference clock is necessary since 10 MHz = 50 ns '1', 50 ns '0'
+  -- and 50 ns is divisible by 2 ns (not by 8 or 4 ns!) hence 500 MHz.
+  cmp_pll_62m5_500m: pll_62m5_500m
+    port map (
+      areset_n_i        => rst_ref_62m5_n,
+      clk_62m5_pllref_i => clk_ref_62m5,
+      clk_500m_o        => clk_500m,
+      pll_500m_locked_o => open
+    );
+
+  cmp_gen_10mhz: gen_10mhz
+    port map (
+      clk_500m_i  => clk_500m,
+      rst_n_i     => rst_ref_62m5_n,
+      pps_i       => pps_out,
+      clk_10mhz_o => clk_10m_out
+    );
+
   cmp_even_odd_det: even_odd_det
     port map (
-  	  rst_n_i        => areset_n_i,
+      rst_n_i        => areset_n_i,
       clk_ref_i      => clk_ref_125m,
       clk_10m_ext_i  => clk_10m_ext_i,
       clk_sys_62m5_i => clk_sys_62m5,
@@ -416,6 +473,17 @@ begin  -- architecture struct
       enable_sync_i  => sync_enable,
       sync_done_o    => sync_done,
       sync_o         => sync_clk_ref_62m5);
+
+  cmp_probe_10mhz: probe_10mhz
+    port map (
+  	  rst_n_i        => rst_ref_62m5_n,
+      clk_ref_i      => clk_ref_62m5,
+      clk_10mhz_a_i  => clk_10m_ext,
+      clk_10mhz_b_i  => clk_10m_out,
+      aligned_o      => aligned_10mhz);
+
+  aligned_10mhz_o <= aligned_10mhz;
+  clk_10m_out_o   <= clk_10m_out;
 
   ---------------------------------------------------------------------------
   -- PLL sync signal synchronizes the LTC6950 but it waits for the proper
@@ -613,10 +681,11 @@ begin  -- architecture struct
       rstn_o     => rstlogic_rst_out);
 
   -- distribution of resets (already synchronized to their clock domains)
-  rst_62m5_n <= rstlogic_rst_out(0);
+  rst_sys_62m5_n   <= rstlogic_rst_out(0);
+  rst_ref_62m5_n   <= rstlogic_rst_out(1);
 
-  rst_sys_62m5_n_o <= rst_62m5_n;
-  rst_ref_62m5_n_o <= rstlogic_rst_out(1);
+  rst_sys_62m5_n_o <= rst_sys_62m5_n;
+  rst_ref_62m5_n_o <= rst_ref_62m5_n;
 
   -----------------------------------------------------------------------------
   -- 2x SPI DAC
@@ -630,7 +699,7 @@ begin  -- architecture struct
       g_sclk_polarity => 0)
     port map (
       clk_i         => clk_sys_62m5,
-      rst_n_i       => rst_62m5_n,
+      rst_n_i       => rst_sys_62m5_n,
       value_i       => dac_dmtd_data,
       cs_sel_i      => "1",
       load_i        => dac_dmtd_load,
@@ -647,7 +716,7 @@ begin  -- architecture struct
       g_sclk_polarity => 0)
     port map (
       clk_i         => clk_sys_62m5,
-      rst_n_i       => rst_62m5_n,
+      rst_n_i       => rst_sys_62m5_n,
       value_i       => dac_refclk_data,
       cs_sel_i      => "1",
       load_i        => dac_refclk_load,
@@ -700,7 +769,7 @@ begin  -- architecture struct
       clk_ext_stopped_i    => ext_ref_mul_stopped,
       clk_ext_rst_o        => ext_ref_rst,
       pps_ext_i            => pps_ext_i,
-      rst_n_i              => rst_62m5_n,
+      rst_n_i              => rst_sys_62m5_n,
       dac_hpll_load_p1_o   => dac_dmtd_load,
       dac_hpll_data_o      => dac_dmtd_data,
       dac_dpll_load_p1_o   => dac_refclk_load,
@@ -766,9 +835,11 @@ begin  -- architecture struct
       led_link_o           => led_link_o,
       btn1_i               => btn1_i,
       btn2_i               => btn2_i,
-      pps_p_o              => pps_p_o,
+      pps_p_o              => pps_out,
       pps_led_o            => pps_led_o,
       link_ok_o            => link_ok_o);
+
+  pps_p_o <= pps_out;
 
   cmp_wb_spec7_con : xwb_crossbar
     generic map (
@@ -779,7 +850,7 @@ begin  -- architecture struct
       g_mask        => c_cfg_base_mask)
     port map (
       clk_sys_i => clk_sys_62m5,
-      rst_n_i   => rst_62m5_n,
+      rst_n_i   => rst_sys_62m5_n,
       slave_i   => cnx_slave_in,
       slave_o   => cnx_slave_out,
       master_i  => cnx_master_in,
@@ -793,7 +864,7 @@ begin  -- architecture struct
       g_with_builtin_tristates => false)
     port map (
       clk_sys_i  => clk_sys_62m5,
-      rst_n_i    => rst_62m5_n,
+      rst_n_i    => rst_sys_62m5_n,
       slave_i    => cnx_master_out(c_slave_gpio),
       slave_o    => cnx_master_in(c_slave_gpio),
       gpio_out_o => gpio_out,
@@ -821,7 +892,8 @@ begin  -- architecture struct
   eeprom_sda  <= '0' when (gpio_out(12) = '0') else 'Z';
   gpio_in(12) <= eeprom_sda;
 
-  gpio_in(13) <= even_odd_n;         -- 10MHz/1PPS phase w.r.t. clk_ref_125m
+--  gpio_in(13) <= even_odd_n;         -- 10MHz/1PPS phase w.r.t. clk_ref_125m
+  gpio_in(13) <= aligned_10mhz;
   gpio_in(14) <= sync_done; 
 
   -- AUXiliary I2C tri-states

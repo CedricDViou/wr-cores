@@ -301,15 +301,17 @@ entity wrc_board_spec7 is
     -- Buttons, LEDs and PPS output
     ---------------------------------------------------------------------------
 
-    led_act_o  : out std_logic;
-    led_link_o : out std_logic;
-    btn1_i     : in  std_logic := '1';
-    btn2_i     : in  std_logic := '1';
-    -- 1PPS output
-    pps_p_o    : out std_logic;
-    pps_led_o  : out std_logic;
+    led_act_o       : out std_logic;
+    led_link_o      : out std_logic;
+    btn1_i          : in  std_logic := '1';
+    btn2_i          : in  std_logic := '1';
+    -- 1PPS, 10 MHz output
+    pps_p_o         : out std_logic;
+    pps_led_o       : out std_logic;
+    aligned_10mhz_o : out std_logic;
+    clk_10m_out_o   : out std_logic;
     -- Link ok indication
-    link_ok_o  : out std_logic
+    link_ok_o       : out std_logic
     );
 
 end entity wrc_board_spec7;

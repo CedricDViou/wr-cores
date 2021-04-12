@@ -160,7 +160,7 @@ entity spec7_wr_ref_top is
     wdog_n_o    : out std_logic;
 
     -- blink 1-PPS.
-    led_pps_o     : out std_logic;
+    led_pps_o       : out std_logic;
     aligned_10mhz_o : out std_logic;
     ---------------------------------------------------------------------------
     -- EEPROM interface
@@ -375,7 +375,6 @@ architecture top of spec7_wr_ref_top is
   signal clk_ref_62m5    : std_logic;
   signal clk_ref_div2    : std_logic;
   signal clk_10m_out     : std_logic;
-  signal clk_500m        : std_logic;
   signal clk_ext_10m     : std_logic;
 
   -- DAC signals for reference clock
@@ -410,34 +409,6 @@ architecture top of spec7_wr_ref_top is
 
   --PCIe 
   signal pci_clk : std_logic;
-
-  component pll_62m5_500m is
-    port (
-      areset_n_i        : in  std_logic;
-      clk_62m5_pllref_i : in  std_logic;             
-      clk_500m_o        : out std_logic;
-      pll_500m_locked_o : out std_logic
-    );
-  end component pll_62m5_500m;
-
-  component gen_10mhz is
-    port (
-      clk_500m_i       : in  std_logic;
-      rst_n_i     : in  std_logic;
-      pps_i       : in  std_logic;
-      clk_10mhz_o : out std_logic
-    );
-  end component gen_10mhz;
-
-  component probe_10mhz is
-    port (
-  	  rst_n_i        : in  std_logic;
-      clk_ref_i      : in  std_logic;
-      clk_10mhz_a_i  : in  std_logic;
-      clk_10mhz_b_i  : in  std_logic;
-      aligned_o      : out std_logic
-    );
-  end component probe_10mhz;
 
 begin  -- architecture top
 
@@ -619,9 +590,11 @@ AXI2WB : xwb_axi4lite_bridge
       pps_ext_i           => wrc_pps_in,
       pps_p_o             => wrc_pps_out,
       pps_led_o           => wrc_pps_led,
+      aligned_10mhz_o     => aligned_10mhz_o,
+      clk_10m_out_o       => clk_10m_out,
       led_link_o          => led_link_o,
       led_act_o           => led_act_o);
-
+      
   -- DAC signals for on board reference clock
   dac_refclk_sclk_o <= dac_refclk_sclk_int_o;
   dac_refclk_din_o  <= dac_refclk_din_int_o;
@@ -668,35 +641,6 @@ AXI2WB : xwb_axi4lite_bridge
       clk_ref_div2 <= not clk_ref_div2;
     end if;
   end process;
-
-  ------------------------------------------------------------------------------
-  -- 10MHz output generation
-  ------------------------------------------------------------------------------
-  -- A 500 MHz reference clock is necessary since 10 MHz = 50 ns '1', 50 ns '0'
-  -- and 50 ns is divisible by 2 ns (not by 8 or 4 ns!) hence 500 MHz.
-  cmp_pll_62m5_500m: pll_62m5_500m
-    port map (
-      areset_n_i        => rst_ref_62m5_n,
-      clk_62m5_pllref_i => clk_ref_62m5,
-      clk_500m_o        => clk_500m,
-      pll_500m_locked_o => open
-    );
-
-  cmp_gen_10mhz: gen_10mhz
-    port map (
-      clk_500m_i  => clk_500m,
-      rst_n_i     => rst_ref_62m5_n,
-      pps_i       => wrc_pps_out,
-      clk_10mhz_o => clk_10m_out
-    );
-
-  cmp_probe_10mhz: probe_10mhz
-    port map (
-  	  rst_n_i        => rst_ref_62m5_n,
-      clk_ref_i      => clk_ref_62m5,
-      clk_10mhz_a_i  => clk_ext_10m,
-      clk_10mhz_b_i  => clk_10m_out,
-      aligned_o      => aligned_10mhz_o);
 
   cmp_obuf_be_10mhz_out : OBUFDS
     port map (
