@@ -286,11 +286,7 @@ architecture struct of xwrc_board_spec7 is
   -- PLLs, clocks
   signal clk_ref_62m5      : std_logic     := '0';
   signal clk_ref_sync      : std_logic     := '0';
-  signal sync_enable       : std_logic;
-  signal even_odd_n        : std_logic;
   signal sync_polarity     : std_logic;
-  signal sync_done         : std_logic;
-  signal sync_clk_ref_62m5 : std_logic;
   signal clk_ref_locked    : std_logic;
   signal clk_sys_62m5      : std_logic;
   signal clk_10m_ext       : std_logic;
@@ -371,20 +367,6 @@ architecture struct of xwrc_board_spec7 is
     );
   end component gen_10mhz;
 
-  component even_odd_det is
-    port (
-  	  rst_n_i        : in  std_logic;
-      clk_ref_i      : in  std_logic;
-      clk_10m_ext_i  : in  std_logic;
-      clk_sys_62m5_i : in  std_logic;
-      pps_i          : in  std_logic;
-      even_odd_n_o   : out std_logic;
-      enable_sync_i  : in  std_logic;
-      sync_done_o    : out std_logic;
-      sync_o         : out std_logic
-    );
-  end component even_odd_det;
-
   component probe_10mhz is
     port (
   	  rst_n_i        : in  std_logic;
@@ -462,18 +444,6 @@ begin  -- architecture struct
       clk_10mhz_o => clk_10m_out
     );
 
-  cmp_even_odd_det: even_odd_det
-    port map (
-      rst_n_i        => areset_n_i,
-      clk_ref_i      => clk_ref_125m,
-      clk_10m_ext_i  => clk_10m_ext_i,
-      clk_sys_62m5_i => clk_sys_62m5,
-      pps_i          => pps_ext_i,
-      even_odd_n_o   => even_odd_n,
-      enable_sync_i  => sync_enable,
-      sync_done_o    => sync_done,
-      sync_o         => sync_clk_ref_62m5);
-
   cmp_probe_10mhz: probe_10mhz
     port map (
   	  rst_n_i        => rst_ref_62m5_n,
@@ -503,11 +473,7 @@ begin  -- architecture struct
   process(clk_ref_125m)
   begin
     if rising_edge(clk_ref_125m) then
-      if sync_clk_ref_62m5 = '1' then
-        clk_ref_62m5 <= '0';
-      else
-        clk_ref_62m5 <= not clk_ref_62m5;
-      end if;
+      clk_ref_62m5 <= not clk_ref_62m5;
     end if;
   end process;
 
@@ -879,7 +845,6 @@ begin  -- architecture struct
   pll_reset_n_o    <= gpio_out(4);
   gpio_in(5)       <= pll_lock_i;
   gpio_in(6)       <= pll_status_i;
-  sync_enable      <= gpio_out(7);  -- trigger PLL sync sequence
   
   -- External clock multiplexers
   pll_wr_mode_o    <= gpio_out(9 downto 8);
@@ -894,7 +859,7 @@ begin  -- architecture struct
 
 --  gpio_in(13) <= even_odd_n;         -- 10MHz/1PPS phase w.r.t. clk_ref_125m
   gpio_in(13) <= aligned_10mhz;
-  gpio_in(14) <= sync_done; 
+  gpio_in(14) <= '0'; 
 
   -- AUXiliary I2C tri-states
   aux_scl  <= '0' when (gpio_out(15) = '0') else 'Z';
