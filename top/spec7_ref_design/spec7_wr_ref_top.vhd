@@ -161,7 +161,7 @@ entity spec7_wr_ref_top is
 
     -- blink 1-PPS.
     led_pps_o     : out std_logic;
-
+    aligned_10mhz_o : out std_logic;
     ---------------------------------------------------------------------------
     -- EEPROM interface
     ---------------------------------------------------------------------------
@@ -429,6 +429,16 @@ architecture top of spec7_wr_ref_top is
     );
   end component gen_10mhz;
 
+  component probe_10mhz is
+    port (
+  	  rst_n_i        : in  std_logic;
+      clk_ref_i      : in  std_logic;
+      clk_10mhz_a_i  : in  std_logic;
+      clk_10mhz_b_i  : in  std_logic;
+      aligned_o      : out std_logic
+    );
+  end component probe_10mhz;
+
 begin  -- architecture top
 
   -- Never trigger PS_POR or PROGRAM_B
@@ -679,6 +689,14 @@ AXI2WB : xwb_axi4lite_bridge
       pps_i       => wrc_pps_out,
       clk_10mhz_o => clk_10m_out
     );
+
+  cmp_probe_10mhz: probe_10mhz
+    port map (
+  	  rst_n_i        => rst_ref_62m5_n,
+      clk_ref_i      => clk_ref_62m5,
+      clk_10mhz_a_i  => clk_ext_10m,
+      clk_10mhz_b_i  => clk_10m_out,
+      aligned_o      => aligned_10mhz_o);
 
   cmp_obuf_be_10mhz_out : OBUFDS
     port map (
