@@ -89,6 +89,7 @@ module gtwizard_ultrascale_2 (
   gtwiz_reset_rx_done_out,
   gtwiz_userdata_tx_in,
   gtwiz_userdata_rx_out,
+			      loopback_in,
   drpaddr_in,
   drpclk_in,
   drpdi_in,
@@ -192,6 +193,7 @@ output wire [15 : 0] rxctrl0_out;
 output wire [15 : 0] rxctrl1_out;
 output wire [7 : 0] rxctrl2_out;
 output wire [7 : 0] rxctrl3_out;
+   input wire [2:0] loopback_in;
 (* mark_debug = "true" *)output wire [0 : 0] rxpmaresetdone_out;
 (* mark_debug = "true" *)output wire [0 : 0] txpmaresetdone_out;
 
@@ -497,7 +499,7 @@ output wire [7 : 0] rxctrl3_out;
     .incpctrl_in(1'H0),
     .gtyrxn_in(1'B0),
     .gtyrxp_in(1'B0),
-    .loopback_in(3'H0),
+    .loopback_in(loopback_in),
     .looprsvd_in(1'B0),
     .lpbkrxtxseren_in(1'B0),
     .lpbktxrxseren_in(1'B0),

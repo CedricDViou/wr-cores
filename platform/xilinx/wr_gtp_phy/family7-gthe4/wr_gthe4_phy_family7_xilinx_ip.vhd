@@ -10,7 +10,8 @@ entity wr_gthe4_phy_family7_xilinx_ip is
   generic (
     -- set to non-zero value to speed up the simulation by reducing some delays
     g_simulation         : integer := 0;
-    g_use_gclk_as_refclk : boolean);
+    g_use_gclk_as_refclk : boolean;
+    g_with_ibert : boolean := false);
 
   port (
     -- Dedicated reference 125 MHz clock for the GTX transceiver
@@ -124,6 +125,8 @@ architecture rtl of wr_gthe4_phy_family7_xilinx_ip is
   signal drpdi_int        : std_logic_vector(15 downto 0);
   signal drpen_int        : std_logic;
   signal drpwe_int        : std_logic;
+  signal drprdy_int : std_logic;
+  signal drpdo_int : std_logic_vector(15 downto 0);
   signal eyescanreset_int : std_logic;
 
   signal rxrate_int     : std_logic_vector(2 downto 0);
@@ -186,7 +189,26 @@ architecture rtl of wr_gthe4_phy_family7_xilinx_ip is
 
   signal s_zero : std_logic := '0';
   signal s_one : std_logic := '1';
-  
+
+  COMPONENT gtwizard_ultrascale_2_in_system_ibert_0
+  PORT (
+    drpclk_o : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    gt0_drpen_o : OUT STD_LOGIC;
+    gt0_drpwe_o : OUT STD_LOGIC;
+    gt0_drpaddr_o : OUT STD_LOGIC_VECTOR(9 DOWNTO 0);
+    gt0_drpdi_o : OUT STD_LOGIC_VECTOR(15 DOWNTO 0);
+    gt0_drprdy_i : IN STD_LOGIC;
+    gt0_drpdo_i : IN STD_LOGIC_VECTOR(15 DOWNTO 0);
+    eyescanreset_o : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxrate_o : OUT STD_LOGIC_VECTOR(2 DOWNTO 0);
+    txdiffctrl_o : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
+    txprecursor_o : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
+    txpostcursor_o : OUT STD_LOGIC_VECTOR(4 DOWNTO 0);
+    rxlpmen_o : OUT STD_LOGIC_VECTOR(0 DOWNTO 0);
+    rxoutclk_i : IN STD_LOGIC_VECTOR(0 DOWNTO 0);
+    clk : IN STD_LOGIC
+  );
+END COMPONENT;
   
 begin
 
@@ -268,7 +290,7 @@ begin
       drpen_in                             => drpen_int,
       drpwe_in                             => drpwe_int,
       eyescanreset_in                      => eyescanreset_int,
-
+      loopback_in => loopen_i,
       gtrefclk0_in => clk_gth_i,
 
       gtwiz_reset_clk_freerun_in(0)         => clk_freerun_i,
@@ -301,6 +323,10 @@ begin
       rxpmaresetdone_out(0)                 => rxpmaresetdone_int,
       txpmaresetdone_out(0)                 => txpmaresetdone_int,
 
+      drpdo_out => drpdo_int,
+      drprdy_out => drprdy_int,
+
+      
       rxlpmen_in(0)   => rxlpmen_int,
       rxrate_in       => rxrate_int,
       txdiffctrl_in   => txdiffctrl_int,
@@ -308,47 +334,50 @@ begin
       txprecursor_in  => txprecursor_int
       );
 
-  drpclk_int  <= clk_freerun_i;
-  drpen_int   <= '0';
-  drpdi_int   <= (others => '0');
-  drpen_int   <= '0';
-  drpwe_int   <= '0';
-  drpaddr_int <= (others => '0');
+  gen_no_ibert : if g_with_ibert = false generate
 
-  rxrate_int       <= "000";
-  txdiffctrl_int   <= "11000";
-  txprecursor_int  <= "00000";
-  txpostcursor_int <= "00000";
-  eyescanreset_int <= '0';
-  rxlpmen_int      <= '0';
-  rx8b10ben_int    <= '1';
+    drpclk_int  <= clk_freerun_i;
+    drpen_int   <= '0';
+    drpdi_int   <= (others => '0');
+    drpen_int   <= '0';
+    drpwe_int   <= '0';
+    drpaddr_int <= (others => '0');
+
+    rxrate_int       <= "000";
+    txdiffctrl_int   <= "11000";
+    txprecursor_int  <= "00000";
+    txpostcursor_int <= "00000";
+    eyescanreset_int <= '0';
+    rxlpmen_int      <= '0';
+    rx8b10ben_int    <= '1';
+
+  end generate gen_no_ibert;
 
 
-  -- IBERT: gtwizard_ultrascale_2_in_system_ibert_0
-  --   port map (
-  --   drpclk_o       => drpclk_int,
-  --   gt0_drpen_o    => drpen_int,
-  --   gt0_drpwe_o    => drpwe_int,
-  --   gt0_drpaddr_o  => drpaddr_int,
-  --   gt0_drpdi_o    => drpdi_int,
-  --   gt0_drprdy_i   => drprdy_int,
-  --   gt0_drpdo_i    => drpdo_int,
-  --   eyescanreset_o => eyescanreset_int,
-  --   rxrate_o       =>rxrate_int,
-  --   txdiffctrl_o   =>txdiffctrl_int,
-  --   txprecursor_o  =>txprecursor_int,
-  --   txpostcursor_o =>txpostcursor_int,
-  --   rxlpmen_o      =>rxlpmen_int,
-  --   rxrate_i       => "000",
-  --   txdiffctrl_i   => "11000",
-  --   txprecursor_i  => "00000",
-  --   txpostcursor_i => "00000",
-  --   rxlpmen_i      => '1',
-  --   rxoutclk_i     => rx_clk,
-  --   drpclk_i       => clk_freerun_i,
-  --   clk            => clk_freerun_i
-  --   );
+  gen_with_ibert : if g_with_ibert = true generate
+    
+    IBERT: gtwizard_ultrascale_2_in_system_ibert_0
+      port map (
+        drpclk_o(0)       => drpclk_int,
+        gt0_drpen_o    => drpen_int,
+        gt0_drpwe_o    => drpwe_int,
+        gt0_drpaddr_o  => drpaddr_int,
+        gt0_drpdi_o    => drpdi_int,
+        gt0_drprdy_i   => drprdy_int,
+        gt0_drpdo_i    => drpdo_int,
+        eyescanreset_o(0) => eyescanreset_int,
+        rxrate_o       =>rxrate_int,
+        txdiffctrl_o   =>txdiffctrl_int,
+        txprecursor_o  =>txprecursor_int,
+        txpostcursor_o =>txpostcursor_int,
+        rxlpmen_o(0)      =>rxlpmen_int,
+        rxoutclk_i(0)     => rx_clk,
+--        drpclk_i       => clk_freerun_i,
+        clk            => clk_freerun_i
+        );
 
+  end generate gen_with_ibert;
+  
   -- U_Wrapped_GTH : entity work.gtwizard_gthe4_1_example_top
   --   port map (
   --     ch0_gthrxn_in  => pad_rxn_i,
