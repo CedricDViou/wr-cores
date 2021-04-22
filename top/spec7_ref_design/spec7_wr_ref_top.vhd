@@ -161,7 +161,7 @@ entity spec7_wr_ref_top is
 
     -- blink 1-PPS.
     led_pps_o       : out std_logic;
-    aligned_10mhz_o : out std_logic;
+
     ---------------------------------------------------------------------------
     -- EEPROM interface
     ---------------------------------------------------------------------------
@@ -590,7 +590,7 @@ AXI2WB : xwb_axi4lite_bridge
       pps_ext_i           => wrc_pps_in,
       pps_p_o             => wrc_pps_out,
       pps_led_o           => wrc_pps_led,
-      aligned_10mhz_o     => aligned_10mhz_o,
+      aligned_10mhz_o     => open,
       clk_10m_out_o       => clk_10m_out,
       led_link_o          => led_link_o,
       led_act_o           => led_act_o);

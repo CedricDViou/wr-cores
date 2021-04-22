@@ -4,11 +4,11 @@
 
 #   -- Local oscillators
 # Bank 112 -- 125.000 MHz GTX reference
-#set_property PACKAGE_PIN U6 [get_ports clk_125m_gtx_p_i]
-#set_property PACKAGE_PIN U5 [get_ports clk_125m_gtx_n_i]
+set_property PACKAGE_PIN U6 [get_ports clk_125m_gtx_p_i]
+set_property PACKAGE_PIN U5 [get_ports clk_125m_gtx_n_i]
 # Bank 111 -- 125.000 MHz GTX reference
-set_property PACKAGE_PIN W6 [get_ports clk_125m_gtx_p_i]
-set_property PACKAGE_PIN W5 [get_ports clk_125m_gtx_n_i]
+#set_property PACKAGE_PIN W6 [get_ports clk_125m_gtx_p_i]
+#set_property PACKAGE_PIN W5 [get_ports clk_125m_gtx_n_i]
 
 # Bank 35 (HP) VCCO - 1.8 V -- 124.992 MHz DMTD clock
 set_property PACKAGE_PIN D15 [get_ports clk_125m_dmtd_p_i]
@@ -245,11 +245,11 @@ set_property IOSTANDARD LVCMOS18 [get_ports sda_b]
 # PPS_OUT
 # Bulls-Eye A01, A02
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN G16 [get_ports be_pps_p_o]
-set_property IOSTANDARD LVDS [get_ports be_pps_p_o]
+#set_property PACKAGE_PIN G16 [get_ports be_pps_p_o]
+#set_property IOSTANDARD LVDS [get_ports be_pps_p_o]
 # Bank 35 (HP) VCCO - 1.8 V
-set_property PACKAGE_PIN G15 [get_ports be_pps_n_o]
-set_property IOSTANDARD LVDS [get_ports be_pps_n_o]
+#set_property PACKAGE_PIN G15 [get_ports be_pps_n_o]
+#set_property IOSTANDARD LVDS [get_ports be_pps_n_o]
 
 # 10MHz_out
 # Bulls-Eye A03, A04
@@ -286,10 +286,10 @@ set_property IOSTANDARD LVDS [get_ports be_abscal_txts_n_o]
 #set_property PACKAGE_PIN J15 [get_ports be_spare_n_o]
 #set_property IOSTANDARD LVDS [get_ports be_spare_n_o]
 # Use Spare outputs for PPS_o to avoid reclocking for the time being
-set_property PACKAGE_PIN K15 [get_ports aligned_10mhz_o]
-set_property IOSTANDARD LVCMOS18 [get_ports aligned_10mhz_o]
-#set_property PACKAGE_PIN J15 [get_ports be_pps_n_o]
-#set_property IOSTANDARD LVDS [get_ports be_pps_n_o]
+set_property PACKAGE_PIN K15 [get_ports be_pps_p_o]
+set_property IOSTANDARD LVDS [get_ports be_pps_p_o]
+set_property PACKAGE_PIN J15 [get_ports be_pps_n_o]
+set_property IOSTANDARD LVDS [get_ports be_pps_n_o]
 
 # PPS_IN
 # Bulls-Eye B01, B02
