@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2017-02-20
+-- Last update: 2021-06-23
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ entity xwr_softpll_ng is
   port(
     clk_sys_i    : in std_logic;
     rst_sys_n_i  : in std_logic;
-    rst_ref_n_i  : in std_logic;
+----    rst_ref_n_i  : in std_logic;
     rst_ext_n_i  : in std_logic;
     rst_dmtd_n_i : in std_logic;
 
@@ -128,6 +128,8 @@ entity xwr_softpll_ng is
     slave_i : in  t_wishbone_slave_in;
     slave_o : out t_wishbone_slave_out;
 
+    int_o   : out std_logic;
+
     debug_o        : out std_logic_vector(5 downto 0);
     dbg_fifo_irq_o : out std_logic
     );
@@ -151,7 +153,7 @@ architecture wrapper of xwr_softpll_ng is
     port (
       clk_sys_i       : in  std_logic;
       rst_sys_n_i     : in std_logic;
-      rst_ref_n_i     : in std_logic;
+----      rst_ref_n_i     : in std_logic;
       rst_ext_n_i     : in std_logic;
       rst_dmtd_n_i    : in std_logic;
       clk_ref_i       : in  std_logic_vector(g_num_ref_inputs-1 downto 0);
@@ -181,7 +183,7 @@ architecture wrapper of xwr_softpll_ng is
       wb_we_i         : in  std_logic;
       wb_ack_o        : out std_logic;
       wb_stall_o      : out std_logic;
-      wb_irq_o        : out std_logic;
+      irq_o           : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
@@ -205,7 +207,7 @@ begin  -- behavioral
     port map (
       clk_sys_i       => clk_sys_i,
       rst_sys_n_i     => rst_sys_n_i,
-      rst_ref_n_i     => rst_ref_n_i,
+----      rst_ref_n_i     => rst_ref_n_i,
       rst_ext_n_i     => rst_ext_n_i,
       rst_dmtd_n_i    => rst_dmtd_n_i,
       clk_ref_i       => clk_ref_i,
@@ -234,7 +236,7 @@ begin  -- behavioral
       wb_we_i         => slave_i.we,
       wb_ack_o        => slave_o.ack,
       wb_stall_o      => slave_o.stall,
-      wb_irq_o        => slave_o.int,
+      irq_o           => int_o,
       debug_o         => debug_o,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 

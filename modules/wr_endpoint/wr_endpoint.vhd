@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2017-02-20
+-- Last update: 2021-06-24
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -93,9 +93,9 @@ entity wr_endpoint is
 
 -- resets for various clock domains
     rst_sys_n_i   : in std_logic;
-    rst_ref_n_i   : in std_logic;
+----    rst_ref_n_i   : in std_logic;
     rst_dmtd_n_i  : in std_logic;
-    rst_txclk_n_i : in std_logic;
+----    rst_txclk_n_i : in std_logic;
     rst_rxclk_n_i : in std_logic;
 
 -- PPS input (1 clk_ref_i cycle HI) for synchronizing timestamp counter
@@ -475,7 +475,7 @@ begin
     port map (
       rst_sys_n_i   => rst_sys_n_i,
       rst_rxclk_n_i => rst_rxclk_n_i,
-      rst_txclk_n_i => rst_txclk_n_i,
+      rst_txclk_n_i => rst_sys_n_i,
       clk_sys_i     => clk_sys_i,
 
       rxpcs_fab_o             => rxpcs_fab,
@@ -688,7 +688,7 @@ begin
 -- Timestamping unit
 -------------------------------------------------------------------------------
 
-  U_EP_TSU : ep_timestamping_unit
+  U_EP_TSU : entity work.ep_timestamping_unit
     generic map (
       g_timestamp_bits_r => 28,
       g_timestamp_bits_f => 4,
@@ -699,7 +699,7 @@ begin
       clk_sys_i      => clk_sys_i,
       rst_n_rx_i     => rst_rxclk_n_i,
       rst_n_sys_i    => rst_sys_n_i,
-      rst_n_ref_i    => rst_ref_n_i,
+----      rst_n_ref_i    => rst_ref_n_i,
       pps_csync_p1_i => pps_csync_p1_i,
       pps_valid_i    => pps_valid_i,
 
@@ -763,7 +763,7 @@ begin
       wb_ack_o   => wb_out.ack,
       wb_stall_o => open,
 
-      tx_clk_i => clk_ref_i,
+----      tx_clk_i => clk_ref_i,
       rx_clk_i => phy_rx_clk_i,
 
       regs_o => regs_fromwb,
@@ -773,7 +773,6 @@ begin
   wb_out.stall <= '0';
   wb_out.rty   <= '0';
   wb_out.err   <= '0';
-  wb_out.int   <= '0';
 
   regs_towb <= regs_towb_ep or regs_towb_tsu or regs_towb_rpath or regs_towb_tpath or regs_towb_dmtd;
 

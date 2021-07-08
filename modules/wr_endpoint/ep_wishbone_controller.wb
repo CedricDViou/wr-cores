@@ -166,7 +166,7 @@ peripheral {
                         After synchronization, the CS_DONE flag will be set to 1. The counter value equals to 0 when PPS line is high.\
 				                write 0: no effect";
 				 type = MONOSTABLE;
-				 clock = "tx_clk_i";
+--				 clock = "tx_clk_i";
 			};
 
 			field {
@@ -177,7 +177,7 @@ peripheral {
 				 type = BIT;
 				 access_bus = READ_ONLY;
 				 access_dev = WRITE_ONLY;
-				 clock = "tx_clk_i";
+--				 clock = "tx_clk_i";
 			};
 
 			field {

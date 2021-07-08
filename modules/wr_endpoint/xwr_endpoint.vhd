@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2017-02-20
+-- Last update: 2021-06-23
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -83,9 +83,9 @@ entity xwr_endpoint is
 
 -- resets for various clock domains
     rst_sys_n_i   : in std_logic;
-    rst_ref_n_i   : in std_logic;
+----    rst_ref_n_i   : in std_logic;
     rst_dmtd_n_i  : in std_logic;
-    rst_txclk_n_i : in std_logic;
+----    rst_txclk_n_i : in std_logic;
     rst_rxclk_n_i : in std_logic;
 
 -- PPS input (1 clk_ref_i cycle HI) for synchronizing timestamp counter
@@ -299,7 +299,7 @@ architecture syn of xwr_endpoint is
 
 begin
 
-  U_Wrapped_Endpoint : wr_endpoint
+  U_Wrapped_Endpoint : entity work.wr_endpoint
     generic map (
       g_interface_mode      => g_interface_mode,
       g_address_granularity => g_address_granularity,
@@ -325,9 +325,9 @@ begin
       clk_sys_i            => clk_sys_i,
       clk_dmtd_i           => clk_dmtd_i,
       rst_sys_n_i          => rst_sys_n_i,
-      rst_ref_n_i          => rst_ref_n_i,
+----      rst_ref_n_i          => rst_ref_n_i,
       rst_dmtd_n_i         => rst_dmtd_n_i,
-      rst_txclk_n_i        => rst_txclk_n_i,
+----      rst_txclk_n_i        => rst_txclk_n_i,
       rst_rxclk_n_i        => rst_rxclk_n_i,
       pps_csync_p1_i       => pps_csync_p1_i,
       pps_valid_i          => pps_valid_i,
@@ -433,7 +433,6 @@ begin
 
   wb_o.err <= '0';
   wb_o.rty <= '0';
-  wb_o.int <= '0';
 
 
   -- Record-based PHY connections, depending on 8/16-bit PCS

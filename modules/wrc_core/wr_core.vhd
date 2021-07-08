@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2017-05-29
+-- Last update: 2021-06-25
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -103,8 +103,7 @@ entity wr_core is
     ---------------------------------------------------------------------------
 
     -- system reference clock (any frequency <= f(clk_ref_i))
-    clk_sys_i : in std_logic;
-
+    clk_sys_i  : in std_logic;
     -- DDMTD offset clock (125.x MHz)
     clk_dmtd_i : in std_logic;
 
@@ -308,6 +307,8 @@ end wr_core;
 
 architecture struct of wr_core is
 
+  constant c_lm32_profile : string := "medium_icache";
+
   function f_choose_lm32_firmware_file return string is
   begin
     if(g_dpram_initf = "default") then
@@ -342,11 +343,11 @@ architecture struct of wr_core is
   -----------------------------------------------------------------------------
   --Local resets (resynced)
   -----------------------------------------------------------------------------
-  signal rst_net_resync_ref_n   : std_logic;
+----  signal rst_net_resync_ref_n   : std_logic;
   signal rst_net_resync_ext_n   : std_logic;
   signal rst_net_resync_dmtd_n  : std_logic;
   signal rst_net_resync_rxclk_n : std_logic;
-  signal rst_net_resync_txclk_n : std_logic;
+----  signal rst_net_resync_txclk_n : std_logic;
 
   -----------------------------------------------------------------------------
   --PPS generator
@@ -491,27 +492,6 @@ architecture struct of wr_core is
   signal clk_fb     : std_logic_vector(g_aux_clks downto 0);
   signal out_enable : std_logic_vector(g_aux_clks downto 0);
 
-  --component chipscope_ila
-  --  port (
-  --    CONTROL : inout std_logic_vector(35 downto 0);
-  --    CLK     : in    std_logic;
-  --    TRIG0   : in    std_logic_vector(31 downto 0);
-  --    TRIG1   : in    std_logic_vector(31 downto 0);
-  --    TRIG2   : in    std_logic_vector(31 downto 0);
-  --    TRIG3   : in    std_logic_vector(31 downto 0));
-  --end component;
-
-  --component chipscope_icon
-  --  port (
-  --    CONTROL0 : inout std_logic_vector (35 downto 0));
-  --end component;
-
-  --signal CONTROL : std_logic_vector(35 downto 0);
-  --signal CLK     : std_logic;
-  --signal TRIG0   : std_logic_vector(31 downto 0);
-  --signal TRIG1   : std_logic_vector(31 downto 0);
-  --signal TRIG2   : std_logic_vector(31 downto 0);
-  --signal TRIG3   : std_logic_vector(31 downto 0);
 begin
 
   -----------------------------------------------------------------------------
@@ -539,16 +519,16 @@ begin
 
   rst_aux_n_o <= rst_net_n;
 
-  U_Sync_reset_refclk : gc_sync_ffs
-    generic map (
-      g_sync_edge => "positive")
-    port map (
-      clk_i    => clk_ref_i,
-      rst_n_i  => '1',
-      data_i   => rst_net_n,
-      synced_o => rst_net_resync_ref_n);
+----  U_Sync_reset_refclk : entity work.gc_sync_ffs
+----    generic map (
+----      g_sync_edge => "positive")
+----    port map (
+----      clk_i    => clk_ref_i,
+----      rst_n_i  => '1',
+----      data_i   => rst_net_n,
+----      synced_o => rst_net_resync_ref_n);
 
-  U_sync_reset_dmtd : gc_sync_ffs
+  U_sync_reset_dmtd : entity work.gc_sync_ffs
     generic map (
       g_sync_edge => "positive")
     port map (
@@ -557,7 +537,7 @@ begin
       data_i   => rst_net_n,
       synced_o => rst_net_resync_dmtd_n);
 
-  U_sync_reset_ext : gc_sync_ffs
+  U_sync_reset_ext : entity work.gc_sync_ffs
     generic map (
       g_sync_edge => "positive")
     port map (
@@ -566,7 +546,7 @@ begin
       data_i   => rst_net_n,
       synced_o => rst_net_resync_ext_n);
 
-  U_sync_reset_rxclk : gc_sync_ffs
+  U_sync_reset_rxclk : entity work.gc_sync_ffs
     generic map (
       g_sync_edge => "positive")
     port map (
@@ -575,19 +555,19 @@ begin
       data_i   => rst_net_n,
       synced_o => rst_net_resync_rxclk_n);
 
-  U_sync_reset_txclk : gc_sync_ffs
-    generic map (
-      g_sync_edge => "positive")
-    port map (
-      clk_i    => phy_tx_clk,
-      rst_n_i  => '1',
-      data_i   => rst_net_n,
-      synced_o => rst_net_resync_txclk_n);
+----  U_sync_reset_txclk : entity work.gc_sync_ffs
+----    generic map (
+----      g_sync_edge => "positive")
+----    port map (
+----      clk_i    => phy_tx_clk,
+----      rst_n_i  => '1',
+----      data_i   => rst_net_n,
+----      synced_o => rst_net_resync_txclk_n);
 
   -----------------------------------------------------------------------------
   -- PPS generator
   -----------------------------------------------------------------------------
-  PPS_GEN : xwr_pps_gen
+  PPS_GEN : entity work.xwr_pps_gen
     generic map(
       g_interface_mode       => PIPELINED,
       g_address_granularity  => BYTE,
@@ -599,7 +579,7 @@ begin
       clk_sys_i => clk_sys_i,
 
       rst_sys_n_i => rst_net_n,
-      rst_ref_n_i => rst_net_resync_ref_n,
+----      rst_ref_n_i => rst_net_resync_ref_n,
 
       slave_i => ppsg_wb_in,
       slave_o => ppsg_wb_out,
@@ -624,7 +604,7 @@ begin
   -----------------------------------------------------------------------------
   -- Software PLL
   -----------------------------------------------------------------------------
-  U_SOFTPLL : xwr_softpll_ng
+  U_SOFTPLL : entity work.xwr_softpll_ng
     generic map(
       g_with_ext_clock_input => g_with_external_clock_input,
       g_reverse_dmtds        => false,
@@ -640,7 +620,7 @@ begin
     port map(
       clk_sys_i    => clk_sys_i,
       rst_sys_n_i  => rst_net_n,
-      rst_ref_n_i  => rst_net_resync_ref_n,
+----      rst_ref_n_i  => rst_net_resync_ref_n,
       rst_ext_n_i  => rst_net_resync_ext_n,
       rst_dmtd_n_i => rst_net_resync_dmtd_n,
 
@@ -677,6 +657,8 @@ begin
       slave_i => spll_wb_in,
       slave_o => spll_wb_out,
 
+      int_o   => softpll_irq,
+
       debug_o => open);
 
   clk_fb(0)                       <= clk_ref_i;
@@ -704,12 +686,11 @@ begin
     tm_clk_aux_locked_o <= spll_out_locked(g_aux_clks downto 1);
   end generate;
 
-  softpll_irq <= spll_wb_out.int;
 
   -----------------------------------------------------------------------------
   -- Endpoint
   -----------------------------------------------------------------------------
-  U_Endpoint : xwr_endpoint
+  U_Endpoint : entity work.xwr_endpoint
     generic map (
       g_interface_mode      => PIPELINED,
       g_address_granularity => BYTE,
@@ -733,9 +714,9 @@ begin
       clk_sys_i      => clk_sys_i,
       clk_dmtd_i     => clk_dmtd_i,
       rst_sys_n_i    => rst_net_n,
-      rst_ref_n_i    => rst_net_resync_ref_n,
+----      rst_ref_n_i    => rst_net_resync_ref_n,
       rst_dmtd_n_i   => rst_net_resync_dmtd_n,
-      rst_txclk_n_i  => rst_net_resync_txclk_n,
+----      rst_txclk_n_i  => rst_net_resync_txclk_n,
       rst_rxclk_n_i  => rst_net_resync_rxclk_n,
       pps_csync_p1_i => s_pps_csync,
       pps_valid_i    => pps_valid,
@@ -796,7 +777,7 @@ begin
   -----------------------------------------------------------------------------
   -- Mini-NIC
   -----------------------------------------------------------------------------
-  MINI_NIC : xwr_mini_nic
+  MINI_NIC : entity work.xwr_mini_nic
     generic map (
       g_interface_mode       => PIPELINED,
       g_address_granularity  => BYTE,
@@ -829,8 +810,8 @@ begin
   -----------------------------------------------------------------------------
   -- LM32
   -----------------------------------------------------------------------------
-  LM32_CORE : xwb_lm32
-    generic map(g_profile => "medium_icache")
+  LM32_CORE : entity work.xwb_lm32
+    generic map(g_profile => c_lm32_profile)
     port map(
       clk_sys_i => clk_sys_i,
       rst_n_i   => rst_wrc_n,
@@ -845,7 +826,7 @@ begin
   -----------------------------------------------------------------------------
   -- Dual-port RAM
   -----------------------------------------------------------------------------
-  DPRAM : xwb_dpram
+  DPRAM : entity work.xwb_dpram
     generic map(
       g_size                  => g_dpram_size,
       g_init_file             => f_choose_lm32_firmware_file,
@@ -866,7 +847,7 @@ begin
 
   dpram_wbb_i.cyc <= '0';
   dpram_wbb_i.stb <= '0';
-  dpram_wbb_i.adr <= (c_mnic_memsize_log2-1 downto 0 => '0', others=>'0'); --mnic_mem_addr_o;
+  dpram_wbb_i.adr <= (others=>'0');
   dpram_wbb_i.sel <= "1111";
   dpram_wbb_i.we  <= '0'; --mnic_mem_wr_o;
   dpram_wbb_i.dat <= (others=>'0'); --mnic_mem_data_o;
@@ -874,59 +855,60 @@ begin
   -----------------------------------------------------------------------------
   -- WB Peripherials
   -----------------------------------------------------------------------------
-  PERIPH : wrc_periph
+  PERIPH : entity work.wrc_periph
     generic map(
-      g_board_name      => g_board_name,
-      g_flash_secsz_kb  => g_flash_secsz_kb,
+      g_board_name        => g_board_name,
+      g_flash_secsz_kb    => g_flash_secsz_kb,
       g_flash_sdbfs_baddr => g_flash_sdbfs_baddr,
-      g_phys_uart       => g_phys_uart,
-      g_virtual_uart    => g_virtual_uart,
-      g_mem_words       => g_dpram_size,
-      g_vuart_fifo_size => g_vuart_fifo_size,
-      g_diag_id         => g_diag_id,
-      g_diag_ver        => g_diag_ver,
-      g_diag_ro_size    => g_diag_ro_size,
-      g_diag_rw_size    => g_diag_rw_size)
+      g_phys_uart         => g_phys_uart,
+      g_virtual_uart      => g_virtual_uart,
+      g_cntr_period       => 125000,
+      g_mem_words         => g_dpram_size,
+      g_vuart_fifo_size   => g_vuart_fifo_size,
+      g_diag_id           => g_diag_id,
+      g_diag_ver          => g_diag_ver,
+      g_diag_ro_size      => g_diag_ro_size,
+      g_diag_rw_size      => g_diag_rw_size)
     port map(
-      clk_sys_i   => clk_sys_i,
-      rst_n_i     => rst_n_i,
-      rst_net_n_o => rst_net_n,
-      rst_wrc_n_o => rst_wrc_n,
+      clk_sys_i      => clk_sys_i,
+      rst_n_i        => rst_n_i,
+      rst_net_n_o    => rst_net_n,
+      rst_wrc_n_o    => rst_wrc_n,
 
-      led_red_o   => open,              --led_red_o,
-      led_green_o => open,              --led_green_o,
-      scl_o       => scl_o,
-      scl_i       => scl_i,
-      sda_o       => sda_o,
-      sda_i       => sda_i,
-      sfp_scl_o   => sfp_scl_o,
-      sfp_scl_i   => sfp_scl_i,
-      sfp_sda_o   => sfp_sda_o,
-      sfp_sda_i   => sfp_sda_i,
-      sfp_det_i   => sfp_det_i,
-      memsize_i   => "0000",
-      btn1_i      => btn1_i,
-      btn2_i      => btn2_i,
-      spi_sclk_o  => spi_sclk_o,
-      spi_ncs_o   => spi_ncs_o,
-      spi_mosi_o  => spi_mosi_o,
-      spi_miso_i  => spi_miso_i,
+      led_red_o      => open,
+      led_green_o    => open,
+      scl_o          => scl_o,
+      scl_i          => scl_i,
+      sda_o          => sda_o,
+      sda_i          => sda_i,
+      sfp_scl_o      => sfp_scl_o,
+      sfp_scl_i      => sfp_scl_i,
+      sfp_sda_o      => sfp_sda_o,
+      sfp_sda_i      => sfp_sda_i,
+      sfp_det_i      => sfp_det_i,
+      memsize_i      => "0000",
+      btn1_i         => btn1_i,
+      btn2_i         => btn2_i,
+      spi_sclk_o     => spi_sclk_o,
+      spi_ncs_o      => spi_ncs_o,
+      spi_mosi_o     => spi_mosi_o,
+      spi_miso_i     => spi_miso_i,
 
-      slave_i => periph_slave_i,
-      slave_o => periph_slave_o,
+      slave_i        => periph_slave_i,
+      slave_o        => periph_slave_o,
 
-      uart_rxd_i => uart_rxd_i,
-      uart_txd_o => uart_txd_o,
+      uart_rxd_i     => uart_rxd_i,
+      uart_txd_o     => uart_txd_o,
 
-      owr_pwren_o => owr_pwren_o,
-      owr_en_o    => owr_en_o,
-      owr_i       => owr_i,
+      owr_pwren_o    => owr_pwren_o,
+      owr_en_o       => owr_en_o,
+      owr_i          => owr_i,
 
       diag_array_in  => aux_diag_i,
       diag_array_out => aux_diag_o
       );
 
-  U_Adapter : wb_slave_adapter
+  U_Adapter : entity work.wb_slave_adapter
     generic map(
       g_master_use_struct  => true,
       g_master_mode        => PIPELINED,
@@ -954,7 +936,7 @@ begin
   -----------------------------------------------------------------------------
   -- WB intercon
   -----------------------------------------------------------------------------
-  WB_CON : xwb_sdb_crossbar
+  WB_CON : entity work.xwb_sdb_crossbar
     generic map(
       g_num_masters => 3,
       g_num_slaves  => 2,
@@ -1022,7 +1004,7 @@ begin
   -----------------------------------------------------------------------------
   -- WB Secondary Crossbar
   -----------------------------------------------------------------------------
-  WB_SECONDARY_CON : xwb_sdb_crossbar
+  WB_SECONDARY_CON : entity work.xwb_sdb_crossbar
     generic map(
       g_num_masters => 1,
       g_num_slaves  => 9,
@@ -1073,7 +1055,6 @@ begin
   secbar_master_i(7).stall <= aux_stall_i;
   secbar_master_i(7).err   <= '0';
   secbar_master_i(7).rty   <= '0';
-  secbar_master_i(7).int   <= '0';
 
   --secbar_master_i(6).err <= '0';
   --secbar_master_i(5).err <= '0';
@@ -1096,7 +1077,7 @@ begin
   -----------------------------------------------------------------------------
   -- WBP MUX
   -----------------------------------------------------------------------------
-  U_WBP_Mux : xwrf_mux
+  U_WBP_Mux : entity work.xwrf_mux
     generic map(
       g_muxed_ports => 2)
     port map (

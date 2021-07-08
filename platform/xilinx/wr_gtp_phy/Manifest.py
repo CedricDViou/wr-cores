@@ -16,7 +16,11 @@ elif (syn_device[0:4].upper()=="XC7A"): # Family 7 GTP (Artix7)
                 "family7-gtp/whiterabbit_gtpe2_channel_wrapper.vhd",
                 "family7-gtp/whiterabbit_gtpe2_channel_wrapper_gt.vhd",
                 "family7-gtp/whiterabbit_gtpe2_channel_wrapper_gtrxreset_seq.vhd" ]);
-elif (syn_device[0:4].upper()=="XC7K" or # Family 7 GTX (Kintex7 and Virtex7 585, 2000, X485)
+elif (syn_device[0:4].upper()=="XC7K" or # Family 7 GTX (Kintex7, Zynq-7000 30/35/45/100 and Virtex7 585, 2000, X485)
+      syn_device[0:7].upper()=="XC7Z030" or
+      syn_device[0:7].upper()=="XC7Z035" or
+      syn_device[0:7].upper()=="XC7Z045" or
+      syn_device[0:7].upper()=="XC7Z100" or
       syn_device[0:7].upper()=="XC7V585" or
       syn_device[0:8].upper()=="XC7V2000" or
       syn_device[0:8].upper()=="XC7VX485"):

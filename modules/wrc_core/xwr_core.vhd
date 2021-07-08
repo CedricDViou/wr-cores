@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2017-05-29
+-- Last update: 2021-06-25
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -102,7 +102,7 @@ entity xwr_core is
     ---------------------------------------------------------------------------
 
     -- system reference clock (any frequency <= f(clk_ref_i))
-    clk_sys_i : in std_logic;
+    clk_sys_i  : in std_logic;
 
     -- DDMTD offset clock (125.x MHz)
     clk_dmtd_i : in std_logic;
@@ -271,7 +271,7 @@ end xwr_core;
 architecture struct of xwr_core is
 begin
 
-  WRPC : wr_core
+  WRPC : entity work.wr_core
     generic map(
       g_simulation                => g_simulation,
       g_board_name                => g_board_name,
@@ -440,8 +440,6 @@ begin
       );
 
   timestamps_o.port_id(5) <= '0';
-
-  slave_o.int <= '0';
 
   wrf_snk_o.rty <= '0';
 

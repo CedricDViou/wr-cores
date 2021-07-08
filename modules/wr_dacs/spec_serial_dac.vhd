@@ -6,7 +6,7 @@
 -- Author     : paas, slayer
 -- Company    : CERN BE-Co-HT
 -- Created    : 2010-02-25
--- Last update: 2011-05-10
+-- Last update: 2021-06-10
 -- Platform   : fpga-generic
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------

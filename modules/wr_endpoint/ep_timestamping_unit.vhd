@@ -7,7 +7,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2009-06-22
--- Last update: 2017-02-03
+-- Last update: 2021-06-24
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'87
 -------------------------------------------------------------------------------
@@ -77,7 +77,7 @@ entity ep_timestamping_unit is
 
     -- resets
     rst_n_rx_i  : in std_logic;
-    rst_n_ref_i : in std_logic;
+----    rst_n_ref_i : in std_logic;
     rst_n_sys_i : in std_logic;
 
 -- PPS pulse input (active HI for 1 clk_ref_i cycle) for internal TS counter synchronization
@@ -200,7 +200,7 @@ begin  -- syn
     port map (
 
       clk_i          => clk_ref_i,
-      rst_n_i        => rst_n_ref_i,
+      rst_n_i        => rst_n_sys_i,
       pps_p_i        => pps_csync_p1_i,
       overflow_o     => open,
       value_r_o      => cntr_r,
@@ -259,60 +259,96 @@ begin  -- syn
 
 
   rx_trigger_a       <= (rx_timestamp_trigger_p_a_i and rx_trigger_mask) or rx_cal_pulse_a;
+
   -- Sync chains for timestamp strobes: 4 combinations - (TX-RX) -> (rising/falling)
-  sync_ffs_tx_r : gc_sync_ffs
+----  sync_ffs_tx_r : gc_sync_ffs
+----    generic map (
+----      g_sync_edge => "positive")
+----    port map (
+----      clk_i    => clk_ref_i,
+----      rst_n_i  => rst_n_sys_i,
+----      data_i   => tx_timestamp_trigger_p_a_i,
+----      synced_o => open,
+----      npulse_o => open,
+----      ppulse_o => take_tx_synced_p);
+----
+----
+----  
+----  sync_ffs_rx_r : gc_sync_ffs
+----    generic map (
+----      g_sync_edge => "positive")
+----    port map (
+----      clk_i    => clk_ref_i,
+----      rst_n_i  => rst_n_sys_i,
+----      data_i   => rx_trigger_a,
+----      synced_o => open,
+----      npulse_o => open,
+----      ppulse_o => take_rx_synced_p);
+----
+----
+----  sync_ffs_tx_f : gc_sync_ffs
+----    generic map (
+----      g_sync_edge => "negative")
+----    port map (
+----      clk_i    => clk_ref_i,
+----      rst_n_i  => rst_n_sys_i,
+----      data_i   => tx_timestamp_trigger_p_a_i,
+----      synced_o => open,
+----      npulse_o => open,
+----      ppulse_o => take_tx_synced_p_fedge);
+----
+----  sync_ffs_rx_f : gc_sync_ffs
+----    generic map (
+----      g_sync_edge => "negative")
+----    port map (
+----      clk_i    => clk_ref_i,
+----      rst_n_i  => rst_n_sys_i,
+----      data_i   => rx_trigger_a,
+----      synced_o => open,
+----      npulse_o => open,
+----      ppulse_o => take_rx_synced_p_fedge);
+  sync_ffs_tx_r : gc_edge_detect
     generic map (
-      g_sync_edge => "positive")
+      g_pulse_edge => "positive",
+      g_clock_edge => "positive")
     port map (
-      clk_i    => clk_ref_i,
-      rst_n_i  => rst_n_ref_i,
-      data_i   => tx_timestamp_trigger_p_a_i,
-      synced_o => open,
-      npulse_o => open,
-      ppulse_o => take_tx_synced_p);
-
-
+      clk_i   => clk_ref_i,
+      data_i  => tx_timestamp_trigger_p_a_i,
+      pulse_o => take_tx_synced_p);
   
-  sync_ffs_rx_r : gc_sync_ffs
+  sync_ffs_rx_r : gc_edge_detect
     generic map (
-      g_sync_edge => "positive")
+      g_pulse_edge => "positive",
+      g_clock_edge => "positive")
     port map (
-      clk_i    => clk_ref_i,
-      rst_n_i  => rst_n_ref_i,
-      data_i   => rx_trigger_a,
-      synced_o => open,
-      npulse_o => open,
-      ppulse_o => take_rx_synced_p);
+      clk_i   => clk_ref_i,
+      data_i  => rx_trigger_a,
+      pulse_o => take_rx_synced_p);
 
-
-  sync_ffs_tx_f : gc_sync_ffs
+  sync_ffs_tx_f : gc_edge_detect
     generic map (
-      g_sync_edge => "negative")
+      g_pulse_edge => "positive",
+      g_clock_edge => "negative")
     port map (
-      clk_i    => clk_ref_i,
-      rst_n_i  => rst_n_ref_i,
-      data_i   => tx_timestamp_trigger_p_a_i,
-      synced_o => open,
-      npulse_o => open,
-      ppulse_o => take_tx_synced_p_fedge);
+      clk_i   => clk_ref_i,
+      data_i  => tx_timestamp_trigger_p_a_i,
+      pulse_o => take_tx_synced_p_fedge);
 
-  sync_ffs_rx_f : gc_sync_ffs
+  sync_ffs_rx_f : gc_edge_detect
     generic map (
-      g_sync_edge => "negative")
+      g_pulse_edge => "positive",
+      g_clock_edge => "negative")
     port map (
-      clk_i    => clk_ref_i,
-      rst_n_i  => rst_n_ref_i,
-      data_i   => rx_trigger_a,
-      synced_o => open,
-      npulse_o => open,
-      ppulse_o => take_rx_synced_p_fedge);
+      clk_i   => clk_ref_i,
+      data_i  => rx_trigger_a,
+      pulse_o => take_rx_synced_p_fedge);
 
   
 
   take_r : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if(rst_n_ref_i = '0') then
+      if(rst_n_sys_i = '0') then
         cntr_rx_r <= (others => '0');
         cntr_tx_r <= (others => '0');
 
@@ -344,7 +380,7 @@ begin  -- syn
   take_f : process(clk_ref_i)
   begin
     if falling_edge(clk_ref_i) then
-      if rst_n_ref_i = '0' then
+      if rst_n_sys_i = '0' then
         cntr_rx_f <= (others => '0');
         cntr_tx_f <= (others => '0');
       else

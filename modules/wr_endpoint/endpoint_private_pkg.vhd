@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-11-18
--- Last update: 2017-02-20
+-- Last update: 2021-06-24
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -461,7 +461,7 @@ package endpoint_private_pkg is
       wb_we_i            : in  std_logic;
       wb_ack_o           : out std_logic;
       wb_stall_o         : out std_logic;
-      tx_clk_i           : in  std_logic;
+----      tx_clk_i           : in  std_logic;
       rx_clk_i           : in  std_logic;
       regs_o             : out t_ep_out_registers;
       regs_i             : in  t_ep_in_registers);

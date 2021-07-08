@@ -48,7 +48,7 @@ entity spll_aligner is
     clk_ref_i : in std_logic;
 
     rst_n_sys_i    : in std_logic;
-    rst_n_ref_i    : in  std_logic;
+----    rst_n_ref_i    : in  std_logic;
     rst_n_ext_i    : in  std_logic;
 
     pps_ext_a_i    : in std_logic;
@@ -72,13 +72,13 @@ architecture rtl of spll_aligner is
   signal cnt_ref_div           : unsigned(g_counter_width-1 downto 0);
   signal pps_ext_p, pps_ext_d0 : std_logic;
   signal ref_div_p             : std_logic;
-  signal sample_ready_p        : std_logic;
+----  signal sample_ready_p        : std_logic;
 begin
 
   p_ref_counter : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if pps_csync_p1_i = '1' or rst_n_ref_i = '0' then
+      if pps_csync_p1_i = '1' or rst_n_sys_i = '0' then
         cnt_ref_bin <= to_unsigned(0, g_counter_width);
       elsif(cnt_ref_bin = g_ref_clock_rate - 1) then
         cnt_ref_bin <= (others => '0');
@@ -91,7 +91,7 @@ begin
   p_samplerate_divider : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if pps_csync_p1_i = '1' or rst_n_ref_i = '0' then
+      if pps_csync_p1_i = '1' or rst_n_sys_i = '0' then
         ref_div_p   <= '0';
         cnt_ref_div <= to_unsigned(0, g_counter_width);
       elsif (cnt_ref_div = c_div_ticks - 2) then
@@ -149,14 +149,14 @@ begin
     end if;
   end process;
 
-  U_sync_sampling : gc_pulse_synchronizer2
-    port map (
-      clk_in_i    => clk_ref_i,
-      rst_in_n_i  => rst_n_ref_i,
-      clk_out_i   => clk_sys_i,
-      rst_out_n_i => rst_n_sys_i,
-      d_p_i       => ref_div_p,
-      q_p_o       => sample_ready_p);
+----  U_sync_sampling : gc_pulse_synchronizer2
+----    port map (
+----      clk_in_i    => clk_ref_i,
+----      rst_in_n_i  => rst_n_ref_i,
+----      clk_out_i   => clk_sys_i,
+----      rst_out_n_i => rst_n_sys_i,
+----      d_p_i       => ref_div_p,
+----      q_p_o       => sample_ready_p);
 
 
   p_gen_sample_valid : process(clk_sys_i)
@@ -165,7 +165,7 @@ begin
       if rst_n_sys_i = '0' then
         sample_valid_o <= '0';
       else
-        if sample_ready_p = '1' then
+        if ref_div_p = '1' then
           sample_valid_o <= '1';
         elsif sample_ack_i = '1' then
           sample_valid_o <= '0';

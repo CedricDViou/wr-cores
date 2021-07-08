@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2017-02-20
+-- Last update: 2021-06-23
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -192,9 +192,9 @@ package endpoint_pkg is
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic                     := '0';
       rst_sys_n_i          : in  std_logic;
-      rst_ref_n_i          : in  std_logic;
+----      rst_ref_n_i          : in  std_logic;
       rst_dmtd_n_i         : in  std_logic;
-      rst_txclk_n_i        : in  std_logic;
+----      rst_txclk_n_i        : in  std_logic;
       rst_rxclk_n_i        : in  std_logic;
       pps_csync_p1_i       : in  std_logic                     := '0';
       pps_valid_i          : in  std_logic                     := '1';
@@ -303,9 +303,9 @@ package endpoint_pkg is
       clk_sys_i            : in  std_logic;
       clk_dmtd_i           : in  std_logic;
       rst_sys_n_i          : in  std_logic;
-      rst_ref_n_i          : in  std_logic;
+----      rst_ref_n_i          : in  std_logic;
       rst_dmtd_n_i         : in  std_logic;
-      rst_txclk_n_i        : in  std_logic;
+----      rst_txclk_n_i        : in  std_logic;
       rst_rxclk_n_i        : in  std_logic;
       pps_csync_p1_i       : in  std_logic;
       pps_valid_i          : in  std_logic                     := '1';

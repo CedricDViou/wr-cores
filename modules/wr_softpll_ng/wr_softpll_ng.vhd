@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2017-02-20
+-- Last update: 2021-06-07
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -149,7 +149,7 @@ entity wr_softpll_ng is
     wb_we_i    : in  std_logic;
     wb_ack_o   : out std_logic;
     wb_stall_o : out std_logic;
-    wb_irq_o   : out std_logic;
+    irq_o      : out std_logic;
     debug_o    : out std_logic_vector(5 downto 0);
 
 -- Debug FIFO readout interrupt
@@ -581,7 +581,7 @@ begin  -- rtl
       wb_stb_i   => wb_in.stb,
       wb_we_i    => wb_in.we,
       wb_ack_o   => wb_out.ack,
-      wb_int_o   => wb_irq_out,
+      wb_int_o   => irq_o,
       wb_stall_o => open,
 
       regs_o => regs_in,
@@ -593,7 +593,6 @@ begin  -- rtl
     wb_out.err   <= '0';
     wb_out.rty   <= '0';
     wb_out.stall <= '0';
-    wb_out.int   <= '0';
 
   p_ocer_rcer_regs : process(clk_sys_i)
   begin
@@ -796,8 +795,6 @@ begin  -- rtl
   dac_out_data_o <= regs_in.dac_main_value_o;
   dac_out_sel_o  <= regs_in.dac_main_dac_sel_o;
   dac_out_load_o <= regs_in.dac_main_value_wr_o;
-
-  wb_irq_o <= wb_irq_out;
 
   regs_out.al_cr_required_i    <= (others => '0');
   regs_out.csr_dbg_supported_i <= '0';

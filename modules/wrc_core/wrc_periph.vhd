@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-04-04
--- Last update: 2017-04-25
+-- Last update: 2021-06-10
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -150,7 +150,6 @@ begin
         rst_net_n_o <= '0';
         rst_wrc_n_o_reg <= '1';
       else
-
         if(sysc_regs_o.rstr_trig_wr_o = '1' and sysc_regs_o.rstr_trig_o = x"deadbee") then
           rst_wrc_n_o_reg <= not sysc_regs_o.rstr_rst_o;
         end if; 
@@ -414,12 +413,11 @@ begin
 
   slave_o(0).err <= '0';
   slave_o(0).rty <= '0';
-  slave_o(0).int <= '0';
 
   --------------------------------------
   -- UART
   --------------------------------------
-  UART : xwb_simple_uart
+  UART : entity work.xwb_simple_uart
     generic map(
       g_with_virtual_uart   => g_virtual_uart,
       g_with_physical_uart  => g_phys_uart,
@@ -443,7 +441,7 @@ begin
   --------------------------------------
   -- 1-WIRE
   --------------------------------------
-  ONEWIRE : xwb_onewire_master
+  ONEWIRE : entity work.xwb_onewire_master
     generic map(
       g_interface_mode      => PIPELINED,
       g_address_granularity => BYTE,
@@ -470,7 +468,7 @@ begin
   --------------------------------------
 
   -- access through WB (PCI/VME/application) to diagnostics of WRPC
-  DIAGS: xwr_diags_wb
+  DIAGS: entity work.xwr_diags_wb
     generic map(
       g_interface_mode      => PIPELINED,
       g_address_granularity => BYTE
