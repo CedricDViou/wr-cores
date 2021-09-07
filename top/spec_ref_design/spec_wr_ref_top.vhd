@@ -501,7 +501,7 @@ begin  -- architecture top
 
   wrc_pps_in    <= dio_in(3);
   dio_out(0)    <= wrc_pps_out;
-  dio_out(1)    <= wrc_abscal_rxts_out;
+  dio_out(1)    <= clk_ref_div2;
   dio_out(2)    <= wrc_abscal_txts_out;
 
   -- LEDs
