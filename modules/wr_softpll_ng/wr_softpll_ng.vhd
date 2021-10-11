@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2019-09-18
+-- Last update: 2021-10-11
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -85,8 +85,10 @@ entity wr_softpll_ng is
 
     g_use_sampled_ref_clocks : boolean := false;
 
+    g_aux_config : t_softpll_channels_config_array := c_softpll_default_channels_config;
+    
     g_interface_mode      : t_wishbone_interface_mode      := PIPELINED;
-    g_address_granularity : t_wishbone_address_granularity := WORD
+    g_address_granularity : t_wishbone_address_granularity := WORD    
     );
 
   port(
@@ -110,6 +112,7 @@ entity wr_softpll_ng is
 
 -- DMTD Offset clock
     clk_dmtd_i : in std_logic;
+    clk_dmtd_over_i : in std_logic;
 
 -- External reference clock (e.g. 10 MHz from Cesium/GPSDO). Used only if
 -- g_num_exts > 0
@@ -172,33 +175,7 @@ architecture rtl of wr_softpll_ng is
   constant c_DBG_FIFO_COALESCE  : integer := 100;
   constant c_BB_ERROR_BITS      : integer := 16;
 
-  component dmtd_with_deglitcher is
-    generic (
-      g_counter_bits      : natural;
-      g_chipscope         : boolean := false;
-      g_divide_input_by_2 : boolean;
-      g_reverse           : boolean;
-      g_use_sampled_clock : boolean);
-    port (
-      rst_n_dmtdclk_i      : in  std_logic;
-      rst_n_sysclk_i       : in  std_logic;
-      clk_in_i             : in  std_logic;
-      clk_dmtd_i           : in  std_logic;
-      clk_sys_i            : in  std_logic;
-      clk_sampled_a_i      : in  std_logic := '0';
-      resync_p_a_i         : in  std_logic := '0';
-      resync_p_o           : out std_logic;
-      resync_start_p_i     : in  std_logic := '0';
-      resync_done_o        : out std_logic;
-      shift_en_i           : in  std_logic := '0';
-      shift_dir_i          : in  std_logic := '0';
-      clk_dmtd_en_i        : in  std_logic := '1';
-      deglitch_threshold_i : in  std_logic_vector(15 downto 0);
-      dbg_dmtdout_o        : out std_logic;
-      tag_o                : out std_logic_vector(g_counter_bits-1 downto 0);
-      tag_stb_p1_o         : out std_logic;
-      dbg_clk_d3_o         : out std_logic);
-  end component dmtd_with_deglitcher;
+ 
 
   component spll_wb_slave
     generic (
@@ -402,7 +379,7 @@ begin  -- rtl
 
   gen_ref_dmtds : for i in 0 to g_num_ref_inputs-1 generate
 
-    DMTD_REF : dmtd_with_deglitcher
+    DMTD_REF : entity work.dmtd_with_deglitcher
       generic map (
         g_counter_bits      => g_tag_bits,
         g_divide_input_by_2 => g_divide_input_by_2,
@@ -436,18 +413,21 @@ begin  -- rtl
 
   gen_feedback_dmtds : for i in 0 to g_num_outputs-1 generate
     
-    DMTD_FB : dmtd_with_deglitcher
+    DMTD_FB : entity work.dmtd_with_deglitcher
       generic map (
         g_counter_bits      => g_tag_bits,
         g_divide_input_by_2 => g_divide_input_by_2,
-				g_reverse => g_reverse_dmtds,
-        g_use_sampled_clock => false)
+        g_reverse => g_reverse_dmtds,
+        g_use_sampled_clock => false,
+        g_oversample => g_aux_config(i).oversample,
+        g_oversample_factor => g_aux_config(i).divider)
       port map (
         rst_n_dmtdclk_i => rst_dmtd_n_i,
         rst_n_sysclk_i  => rst_n_i,
 
         clk_dmtd_i    => clk_dmtd_i,
         clk_dmtd_en_i => '1',
+        clk_dmtd_over_i => clk_dmtd_over_i,
 
         clk_sys_i => clk_sys_i,
         clk_in_i  => clk_fb_i(i),
@@ -474,11 +454,11 @@ begin  -- rtl
 
   gen_ext_dmtds: for I in 0 to g_num_exts-1 generate
 
-    U_DMTD_EXT_internal : dmtd_with_deglitcher
+    U_DMTD_EXT_internal : entity work.dmtd_with_deglitcher
       generic map (
         g_counter_bits      => g_tag_bits,
         g_divide_input_by_2 => g_divide_input_by_2,
-				g_reverse	=> g_reverse_dmtds,
+        g_reverse	=> g_reverse_dmtds,
         g_use_sampled_clock => false)
       port map (
         rst_n_dmtdclk_i => rst_dmtd_n_i,

@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-20
--- Last update: 2019-04-26
+-- Last update: 2021-10-12
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level file for the WRPC reference design on the SPEC.
@@ -83,6 +83,10 @@ entity spec_wr_ref_top is
     clk_125m_gtp_n_i : in std_logic;              -- 125 MHz GTP reference
     clk_125m_gtp_p_i : in std_logic;
 
+    clk_si57x_p_i : in std_logic;
+    clk_si57x_n_i : in std_logic;
+    
+    
     ---------------------------------------------------------------------------
     -- GN4124 PCIe bridge signals
     ---------------------------------------------------------------------------
@@ -140,6 +144,11 @@ entity spec_wr_ref_top is
     sfp_tx_disable_o  : out   std_logic;
     sfp_los_i         : in    std_logic;
 
+    si57x_scl_b : inout std_logic;
+    si57x_sda_b : inout std_logic;
+    si57x_oe_o : out std_logic;
+    
+    
     ---------------------------------------------------------------------------
     -- Onewire interface
     ---------------------------------------------------------------------------
@@ -291,6 +300,17 @@ architecture top of spec_wr_ref_top is
   signal dio_in  : std_logic_vector(4 downto 0);
   signal dio_out : std_logic_vector(4 downto 0);
 
+  constant c_softpll_channel_config : t_softpll_channels_config_array :=
+
+    ( 0 => (oversample => false, divider => 1),
+      1 => (oversample => true, divider => 5 ),
+      2 => (oversample => false, divider => 1),
+      3 => (oversample => false, divider => 1),
+      4 => (oversample => false, divider => 1),
+      5 => (oversample => false, divider => 1),
+      6 => (oversample => false, divider => 1),
+      7 => (oversample => false, divider => 1) );
+  
 begin  -- architecture top
 
   -----------------------------------------------------------------------------

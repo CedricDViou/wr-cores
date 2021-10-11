@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2019-04-23
+-- Last update: 2021-10-12
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
@@ -249,6 +249,13 @@ entity wrc_board_spec is
     wb_eth_rty_i   : in  std_logic                                          := '0';
     wb_eth_stall_i : in  std_logic                                          := '0';
 
+    si57x_scl_o : out std_logic;
+    si57x_scl_i : in std_logic := '0';
+    si57x_scl_oen_o : out std_logic;
+    si57x_sda_o : out std_logic;
+    si57x_sda_i : in std_logic := '0';
+    si57x_sda_oen_o : out std_logic;
+    
     ---------------------------------------------------------------------------
     -- Generic diagnostics interface (access from WRPC via SNMP or uart console
     ---------------------------------------------------------------------------

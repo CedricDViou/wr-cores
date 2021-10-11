@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2021-06-19
+-- Last update: 2021-10-12
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -103,7 +103,9 @@ entity wr_core is
     g_diag_id                   : integer                        := 0;
     g_diag_ver                  : integer                        := 0;
     g_diag_ro_size              : integer                        := 0;
-    g_diag_rw_size              : integer                        := 0);
+    g_diag_rw_size              : integer                        := 0;
+    g_softpll_aux_channel_config : t_softpll_channels_config_array := c_softpll_default_channels_config
+    );
   port(
     ---------------------------------------------------------------------------
     -- Clocks/resets
@@ -114,7 +116,8 @@ entity wr_core is
 
     -- DDMTD offset clock (125.x MHz)
     clk_dmtd_i : in std_logic;
-
+    clk_dmtd_over_i : in std_logic := '0';
+    
     -- Timing reference (125 MHz)
     clk_ref_i : in std_logic;
 
@@ -685,7 +688,7 @@ begin
   -----------------------------------------------------------------------------
   -- Software PLL
   -----------------------------------------------------------------------------
-  U_SOFTPLL : xwr_softpll_ng
+  U_SOFTPLL : entity work.xwr_softpll_ng
     generic map(
       g_reverse_dmtds        => false,
       g_divide_input_by_2    => not g_pcs_16bit,
@@ -698,7 +701,8 @@ begin
       g_num_exts             => f_num_ext_clks,
       g_ref_clock_rate       => f_refclk_rate(g_pcs_16bit),
       g_use_sampled_ref_clocks => g_softpll_use_sampled_ref_clocks,
-      g_ext_clock_rate       => 10000000)
+      g_ext_clock_rate       => 10000000,
+      g_aux_config => g_softpll_aux_channel_config)
     port map(
       clk_sys_i    => clk_sys_i,
       rst_sys_n_i  => rst_net_n,
@@ -713,6 +717,7 @@ begin
       clk_fb_i     => clk_fb,
       -- DMTD Offset clock
       clk_dmtd_i   => clk_dmtd_i,
+      clk_dmtd_over_i => clk_dmtd_over_i,
 
       clk_ext_i     => clk_ext_i,
       clk_ext_mul_i(0)     => clk_ext_mul_i,
