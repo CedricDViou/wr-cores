@@ -2,7 +2,7 @@ board  = "spec"
 target = "xilinx"
 action = "synthesis"
 
-syn_device = "xc6slx45t"
+syn_device = "xc6slx150t"
 syn_grade = "-3"
 syn_package = "fgg484"
 

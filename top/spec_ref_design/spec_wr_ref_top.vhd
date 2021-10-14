@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-20
--- Last update: 2021-10-12
+-- Last update: 2021-10-15
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level file for the WRPC reference design on the SPEC.
@@ -57,13 +57,14 @@ use work.gn4124_core_pkg.all;
 use work.wr_board_pkg.all;
 use work.wr_spec_pkg.all;
 use work.synthesis_descriptor.all;
+use work.softpll_pkg.all;
 
 library unisim;
 use unisim.vcomponents.all;
 
 entity spec_wr_ref_top is
   generic (
-    g_DPRAM_INITF : string := "../../bin/wrpc/wrc_phy8.bram";
+    g_DPRAM_INITF : string := "none";
     -- Simulation-mode enable parameter. Set by default (synthesis) to 0, and
     -- changed to non-zero in the instantiation of the top level DUT in the testbench.
     -- Its purpose is to reduce some internal counters/timeouts to speed up simulations.
@@ -232,14 +233,13 @@ architecture top of spec_wr_ref_top is
   -----------------------------------------------------------------------------
 
   -- Number of masters on the wishbone crossbar
-  constant c_NUM_WB_MASTERS : integer := 2;
+  constant c_NUM_WB_MASTERS : integer := 1;
 
   -- Number of slaves on the primary wishbone crossbar
   constant c_NUM_WB_SLAVES : integer := 1;
 
   -- Primary Wishbone master(s) offsets
   constant c_WB_MASTER_PCIE    : integer := 0;
-  constant c_WB_MASTER_ETHBONE : integer := 1;
 
   -- Primary Wishbone slave(s) offsets
   constant c_WB_SLAVE_WRC : integer := 0;
@@ -269,7 +269,8 @@ architecture top of spec_wr_ref_top is
   signal rst_sys_62m5_n : std_logic;
   signal rst_ref_125m_n : std_logic;
   signal clk_ref_125m   : std_logic;
-  signal clk_ref_div2   : std_logic;
+  signal clk_ref_div2   : std_logic := '0';
+  signal clk_si57x_div2   : std_logic := '0';
   signal clk_ext_10m    : std_logic;
 
   -- I2C EEPROM
@@ -296,20 +297,34 @@ architecture top of spec_wr_ref_top is
   signal wrc_pps_in  : std_logic;
   signal svec_led    : std_logic_vector(15 downto 0);
 
+  signal si57x_wb_out : t_wishbone_master_out;
+  signal si57x_wb_in : t_wishbone_master_in;
+  
+  
   -- DIO Mezzanine
   signal dio_in  : std_logic_vector(4 downto 0);
   signal dio_out : std_logic_vector(4 downto 0);
 
+  signal si57x_scl_pad_oen, si57x_sda_pad_oen : std_logic;
+  signal si57x_scl_pad_in, si57x_sda_pad_in : std_logic;
+  signal tm_dac_value : std_logic_vector(23 downto 0);
+  signal tm_dac_wr : std_logic_vector(0 downto 0);
+  signal tm_clk_aux_lock_en : std_logic_vector(0 downto 0);
+  
+  
   constant c_softpll_channel_config : t_softpll_channels_config_array :=
 
     ( 0 => (oversample => false, divider => 1),
-      1 => (oversample => true, divider => 5 ),
+      1 => (oversample => true,  divider => 5),
       2 => (oversample => false, divider => 1),
       3 => (oversample => false, divider => 1),
       4 => (oversample => false, divider => 1),
       5 => (oversample => false, divider => 1),
       6 => (oversample => false, divider => 1),
       7 => (oversample => false, divider => 1) );
+
+  signal clk_si57x: std_logic;
+  signal spll_debug : std_logic_vector(5 downto 0);
   
 begin  -- architecture top
 
@@ -391,12 +406,14 @@ begin  -- architecture top
   -- The WR PTP core board package (WB Slave + WB Master #2 (Etherbone))
   -----------------------------------------------------------------------------
 
-  cmp_xwrc_board_spec : xwrc_board_spec
+  cmp_xwrc_board_spec : entity work.xwrc_board_spec
     generic map (
       g_simulation                => g_simulation,
       g_with_external_clock_input => TRUE,
       g_dpram_initf               => g_dpram_initf,
-      g_fabric_iface              => ETHERBONE)
+      g_fabric_iface              => PLAIN,
+      g_softpll_aux_channel_config => c_softpll_channel_config,
+      g_aux_clks => 1)
     port map (
       areset_n_i          => button1_i,
       areset_edge_n_i     => gn_rst_n,
@@ -411,6 +428,14 @@ begin  -- architecture top
       rst_sys_62m5_n_o    => rst_sys_62m5_n,
       rst_ref_125m_n_o    => rst_ref_125m_n,
 
+      clk_aux_i(0) => clk_si57x,
+
+      tm_dac_value_o       => tm_dac_value,
+      tm_dac_wr_o          => tm_dac_wr,
+      tm_clk_aux_lock_en_i => tm_clk_aux_lock_en,
+      tm_clk_aux_locked_o  => open,
+
+      
       plldac_sclk_o       => plldac_sclk_o,
       plldac_din_o        => plldac_din_o,
       pll25dac_cs_n_o     => pll25dac_cs_n_o,
@@ -449,8 +474,8 @@ begin  -- architecture top
       wb_slave_o          => cnx_slave_out(c_WB_SLAVE_WRC),
       wb_slave_i          => cnx_slave_in(c_WB_SLAVE_WRC),
 
-      wb_eth_master_o     => cnx_master_out(c_WB_MASTER_ETHBONE),
-      wb_eth_master_i     => cnx_master_in(c_WB_MASTER_ETHBONE),
+      aux_master_o => si57x_wb_out,
+      aux_master_i => si57x_wb_in,
       
       abscal_txts_o       => wrc_abscal_txts_out,
       abscal_rxts_o       => wrc_abscal_rxts_out,
@@ -459,7 +484,8 @@ begin  -- architecture top
       pps_p_o             => wrc_pps_out,
       pps_led_o           => wrc_pps_led,
       led_link_o          => led_link_o,
-      led_act_o           => led_act_o);
+      led_act_o           => led_act_o,
+       spll_debug_o => spll_debug);
 
   -- Tristates for SFP EEPROM
   sfp_mod_def1_b <= '0' when sfp_scl_out = '0' else 'Z';
@@ -471,6 +497,14 @@ begin  -- architecture top
   onewire_b    <= '0' when (onewire_oe = '1') else 'Z';
   onewire_data <= onewire_b;
 
+  U_ibuf_si57x: IBUFGDS
+      generic map (
+        DIFF_TERM => true)
+      port map (
+        O  => clk_si57x,
+        I  => clk_si57x_p_i,
+        IB => clk_si57x_n_i);
+  
   ------------------------------------------------------------------------------
   -- Digital I/O FMC Mezzanine connections
   ------------------------------------------------------------------------------
@@ -489,11 +523,10 @@ begin  -- architecture top
         O  => dio_p_o(i),
         OB => dio_n_o(i));
   end generate;
-  -- Configure Digital I/Os 0 to 3 as outputs
+  -- Configure Digital I/Os 0 to 4 as outputs
   dio_oe_n_o(2 downto 0) <= (others => '0');
-  -- Configure Digital I/Os 3 and 4 as inputs for external reference
-  dio_oe_n_o(3)          <= '1';  -- for external 1-PPS
-  dio_oe_n_o(4)          <= '1';  -- for external 10MHz clock
+  dio_oe_n_o(3)          <= '0';
+  dio_oe_n_o(4)          <= '0';
   -- All DIO connectors are not terminated
   dio_term_en_o          <= (others => '0');
 
@@ -511,6 +544,17 @@ begin  -- architecture top
     end if;
   end process;
 
+  -- Div by 2 silabs clock to LEMO connector
+  process(clk_si57x)
+  begin
+    if rising_edge(clk_si57x) then
+      clk_si57x_div2 <= not clk_si57x_div2;
+    end if;
+  end process;
+
+
+  wrc_pps_in    <= '0';
+
   cmp_ibugds_extref: IBUFGDS
     generic map (
       DIFF_TERM => true)
@@ -518,12 +562,12 @@ begin  -- architecture top
       O  => clk_ext_10m,
       I  => dio_clk_p_i,
       IB => dio_clk_n_i);
-
-  wrc_pps_in    <= dio_in(3);
-  dio_out(0)    <= wrc_pps_out;
-  dio_out(1)    <= wrc_abscal_rxts_out;
-  dio_out(2)    <= wrc_abscal_txts_out;
-
+  dio_out(0)    <= spll_debug(1);
+  dio_out(1)    <= spll_debug(0);
+  dio_out(2)    <= wrc_pps_out;
+  dio_out(3)    <= clk_ref_div2;
+  dio_out(4)    <= clk_si57x_div2;
+  
   -- LEDs
   U_Extend_PPS : gc_extend_pulse
   generic map (
@@ -536,4 +580,30 @@ begin  -- architecture top
 
   dio_led_bot_o <= '0';
 
+    
+   cmp_si57x_wr_interface: entity work.xwr_si57x_interface
+      generic map (
+        g_simulation => 0)
+      port map (
+        clk_sys_i         => clk_sys_62m5,
+        rst_n_i           => rst_sys_62m5_n,
+        tm_dac_value_i    => tm_dac_value,
+        tm_dac_value_wr_i => tm_dac_wr(0),
+        scl_pad_oen_o     => si57x_scl_pad_oen,
+        sda_pad_oen_o     => si57x_sda_pad_oen,
+        scl_pad_i         => si57x_scl_pad_in,
+        sda_pad_i         => si57x_sda_pad_in,
+        slave_i           => si57x_wb_out,
+        slave_o           => si57x_wb_in );
+
+
+  si57x_scl_pad_in <= si57x_scl_b;
+  si57x_scl_b <= '0' when si57x_scl_pad_oen = '0' else 'Z';
+  si57x_sda_pad_in <= si57x_sda_b;
+  si57x_sda_b <= '0' when si57x_sda_pad_oen = '0' else 'Z';
+
+  si57x_oe_o <= '1';
+  
+  tm_clk_aux_lock_en(0) <= '1';
+  
 end architecture top;

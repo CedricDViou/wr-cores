@@ -297,6 +297,19 @@ NET "dio_led_top_o" IOSTANDARD=LVCMOS25;
 NET "dio_led_bot_o" LOC= AB12;
 NET "dio_led_bot_o" IOSTANDARD=LVCMOS25;
 
+NET "si57x_scl_b"         LOC = A18;
+NET "si57x_sda_b"         LOC = A17;
+NET "si57x_oe_o"         LOC = H13;
+
+NET "si57x_scl_b"         IOSTANDARD=LVCMOS25;
+NET "si57x_sda_b"         IOSTANDARD=LVCMOS25;
+NET "si57x_oe_o"          IOSTANDARD=LVCMOS25;
+
+
+NET "clk_si57x_p_i" LOC=F14;
+NET "clk_si57x_n_i" LOC=F15;
+
+
 NET "dio_scl_b" LOC = F7;
 NET "dio_scl_b" IOSTANDARD = "LVCMOS25";
 NET "dio_sda_b" LOC = F8;
@@ -345,4 +358,4 @@ INST "*/U_SOFTPLL/U_Wrapped_Softpll/gen_ref_dmtds*/clk_in" TNM = skew_limit;
 TIMESPEC TS_ = FROM "skew_limit" TO "FFS" 1 ns DATAPATHONLY;
 
 # Force PPS output to always be placed as IOB register
-INST "cmp_xwrc_board_spec/cmp_board_common/cmp_xwr_core/WRPC/PPS_GEN/WRAPPED_PPSGEN/pps_out_o" IOB = FORCE;
+# INST "cmp_xwrc_board_spec/cmp_board_common/cmp_xwr_core/WRPC/PPS_GEN/WRAPPED_PPSGEN/pps_out_o" IOB = FORCE;
