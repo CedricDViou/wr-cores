@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2021-10-12
+-- Last update: 2021-10-13
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
@@ -265,7 +265,8 @@ entity xwrc_board_spec is
     pps_valid_o : out std_logic;
     pps_led_o  : out std_logic;
     -- Link ok indication
-    link_ok_o  : out std_logic
+    link_ok_o  : out std_logic;
+    spll_debug_o : out std_logic_vector(5 downto 0)
     );
 
 end entity xwrc_board_spec;
@@ -454,7 +455,7 @@ begin  -- architecture struct
       g_interface_mode            => PIPELINED,
       g_address_granularity       => BYTE,
       g_aux_sdb                   => g_aux_sdb,
-      g_softpll_enable_debugger   => FALSE,
+      g_softpll_enable_debugger   => TRUE,
       g_vuart_fifo_size           => 1024,
       g_pcs_16bit                 => FALSE,
       g_diag_id                   => g_diag_id,
@@ -464,7 +465,8 @@ begin  -- architecture struct
       g_streamers_op_mode         => g_streamers_op_mode,
       g_tx_streamer_params        => g_tx_streamer_params,
       g_rx_streamer_params        => g_rx_streamer_params,
-      g_fabric_iface              => g_fabric_iface
+      g_fabric_iface              => g_fabric_iface,
+      g_softpll_aux_channel_config => g_softpll_aux_channel_config
       )
     port map (
       clk_sys_i            => clk_pll_62m5,
@@ -550,7 +552,8 @@ begin  -- architecture struct
       pps_csync_o          => pps_csync_o,
       pps_valid_o          => pps_valid_o,
       pps_led_o            => pps_led_o,
-      link_ok_o            => link_ok_o);
+      link_ok_o            => link_ok_o,
+      spll_debug_o => spll_debug_o);
 
   sfp_rate_select_o <= '1';
 

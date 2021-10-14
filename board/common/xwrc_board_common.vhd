@@ -265,7 +265,10 @@ entity xwrc_board_common is
     pps_p_o     : out std_logic;
     pps_led_o   : out std_logic;
     -- Link ok indication
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+
+    spll_debug_o : out std_logic_vector(5 downto 0)
+
     );
 
 end entity xwrc_board_common;
@@ -487,7 +490,8 @@ begin  -- architecture struct
       rst_aux_n_o          => aux_rst_n,
       aux_diag_i           => aux_diag_in,
       aux_diag_o           => aux_diag_out,
-      link_ok_o            => link_ok);
+      link_ok_o            => link_ok,
+      spll_debug_o => spll_debug_o);
 
   pps_csync_o     <= pps_csync;
   pps_valid_o     <= pps_valid;
