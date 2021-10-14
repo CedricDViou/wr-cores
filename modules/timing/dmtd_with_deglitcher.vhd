@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-Co-HT
 -- Created    : 2010-02-25
--- Last update: 2021-10-11
+-- Last update: 2021-10-13
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -195,7 +195,7 @@ begin  -- rtl
         g_oversample => g_oversample)
       port map (
         clk_in_i      => clk_in_i,
-        sync_p1_i => resync_p_dmtd,
+        sync_p1_i => '0',
         clk_dmtd_over_i => clk_dmtd_over_i,
         clk_dmtd_i    => clk_dmtd_i,
         clk_sampled_o => clk_sampled);

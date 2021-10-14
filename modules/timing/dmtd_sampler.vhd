@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-Co-HT
 -- Created    : 2010-02-25
--- Last update: 2021-10-12
+-- Last update: 2021-10-13
 -- Platform   : FPGA-generic
 -- Standard   : VHDL '93
 -------------------------------------------------------------------------------
@@ -53,7 +53,9 @@ entity dmtd_sampler is
 
     g_oversample : boolean := false;
 
-    g_oversample_factor : integer := 1
+    g_oversample_factor : integer := 1;
+
+    g_is_ref : boolean := false
     );
   port (
     -- input clock
@@ -64,6 +66,8 @@ entity dmtd_sampler is
     clk_dmtd_over_i : in std_logic := '0';
 
     sync_p1_i : in std_logic;
+
+   --pps_ref_p1_i : in std_logic;
     
     clk_sampled_o : out std_logic
     );
@@ -83,7 +87,8 @@ architecture rtl of dmtd_sampler is
   attribute keep of clk_i_d2 : signal is "true";
   attribute keep of clk_i_d3 : signal is "true";
 
-  signal div_sreg : std_logic_vector(g_oversample_factor-1 downto 0);
+  signal div_sreg : std_logic_vector(g_oversample_factor-1 downto 0) :=
+    std_logic_vector(to_unsigned(1, g_oversample_factor));
   signal sync_p1_over_p : std_logic;
  
   
@@ -119,11 +124,13 @@ begin  -- rtl
           div_sreg(0) <= '1';
           div_sreg(g_oversample_factor-1 downto 1) <= (others => '0');
         else
-          div_sreg <= div_sreg(0) & div_sreg(div_sreg'length-2 downto 1);
+          div_sreg <= div_sreg(0) & div_sreg(div_sreg'length-1 downto 1);
         end if;
 
-        if div_sreg(0) = '1' then
           clk_i_d0 <= clk_in;
+
+        if div_sreg(0) = '1' then
+          clk_i_d1 <= clk_i_d0;
         end if;
       end if;
     end process;
@@ -131,7 +138,6 @@ begin  -- rtl
     p_the_dmtd_itself : process(clk_dmtd_i)
     begin
       if rising_edge(clk_dmtd_i) then
-        clk_i_d1 <= clk_i_d0;
         clk_i_d2 <= clk_i_d1;
         clk_i_d3 <= clk_i_d2;
       end if;
