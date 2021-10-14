@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2021-10-12
+-- Last update: 2021-10-13
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -318,7 +318,9 @@ entity wr_core is
     -- DIAG to/from external modules
     -------------------------------------
     aux_diag_i : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others=>(others=>'0'));
-    aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0)
+    aux_diag_o : out t_generic_word_array(g_diag_rw_size-1 downto 0);
+
+    spll_debug_o : out std_logic_vector(5 downto 0)
     );
 end wr_core;
 
@@ -747,7 +749,7 @@ begin
 
       int_o => softpll_irq,
 
-      debug_o => open);
+      debug_o => spll_debug_o);
 
   clk_fb(0)                       <= clk_ref_i;
   clk_fb(g_aux_clks downto 1)     <= clk_aux_i;

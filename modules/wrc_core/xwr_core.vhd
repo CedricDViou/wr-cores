@@ -280,7 +280,10 @@ entity xwr_core is
     aux_diag_i    : in  t_generic_word_array(g_diag_ro_size-1 downto 0) := (others =>(others=>'0'));
     aux_diag_o    : out t_generic_word_array(g_diag_rw_size-1 downto 0);
 
-    link_ok_o : out std_logic
+    link_ok_o : out std_logic;
+
+    spll_debug_o : out std_logic_vector(5 downto 0)
+
     );
 end xwr_core;
 
@@ -464,7 +467,8 @@ begin
       link_ok_o => link_ok_o,
 
       aux_diag_i => aux_diag_i,
-      aux_diag_o => aux_diag_o
+      aux_diag_o => aux_diag_o,
+      spll_debug_o => spll_debug_o
       );
 
   timestamps_o.port_id(5) <= '0';

@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2021-10-11
+-- Last update: 2021-10-12
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -444,7 +444,7 @@ begin  -- rtl
 
         deglitch_threshold_i => deglitch_thr_slv,
         dbg_dmtdout_o        => open,
-				dbg_clk_d3_o         => open); --debug_o(4));
+        dbg_clk_d3_o         => debug_o(i)); --debug_o(4));
 
 
   end generate gen_feedback_dmtds;
@@ -486,9 +486,6 @@ begin  -- rtl
   end generate gen_ext_dmtds;
 
   gen_with_ext_clock_input: if g_num_exts > 0 generate
-    debug_o(0) <= fb_resync_out(0);
-    debug_o(1) <= tags_p(g_num_ref_inputs + g_num_outputs);
-    debug_o(2) <= tags_p(g_num_ref_inputs);
     
     U_Aligner_EXT : spll_aligner
       generic map (
@@ -533,11 +530,6 @@ begin  -- rtl
     regs_out.eccr_ext_ref_stopped_i          <= '0';
     clk_ext_rst_o <= '0';
     -- drive unused debug outputs
-    debug_o(0) <= '0';
-    debug_o(1) <= '0';
-    debug_o(2) <= '0';
-    debug_o(3) <= '0';
-    debug_o(5) <= '0';
   end generate gen_without_ext_clock_input;
 
   p_ack_aligner_samples: process(regs_in, aligner_sample_valid)
@@ -712,7 +704,7 @@ begin  -- rtl
 
   irq_tag <= not regs_in.trr_wr_empty_o;
 
-  deglitch_thr_slv <= regs_in.deglitch_thr_o;
+  deglitch_thr_slv <= std_logic_vector(to_unsigned(1000, deglitch_thr_slv'length) );--regs_in.deglitch_thr_o;
 
 
 
