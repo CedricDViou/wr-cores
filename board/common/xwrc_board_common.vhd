@@ -318,7 +318,7 @@ begin  -- architecture struct
   -- The WR PTP core itself
   -----------------------------------------------------------------------------
 
-  cmp_xwr_core : xwr_core
+  cmp_xwr_core : entity work.xwr_core
     generic map (
       g_simulation                => g_simulation,
       g_with_external_clock_input => g_with_external_clock_input,

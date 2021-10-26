@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2010-09-02
--- Last update: 2021-06-23
+-- Last update: 2021-07-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -58,7 +58,7 @@ entity xwr_pps_gen is
   port (
     clk_ref_i   : in std_logic;
     clk_sys_i   : in std_logic;
-----    rst_ref_n_i : in std_logic;
+    rst_ref_n_i : in std_logic;
     rst_sys_n_i : in std_logic;
 
     slave_i : in  t_wishbone_slave_in;
@@ -95,7 +95,7 @@ architecture behavioral of xwr_pps_gen is
     port (
       clk_ref_i       : in  std_logic;
       clk_sys_i       : in  std_logic;
-----      rst_ref_n_i     : in  std_logic;
+      rst_ref_n_i     : in  std_logic;
       rst_sys_n_i     : in  std_logic;
       wb_adr_i        : in  std_logic_vector(4 downto 0);
       wb_dat_i        : in  std_logic_vector(31 downto 0);
@@ -132,7 +132,7 @@ begin  -- behavioral
     port map(
       clk_ref_i       => clk_ref_i,
       clk_sys_i       => clk_sys_i,
-----      rst_ref_n_i     => rst_ref_n_i,
+      rst_ref_n_i     => rst_ref_n_i,
       rst_sys_n_i     => rst_sys_n_i,
       wb_adr_i        => slave_i.adr(4 downto 0),
       wb_dat_i        => slave_i.dat,

@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2010-04-26
--- Last update: 2021-06-24
+-- Last update: 2021-07-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -93,9 +93,9 @@ entity wr_endpoint is
 
 -- resets for various clock domains
     rst_sys_n_i   : in std_logic;
-----    rst_ref_n_i   : in std_logic;
+    rst_ref_n_i   : in std_logic;
     rst_dmtd_n_i  : in std_logic;
-----    rst_txclk_n_i : in std_logic;
+    rst_txclk_n_i : in std_logic;
     rst_rxclk_n_i : in std_logic;
 
 -- PPS input (1 clk_ref_i cycle HI) for synchronizing timestamp counter
@@ -475,7 +475,7 @@ begin
     port map (
       rst_sys_n_i   => rst_sys_n_i,
       rst_rxclk_n_i => rst_rxclk_n_i,
-      rst_txclk_n_i => rst_sys_n_i,
+      rst_txclk_n_i => rst_txclk_n_i,
       clk_sys_i     => clk_sys_i,
 
       rxpcs_fab_o             => rxpcs_fab,
@@ -699,7 +699,7 @@ begin
       clk_sys_i      => clk_sys_i,
       rst_n_rx_i     => rst_rxclk_n_i,
       rst_n_sys_i    => rst_sys_n_i,
-----      rst_n_ref_i    => rst_ref_n_i,
+      rst_n_ref_i    => rst_ref_n_i,
       pps_csync_p1_i => pps_csync_p1_i,
       pps_valid_i    => pps_valid_i,
 

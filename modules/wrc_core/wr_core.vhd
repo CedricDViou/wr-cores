@@ -6,7 +6,7 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-02-02
--- Last update: 2021-06-25
+-- Last update: 2021-07-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -343,11 +343,11 @@ architecture struct of wr_core is
   -----------------------------------------------------------------------------
   --Local resets (resynced)
   -----------------------------------------------------------------------------
-----  signal rst_net_resync_ref_n   : std_logic;
+  signal rst_net_resync_ref_n   : std_logic;
   signal rst_net_resync_ext_n   : std_logic;
   signal rst_net_resync_dmtd_n  : std_logic;
   signal rst_net_resync_rxclk_n : std_logic;
-----  signal rst_net_resync_txclk_n : std_logic;
+  signal rst_net_resync_txclk_n : std_logic;
 
   -----------------------------------------------------------------------------
   --PPS generator
@@ -519,14 +519,14 @@ begin
 
   rst_aux_n_o <= rst_net_n;
 
-----  U_Sync_reset_refclk : entity work.gc_sync_ffs
-----    generic map (
-----      g_sync_edge => "positive")
-----    port map (
-----      clk_i    => clk_ref_i,
-----      rst_n_i  => '1',
-----      data_i   => rst_net_n,
-----      synced_o => rst_net_resync_ref_n);
+  U_Sync_reset_refclk : entity work.gc_sync_ffs
+    generic map (
+      g_sync_edge => "positive")
+    port map (
+      clk_i    => clk_ref_i,
+      rst_n_i  => '1',
+      data_i   => rst_net_n,
+      synced_o => rst_net_resync_ref_n);
 
   U_sync_reset_dmtd : entity work.gc_sync_ffs
     generic map (
@@ -555,14 +555,14 @@ begin
       data_i   => rst_net_n,
       synced_o => rst_net_resync_rxclk_n);
 
-----  U_sync_reset_txclk : entity work.gc_sync_ffs
-----    generic map (
-----      g_sync_edge => "positive")
-----    port map (
-----      clk_i    => phy_tx_clk,
-----      rst_n_i  => '1',
-----      data_i   => rst_net_n,
-----      synced_o => rst_net_resync_txclk_n);
+  U_sync_reset_txclk : entity work.gc_sync_ffs
+    generic map (
+      g_sync_edge => "positive")
+    port map (
+      clk_i    => phy_tx_clk,
+      rst_n_i  => '1',
+      data_i   => rst_net_n,
+      synced_o => rst_net_resync_txclk_n);
 
   -----------------------------------------------------------------------------
   -- PPS generator
@@ -579,7 +579,7 @@ begin
       clk_sys_i => clk_sys_i,
 
       rst_sys_n_i => rst_net_n,
-----      rst_ref_n_i => rst_net_resync_ref_n,
+      rst_ref_n_i => rst_net_resync_ref_n,
 
       slave_i => ppsg_wb_in,
       slave_o => ppsg_wb_out,
@@ -620,7 +620,7 @@ begin
     port map(
       clk_sys_i    => clk_sys_i,
       rst_sys_n_i  => rst_net_n,
-----      rst_ref_n_i  => rst_net_resync_ref_n,
+      rst_ref_n_i  => rst_net_resync_ref_n,
       rst_ext_n_i  => rst_net_resync_ext_n,
       rst_dmtd_n_i => rst_net_resync_dmtd_n,
 
@@ -714,9 +714,9 @@ begin
       clk_sys_i      => clk_sys_i,
       clk_dmtd_i     => clk_dmtd_i,
       rst_sys_n_i    => rst_net_n,
-----      rst_ref_n_i    => rst_net_resync_ref_n,
+      rst_ref_n_i    => rst_net_resync_ref_n,
       rst_dmtd_n_i   => rst_net_resync_dmtd_n,
-----      rst_txclk_n_i  => rst_net_resync_txclk_n,
+      rst_txclk_n_i  => rst_net_resync_txclk_n,
       rst_rxclk_n_i  => rst_net_resync_rxclk_n,
       pps_csync_p1_i => s_pps_csync,
       pps_valid_i    => pps_valid,
@@ -862,7 +862,7 @@ begin
       g_flash_sdbfs_baddr => g_flash_sdbfs_baddr,
       g_phys_uart         => g_phys_uart,
       g_virtual_uart      => g_virtual_uart,
-      g_cntr_period       => 125000,
+      g_cntr_period       => 62500,
       g_mem_words         => g_dpram_size,
       g_vuart_fifo_size   => g_vuart_fifo_size,
       g_diag_id           => g_diag_id,

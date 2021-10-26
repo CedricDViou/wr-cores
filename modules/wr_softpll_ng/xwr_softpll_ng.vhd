@@ -6,7 +6,7 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2021-06-23
+-- Last update: 2021-07-08
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
@@ -85,7 +85,7 @@ entity xwr_softpll_ng is
   port(
     clk_sys_i    : in std_logic;
     rst_sys_n_i  : in std_logic;
-----    rst_ref_n_i  : in std_logic;
+    rst_ref_n_i  : in std_logic;
     rst_ext_n_i  : in std_logic;
     rst_dmtd_n_i : in std_logic;
 
@@ -153,7 +153,7 @@ architecture wrapper of xwr_softpll_ng is
     port (
       clk_sys_i       : in  std_logic;
       rst_sys_n_i     : in std_logic;
-----      rst_ref_n_i     : in std_logic;
+      rst_ref_n_i     : in std_logic;
       rst_ext_n_i     : in std_logic;
       rst_dmtd_n_i    : in std_logic;
       clk_ref_i       : in  std_logic_vector(g_num_ref_inputs-1 downto 0);
@@ -207,7 +207,7 @@ begin  -- behavioral
     port map (
       clk_sys_i       => clk_sys_i,
       rst_sys_n_i     => rst_sys_n_i,
-----      rst_ref_n_i     => rst_ref_n_i,
+      rst_ref_n_i     => rst_ref_n_i,
       rst_ext_n_i     => rst_ext_n_i,
       rst_dmtd_n_i    => rst_dmtd_n_i,
       clk_ref_i       => clk_ref_i,

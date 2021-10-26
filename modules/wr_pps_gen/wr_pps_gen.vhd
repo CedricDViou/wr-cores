@@ -6,7 +6,7 @@
 -- Author     : Tomasz Wlostowski
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2010-09-02
--- Last update: 2021-06-24
+-- Last update: 2021-07-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
@@ -59,7 +59,7 @@ entity wr_pps_gen is
   port (
     clk_ref_i   : in std_logic;
     clk_sys_i   : in std_logic;
-----    rst_ref_n_i : in std_logic;
+    rst_ref_n_i : in std_logic;
     rst_sys_n_i : in std_logic;
 
     wb_adr_i   : in  std_logic_vector(4 downto 0);
@@ -113,7 +113,7 @@ architecture behavioral of wr_pps_gen is
       wb_we_i                : in  std_logic;
       wb_ack_o               : out std_logic;
       wb_stall_o             : out std_logic;
-----      refclk_i               : in  std_logic;
+      refclk_i               : in  std_logic;
       ppsg_cr_cnt_rst_o      : out std_logic;
       ppsg_cr_cnt_en_o       : out std_logic;
       ppsg_cr_cnt_adj_o      : out std_logic;
@@ -252,7 +252,7 @@ begin  -- behavioral
 
 
   -- loads adjustment values into internal regsiters
-  p_wishbone_loads : process(clk_sys_i)
+  p_wishbone_loads : process(clk_sys_i, rst_n_i)
   begin
     if rising_edge(clk_sys_i) then
       if rst_n_i = '0' then
@@ -285,7 +285,7 @@ begin  -- behavioral
     p_external_sync : process(clk_ref_i)
     begin
       if falling_edge(clk_ref_i) then
-        if(rst_sys_n_i = '0') then
+        if(rst_ref_n_i = '0') then
           sync_in_progress  <= '0';
           ppsg_escr_sync_in <= '0';
         else
@@ -312,63 +312,54 @@ begin  -- behavioral
   p_count_nsec : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if rst_sys_n_i = '0' then
+      if rst_ref_n_i = '0' or ppsg_cr_cnt_rst = '1' then
         cntr_nsec               <= (others => '0');
         ns_overflow             <= '0';
         ns_overflow_adv         <= '0';
         adjust_in_progress_nsec <= '0';
 
-      else
-        if ppsg_cr_cnt_rst = '1' then
-          cntr_nsec               <= (others => '0');
-          ns_overflow             <= '0';
-          ns_overflow_adv         <= '0';
-          adjust_in_progress_nsec <= '0';
-        else
-          -- counter is enabled?
-          if(ppsg_cr_cnt_en = '1') then
-  
-            -- got ADJUST OFFSET command
-            if(cntr_adjust_p = '1') then
-    
-    -- start waiting for next counter overflow
-              adjust_in_progress_nsec <= '1';
-            end if;
-    
-    -- got SET TIME command - load the counter with new value
-            if(ppsg_cr_cnt_set_p = '1' or ext_sync_p = '1' or ppsg_escr_nsec_set = '1') then
-              cntr_nsec        <= adj_nsec;
-              ns_overflow      <= '0';
-              ns_overflow_adv  <= '0';
-    
-    -- got counter overflow:
-            elsif(cntr_nsec = to_unsigned(c_PERIOD-3, cntr_nsec'length)) then
-              ns_overflow     <= '0';
-              ns_overflow_adv <= '1';
-              cntr_nsec       <= cntr_nsec + 1;
-            elsif(cntr_nsec = to_unsigned(c_PERIOD-2, cntr_nsec'length)) then
-              ns_overflow     <= '1';
-              ns_overflow_adv <= '0';
-              cntr_nsec       <= cntr_nsec + 1;
-            elsif(cntr_nsec = to_unsigned(c_PERIOD-1, cntr_nsec'length)) then
-              ns_overflow     <= '0';
-              ns_overflow_adv <= '0';
-              -- we're in the middle of offset adjustment - load the counter with
-              -- offset value instead of resetting it. This equals to subtracting the offset
-              -- but takes less logic.
-              if(adjust_in_progress_nsec = '1') then
-                cntr_nsec               <= adj_nsec;
-                adjust_in_progress_nsec <= '0';
-              else
-                -- normal counter reset. Generate overflow pulse.
-                cntr_nsec <= (others => '0');
-              end if;
-            else
-              ns_overflow     <= '0';
-              ns_overflow_adv <= '0';
-              cntr_nsec       <= cntr_nsec + 1;
-            end if;
+        -- counter is enabled?
+      elsif(ppsg_cr_cnt_en = '1') then
+
+        -- got ADJUST OFFSET command
+        if(cntr_adjust_p = '1') then
+
+-- start waiting for next counter overflow
+          adjust_in_progress_nsec <= '1';
+        end if;
+
+-- got SET TIME command - load the counter with new value
+        if(ppsg_cr_cnt_set_p = '1' or ext_sync_p = '1' or ppsg_escr_nsec_set = '1') then
+          cntr_nsec        <= adj_nsec;
+          ns_overflow      <= '0';
+          ns_overflow_adv  <= '0';
+
+-- got counter overflow:
+        elsif(cntr_nsec = to_unsigned(c_PERIOD-3, cntr_nsec'length)) then
+          ns_overflow     <= '0';
+          ns_overflow_adv <= '1';
+          cntr_nsec       <= cntr_nsec + 1;
+        elsif(cntr_nsec = to_unsigned(c_PERIOD-2, cntr_nsec'length)) then
+          ns_overflow     <= '1';
+          ns_overflow_adv <= '0';
+          cntr_nsec       <= cntr_nsec + 1;
+        elsif(cntr_nsec = to_unsigned(c_PERIOD-1, cntr_nsec'length)) then
+          ns_overflow     <= '0';
+          ns_overflow_adv <= '0';
+          -- we're in the middle of offset adjustment - load the counter with
+          -- offset value instead of resetting it. This equals to subtracting the offset
+          -- but takes less logic.
+          if(adjust_in_progress_nsec = '1') then
+            cntr_nsec               <= adj_nsec;
+            adjust_in_progress_nsec <= '0';
+          else
+            -- normal counter reset. Generate overflow pulse.
+            cntr_nsec <= (others => '0');
           end if;
+        else
+          ns_overflow     <= '0';
+          ns_overflow_adv <= '0';
+          cntr_nsec       <= cntr_nsec + 1;
         end if;
       end if;
     end if;
@@ -378,24 +369,19 @@ begin  -- behavioral
   p_drive_pps_valid : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if rst_sys_n_i = '0' then
+      if rst_ref_n_i = '0' or ppsg_cr_cnt_rst = '1' then
         pps_valid_int   <= '0';
         ns_overflow_2nd <= '0';
       else
-        if ppsg_cr_cnt_rst = '1' then
+        if(sync_in_progress = '1' or adjust_in_progress_nsec = '1' or adjust_in_progress_utc = '1') then
           pps_valid_int   <= '0';
           ns_overflow_2nd <= '0';
-        else
-          if(sync_in_progress = '1' or adjust_in_progress_nsec = '1' or adjust_in_progress_utc = '1') then
-            pps_valid_int   <= '0';
-            ns_overflow_2nd <= '0';
-          elsif(adjust_in_progress_utc = '0' and adjust_in_progress_nsec = '0' and sync_in_progress = '0') then
-          
-            if(ns_overflow = '1') then
-              ns_overflow_2nd <= '1';
-              if(ns_overflow_2nd = '1') then
-                pps_valid_int <= '1';
-              end if;
+        elsif(adjust_in_progress_utc = '0' and adjust_in_progress_nsec = '0' and sync_in_progress = '0') then
+
+          if(ns_overflow = '1') then
+            ns_overflow_2nd <= '1';
+            if(ns_overflow_2nd = '1') then
+              pps_valid_int <= '1';
             end if;
           end if;
         end if;
@@ -406,30 +392,25 @@ begin  -- behavioral
   p_count_utc : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if rst_sys_n_i = '0' then
+      if rst_ref_n_i = '0' or ppsg_cr_cnt_rst = '1' then
         cntr_utc               <= (others => '0');
         adjust_in_progress_utc <= '0';
-      else
-        if ppsg_cr_cnt_rst = '1' then
-          cntr_utc               <= (others => '0');
-          adjust_in_progress_utc <= '0';
-        elsif(ppsg_cr_cnt_en = '1') then
+      elsif(ppsg_cr_cnt_en = '1') then
 
-          if(ppsg_cr_cnt_set_p = '1' or ppsg_escr_sec_set = '1') then
-            cntr_utc        <= adj_utc;
-          elsif(cntr_adjust_p = '1') then
-            adjust_in_progress_utc <= '1';
-          
-            if(ns_overflow = '1') then
-              cntr_utc <= cntr_utc +1;
-            end if;
-          
-          elsif(adjust_in_progress_utc = '1' and ns_overflow = '1') then
-            cntr_utc               <= cntr_utc + adj_utc + 1;
-            adjust_in_progress_utc <= '0';
-          elsif(ns_overflow = '1') then
-            cntr_utc <= cntr_utc + 1;
+        if(ppsg_cr_cnt_set_p = '1' or ppsg_escr_sec_set = '1') then
+          cntr_utc        <= adj_utc;
+        elsif(cntr_adjust_p = '1') then
+          adjust_in_progress_utc <= '1';
+
+          if(ns_overflow = '1') then
+            cntr_utc <= cntr_utc +1;
           end if;
+
+        elsif(adjust_in_progress_utc = '1' and ns_overflow = '1') then
+          cntr_utc               <= cntr_utc + adj_utc + 1;
+          adjust_in_progress_utc <= '0';
+        elsif(ns_overflow = '1') then
+          cntr_utc <= cntr_utc + 1;
         end if;
       end if;
     end if;
@@ -442,7 +423,7 @@ begin  -- behavioral
   p_gen_pps_out : process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if rst_sys_n_i = '0' then
+      if rst_ref_n_i = '0' then
         pps_out_int <= '0';
         pps_led_o   <= '0';
         width_cntr  <= (others => '0');
@@ -470,7 +451,7 @@ begin  -- behavioral
   process(clk_ref_i)
   begin
     if rising_edge(clk_ref_i) then
-      if rst_sys_n_i = '0' then
+      if rst_ref_n_i = '0' then
         pps_out_o <= '0';
       else
         pps_out_o <= pps_out_int;
@@ -490,7 +471,7 @@ begin  -- behavioral
       wb_stb_i               => wb_in.stb,
       wb_we_i                => wb_in.we,
       wb_ack_o               => wb_out.ack,
-----      refclk_i               => clk_ref_i,
+      refclk_i               => clk_ref_i,
       ppsg_cr_cnt_rst_o      => ppsg_cr_cnt_rst,
       ppsg_cr_cnt_en_o       => ppsg_cr_cnt_en,
       ppsg_cr_cnt_adj_o      => ppsg_cr_cnt_adj_o,
