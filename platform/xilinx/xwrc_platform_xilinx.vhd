@@ -252,7 +252,6 @@ begin  -- architecture rtl
       signal clk_20m_vcxo_buf : std_logic;
       signal clk_pll_aux      : std_logic_vector(3 downto 0);
 
-      signal clk_125m_pllref_buf_int1 : std_logic;
       signal clk_125m_pllref_buf_int2 : std_logic;
 
     begin  --gen_spartan6_default_plls
@@ -302,13 +301,7 @@ begin  -- architecture rtl
           LOCKED   => pll_sys_locked,
           RST      => pll_arst,
           CLKFBIN  => clk_sys_fb,
-          CLKIN    => clk_125m_pllref_buf_int1);
-
-      -- System PLL input clock buffer
-      cmp_clk_sys_buf_i : BUFG
-        port map (
-          O => clk_125m_pllref_buf_int1,
-          I => clk_125m_pllref_i);
+          CLKIN    => clk_125m_pllref_i);
 
       -- PLL aux clocks buffers
       gen_auxclk_bufs: for I in 0 to 3 generate
@@ -368,13 +361,7 @@ begin  -- architecture rtl
           LOCKED   => pll_dmtd_locked,
           RST      => pll_arst,
           CLKFBIN  => clk_dmtd_fb,
-          CLKIN    => clk_20m_vcxo_buf);
-
-      -- DMTD PLL input clock buffer
-      cmp_clk_dmtd_buf_i : BUFG
-        port map (
-          O => clk_20m_vcxo_buf,
-          I => clk_20m_vcxo_i);
+          CLKIN    => clk_20m_vcxo_i);
 
       -- DMTD PLL output clock buffer
       cmp_clk_dmtd_buf_o : BUFG
@@ -409,7 +396,7 @@ begin  -- architecture rtl
            STARTUP_WAIT       => FALSE)
           port map
           -- Input clock
-          (CLKIN    => clk_ext_buf,
+          (CLKIN    => clk_10m_ext_i,
            CLKFB    => clk_ext_fbi,
            -- Output clocks
            CLK0     => clk_ext_fbo,
@@ -427,12 +414,6 @@ begin  -- architecture rtl
            DSSEN    => '0');
 
         ext_ref_mul_stopped_o <= clk_ext_stat(1);
-
-        -- External reference input buffer
-        cmp_clk_ext_buf_i : BUFG
-          port map
-          (O => clk_ext_buf,
-           I => clk_10m_ext_i);
 
         clk_10m_ext_o <= clk_ext_buf;
 
@@ -498,13 +479,7 @@ begin  -- architecture rtl
           LOCKED   => pll_sys_locked,
           RST      => pll_arst,
           CLKFBIN  => clk_sys_fb,
-          CLKIN    => clk_125m_pllref_buf);
-
-      -- System PLL input clock buffer
-      cmp_clk_sys_buf_i : BUFG
-        port map (
-          O => clk_125m_pllref_buf,
-          I => clk_125m_pllref_i);
+          CLKIN    => clk_125m_pllref_i);
 
       -- System PLL output clock buffer
       cmp_clk_sys_buf_o : BUFG
@@ -537,13 +512,7 @@ begin  -- architecture rtl
           LOCKED   => pll_dmtd_locked,
           RST      => pll_arst,
           CLKFBIN  => clk_dmtd_fb,
-          CLKIN    => clk_20m_vcxo_buf);
-
-      -- DMTD PLL input clock buffer
-      cmp_clk_dmtd_buf_i : BUFG
-        port map (
-          O => clk_20m_vcxo_buf,
-          I => clk_20m_vcxo_i);
+          CLKIN    => clk_20m_vcxo_i);
 
       -- DMTD PLL output clock buffer
       cmp_clk_dmtd_buf_o : BUFG
