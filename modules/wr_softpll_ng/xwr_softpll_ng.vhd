@@ -6,31 +6,31 @@
 -- Author     : Tomasz Włostowski
 -- Company    : CERN BE-CO-HT
 -- Created    : 2011-01-29
--- Last update: 2018-11-07
+-- Last update: 2018-03-19
 -- Platform   : FPGA-generic
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
--- Description: 
+-- Description:
 --
 -- Struct'ized version of wr_softpll_ng.
 -------------------------------------------------------------------------------
 --
 -- Copyright (c) 2012-2017 CERN
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -55,14 +55,16 @@ entity xwr_softpll_ng is
 -- These two are obvious:
     g_num_ref_inputs : integer := 1;
     g_num_outputs    : integer := 1;
--- Number of external channels (e.g. 2 for WR Switch for regular and low-jitter
--- ext channel)
-    g_num_exts       : integer := 1;
 
 -- When true, an additional FIFO is instantiated, providing a realtime record
 -- of user-selectable SoftPLL parameters (e.g. tag values, phase error, DAC drive).
 -- These values can be read by "spll_dbg_proxy" daemon for further analysis.
     g_with_debug_fifo : boolean := false;
+
+-- When true, an additional accumulating bang-bang phase detector is instantiated
+-- for wideband locking of the local oscillator to an external stable reference
+-- (e.g. GPSDO/Cesium 10 MHz)
+    g_with_ext_clock_input : boolean := false;
 
 -- When true, DDMTD inputs are reverse (so that the DDMTD offset clocks is
 -- being sampled by the measured clock). This is functionally equivalent to
@@ -75,8 +77,6 @@ entity xwr_softpll_ng is
 
     g_ref_clock_rate : integer := 125000000;
     g_ext_clock_rate : integer := 10000000;
-
-    g_use_sampled_ref_clocks : boolean := false;
 
     g_interface_mode      : t_wishbone_interface_mode      := PIPELINED;
     g_address_granularity : t_wishbone_address_granularity := BYTE
@@ -91,21 +91,17 @@ entity xwr_softpll_ng is
 
 -- Reference inputs (i.e. the RX clocks recovered by the PHYs)
     clk_ref_i  : in std_logic_vector(g_num_ref_inputs-1 downto 0);
-
--- Reference inputs (i.e. the RX clocks recovered by the PHYs), externally sampled
-    clk_ref_sampled_i : in std_logic_vector(g_num_ref_inputs-1 downto 0) := (others => '0');
-    
 -- Feedback clocks (i.e. the outputs of the main or aux oscillator)
     clk_fb_i   : in std_logic_vector(g_num_outputs-1 downto 0);
 -- DMTD Offset clock
     clk_dmtd_i : in std_logic;
 
 -- External reference clock (e.g. 10 MHz from Cesium/GPSDO). Used only if
--- g_num_exts > 0
+-- g_with_ext_clock_input == true
     clk_ext_i : in std_logic;
 
 -- External clock, multiplied to 125 MHz using the FPGA's PLL
-    clk_ext_mul_i        : in std_logic_vector(f_nonzero_vector(g_num_exts)-1 downto 0);
+    clk_ext_mul_i : in std_logic;
     clk_ext_mul_locked_i : in std_logic := '1';
     clk_ext_stopped_i    : in std_logic := '0';
     clk_ext_rst_o        : out std_logic;
@@ -146,13 +142,12 @@ architecture wrapper of xwr_softpll_ng is
       g_tag_bits             : integer;
       g_num_ref_inputs       : integer;
       g_num_outputs          : integer;
-      g_num_exts             : integer;
       g_with_debug_fifo      : boolean;
+      g_with_ext_clock_input : boolean;
       g_reverse_dmtds        : boolean;
       g_divide_input_by_2    : boolean;
       g_ref_clock_rate       : integer;
       g_ext_clock_rate       : integer;
-      g_use_sampled_ref_clocks : boolean;
       g_interface_mode       : t_wishbone_interface_mode;
       g_address_granularity  : t_wishbone_address_granularity);
     port (
@@ -162,11 +157,10 @@ architecture wrapper of xwr_softpll_ng is
       rst_ext_n_i     : in std_logic;
       rst_dmtd_n_i    : in std_logic;
       clk_ref_i       : in  std_logic_vector(g_num_ref_inputs-1 downto 0);
-      clk_ref_sampled_i : in std_logic_vector(g_num_ref_inputs-1 downto 0);
       clk_fb_i        : in  std_logic_vector(g_num_outputs-1 downto 0);
       clk_dmtd_i      : in  std_logic;
       clk_ext_i       : in  std_logic;
-      clk_ext_mul_i   : in  std_logic_vector(f_nonzero_vector(g_num_exts)-1 downto 0);
+      clk_ext_mul_i   : in  std_logic;
       clk_ext_mul_locked_i : in  std_logic;
       clk_ext_stopped_i    : in  std_logic;
       clk_ext_rst_o        : out std_logic;
@@ -189,11 +183,11 @@ architecture wrapper of xwr_softpll_ng is
       wb_we_i         : in  std_logic;
       wb_ack_o        : out std_logic;
       wb_stall_o      : out std_logic;
-      irq_o           : out std_logic;
+      wb_irq_o        : out std_logic;
       debug_o         : out std_logic_vector(5 downto 0);
       dbg_fifo_irq_o  : out std_logic);
   end component;
-  
+
 begin  -- behavioral
 
   U_Wrapped_Softpll : wr_softpll_ng
@@ -203,13 +197,12 @@ begin  -- behavioral
       g_address_granularity  => g_address_granularity,
       g_num_ref_inputs       => g_num_ref_inputs,
       g_num_outputs          => g_num_outputs,
-      g_num_exts             => g_num_exts,
       g_with_debug_fifo      => g_with_debug_fifo,
+      g_with_ext_clock_input => g_with_ext_clock_input,
       g_reverse_dmtds        => g_reverse_dmtds,
       g_divide_input_by_2    => g_divide_input_by_2,
-      g_use_sampled_ref_clocks => g_use_sampled_ref_clocks,
-      g_ref_clock_rate  => g_ref_clock_rate,
-      g_ext_clock_rate  => g_ext_clock_rate
+      g_ref_clock_rate       => g_ref_clock_rate,
+      g_ext_clock_rate       => g_ext_clock_rate
       )
     port map (
       clk_sys_i       => clk_sys_i,
@@ -218,7 +211,6 @@ begin  -- behavioral
       rst_ext_n_i     => rst_ext_n_i,
       rst_dmtd_n_i    => rst_dmtd_n_i,
       clk_ref_i       => clk_ref_i,
-      clk_ref_sampled_i => clk_ref_sampled_i,
       clk_fb_i        => clk_fb_i,
       clk_dmtd_i      => clk_dmtd_i,
       clk_ext_i       => clk_ext_i,
@@ -244,11 +236,11 @@ begin  -- behavioral
       wb_we_i         => slave_i.we,
       wb_ack_o        => slave_o.ack,
       wb_stall_o      => slave_o.stall,
-      irq_o           => int_o,
+      wb_irq_o        => int_o,
       debug_o         => debug_o,
       dbg_fifo_irq_o  => dbg_fifo_irq_o);
 
   slave_o.err <= '0';
   slave_o.rty <= '0';
-  
+
 end wrapper;

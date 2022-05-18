@@ -16,7 +16,7 @@ doc/
 *.bin
 *.elf
 *.ucdb
-Makefile
 *.xml
+Makefile
 xgui/
 *.orig

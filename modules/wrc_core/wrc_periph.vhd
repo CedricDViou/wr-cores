@@ -6,31 +6,31 @@
 -- Author     : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2011-04-04
--- Last update: 2022-01-25
+-- Last update: 2018-03-08
 -- Platform   : FPGA-generics
 -- Standard   : VHDL
 -------------------------------------------------------------------------------
 -- Description:
 -- WRC_PERIPH integrates WRC_SYSCON, UART/VUART, 1-Wire Master, WRPC_DIAGS
--- 
+--
 -------------------------------------------------------------------------------
 --
 -- Copyright (c) 2012 - 2017 CERN
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -43,6 +43,7 @@ library work;
 use work.wrcore_pkg.all;
 use work.wishbone_pkg.all;
 use work.sysc_wbgen2_pkg.all;
+use work.wrc_diags_wbgen2_pkg.all;
 
 entity wrc_periph is
   generic(
@@ -50,10 +51,6 @@ entity wrc_periph is
     g_flash_secsz_kb    : integer := 256;        -- default for SVEC (M25P128)
     g_flash_sdbfs_baddr : integer := 16#600000#; -- default for SVEC (M25P128)
     g_phys_uart       : boolean := true;
-    g_has_preinitialized_firmware : boolean;
-    g_with_phys_uart_fifo       : boolean                        := false;
-    g_phys_uart_tx_fifo_size    : integer                        := 1024;
-    g_phys_uart_rx_fifo_size    : integer                        := 1024;
     g_virtual_uart    : boolean := false;
     g_cntr_period     : integer := 62500;
     g_mem_words       : integer := 16384;   --in 32-bit words
@@ -61,8 +58,7 @@ entity wrc_periph is
     g_diag_id         : integer := 0;
     g_diag_ver        : integer := 0;
     g_diag_ro_size    : integer := 0;
-    g_diag_rw_size    : integer := 0;
-    g_wdiags_num_words : integer := 64
+    g_diag_rw_size    : integer := 0
     );
   port(
     clk_sys_i : in std_logic;
@@ -90,8 +86,8 @@ entity wrc_periph is
     spi_mosi_o  : out std_logic;
     spi_miso_i  : in  std_logic;
 
-    slave_i : in  t_wishbone_slave_in_array(0 to 4);
-    slave_o : out t_wishbone_slave_out_array(0 to 4);
+    slave_i : in  t_wishbone_slave_in_array(0 to 3);
+    slave_o : out t_wishbone_slave_out_array(0 to 3);
 
     uart_rxd_i : in  std_logic;
     uart_txd_o : out std_logic;
@@ -135,58 +131,53 @@ architecture struct of wrc_periph is
   signal cntr_div      : unsigned(23 downto 0);
   signal cntr_tics     : unsigned(31 downto 0);
   signal cntr_overflow : std_logic;
-  
+
   signal rst_wrc_n_o_reg : std_logic := '1';
   signal diag_adr : unsigned(15 downto 0);
   signal diag_dat : std_logic_vector(31 downto 0);
   signal diag_out_regs : t_generic_word_array(g_diag_rw_size - 1 downto 0);
   signal diag_in       : t_generic_word_array(g_diag_ro_size + g_diag_rw_size-1 downto 0);
+  signal wrpc_diag_regs_in     : t_wrc_diags_in_registers;
+  signal wrpc_diag_regs_out    : t_wrc_diags_out_registers;
 
-  signal rst_net_n, rst_net_n_d0 : std_logic;
-  signal rst_wrc_n, rst_wrc_n_d0 : std_logic;
-  
-  
+  component wrc_syscon_wb
+    port (
+      rst_n_i                                  : in     std_logic;
+      clk_sys_i                                : in     std_logic;
+      wb_adr_i                                 : in     std_logic_vector(4 downto 0);
+      wb_dat_i                                 : in     std_logic_vector(31 downto 0);
+      wb_dat_o                                 : out    std_logic_vector(31 downto 0);
+      wb_cyc_i                                 : in     std_logic;
+      wb_sel_i                                 : in     std_logic_vector(3 downto 0);
+      wb_stb_i                                 : in     std_logic;
+      wb_we_i                                  : in     std_logic;
+      wb_ack_o                                 : out    std_logic;
+      wb_stall_o                               : out    std_logic;
+      regs_i                                   : in     t_sysc_in_registers;
+      regs_o                                   : out    t_sysc_out_registers
+    );
+  end component;
+
 begin
 
-  process(clk_sys_i)
-  begin
-    if rising_edge(clk_sys_i) then
-      if rst_n_i = '0' then
-        rst_wrc_n_o <= '0';
-      else
-        rst_net_n_o <= rst_net_n_d0;
-        rst_net_n_d0 <= rst_net_n;
-
-        rst_wrc_n_o <= rst_wrc_n_d0;
-        rst_wrc_n_d0 <= rst_wrc_n;
-      end if;
-    end if;
-  end process;
-
+  rst_wrc_n_o <= rst_n_i and rst_wrc_n_o_reg;
   process(clk_sys_i)
   begin
     if rising_edge(clk_sys_i) then
       if(rst_n_i = '0') then
-        rst_net_n <= '0';
-        if g_has_preinitialized_firmware then
-          rst_wrc_n <= '1';
-        else
-          rst_wrc_n <= '0'; -- no firmware in DPRAM? keep in reset so
-                                  -- that the CPU doesn't walk through the
-                                  -- whole address space trying to fetch
-                                  -- instructions (and sometimes freezing the interconnect)
-        end if;
+        rst_net_n_o <= '0';
+        rst_wrc_n_o_reg <= '1';
       else
 
         if(sysc_regs_o.rstr_trig_wr_o = '1' and sysc_regs_o.rstr_trig_o = x"deadbee") then
-          rst_wrc_n <= not sysc_regs_o.rstr_rst_o;
-        end if; 
-            
-        rst_net_n <= not sysc_regs_o.gpsr_net_rst_o;
-      end if; 
-    end if; 
+          rst_wrc_n_o_reg <= not sysc_regs_o.rstr_rst_o;
+        end if;
+
+        rst_net_n_o <= not sysc_regs_o.gpsr_net_rst_o;
+      end if;
+    end if;
   end process;
-  
+
   -------------------------------------
   -- LEDs
   -------------------------------------
@@ -423,11 +414,11 @@ begin
   ----------------------------------------
   -- SYSCON
   ----------------------------------------
-  SYSCON : entity work.wrc_syscon_wb
+  SYSCON : wrc_syscon_wb
     port map (
       rst_n_i    => rst_n_i,
       clk_sys_i  => clk_sys_i,
-      wb_adr_i   => slave_i(0).adr(5 downto 2), -- shift address for word addressing
+      wb_adr_i   => slave_i(0).adr(6 downto 2), -- shift address for word addressing
       wb_dat_i   => slave_i(0).dat,
       wb_dat_o   => slave_o(0).dat,
       wb_cyc_i   => slave_i(0).cyc,
@@ -451,10 +442,7 @@ begin
       g_with_physical_uart  => g_phys_uart,
       g_interface_mode      => PIPELINED,
       g_address_granularity => BYTE,
-      g_vuart_fifo_size     => g_vuart_fifo_size,
-      g_WITH_PHYSICAL_UART_FIFO => g_with_phys_uart_fifo,
-      g_TX_FIFO_SIZE => g_phys_uart_tx_fifo_size,
-      g_RX_FIFO_SIZE => g_phys_uart_rx_fifo_size
+      g_vuart_fifo_size     => g_vuart_fifo_size
       )
     port map(
       clk_sys_i => clk_sys_i,
@@ -499,20 +487,51 @@ begin
   --------------------------------------
 
   -- access through WB (PCI/VME/application) to diagnostics of WRPC
-  DIAGS: entity work.wrc_diags_dpram
+  DIAGS: xwr_diags_wb
     generic map(
-      g_size => g_wdiags_num_words
+      g_interface_mode      => PIPELINED,
+      g_address_granularity => BYTE
     )
     port map(
       rst_n_i   => rst_n_i,
       clk_sys_i => clk_sys_i,
 
-      slave_user_i   => slave_i(3),
-      slave_user_o   => slave_o(3),
+      slave_i   => slave_i(3),
+      slave_o   => slave_o(3),
 
-      slave_wrc_i    => SLAVE_I(4),
-      slave_wrc_o    => SLAVE_O(4)
+      regs_i    => wrpc_diag_regs_in,
+      regs_o    => wrpc_diag_regs_out
     );
 
+   -- the information written to syscon WB registers by LM32 are available to the
+   -- user via diag WB registers
+   -- It might look strange that we use two WB modules for that. Since both LM32
+   -- and user application need to access these registers through the same
+   -- wishbone interface we would needed these registers to be R/W. By creating
+   -- another module (xwr_diags_wb) we make read-only registers to be read by
+   -- the external tool. We want to minimize the possibility of user application
+   -- overwriting these values, thus we want them to be read-only.
+   sysc_regs_i.wdiag_ctrl_data_snapshot_i      <= wrpc_diag_regs_out.ctrl_data_snapshot_o;
+   wrpc_diag_regs_in.ctrl_data_valid_i         <= sysc_regs_o.wdiag_ctrl_data_valid_o;
+   wrpc_diag_regs_in.wdiag_sstat_wr_mode_i     <= sysc_regs_o.wdiag_sstat_wr_mode_o;
+   wrpc_diag_regs_in.wdiag_sstat_servostate_i  <= sysc_regs_o.wdiag_sstat_servostate_o;
+   wrpc_diag_regs_in.wdiag_pstat_link_i        <= sysc_regs_o.wdiag_pstat_link_o;
+   wrpc_diag_regs_in.wdiag_pstat_locked_i      <= sysc_regs_o.wdiag_pstat_locked_o;
+   wrpc_diag_regs_in.wdiag_ptpstat_ptpstate_i  <= sysc_regs_o.wdiag_ptpstat_ptpstate_o;
+   wrpc_diag_regs_in.wdiag_astat_aux_i         <= sysc_regs_o.wdiag_astat_aux_o;
+   wrpc_diag_regs_in.wdiag_txfcnt_i            <= sysc_regs_o.wdiag_txfcnt_o;
+   wrpc_diag_regs_in.wdiag_rxfcnt_i            <= sysc_regs_o.wdiag_rxfcnt_o;
+   wrpc_diag_regs_in.wdiag_sec_msb_i           <= sysc_regs_o.wdiag_sec_msb_o;
+   wrpc_diag_regs_in.wdiag_sec_lsb_i           <= sysc_regs_o.wdiag_sec_lsb_o;
+   wrpc_diag_regs_in.wdiag_ns_i                <= sysc_regs_o.wdiag_ns_o;
+   wrpc_diag_regs_in.wdiag_mu_msb_i            <= sysc_regs_o.wdiag_mu_msb_o;
+   wrpc_diag_regs_in.wdiag_mu_lsb_i            <= sysc_regs_o.wdiag_mu_lsb_o;
+   wrpc_diag_regs_in.wdiag_dms_msb_i           <= sysc_regs_o.wdiag_dms_msb_o;
+   wrpc_diag_regs_in.wdiag_dms_lsb_i           <= sysc_regs_o.wdiag_dms_lsb_o;
+   wrpc_diag_regs_in.wdiag_asym_i              <= sysc_regs_o.wdiag_asym_o;
+   wrpc_diag_regs_in.wdiag_cko_i               <= sysc_regs_o.wdiag_cko_o;
+   wrpc_diag_regs_in.wdiag_setp_i              <= sysc_regs_o.wdiag_setp_o;
+   wrpc_diag_regs_in.wdiag_ucnt_i              <= sysc_regs_o.wdiag_ucnt_o;
+   wrpc_diag_regs_in.wdiag_temp_i              <= sysc_regs_o.wdiag_temp_o;
 
 end struct;

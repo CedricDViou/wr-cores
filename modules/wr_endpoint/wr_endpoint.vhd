@@ -15,27 +15,27 @@
 -- features such as:
 -- - VLANs: inserting/removing tags (for ACCESS/TRUNK port support)
 -- - RX/TX precise timestaping
--- - full PCS for optical Gigabit Ethernet 
+-- - full PCS for optical Gigabit Ethernet
 -- - decodes MAC addresses, VIDs and priorities and passes them to the RTU.
 -- Refer to the manual for more details.
 -------------------------------------------------------------------------------
 --
 -- Copyright (c) 2011 - 2017 CERN / BE-CO-HT
 --
--- This source file is free software; you can redistribute it   
--- and/or modify it under the terms of the GNU Lesser General   
--- Public License as published by the Free Software Foundation; 
--- either version 2.1 of the License, or (at your option) any   
--- later version.                                               
+-- This source file is free software; you can redistribute it
+-- and/or modify it under the terms of the GNU Lesser General
+-- Public License as published by the Free Software Foundation;
+-- either version 2.1 of the License, or (at your option) any
+-- later version.
 --
--- This source is distributed in the hope that it will be       
--- useful, but WITHOUT ANY WARRANTY; without even the implied   
--- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR      
--- PURPOSE.  See the GNU Lesser General Public License for more 
--- details.                                                     
+-- This source is distributed in the hope that it will be
+-- useful, but WITHOUT ANY WARRANTY; without even the implied
+-- warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR
+-- PURPOSE.  See the GNU Lesser General Public License for more
+-- details.
 --
--- You should have received a copy of the GNU Lesser General    
--- Public License along with this source; if not, download it   
+-- You should have received a copy of the GNU Lesser General
+-- Public License along with this source; if not, download it
 -- from http://www.gnu.org/licenses/lgpl-2.1.html
 --
 -------------------------------------------------------------------------------
@@ -54,7 +54,7 @@ use work.wr_fabric_pkg.all;
 use work.wishbone_pkg.all;
 
 entity wr_endpoint is
-  
+
   generic (
     g_interface_mode        : t_wishbone_interface_mode      := CLASSIC;
     g_address_granularity   : t_wishbone_address_granularity := WORD;
@@ -109,7 +109,7 @@ entity wr_endpoint is
 
 -------------------------------------------------------------------------------
 -- PHY Interace (8/16 bit PCS)
--------------------------------------------------------------------------------    
+-------------------------------------------------------------------------------
 
     phy_rst_o            : out std_logic;
     phy_loopen_o         : out std_logic;
@@ -175,7 +175,7 @@ entity wr_endpoint is
 
 -------------------------------------------------------------------------------
 -- TX timestamping unit interface
--------------------------------------------------------------------------------  
+-------------------------------------------------------------------------------
 
 -- Port ID value
     txtsu_port_id_o  : out std_logic_vector(4 downto 0);
@@ -206,9 +206,9 @@ entity wr_endpoint is
 -- 1 indicates that coresponding RTU port is almost full.
     rtu_almost_full_i : in std_logic;
 
--- request strobe, single HI pulse begins evaluation of the request. 
+-- request strobe, single HI pulse begins evaluation of the request.
     rtu_rq_strobe_p1_o : out std_logic;
-    
+
     rtu_rq_abort_o : out std_logic;
 
 -- source and destination MAC addresses extracted from the packet header
@@ -228,7 +228,7 @@ entity wr_endpoint is
 -- HI indicates that packet has assigned priority.
     rtu_rq_has_prio_o : out std_logic;
 
--------------------------------------------------------------------------------   
+-------------------------------------------------------------------------------
 -- Wishbone bus
 -------------------------------------------------------------------------------
 
@@ -251,7 +251,7 @@ entity wr_endpoint is
    pfilter_done_o   : out std_logic;
 
 -------------------------------------------------------------------------------
--- control of PAUSE sending (ML: not used and not tested... TRU uses packet injection) -- 
+-- control of PAUSE sending (ML: not used and not tested... TRU uses packet injection) --
 -------------------------------------------------------------------------------
 
    fc_tx_pause_req_i   : in  std_logic                     := '0';
@@ -299,7 +299,7 @@ entity wr_endpoint is
 -- HI physically kills the link (turn of laser)
     link_kill_i : in std_logic := '0';
 
--- HI indicates that link is up (so cable connected), LOW indicates that link is faulty 
+-- HI indicates that link is up (so cable connected), LOW indicates that link is faulty
 -- (e.g.: cable disconnected)
     link_up_o : out std_logic;
 
@@ -795,7 +795,7 @@ begin
 
       regs_o => regs_fromwb,
       regs_i => regs_towb
-      );     
+      );
 
   wb_out.stall <= '0';
   wb_out.rty   <= '0';
@@ -839,7 +839,7 @@ begin
 
 -------------------------------------------------------------------------------
 -- DMTD phase meter
-------------------------------------------------------------------------------  
+------------------------------------------------------------------------------
 
   gen_with_dmtd : if(g_with_dmtd) generate
     U_DMTD : dmtd_phase_meas
@@ -1013,7 +1013,7 @@ begin
 --      TRIG1   => TRIG1,
 --      TRIG2   => TRIG2,
 --      TRIG3   => TRIG3);
--- 
+--
 --   TRIG0(15    downto   0) <= phy_rx_data_i;
 --   TRIG0(17    downto  16) <= phy_rx_k_i;
 --   TRIG0(              18) <= phy_rx_enc_err_i;
@@ -1025,5 +1025,3 @@ begin
   gmii_tx_er_o <= '0';
 
 end syn;
-
-
