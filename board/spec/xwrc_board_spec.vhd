@@ -7,7 +7,7 @@
 -- Author(s)  : Grzegorz Daniluk <grzegorz.daniluk@cern.ch>
 -- Company    : CERN (BE-CO-HT)
 -- Created    : 2017-02-17
--- Last update: 2017-07-04
+-- Last update: 2022-04-04
 -- Standard   : VHDL'93
 -------------------------------------------------------------------------------
 -- Description: Top-level wrapper for WR PTP core including all the modules
@@ -104,6 +104,8 @@ entity xwrc_board_spec is
     clk_sys_62m5_o      : out std_logic;
     -- 125MHz ref clock output
     clk_ref_125m_o      : out std_logic;
+    -- 10MHz FLASH clock output
+    clk_flash_o         : out std_logic;
     -- active low reset outputs, synchronous to 62m5 and 125m clocks
     rst_sys_62m5_n_o    : out std_logic;
     rst_ref_125m_n_o    : out std_logic;
@@ -316,7 +318,7 @@ begin  -- architecture struct
       I  => clk_125m_pllref_p_i,
       IB => clk_125m_pllref_n_i);
 
-  cmp_xwrc_platform : xwrc_platform_xilinx
+  cmp_xwrc_platform : entity work.xwrc_platform_xilinx
     generic map (
       g_fpga_family               => "spartan6",
       g_with_external_clock_input => g_with_external_clock_input,
@@ -337,6 +339,7 @@ begin  -- architecture struct
       sfp_los_i             => sfp_los_i,
       sfp_tx_disable_o      => sfp_tx_disable_o,
       clk_62m5_sys_o        => clk_pll_62m5,
+      clk_flash_o           => clk_flash_o,
       clk_125m_ref_o        => clk_pll_125m,
       clk_62m5_dmtd_o       => clk_pll_dmtd,
       pll_locked_o          => pll_locked,
