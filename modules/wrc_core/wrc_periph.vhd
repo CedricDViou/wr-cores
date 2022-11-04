@@ -43,7 +43,7 @@ library work;
 use work.wrcore_pkg.all;
 use work.wishbone_pkg.all;
 use work.sysc_wbgen2_pkg.all;
-use work.wrc_diags_wbgen2_pkg.all;
+use work.wrc_cpu_csr_wbgen2_pkg.all;
 
 entity wrc_periph is
   generic(
