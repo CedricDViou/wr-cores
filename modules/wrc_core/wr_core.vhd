@@ -76,7 +76,7 @@ entity wr_core is
     g_simulation                : integer                        := 0;
     -- set to false to reduce the number of information printed during simulation
     g_verbose                   : boolean                        := true;
-    g_with_external_clock_input : boolean                        := true;
+    g_with_external_clock_input : boolean                        := true; 
     g_ram_address_space_size_kb : integer                        := 128;
    --
     g_board_name                : string                         := "NA  ";
@@ -172,7 +172,7 @@ entity wr_core is
     phy_lpc_stat_i       : in std_logic_vector(15 downto 0);
     phy_lpc_ctrl_o       : out std_logic_vector(15 downto 0);
 
-
+    
     -- PHY I/F record-based
     phy8_o  : out t_phy_8bits_from_wrc;
     phy8_i  : in  t_phy_8bits_to_wrc  := c_dummy_phy8_to_wrc;
@@ -371,7 +371,7 @@ architecture struct of wr_core is
       return 0;
     end if;
   end f_to_integer;
-
+    
 
   -----------------------------------------------------------------------------
   --Local resets for peripheral
@@ -496,8 +496,8 @@ architecture struct of wr_core is
 
   signal cpu_dwb_out : t_wishbone_master_out;
   signal cpu_dwb_in : t_wishbone_master_in;
-
-
+  
+  
   signal ep_wb_in  : t_wishbone_slave_in;
   signal ep_wb_out : t_wishbone_slave_out;
 
@@ -844,7 +844,7 @@ begin
       wb_i => minic_wb_in,
       wb_o => minic_wb_out
       );
-
+  
   U_CPU: entity work.wrc_urv_wrapper
     generic map (
       g_IRAM_SIZE => g_dpram_size,
@@ -860,7 +860,7 @@ begin
       host_slave_i => cpu_csr_wb_in,
       host_slave_o => cpu_csr_wb_out
       );
-
+  
   -----------------------------------------------------------------------------
   -- WB Peripherials
   -----------------------------------------------------------------------------
@@ -994,7 +994,7 @@ begin
 
   cpu_csr_wb_in <= secbar_master_o(9);
   secbar_master_i(9) <= cpu_csr_wb_out;
-
+  
   aux_adr_o <= secbar_master_o(10).adr;
   aux_dat_o <= secbar_master_o(10).dat;
   aux_sel_o <= secbar_master_o(10).sel;
