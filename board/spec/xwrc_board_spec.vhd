@@ -313,6 +313,7 @@ architecture struct of xwrc_board_spec is
   signal ext_ref_mul_stopped : std_logic;
   signal ext_ref_rst         : std_logic;
 
+  signal clk_125m_pllref_buf_int1 : std_logic;
 begin  -- architecture struct
 
   -----------------------------------------------------------------------------
@@ -329,6 +330,16 @@ begin  -- architecture struct
       I  => clk_125m_pllref_p_i,
       IB => clk_125m_pllref_n_i);
 
+  -- The bufg was previously in xwrc_platform_xilinx.
+  -- However, it is useless except it helps to fit mapping constraints with
+  -- spartan 45t
+  -- System PLL input clock buffer
+  cmp_clk_sys_buf_i : BUFG
+    port map (
+      O => clk_125m_pllref_buf_int1,
+      I => clk_125m_pllref_buf);
+
+
   cmp_xwrc_platform : xwrc_platform_xilinx
     generic map (
       g_fpga_family               => "spartan6",
@@ -341,7 +352,7 @@ begin  -- architecture struct
       areset_n_i            => areset_n_i,
       clk_10m_ext_i         => clk_10m_ext_i,
       clk_20m_vcxo_i        => clk_20m_vcxo_i,
-      clk_125m_pllref_i     => clk_125m_pllref_buf,
+      clk_125m_pllref_i     => clk_125m_pllref_buf_int1,
       clk_125m_gtp_p_i      => clk_125m_gtp_p_i,
       clk_125m_gtp_n_i      => clk_125m_gtp_n_i,
       sfp_txn_o             => sfp_txn_o,
