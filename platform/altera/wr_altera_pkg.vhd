@@ -214,7 +214,6 @@ package wr_altera_pkg is
       g_use_cmu_pll     : boolean := false;
       g_use_f_pll       : boolean := false;
       g_use_simple_wa   : boolean := false;
-      g_use_bitslide_wa : boolean := false;
       g_use_det_phy     : boolean := true;
       g_use_sfp_los_rst : boolean := true;
       g_use_tx_lcr_dbg  : boolean := false;
@@ -469,7 +468,7 @@ package wr_altera_pkg is
 			 unused_rx_parallel_data   : out std_logic_vector(113 downto 0);                    -- unused_rx_parallel_data
           tx_std_bitslipboundarysel : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- tx_std_bitslipboundarysel
           rx_std_bitslipboundarysel : out std_logic_vector(4 downto 0);                      -- rx_std_bitslipboundarysel
-          --rx_std_wa_patternalign    : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_std_wa_patternalign
+          rx_std_wa_patternalign    : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_std_wa_patternalign          reconfig_clk              : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
           reconfig_clk              : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
           reconfig_reset            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- reset
           reconfig_write            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- write
