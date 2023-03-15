@@ -464,11 +464,10 @@ package wr_altera_pkg is
           rx_runningdisp            : out std_logic;                                         -- rx_runningdisp
           rx_patterndetect          : out std_logic;                                         -- rx_patterndetect
           rx_syncstatus             : out std_logic;                                         -- rx_syncstatus
-          --rx_bitslip                : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_bitslip
-			 unused_rx_parallel_data   : out std_logic_vector(113 downto 0);                    -- unused_rx_parallel_data
+          unused_rx_parallel_data   : out std_logic_vector(113 downto 0);                    -- unused_rx_parallel_data
           tx_std_bitslipboundarysel : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- tx_std_bitslipboundarysel
           rx_std_bitslipboundarysel : out std_logic_vector(4 downto 0);                      -- rx_std_bitslipboundarysel
-          rx_std_wa_patternalign    : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_std_wa_patternalign          reconfig_clk              : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
+          rx_std_wa_patternalign    : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_std_wa_patternalign
           reconfig_clk              : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
           reconfig_reset            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- reset
           reconfig_write            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- write

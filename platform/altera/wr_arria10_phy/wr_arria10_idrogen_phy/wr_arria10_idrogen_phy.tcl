@@ -1,3 +1,5 @@
-qsys-generate wr_arria10_idrogen_rst_ctl
-qsys-generate wr_arria10_idrogen_det_phy
-qsys-generate wr_arria10_idrogen_cmu_pll
+qsys-generate --synthesis wr_arria10_idrogen_rst_ctl/wr_arria10_idrogen_rst_ctl.ip
+qsys-generate --synthesis wr_arria10_idrogen_det_phy/wr_arria10_idrogen_det_phy.ip
+qsys-generate --synthesis wr_arria10_idrogen_cmu_pll/wr_arria10_idrogen_cmu_pll.ip
+qsys-generate --synthesis wr_arria10_idrogen_atx_pll/wr_arria10_idrogen_atx_pll.ip
+qsys-generate --synthesis wr_arria10_idrogen_f_pll/wr_arria10_idrogen_f_pll.ip

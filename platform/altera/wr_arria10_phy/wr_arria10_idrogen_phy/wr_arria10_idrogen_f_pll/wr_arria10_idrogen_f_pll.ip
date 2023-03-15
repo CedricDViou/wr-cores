@@ -169,7 +169,7 @@
         <ipxact:parameter parameterId="clockRate" type="longint">
           <ipxact:name>clockRate</ipxact:name>
           <ipxact:displayName>Clock rate</ipxact:displayName>
-          <ipxact:value>2500000000</ipxact:value>
+          <ipxact:value>625000000</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
       <ipxact:vendorExtensions>
@@ -583,7 +583,7 @@
         <ipxact:parameter parameterId="cmu_fpll_l_counter" type="int">
           <ipxact:name>cmu_fpll_l_counter</ipxact:name>
           <ipxact:displayName>cmu_fpll_l_counter</ipxact:displayName>
-          <ipxact:value>2</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_m_counter" type="int">
           <ipxact:name>cmu_fpll_m_counter</ipxact:name>
@@ -603,7 +603,7 @@
         <ipxact:parameter parameterId="cmu_fpll_out_freq" type="string">
           <ipxact:name>cmu_fpll_out_freq</ipxact:name>
           <ipxact:displayName>cmu_fpll_out_freq</ipxact:displayName>
-          <ipxact:value>000010010101000000101111100100000000</ipxact:value>
+          <ipxact:value>000000100101010000001011111001000000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_vco_freq_band_0" type="string">
           <ipxact:name>cmu_fpll_pll_vco_freq_band_0</ipxact:name>
@@ -658,7 +658,7 @@
         <ipxact:parameter parameterId="cmu_fpll_datarate" type="string">
           <ipxact:name>cmu_fpll_datarate</ipxact:name>
           <ipxact:displayName>cmu_fpll_datarate</ipxact:displayName>
-          <ipxact:value>5000000000 bps</ipxact:value>
+          <ipxact:value>1250000000 bps</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_device_variant" type="string">
           <ipxact:name>cmu_fpll_pll_device_variant</ipxact:name>
@@ -1073,7 +1073,7 @@
         <ipxact:parameter parameterId="cmu_fpll_pll_l_counter" type="int">
           <ipxact:name>cmu_fpll_pll_l_counter</ipxact:name>
           <ipxact:displayName>L-counter</ipxact:displayName>
-          <ipxact:value>2</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_l_counter_enable" type="string">
           <ipxact:name>cmu_fpll_pll_l_counter_enable</ipxact:name>
@@ -1278,7 +1278,7 @@
         <ipxact:parameter parameterId="cmu_fpll_hssi_output_clock_frequency" type="string">
           <ipxact:name>cmu_fpll_hssi_output_clock_frequency</ipxact:name>
           <ipxact:displayName>cmu_fpll_hssi_output_clock_frequency</ipxact:displayName>
-          <ipxact:value>2500.0 MHz</ipxact:value>
+          <ipxact:value>625.0 MHz</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_is_cascaded_pll" type="string">
           <ipxact:name>cmu_fpll_is_cascaded_pll</ipxact:name>
@@ -2093,22 +2093,22 @@
         <ipxact:parameter parameterId="gui_hssi_output_clock_frequency" type="real">
           <ipxact:name>gui_hssi_output_clock_frequency</ipxact:name>
           <ipxact:displayName>PLL output frequency</ipxact:displayName>
-          <ipxact:value>2500.0</ipxact:value>
+          <ipxact:value>625.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_output_clock_frequency" type="string">
           <ipxact:name>hssi_output_clock_frequency</ipxact:name>
           <ipxact:displayName>PLL output frequency</ipxact:displayName>
-          <ipxact:value>2500.0 MHz</ipxact:value>
+          <ipxact:value>625.0 MHz</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_pll_datarate" type="real">
           <ipxact:name>gui_pll_datarate</ipxact:name>
           <ipxact:displayName>PLL Datarate</ipxact:displayName>
-          <ipxact:value>5000.0</ipxact:value>
+          <ipxact:value>1250.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pll_datarate" type="string">
           <ipxact:name>pll_datarate</ipxact:name>
           <ipxact:displayName>PLL Datarate</ipxact:displayName>
-          <ipxact:value>5000000000 bps</ipxact:value>
+          <ipxact:value>1250000000 bps</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_pll_m_counter" type="int">
           <ipxact:name>gui_pll_m_counter</ipxact:name>
@@ -2558,7 +2558,7 @@
         <ipxact:parameter parameterId="hssi_l_counter" type="int">
           <ipxact:name>hssi_l_counter</ipxact:name>
           <ipxact:displayName>pll_c_counter_0</ipxact:displayName>
-          <ipxact:value>2</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_l_counter_in_src" type="string">
           <ipxact:name>hssi_l_counter_in_src</ipxact:name>
@@ -2773,7 +2773,7 @@
         <ipxact:parameter parameterId="pll_l_counter" type="int">
           <ipxact:name>pll_l_counter</ipxact:name>
           <ipxact:displayName>pll_l_counter</ipxact:displayName>
-          <ipxact:value>2</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="core_actual_using_fractional" type="bit">
           <ipxact:name>core_actual_using_fractional</ipxact:name>
@@ -2883,7 +2883,7 @@
         <ipxact:parameter parameterId="output_freq_bitvec" type="string">
           <ipxact:name>output_freq_bitvec</ipxact:name>
           <ipxact:displayName>PLL output frequency</ipxact:displayName>
-          <ipxact:value>000010010101000000101111100100000000</ipxact:value>
+          <ipxact:value>000000100101010000001011111001000000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="f_out_c0_bitvec" type="string">
           <ipxact:name>f_out_c0_bitvec</ipxact:name>
@@ -2908,7 +2908,7 @@
         <ipxact:parameter parameterId="l_counter_bitvec" type="int">
           <ipxact:name>l_counter_bitvec</ipxact:name>
           <ipxact:displayName>l_counter</ipxact:displayName>
-          <ipxact:value>2</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="n_counter_bitvec" type="int">
           <ipxact:name>n_counter_bitvec</ipxact:name>
@@ -3063,12 +3063,12 @@
         <ipxact:parameter parameterId="mcgb_in_clk_freq" type="real">
           <ipxact:name>mcgb_in_clk_freq</ipxact:name>
           <ipxact:displayName>MCGB input clock frequency</ipxact:displayName>
-          <ipxact:value>2500.0</ipxact:value>
+          <ipxact:value>625.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="mcgb_out_datarate" type="real">
           <ipxact:name>mcgb_out_datarate</ipxact:name>
           <ipxact:displayName>MCGB output data rate</ipxact:displayName>
-          <ipxact:value>5000.0</ipxact:value>
+          <ipxact:value>1250.0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="enable_bonding_clks" type="int">
           <ipxact:name>enable_bonding_clks</ipxact:name>
@@ -3113,7 +3113,7 @@
         <ipxact:parameter parameterId="mapped_output_clock_frequency" type="string">
           <ipxact:name>mapped_output_clock_frequency</ipxact:name>
           <ipxact:displayName>mapped_output_clock_frequency</ipxact:displayName>
-          <ipxact:value>2500.0 MHz</ipxact:value>
+          <ipxact:value>625.0 MHz</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="mapped_primary_pll_buffer" type="string">
           <ipxact:name>mapped_primary_pll_buffer</ipxact:name>
@@ -3153,7 +3153,7 @@
         <ipxact:parameter parameterId="hssi_pma_cgb_master_datarate" type="string">
           <ipxact:name>hssi_pma_cgb_master_datarate</ipxact:name>
           <ipxact:displayName>hssi_pma_cgb_master_datarate</ipxact:displayName>
-          <ipxact:value>5000000000 bps</ipxact:value>
+          <ipxact:value>1250000000 bps</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_pma_cgb_master_cgb_power_down" type="string">
           <ipxact:name>hssi_pma_cgb_master_cgb_power_down</ipxact:name>
@@ -3198,7 +3198,7 @@
         <ipxact:parameter parameterId="gui_parameter_values" type="string">
           <ipxact:name>gui_parameter_values</ipxact:name>
           <ipxact:displayName>Parameter Values</ipxact:displayName>
-          <ipxact:value>1,1,1,1,2,40,1,10000.0 MHz,1</ipxact:value>
+          <ipxact:value>1,1,1,1,8,40,1,10000.0 MHz,1</ipxact:value>
         </ipxact:parameter>
       </ipxact:parameters>
     </altera:altera_module_parameters>
