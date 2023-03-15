@@ -2353,7 +2353,7 @@
         <ipxact:parameter parameterId="tx_pma_clk_div" type="int">
           <ipxact:name>tx_pma_clk_div</ipxact:name>
           <ipxact:displayName>TX local clock division factor</ipxact:displayName>
-          <ipxact:value>4</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="plls" type="int">
           <ipxact:name>plls</ipxact:name>
@@ -8003,7 +8003,7 @@
         <ipxact:parameter parameterId="pma_cgb_x1_div_m_sel" type="string">
           <ipxact:name>pma_cgb_x1_div_m_sel</ipxact:name>
           <ipxact:displayName>pma_cgb_x1_div_m_sel</ipxact:displayName>
-          <ipxact:value>divby4</ipxact:value>
+          <ipxact:value>divby8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_cgb_xn_clock_source_sel" type="string">
           <ipxact:name>pma_cgb_xn_clock_source_sel</ipxact:name>
@@ -9038,7 +9038,7 @@
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_clock_divider_ratio" type="int">
           <ipxact:name>pma_tx_buf_xtx_path_clock_divider_ratio</ipxact:name>
           <ipxact:displayName>pma_tx_buf_xtx_path_clock_divider_ratio</ipxact:displayName>
-          <ipxact:value>4</ipxact:value>
+          <ipxact:value>8</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_pma_tx_divclk_hz" type="string">
           <ipxact:name>pma_tx_buf_xtx_path_pma_tx_divclk_hz</ipxact:name>
@@ -9048,7 +9048,7 @@
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_tx_pll_clk_hz" type="string">
           <ipxact:name>pma_tx_buf_xtx_path_tx_pll_clk_hz</ipxact:name>
           <ipxact:displayName>pma_tx_buf_xtx_path_tx_pll_clk_hz</ipxact:displayName>
-          <ipxact:value>156250000</ipxact:value>
+          <ipxact:value>78125000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_tx_buf_link" type="string">
           <ipxact:name>pma_tx_buf_link</ipxact:name>

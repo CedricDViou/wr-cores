@@ -306,10 +306,10 @@ begin  -- architecture rtl
     generic map (
       --g_family          => "Arria 10 GX SCU4",
       g_family          => "Arria 10 GX Idrogen",
-		g_use_simple_wa   => false,
-      g_use_atx_pll     => false,    -- Use ATX PLL?
-      g_use_cmu_pll     => true ,    -- Use CMU PLL?
-		g_use_f_pll       => false
+      g_use_simple_wa   => false,
+      g_use_atx_pll     => true ,    -- Use ATX PLL?
+      g_use_cmu_pll     => false,    -- Use CMU PLL?
+      g_use_f_pll       => false
       )
     port map (
       clk_ref_i      => clk_pll_ref,
