@@ -443,7 +443,7 @@ package wr_altera_pkg is
           rx_digitalreset           : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_digitalreset
           tx_cal_busy               : out std_logic_vector(0 downto 0);                      -- tx_cal_busy
           rx_cal_busy               : out std_logic_vector(0 downto 0);                      -- rx_cal_busy
-          tx_serial_clk0            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
+          tx_bonding_clocks         : in  std_logic_vector(5 downto 0)   := (others => 'X'); -- clk
           rx_cdr_refclk0            : in  std_logic                      := 'X';             -- clk
           tx_serial_data            : out std_logic_vector(0 downto 0);                      -- tx_serial_data
           rx_serial_data            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_serial_data
@@ -467,7 +467,6 @@ package wr_altera_pkg is
           unused_rx_parallel_data   : out std_logic_vector(113 downto 0);                    -- unused_rx_parallel_data
           tx_std_bitslipboundarysel : in  std_logic_vector(4 downto 0)   := (others => 'X'); -- tx_std_bitslipboundarysel
           rx_std_bitslipboundarysel : out std_logic_vector(4 downto 0);                      -- rx_std_bitslipboundarysel
-          rx_std_wa_patternalign    : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- rx_std_wa_patternalign
           reconfig_clk              : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- clk
           reconfig_reset            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- reset
           reconfig_write            : in  std_logic_vector(0 downto 0)   := (others => 'X'); -- write
@@ -477,7 +476,8 @@ package wr_altera_pkg is
           reconfig_readdata         : out std_logic_vector(31 downto 0);                     -- readdata
           reconfig_waitrequest      : out std_logic_vector(0 downto 0)                       -- waitrequest
       );
-  end component wr_arria10_idrogen_det_phy;
+    end component wr_arria10_idrogen_det_phy;
+
 
   component gtp_bitslide
     generic (
@@ -706,11 +706,13 @@ package wr_altera_pkg is
 
   component wr_arria10_idrogen_atx_pll is
     port (
-      pll_refclk0   : in  std_logic := 'X';
-      pll_powerdown : in  std_logic := 'X';
-      pll_locked    : out std_logic;
-      tx_serial_clk : out std_logic;
-      pll_cal_busy  : out std_logic
+      pll_refclk0       : in  std_logic := 'X';
+      pll_powerdown     : in  std_logic := 'X';
+      pll_locked        : out std_logic;
+      tx_serial_clk     : out std_logic;
+      pll_cal_busy      : out std_logic;
+      mcgb_rst          : in  std_logic                    := 'X'; -- mcgb_rst
+      tx_bonding_clocks : out std_logic_vector(5 downto 0)         -- clk
     );
   end component wr_arria10_idrogen_atx_pll;
 
@@ -734,15 +736,19 @@ package wr_altera_pkg is
     );
   end component wr_arria10_idrogen_cmu_pll;
 
+ 
   component wr_arria10_idrogen_f_pll is
     port (
-      pll_powerdown : in  std_logic := 'X';
-      pll_refclk0   : in  std_logic := 'X';
-      tx_serial_clk : out std_logic;
-      pll_locked    : out std_logic;
-      pll_cal_busy  : out std_logic
+        pll_refclk0       : in  std_logic                    := 'X'; -- clk
+        pll_powerdown     : in  std_logic                    := 'X'; -- pll_powerdown
+        pll_locked        : out std_logic;                           -- pll_locked
+        tx_serial_clk     : out std_logic;                           -- clk
+        pll_cal_busy      : out std_logic;                           -- pll_cal_busy
+        mcgb_rst          : in  std_logic                    := 'X'; -- mcgb_rst
+        tx_bonding_clocks : out std_logic_vector(5 downto 0)         -- clk
     );
   end component wr_arria10_idrogen_f_pll;
+
 
   component wr_arria10_pex10_atx_pll is
     port (

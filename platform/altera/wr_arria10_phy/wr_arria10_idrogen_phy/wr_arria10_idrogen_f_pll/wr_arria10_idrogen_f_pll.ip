@@ -230,6 +230,95 @@
         </altera:altera_assignments>
       </ipxact:vendorExtensions>
     </ipxact:busInterface>
+    <ipxact:busInterface>
+      <ipxact:name>mcgb_rst</ipxact:name>
+      <ipxact:busType vendor="altera" library="altera" name="conduit" version="19.3"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="altera" library="altera" name="conduit" version="19.3"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>mcgb_rst</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>mcgb_rst</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:slave></ipxact:slave>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="associatedClock" type="string">
+          <ipxact:name>associatedClock</ipxact:name>
+          <ipxact:displayName>associatedClock</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="associatedReset" type="string">
+          <ipxact:name>associatedReset</ipxact:name>
+          <ipxact:displayName>associatedReset</ipxact:displayName>
+          <ipxact:value></ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="prSafe" type="bit">
+          <ipxact:name>prSafe</ipxact:name>
+          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
+          <ipxact:value>false</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+      <ipxact:vendorExtensions>
+        <altera:altera_assignments>
+          <ipxact:parameters>
+            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
+              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
+              <ipxact:value>input</ipxact:value>
+            </ipxact:parameter>
+          </ipxact:parameters>
+        </altera:altera_assignments>
+      </ipxact:vendorExtensions>
+    </ipxact:busInterface>
+    <ipxact:busInterface>
+      <ipxact:name>tx_bonding_clocks</ipxact:name>
+      <ipxact:busType vendor="altera" library="altera" name="hssi_bonded_clock" version="19.3"></ipxact:busType>
+      <ipxact:abstractionTypes>
+        <ipxact:abstractionType>
+          <ipxact:abstractionRef vendor="altera" library="altera" name="hssi_bonded_clock" version="19.3"></ipxact:abstractionRef>
+          <ipxact:portMaps>
+            <ipxact:portMap>
+              <ipxact:logicalPort>
+                <ipxact:name>clk</ipxact:name>
+              </ipxact:logicalPort>
+              <ipxact:physicalPort>
+                <ipxact:name>tx_bonding_clocks</ipxact:name>
+              </ipxact:physicalPort>
+            </ipxact:portMap>
+          </ipxact:portMaps>
+        </ipxact:abstractionType>
+      </ipxact:abstractionTypes>
+      <ipxact:master></ipxact:master>
+      <ipxact:parameters>
+        <ipxact:parameter parameterId="clockRate" type="longint">
+          <ipxact:name>clockRate</ipxact:name>
+          <ipxact:displayName>Clock rate</ipxact:displayName>
+          <ipxact:value>0</ipxact:value>
+        </ipxact:parameter>
+        <ipxact:parameter parameterId="serializationFactor" type="longint">
+          <ipxact:name>serializationFactor</ipxact:name>
+          <ipxact:displayName>Serialization factor</ipxact:displayName>
+          <ipxact:value>0</ipxact:value>
+        </ipxact:parameter>
+      </ipxact:parameters>
+      <ipxact:vendorExtensions>
+        <altera:altera_assignments>
+          <ipxact:parameters>
+            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
+              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
+              <ipxact:value>output</ipxact:value>
+            </ipxact:parameter>
+          </ipxact:parameters>
+        </altera:altera_assignments>
+      </ipxact:vendorExtensions>
+    </ipxact:busInterface>
   </ipxact:busInterfaces>
   <ipxact:model>
     <ipxact:views>
@@ -304,6 +393,36 @@
           <ipxact:wireTypeDefs>
             <ipxact:wireTypeDef>
               <ipxact:typeName>STD_LOGIC</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>mcgb_rst</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>in</ipxact:direction>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC</ipxact:typeName>
+              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
+            </ipxact:wireTypeDef>
+          </ipxact:wireTypeDefs>
+        </ipxact:wire>
+      </ipxact:port>
+      <ipxact:port>
+        <ipxact:name>tx_bonding_clocks</ipxact:name>
+        <ipxact:wire>
+          <ipxact:direction>out</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector>
+              <ipxact:left>0</ipxact:left>
+              <ipxact:right>5</ipxact:right>
+            </ipxact:vector>
+          </ipxact:vectors>
+          <ipxact:wireTypeDefs>
+            <ipxact:wireTypeDef>
+              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
               <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
             </ipxact:wireTypeDef>
           </ipxact:wireTypeDefs>
@@ -498,7 +617,7 @@
         <ipxact:parameter parameterId="cmu_fpll_f_max_pfd" type="string">
           <ipxact:name>cmu_fpll_f_max_pfd</ipxact:name>
           <ipxact:displayName>cmu_fpll_f_max_pfd</ipxact:displayName>
-          <ipxact:value>800000000</ipxact:value>
+          <ipxact:value>160000000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_f_max_vco" type="string">
           <ipxact:name>cmu_fpll_f_max_vco</ipxact:name>
@@ -563,7 +682,7 @@
         <ipxact:parameter parameterId="cmu_fpll_feedback" type="string">
           <ipxact:name>cmu_fpll_feedback</ipxact:name>
           <ipxact:displayName>cmu_fpll_feedback</ipxact:displayName>
-          <ipxact:value>normal</ipxact:value>
+          <ipxact:value>iqtxrxclk</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_fpll_cas_out_enable" type="string">
           <ipxact:name>cmu_fpll_fpll_cas_out_enable</ipxact:name>
@@ -653,7 +772,7 @@
         <ipxact:parameter parameterId="cmu_fpll_pll_bw_mode" type="string">
           <ipxact:name>cmu_fpll_pll_bw_mode</ipxact:name>
           <ipxact:displayName>Bandwidth</ipxact:displayName>
-          <ipxact:value>hi_bw</ipxact:value>
+          <ipxact:value>low_bw</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_datarate" type="string">
           <ipxact:name>cmu_fpll_datarate</ipxact:name>
@@ -943,17 +1062,17 @@
         <ipxact:parameter parameterId="cmu_fpll_pll_fbclk_mux_1" type="string">
           <ipxact:name>cmu_fpll_pll_fbclk_mux_1</ipxact:name>
           <ipxact:displayName>cmu_fpll_pll_fbclk_mux_1</ipxact:displayName>
-          <ipxact:value>pll_fbclk_mux_1_glb</ipxact:value>
+          <ipxact:value>pll_fbclk_mux_1_fbclk_pll</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_fbclk_mux_2" type="string">
           <ipxact:name>cmu_fpll_pll_fbclk_mux_2</ipxact:name>
           <ipxact:displayName>cmu_fpll_pll_fbclk_mux_2</ipxact:displayName>
-          <ipxact:value>pll_fbclk_mux_2_m_cnt</ipxact:value>
+          <ipxact:value>pll_fbclk_mux_2_fb_1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_iqclk_mux_sel" type="string">
           <ipxact:name>cmu_fpll_pll_iqclk_mux_sel</ipxact:name>
           <ipxact:displayName>cmu_fpll_pll_iqclk_mux_sel</ipxact:displayName>
-          <ipxact:value>power_down</ipxact:value>
+          <ipxact:value>iqtxrxclk0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_cp_compensation" type="string">
           <ipxact:name>cmu_fpll_pll_cp_compensation</ipxact:name>
@@ -963,7 +1082,7 @@
         <ipxact:parameter parameterId="cmu_fpll_pll_cp_current_setting" type="string">
           <ipxact:name>cmu_fpll_pll_cp_current_setting</ipxact:name>
           <ipxact:displayName>cmu_fpll_pll_cp_current_setting</ipxact:displayName>
-          <ipxact:value>cp_current_setting26</ipxact:value>
+          <ipxact:value>cp_current_setting22</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_pll_cp_testmode" type="string">
           <ipxact:name>cmu_fpll_pll_cp_testmode</ipxact:name>
@@ -1248,12 +1367,12 @@
         <ipxact:parameter parameterId="cmu_fpll_bw_sel" type="string">
           <ipxact:name>cmu_fpll_bw_sel</ipxact:name>
           <ipxact:displayName>cmu_fpll_bw_sel</ipxact:displayName>
-          <ipxact:value>high</ipxact:value>
+          <ipxact:value>low</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_compensation_mode" type="string">
           <ipxact:name>cmu_fpll_compensation_mode</ipxact:name>
           <ipxact:displayName>cmu_fpll_compensation_mode</ipxact:displayName>
-          <ipxact:value>direct</ipxact:value>
+          <ipxact:value>fpll_bonding</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_duty_cycle_0" type="int">
           <ipxact:name>cmu_fpll_duty_cycle_0</ipxact:name>
@@ -1343,7 +1462,7 @@
         <ipxact:parameter parameterId="cmu_fpll_pma_width" type="int">
           <ipxact:name>cmu_fpll_pma_width</ipxact:name>
           <ipxact:displayName>cmu_fpll_pma_width</ipxact:displayName>
-          <ipxact:value>64</ipxact:value>
+          <ipxact:value>10</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cmu_fpll_f_out_c3_hz" type="string">
           <ipxact:name>cmu_fpll_f_out_c3_hz</ipxact:name>
@@ -1923,12 +2042,12 @@
         <ipxact:parameter parameterId="gui_bw_sel" type="string">
           <ipxact:name>gui_bw_sel</ipxact:name>
           <ipxact:displayName>Bandwidth</ipxact:displayName>
-          <ipxact:value>high</ipxact:value>
+          <ipxact:value>low</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="temp_bw_sel" type="string">
           <ipxact:name>temp_bw_sel</ipxact:name>
           <ipxact:displayName>Bandwidth</ipxact:displayName>
-          <ipxact:value>high</ipxact:value>
+          <ipxact:value>low</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pll_cp_lf_3rd_pole_freq" type="string">
           <ipxact:name>pll_cp_lf_3rd_pole_freq</ipxact:name>
@@ -1993,17 +2112,17 @@
         <ipxact:parameter parameterId="gui_operation_mode" type="string">
           <ipxact:name>gui_operation_mode</ipxact:name>
           <ipxact:displayName>Operation mode</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>2</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="compensation_mode" type="string">
           <ipxact:name>compensation_mode</ipxact:name>
           <ipxact:displayName>Operation mode</ipxact:displayName>
-          <ipxact:value>direct</ipxact:value>
+          <ipxact:value>fpll_bonding</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="feedback" type="string">
           <ipxact:name>feedback</ipxact:name>
           <ipxact:displayName>Operation mode</ipxact:displayName>
-          <ipxact:value>normal</ipxact:value>
+          <ipxact:value>iqtxrxclk</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="gui_enable_iqtxrxclk_mode" type="bit">
           <ipxact:name>gui_enable_iqtxrxclk_mode</ipxact:name>
@@ -2768,7 +2887,7 @@
         <ipxact:parameter parameterId="pll_iqclk_mux_sel" type="string">
           <ipxact:name>pll_iqclk_mux_sel</ipxact:name>
           <ipxact:displayName>pll_iqclk_mux_sel</ipxact:displayName>
-          <ipxact:value>power_down</ipxact:value>
+          <ipxact:value>iqtxrxclk0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pll_l_counter" type="int">
           <ipxact:name>pll_l_counter</ipxact:name>
@@ -2803,7 +2922,7 @@
         <ipxact:parameter parameterId="hssi_dsm_fractional_division" type="longint">
           <ipxact:name>hssi_dsm_fractional_division</ipxact:name>
           <ipxact:displayName>pll_dsm_fractional_division</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_cascade_dsm_fractional_division" type="longint">
           <ipxact:name>hssi_cascade_dsm_fractional_division</ipxact:name>
@@ -2943,7 +3062,7 @@
         <ipxact:parameter parameterId="pma_width_bitvec" type="int">
           <ipxact:name>pma_width_bitvec</ipxact:name>
           <ipxact:displayName>pma_width</ipxact:displayName>
-          <ipxact:value>64</ipxact:value>
+          <ipxact:value>10</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="cgb_div_bitvec" type="int">
           <ipxact:name>cgb_div_bitvec</ipxact:name>
@@ -3033,7 +3152,7 @@
         <ipxact:parameter parameterId="enable_mcgb" type="int">
           <ipxact:name>enable_mcgb</ipxact:name>
           <ipxact:displayName>Include Master Clock Generation Block</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="mcgb_div" type="int">
           <ipxact:name>mcgb_div</ipxact:name>
@@ -3073,22 +3192,22 @@
         <ipxact:parameter parameterId="enable_bonding_clks" type="int">
           <ipxact:name>enable_bonding_clks</ipxact:name>
           <ipxact:displayName>Enable bonding clock output ports</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="enable_fb_comp_bonding" type="int">
           <ipxact:name>enable_fb_comp_bonding</ipxact:name>
           <ipxact:displayName>Enable feedback compensation bonding</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="mcgb_enable_iqtxrxclk" type="string">
           <ipxact:name>mcgb_enable_iqtxrxclk</ipxact:name>
           <ipxact:displayName>mcgb_enable_iqtxrxclk</ipxact:displayName>
-          <ipxact:value>disable_iqtxrxclk</ipxact:value>
+          <ipxact:value>enable_iqtxrxclk</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_width" type="int">
           <ipxact:name>pma_width</ipxact:name>
           <ipxact:displayName>PMA interface width</ipxact:displayName>
-          <ipxact:value>64</ipxact:value>
+          <ipxact:value>10</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="enable_mcgb_debug_ports_parameters" type="int">
           <ipxact:name>enable_mcgb_debug_ports_parameters</ipxact:name>
@@ -3143,12 +3262,12 @@
         <ipxact:parameter parameterId="hssi_pma_cgb_master_cgb_enable_iqtxrxclk" type="string">
           <ipxact:name>hssi_pma_cgb_master_cgb_enable_iqtxrxclk</ipxact:name>
           <ipxact:displayName>hssi_pma_cgb_master_cgb_enable_iqtxrxclk</ipxact:displayName>
-          <ipxact:value>disable_iqtxrxclk</ipxact:value>
+          <ipxact:value>enable_iqtxrxclk</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_pma_cgb_master_ser_mode" type="string">
           <ipxact:name>hssi_pma_cgb_master_ser_mode</ipxact:name>
           <ipxact:displayName>hssi_pma_cgb_master_ser_mode</ipxact:displayName>
-          <ipxact:value>sixty_four_bit</ipxact:value>
+          <ipxact:value>ten_bit</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_pma_cgb_master_datarate" type="string">
           <ipxact:name>hssi_pma_cgb_master_datarate</ipxact:name>
@@ -3260,6 +3379,10 @@
       </ipxact:parameters>
     </altera:altera_system_parameters>
     <altera:altera_interface_boundary>
+      <altera:interface_mapping altera:name="mcgb_rst" altera:internal="xcvr_fpll_a10_0.mcgb_rst" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="mcgb_rst" altera:internal="mcgb_rst"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="mcgb_serial_clk" altera:internal="xcvr_fpll_a10_0.mcgb_serial_clk"></altera:interface_mapping>
       <altera:interface_mapping altera:name="pll_cal_busy" altera:internal="xcvr_fpll_a10_0.pll_cal_busy" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="pll_cal_busy" altera:internal="pll_cal_busy"></altera:port_mapping>
       </altera:interface_mapping>
@@ -3271,6 +3394,9 @@
       </altera:interface_mapping>
       <altera:interface_mapping altera:name="pll_refclk0" altera:internal="xcvr_fpll_a10_0.pll_refclk0" altera:type="clock" altera:dir="end">
         <altera:port_mapping altera:name="pll_refclk0" altera:internal="pll_refclk0"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="tx_bonding_clocks" altera:internal="xcvr_fpll_a10_0.tx_bonding_clocks" altera:type="hssi_bonded_clock" altera:dir="start">
+        <altera:port_mapping altera:name="tx_bonding_clocks" altera:internal="tx_bonding_clocks"></altera:port_mapping>
       </altera:interface_mapping>
       <altera:interface_mapping altera:name="tx_serial_clk" altera:internal="xcvr_fpll_a10_0.tx_serial_clk" altera:type="hssi_serial_clock" altera:dir="start">
         <altera:port_mapping altera:name="tx_serial_clk" altera:internal="tx_serial_clk"></altera:port_mapping>

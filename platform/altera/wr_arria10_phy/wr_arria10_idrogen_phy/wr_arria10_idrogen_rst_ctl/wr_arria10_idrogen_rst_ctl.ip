@@ -1030,6 +1030,9 @@
           <ipxact:displayName>bonusData</ipxact:displayName>
           <ipxact:value>bonusData 
 {
+   element $system
+   {
+   }
    element xcvr_reset_control_0
    {
       datum _sortIndex

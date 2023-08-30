@@ -94,16 +94,6 @@ end wr_arria10_transceiver;
 architecture rtl of wr_arria10_transceiver is
 
 
-  component ISSP is
-    port (
-      source : out std_logic_vector(31 downto 0);                    -- source
-      probe  : in  std_logic_vector(31 downto 0) := (others => 'X')  -- probe
-    );
-  end component ISSP;
-
-  signal issp_source               : std_logic_vector(31 downto 0);
-  signal issp_probe                : std_logic_vector(31 downto 0);
-
   signal s_pll_select              : std_logic_vector(0 downto 0);
   signal s_cal_busy                : std_logic_vector(0 downto 0);
 
@@ -113,6 +103,7 @@ architecture rtl of wr_arria10_transceiver is
   signal s_tx_pll_serial_clk       : std_logic;
   signal s_tx_pll_locked           : std_logic_vector(0 downto 0);
   signal s_tx_pll_cal_busy         : std_logic;
+  signal s_tx_bonding_clocks       : std_logic_vector(5 downto 0);
 
   signal s_rst_ctl_powerdown       : std_logic_vector(0 downto 0);
   signal s_rst_ctl_rst             : std_logic;
@@ -270,7 +261,7 @@ begin
           reconfig_readdata                     => s_reconfig_readdata,
           reconfig_waitrequest                  => s_reconfig_waitrequest,
           rx_std_bitslipboundarysel(3 downto 0) => rx_bitslide_o(3 downto 0),
-       	  rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
+          rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
           rx_seriallpbken(0)                    => s_loop_en
         );
     end generate scu4_phy;
@@ -281,25 +272,23 @@ begin
         tx_analogreset(0)                     => s_rst_ctl_tx_analogreset(0),
         tx_digitalreset(0)                    => s_rst_ctl_tx_digitalreset(0),
         rx_analogreset(0)                     => s_rst_ctl_rx_analogreset(0),
-        rx_digitalreset(0)                    => s_rst_ctl_rx_digitalreset(0) or s_reset_aligner,
+        rx_digitalreset(0)                    => s_rst_ctl_rx_digitalreset(0),
         tx_cal_busy(0)                        => s_phy_tx_cal_busy(0),
         rx_cal_busy(0)                        => s_phy_rx_cal_busy(0),
-        tx_serial_clk0(0)                     => s_tx_pll_serial_clk,
-        rx_cdr_refclk0                        => clk_ref_i,
-
-        rx_clkout(0)                          => s_rx_clk,
-        rx_coreclkin(0)                       => s_rx_clk,
-
-        tx_clkout(0)                          => s_tx_clk,
-        tx_coreclkin(0)                       => s_tx_clk,
-
+        tx_bonding_clocks                     => s_tx_bonding_clocks,
+        rx_cdr_refclk0                        => clk_phy_i,
         tx_serial_data(0)                     => pad_txp_o,
         rx_serial_data(0)                     => pad_rxp_i,
         rx_seriallpbken(0)                    => s_loop_en,
         rx_is_lockedtoref                     => s_phy_rx_is_lockedtoref,
         rx_is_lockedtodata                    => s_phy_rx_is_lockedtodata,
+        tx_coreclkin(0)                       => clk_ref_i,
+        rx_coreclkin(0)                       => clk_ref_i,
+        tx_clkout(0)                          => s_tx_clk,
+        rx_clkout(0)                          => s_rx_clk,
         tx_parallel_data                      => s_tx_data,
         tx_datak                              => s_tx_data_k,
+        unused_tx_parallel_data               => (others => '0'), 
         rx_parallel_data                      => s_rx_data,
         rx_datak                              => s_rx_data_k,
         rx_errdetect                          => s_phy_rx_errdetect(0),
@@ -307,10 +296,10 @@ begin
         rx_runningdisp                        => s_rx_runningdisp,
         rx_patterndetect                      => s_patterndetect,
         rx_syncstatus                         => s_syncstatus,
-		  tx_std_bitslipboundarysel             => "00000",
-        rx_std_wa_patternalign(0)             => s_rx_std_wa_patternalign,
-		  --rx_bitslip(0)                         => s_rx_std_wa_patternalign,  -- wrong name, should be called s_rx_bitslip_req
-        rx_std_bitslipboundarysel             => s_rx_bitslide,
+        unused_rx_parallel_data               => open,
+        tx_std_bitslipboundarysel             => "00000",
+        rx_std_bitslipboundarysel(3 downto 0) => rx_bitslide_o(3 downto 0),
+        rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
         reconfig_clk(0)                       => clk_phy_i,
         reconfig_reset(0)                     => s_rst_ctl_rst,
         reconfig_write                        => s_reconfig_write,
@@ -320,34 +309,7 @@ begin
         reconfig_readdata                     => s_reconfig_readdata,
         reconfig_waitrequest                  => s_reconfig_waitrequest
       );
-		
-		
---	 latch_bitslide : process(s_rx_clk, s_rst_ctl_rst) is
---    begin
---      if s_rst_ctl_rst = '1' then
---        rx_bitslide_o <= (others => '0');
---        s_rx_bs_dump  <= '0';
---      elsif rising_edge(s_rx_clk) then
---			s_phy_rx_errdetect_r <= s_phy_rx_errdetect;
---			if s_phy_rx_errdetect_r(0) = '1' and s_phy_rx_errdetect(0) = '0' then
-			  rx_bitslide_o(3 downto 0) <= s_rx_bitslide(3 downto 0);
-			  s_rx_bs_dump              <= s_rx_bitslide(4);
---			end if;
---      end if;
---	 end process;
-		
-	
     end generate idrogen_phy;
-	 
-	 u0 : component ISSP
-      port map (
-        source => issp_source, -- sources.source
-        probe  => issp_probe   --  probes.probe
-      );
-    -- issp_source : bitslide_rst, s_rx_bitslide(0), rst_done_n
-    issp_probe <= (others => '0'); 
-	 
-	 
 
       pex10_phy: if (g_family = "Arria 10 GX PEX10") generate
         inst_phy : wr_arria10_pex10_det_phy
@@ -387,7 +349,7 @@ begin
             reconfig_readdata                     => s_reconfig_readdata,
             reconfig_waitrequest                  => s_reconfig_waitrequest,
             rx_std_bitslipboundarysel(3 downto 0) => rx_bitslide_o(3 downto 0),
-         	  rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
+             rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
             rx_seriallpbken(0)                    => s_loop_en
           );
       end generate pex10_phy;
@@ -430,7 +392,7 @@ begin
               reconfig_readdata                     => s_reconfig_readdata,
               reconfig_waitrequest                  => s_reconfig_waitrequest,
               rx_std_bitslipboundarysel(3 downto 0) => rx_bitslide_o(3 downto 0),
-           	  rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
+               rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
               rx_seriallpbken(0)                    => s_loop_en
             );
         end generate ftm10_phy;
@@ -473,85 +435,84 @@ begin
           reconfig_readdata                     => s_reconfig_readdata,
           reconfig_waitrequest                  => s_reconfig_waitrequest,
           rx_std_bitslipboundarysel(3 downto 0) => rx_bitslide_o(3 downto 0),
-       	  rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
+           rx_std_bitslipboundarysel(4)          => s_rx_bs_dump,
           rx_seriallpbken(0)                    => s_loop_en
         );
     end generate e3p1_phy;
 
-    tx_clk_o <= s_tx_clk;
-    rx_clk_o <= s_rx_clk;
-    s_tx_data   <= tx_data_i;
-    s_tx_data_k <= tx_data_k_i;
-    rx_data_o   <= s_rx_data;
-    rx_data_k_o <= s_rx_data_k;
+      tx_clk_o <= s_tx_clk;
+      rx_clk_o <= s_rx_clk;
+      s_tx_data   <= tx_data_i;
+      s_tx_data_k <= tx_data_k_i;
+      rx_data_o   <= s_rx_data;
+      rx_data_k_o <= s_rx_data_k;
 
-  complex_wa : if not(g_use_simple_wa) generate
+    complex_wa : if not(g_use_simple_wa) generate
 
-    -- Pattern align watchdog
-    pattern_align_wdg : process(s_rx_clk, s_rst_ctl_rst) is
-    begin
-      if s_rst_ctl_rst = '1' then
-        s_reset_aligner <= '0';
-        s_scan_wdg      <= (others => '0');
-      elsif rising_edge(s_rx_clk) then
-        if s_rst_ctl_rx_digitalreset(0) = '0' then
-          s_scan_wdg      <= std_logic_vector(unsigned(s_scan_wdg) + 1);
-          if (s_scan_wdg = "11111111" and s_patterndetect_ready = '0') then
-            s_reset_aligner <= '1';
-          else
-            s_reset_aligner <= '0';
+      -- Pattern align watchdog
+      pattern_align_wdg : process(s_rx_clk, s_rst_ctl_rst) is
+      begin
+        if s_rst_ctl_rst = '1' then
+          s_reset_aligner <= '0';
+          s_scan_wdg      <= (others => '0');
+        elsif rising_edge(s_rx_clk) then
+          if s_rst_ctl_rx_digitalreset(0) = '0' then
+            s_scan_wdg      <= std_logic_vector(unsigned(s_scan_wdg) + 1);
+            if (s_scan_wdg = "11111111" and s_patterndetect_ready = '0') then
+              s_reset_aligner <= '1';
+            else
+              s_reset_aligner <= '0';
+            end if;
           end if;
         end if;
-      end if;
-    end process;
+      end process;
 
-    -- Follow recommended wa_patternalign control
-    pattern_align : process(s_rx_clk, s_rst_ctl_rst) is
-    begin
-      if s_rst_ctl_rst = '1' then
-        s_rx_std_wa_patternalign <= '0';
-        s_scan_cnt               <= (others => '0');
-      elsif rising_edge(s_rx_clk) then
-        if s_rst_ctl_rx_digitalreset(0) = '0' then
-          s_scan_cnt <= std_logic_vector(unsigned(s_scan_cnt) + 1);
-          if s_scan_cnt = "000000" then
-            if s_patterndetect_ready = '0' then
-              s_rx_std_wa_patternalign <= '1';
-            else
-              s_rx_std_wa_patternalign <= '0';
-            end if;
-          elsif s_scan_cnt = "000001" then
-            if s_rx_std_wa_patternalign = '1' then
-              s_rx_std_wa_patternalign <= '1';
+      -- Follow recommended wa_patternalign control
+      pattern_align : process(s_rx_clk, s_rst_ctl_rst) is
+      begin
+        if s_rst_ctl_rst = '1' then
+          s_rx_std_wa_patternalign <= '0';
+          s_scan_cnt               <= (others => '0');
+        elsif rising_edge(s_rx_clk) then
+          if s_rst_ctl_rx_digitalreset(0) = '0' then
+            s_scan_cnt <= std_logic_vector(unsigned(s_scan_cnt) + 1);
+            if s_scan_cnt = "000000" then
+              if s_patterndetect_ready = '0' then
+                s_rx_std_wa_patternalign <= '1';
+              else
+                s_rx_std_wa_patternalign <= '0';
+              end if;
+            elsif s_scan_cnt = "000001" then
+              if s_rx_std_wa_patternalign = '1' then
+                s_rx_std_wa_patternalign <= '1';
+              else
+                s_rx_std_wa_patternalign <= '0';
+              end if;
             else
               s_rx_std_wa_patternalign <= '0';
             end if;
           else
             s_rx_std_wa_patternalign <= '0';
-          end if;
-        else
-          s_rx_std_wa_patternalign <= '0';
-          s_scan_cnt <= (others => '0');
-        end if; -- RST/CLK
-      end if; --Rising CLK
-    end process;
+            s_scan_cnt <= (others => '0');
+          end if; -- RST/CLK
+        end if; --Rising CLK
+      end process;
 
-    patterndetect_extend : process(s_rx_clk, s_rst_ctl_rst) is -- generic!
-    begin
-      if s_rst_ctl_rst = '1' then
-        s_patterndetect_ready <= '0';
-      elsif rising_edge(s_rx_clk) then
-        if s_rst_ctl_rx_digitalreset(0) = '0' then
-          if s_syncstatus = '1' and s_patterndetect = '1' then
-            s_patterndetect_ready <= '1';
-          elsif s_reset_aligner = '1' then
-            s_patterndetect_ready <= '0';
+      patterndetect_extend : process(s_rx_clk, s_rst_ctl_rst) is -- generic!
+      begin
+        if s_rst_ctl_rst = '1' then
+          s_patterndetect_ready <= '0';
+        elsif rising_edge(s_rx_clk) then
+          if s_rst_ctl_rx_digitalreset(0) = '0' then
+            if s_syncstatus = '1' and s_patterndetect = '1' then
+              s_patterndetect_ready <= '1';
+            elsif s_reset_aligner = '1' then
+              s_patterndetect_ready <= '0';
+            end if;
           end if;
         end if;
-      end if;
-    end process;
-    bitslide_rst <= '0';
-  end generate complex_wa;
+      end process;
+    end generate complex_wa;
 
   simple_wa : if g_use_simple_wa generate
     simple_wa_mode : process(s_rx_clk, s_rst_ctl_rst) is
@@ -577,7 +538,6 @@ begin
         end if;
       end if;
     end process;
-    bitslide_rst <= '0';
   end generate simple_wa;
 
     scu4_pll_and_reset: if (g_family = "Arria 10 GX SCU4") generate
@@ -644,11 +604,13 @@ begin
     atx_pll : if g_use_atx_pll generate
       inst_atx_pll : wr_arria10_idrogen_atx_pll
         port map (
-          pll_refclk0   => clk_ref_i,
-          pll_powerdown => s_rst_ctl_powerdown(0), -- Missing at Intel documentation -> Connection Guidelines for a CPRI PHY Design
-          pll_locked    => s_tx_pll_locked(0),
-          tx_serial_clk => s_tx_pll_serial_clk,
-          pll_cal_busy  => s_tx_pll_cal_busy
+          pll_refclk0       => clk_ref_i,
+          pll_powerdown     => s_rst_ctl_powerdown(0), -- Missing at Intel documentation -> Connection Guidelines for a CPRI PHY Design
+          pll_locked        => s_tx_pll_locked(0),
+          tx_serial_clk     => s_tx_pll_serial_clk,
+          pll_cal_busy      => s_tx_pll_cal_busy,
+          mcgb_rst          => s_rst_ctl_powerdown(0),
+          tx_bonding_clocks => s_tx_bonding_clocks
         );
       end generate atx_pll;
 
@@ -662,15 +624,17 @@ begin
           pll_cal_busy  => s_tx_pll_cal_busy
         );
       end generate cmu_pll;
-		
+
     f_pll : if g_use_f_pll generate
       inst_f_pll : wr_arria10_idrogen_f_pll
         port map (
-          pll_refclk0   => clk_ref_i,
-          pll_powerdown => s_rst_ctl_powerdown(0), -- Missing at Intel documentation -> Connection Guidelines for a CPRI PHY Design
-          pll_locked    => s_tx_pll_locked(0),
-          tx_serial_clk => s_tx_pll_serial_clk,
-          pll_cal_busy  => s_tx_pll_cal_busy
+          pll_refclk0       => clk_ref_i,
+          pll_powerdown     => s_rst_ctl_powerdown(0), -- Missing at Intel documentation -> Connection Guidelines for a CPRI PHY Design
+          pll_locked        => s_tx_pll_locked(0),
+          tx_serial_clk     => s_tx_pll_serial_clk,
+          pll_cal_busy      => s_tx_pll_cal_busy,
+          mcgb_rst          => s_rst_ctl_powerdown(0),
+          tx_bonding_clocks => s_tx_bonding_clocks
         );
       end generate f_pll;
 
@@ -805,7 +769,6 @@ begin
 
     s_cal_busy(0) <= s_phy_tx_cal_busy(0) or s_tx_pll_cal_busy;
 
-
   end generate det_phy;
 
   phy_rst_ext : if g_use_ext_rst generate
@@ -832,7 +795,7 @@ begin
     s_loop_en <= '0';
   end generate phy_ext_loop_no;
 
-  s_rst_ctl_rst_sync <= s_sfp_los_reset or s_ext_reset or issp_source(0);
+  s_rst_ctl_rst_sync <= s_sfp_los_reset or s_ext_reset;
 
   s_pll_select <= (others => '0');
 

@@ -288,7 +288,7 @@
       </ipxact:vendorExtensions>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>tx_serial_clk0</ipxact:name>
+      <ipxact:name>tx_bonding_clocks</ipxact:name>
       <ipxact:busType vendor="altera" library="altera" name="conduit" version="19.3"></ipxact:busType>
       <ipxact:abstractionTypes>
         <ipxact:abstractionType>
@@ -299,7 +299,7 @@
                 <ipxact:name>clk</ipxact:name>
               </ipxact:logicalPort>
               <ipxact:physicalPort>
-                <ipxact:name>tx_serial_clk0</ipxact:name>
+                <ipxact:name>tx_bonding_clocks</ipxact:name>
               </ipxact:physicalPort>
             </ipxact:portMap>
           </ipxact:portMaps>
@@ -1416,53 +1416,6 @@
       </ipxact:vendorExtensions>
     </ipxact:busInterface>
     <ipxact:busInterface>
-      <ipxact:name>rx_std_wa_patternalign</ipxact:name>
-      <ipxact:busType vendor="altera" library="altera" name="conduit" version="19.3"></ipxact:busType>
-      <ipxact:abstractionTypes>
-        <ipxact:abstractionType>
-          <ipxact:abstractionRef vendor="altera" library="altera" name="conduit" version="19.3"></ipxact:abstractionRef>
-          <ipxact:portMaps>
-            <ipxact:portMap>
-              <ipxact:logicalPort>
-                <ipxact:name>rx_std_wa_patternalign</ipxact:name>
-              </ipxact:logicalPort>
-              <ipxact:physicalPort>
-                <ipxact:name>rx_std_wa_patternalign</ipxact:name>
-              </ipxact:physicalPort>
-            </ipxact:portMap>
-          </ipxact:portMaps>
-        </ipxact:abstractionType>
-      </ipxact:abstractionTypes>
-      <ipxact:slave></ipxact:slave>
-      <ipxact:parameters>
-        <ipxact:parameter parameterId="associatedClock" type="string">
-          <ipxact:name>associatedClock</ipxact:name>
-          <ipxact:displayName>associatedClock</ipxact:displayName>
-          <ipxact:value></ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="associatedReset" type="string">
-          <ipxact:name>associatedReset</ipxact:name>
-          <ipxact:displayName>associatedReset</ipxact:displayName>
-          <ipxact:value></ipxact:value>
-        </ipxact:parameter>
-        <ipxact:parameter parameterId="prSafe" type="bit">
-          <ipxact:name>prSafe</ipxact:name>
-          <ipxact:displayName>Partial Reconfiguration Safe</ipxact:displayName>
-          <ipxact:value>false</ipxact:value>
-        </ipxact:parameter>
-      </ipxact:parameters>
-      <ipxact:vendorExtensions>
-        <altera:altera_assignments>
-          <ipxact:parameters>
-            <ipxact:parameter parameterId="ui.blockdiagram.direction" type="string">
-              <ipxact:name>ui.blockdiagram.direction</ipxact:name>
-              <ipxact:value>input</ipxact:value>
-            </ipxact:parameter>
-          </ipxact:parameters>
-        </altera:altera_assignments>
-      </ipxact:vendorExtensions>
-    </ipxact:busInterface>
-    <ipxact:busInterface>
       <ipxact:name>reconfig_clk</ipxact:name>
       <ipxact:busType vendor="altera" library="altera" name="conduit" version="19.3"></ipxact:busType>
       <ipxact:abstractionTypes>
@@ -1735,9 +1688,15 @@
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>tx_serial_clk0</ipxact:name>
+        <ipxact:name>tx_bonding_clocks</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
+          <ipxact:vectors>
+            <ipxact:vector>
+              <ipxact:left>0</ipxact:left>
+              <ipxact:right>5</ipxact:right>
+            </ipxact:vector>
+          </ipxact:vectors>
           <ipxact:wireTypeDefs>
             <ipxact:wireTypeDef>
               <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
@@ -2059,18 +2018,6 @@
         </ipxact:wire>
       </ipxact:port>
       <ipxact:port>
-        <ipxact:name>rx_std_wa_patternalign</ipxact:name>
-        <ipxact:wire>
-          <ipxact:direction>in</ipxact:direction>
-          <ipxact:wireTypeDefs>
-            <ipxact:wireTypeDef>
-              <ipxact:typeName>STD_LOGIC_VECTOR</ipxact:typeName>
-              <ipxact:viewRef>QUARTUS_SYNTH</ipxact:viewRef>
-            </ipxact:wireTypeDef>
-          </ipxact:wireTypeDefs>
-        </ipxact:wire>
-      </ipxact:port>
-      <ipxact:port>
         <ipxact:name>reconfig_clk</ipxact:name>
         <ipxact:wire>
           <ipxact:direction>in</ipxact:direction>
@@ -2243,7 +2190,7 @@
         <ipxact:parameter parameterId="protocol_mode" type="string">
           <ipxact:name>protocol_mode</ipxact:name>
           <ipxact:displayName>Transceiver configuration rules</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx</ipxact:value>
+          <ipxact:value>basic_std</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_mode" type="string">
           <ipxact:name>pma_mode</ipxact:name>
@@ -2338,7 +2285,7 @@
         <ipxact:parameter parameterId="bonded_mode" type="string">
           <ipxact:name>bonded_mode</ipxact:name>
           <ipxact:displayName>TX channel bonding mode</ipxact:displayName>
-          <ipxact:value>not_bonded</ipxact:value>
+          <ipxact:value>pma_pcs</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="set_pcs_bonding_master" type="string">
           <ipxact:name>set_pcs_bonding_master</ipxact:name>
@@ -2353,7 +2300,7 @@
         <ipxact:parameter parameterId="tx_pma_clk_div" type="int">
           <ipxact:name>tx_pma_clk_div</ipxact:name>
           <ipxact:displayName>TX local clock division factor</ipxact:displayName>
-          <ipxact:value>4</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="plls" type="int">
           <ipxact:name>plls</ipxact:name>
@@ -2528,7 +2475,7 @@
         <ipxact:parameter parameterId="enable_port_rx_seriallpbken" type="int">
           <ipxact:name>enable_port_rx_seriallpbken</ipxact:name>
           <ipxact:displayName>Enable rx_seriallpbken port</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="enable_ports_rx_prbs" type="int">
           <ipxact:name>enable_ports_rx_prbs</ipxact:name>
@@ -2688,17 +2635,17 @@
         <ipxact:parameter parameterId="std_rx_word_aligner_mode" type="string">
           <ipxact:name>std_rx_word_aligner_mode</ipxact:name>
           <ipxact:displayName>RX word aligner mode</ipxact:displayName>
-          <ipxact:value>manual (PLD controlled)</ipxact:value>
+          <ipxact:value>synchronous state machine</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="std_rx_word_aligner_pattern_len" type="int">
           <ipxact:name>std_rx_word_aligner_pattern_len</ipxact:name>
           <ipxact:displayName>RX word aligner pattern length</ipxact:displayName>
-          <ipxact:value>10</ipxact:value>
+          <ipxact:value>7</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="std_rx_word_aligner_pattern" type="longint">
           <ipxact:name>std_rx_word_aligner_pattern</ipxact:name>
           <ipxact:displayName>RX word aligner pattern (hex)</ipxact:displayName>
-          <ipxact:value>380</ipxact:value>
+          <ipxact:value>124</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="std_rx_word_aligner_rknumber" type="int">
           <ipxact:name>std_rx_word_aligner_rknumber</ipxact:name>
@@ -2728,7 +2675,7 @@
         <ipxact:parameter parameterId="enable_port_rx_std_wa_patternalign" type="int">
           <ipxact:name>enable_port_rx_std_wa_patternalign</ipxact:name>
           <ipxact:displayName>Enable rx_std_wa_patternalign port</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="enable_port_rx_std_wa_a1a2size" type="int">
           <ipxact:name>enable_port_rx_std_wa_a1a2size</ipxact:name>
@@ -3188,7 +3135,7 @@
         <ipxact:parameter parameterId="generate_docs" type="int">
           <ipxact:name>generate_docs</ipxact:name>
           <ipxact:displayName>Generate parameter documentation file</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="generate_add_hdl_instance_example" type="int">
           <ipxact:name>generate_add_hdl_instance_example</ipxact:name>
@@ -3283,7 +3230,7 @@
         <ipxact:parameter parameterId="l_enable_pma_bonding" type="int">
           <ipxact:name>l_enable_pma_bonding</ipxact:name>
           <ipxact:displayName>l_enable_pma_bonding</ipxact:displayName>
-          <ipxact:value>0</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="l_enable_reve_support" type="int">
           <ipxact:name>l_enable_reve_support</ipxact:name>
@@ -3448,7 +3395,7 @@
         <ipxact:parameter parameterId="adme_prot_mode" type="string">
           <ipxact:name>adme_prot_mode</ipxact:name>
           <ipxact:displayName>adme_prot_mode</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx</ipxact:value>
+          <ipxact:value>basic_std</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="adme_pma_mode" type="string">
           <ipxact:name>adme_pma_mode</ipxact:name>
@@ -5253,7 +5200,7 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_prot_mode" type="string">
           <ipxact:name>hssi_8g_rx_pcs_prot_mode</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_prot_mode</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx</ipxact:value>
+          <ipxact:value>basic_rm_disable</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_rate_match" type="string">
           <ipxact:name>hssi_8g_rx_pcs_rate_match</ipxact:name>
@@ -5348,7 +5295,7 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_boundary_lock_ctrl" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_boundary_lock_ctrl</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_boundary_lock_ctrl</ipxact:displayName>
-          <ipxact:value>auto_align_pld_ctrl</ipxact:value>
+          <ipxact:value>sync_sm</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_clk_slip_spacing" type="int">
           <ipxact:name>hssi_8g_rx_pcs_wa_clk_slip_spacing</ipxact:name>
@@ -5373,12 +5320,12 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pd" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pd</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_pd</ipxact:displayName>
-          <ipxact:value>wa_pd_10</ipxact:value>
+          <ipxact:value>wa_pd_7</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pd_data" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pd_data</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_pd_data</ipxact:displayName>
-          <ipxact:value>380</ipxact:value>
+          <ipxact:value>124</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pd_polarity" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pd_polarity</ipxact:name>
@@ -5388,7 +5335,7 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pld_controlled" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pld_controlled</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_pld_controlled</ipxact:displayName>
-          <ipxact:value>pld_ctrl_sw</ipxact:value>
+          <ipxact:value>dis_pld_ctrl</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_renumber_data" type="int">
           <ipxact:name>hssi_8g_rx_pcs_wa_renumber_data</ipxact:name>
@@ -5408,7 +5355,7 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_rosnumber_data" type="int">
           <ipxact:name>hssi_8g_rx_pcs_wa_rosnumber_data</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_rosnumber_data</ipxact:displayName>
-          <ipxact:value>1</ipxact:value>
+          <ipxact:value>0</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_rvnumber_data" type="int">
           <ipxact:name>hssi_8g_rx_pcs_wa_rvnumber_data</ipxact:name>
@@ -5418,7 +5365,7 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_sync_sm_ctrl" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_sync_sm_ctrl</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_sync_sm_ctrl</ipxact:displayName>
-          <ipxact:value>gige_sync_sm</ipxact:value>
+          <ipxact:value>sw_basic_sync_sm</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wait_cnt" type="int">
           <ipxact:name>hssi_8g_rx_pcs_wait_cnt</ipxact:name>
@@ -5498,12 +5445,12 @@
         <ipxact:parameter parameterId="hssi_8g_tx_pcs_ctrl_plane_bonding_consumption" type="string">
           <ipxact:name>hssi_8g_tx_pcs_ctrl_plane_bonding_consumption</ipxact:name>
           <ipxact:displayName>hssi_8g_tx_pcs_ctrl_plane_bonding_consumption</ipxact:displayName>
-          <ipxact:value>individual</ipxact:value>
+          <ipxact:value>bundled_master</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_tx_pcs_ctrl_plane_bonding_distribution" type="string">
           <ipxact:name>hssi_8g_tx_pcs_ctrl_plane_bonding_distribution</ipxact:name>
           <ipxact:displayName>hssi_8g_tx_pcs_ctrl_plane_bonding_distribution</ipxact:displayName>
-          <ipxact:value>not_master_chnl_distr</ipxact:value>
+          <ipxact:value>master_chnl_distr</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_tx_pcs_data_selection_8b10b_encoder_input" type="string">
           <ipxact:name>hssi_8g_tx_pcs_data_selection_8b10b_encoder_input</ipxact:name>
@@ -5578,7 +5525,7 @@
         <ipxact:parameter parameterId="hssi_8g_tx_pcs_prot_mode" type="string">
           <ipxact:name>hssi_8g_tx_pcs_prot_mode</ipxact:name>
           <ipxact:displayName>hssi_8g_tx_pcs_prot_mode</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx</ipxact:value>
+          <ipxact:value>basic</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_tx_pcs_refclk_b_clk_sel" type="string">
           <ipxact:name>hssi_8g_tx_pcs_refclk_b_clk_sel</ipxact:name>
@@ -5648,12 +5595,12 @@
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_chnl_prot_mode_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_chnl_prot_mode_tx</ipxact:name>
           <ipxact:displayName>hssi_tx_pld_pcs_interface_hd_chnl_prot_mode_tx</ipxact:displayName>
-          <ipxact:value>cpri_8b10b_tx</ipxact:value>
+          <ipxact:value>basic_8gpcs_tx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_chnl_ctrl_plane_bonding_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_chnl_ctrl_plane_bonding_tx</ipxact:name>
           <ipxact:displayName>hssi_tx_pld_pcs_interface_hd_chnl_ctrl_plane_bonding_tx</ipxact:displayName>
-          <ipxact:value>individual_tx</ipxact:value>
+          <ipxact:value>ctrl_master_tx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_chnl_pma_dw_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_chnl_pma_dw_tx</ipxact:name>
@@ -5833,7 +5780,7 @@
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_8g_prot_mode_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_8g_prot_mode_tx</ipxact:name>
           <ipxact:displayName>hssi_tx_pld_pcs_interface_hd_8g_prot_mode_tx</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx_tx</ipxact:value>
+          <ipxact:value>basic_tx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_8g_hip_mode" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_8g_hip_mode</ipxact:name>
@@ -5843,7 +5790,7 @@
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_8g_ctrl_plane_bonding_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_8g_ctrl_plane_bonding_tx</ipxact:name>
           <ipxact:displayName>hssi_tx_pld_pcs_interface_hd_8g_ctrl_plane_bonding_tx</ipxact:displayName>
-          <ipxact:value>individual_tx</ipxact:value>
+          <ipxact:value>ctrl_master_tx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_8g_pma_dw_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_8g_pma_dw_tx</ipxact:name>
@@ -5913,7 +5860,7 @@
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_pmaif_prot_mode_tx" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_pmaif_prot_mode_tx</ipxact:name>
           <ipxact:displayName>hssi_tx_pld_pcs_interface_hd_pmaif_prot_mode_tx</ipxact:displayName>
-          <ipxact:value>eightg_only_pld_mode_tx</ipxact:value>
+          <ipxact:value>eightg_basic_mode_tx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_tx_pld_pcs_interface_hd_pmaif_ctrl_plane_bonding" type="string">
           <ipxact:name>hssi_tx_pld_pcs_interface_hd_pmaif_ctrl_plane_bonding</ipxact:name>
@@ -6018,7 +5965,7 @@
         <ipxact:parameter parameterId="hssi_rx_pld_pcs_interface_hd_chnl_prot_mode_rx" type="string">
           <ipxact:name>hssi_rx_pld_pcs_interface_hd_chnl_prot_mode_rx</ipxact:name>
           <ipxact:displayName>hssi_rx_pld_pcs_interface_hd_chnl_prot_mode_rx</ipxact:displayName>
-          <ipxact:value>cpri_8b10b_rx</ipxact:value>
+          <ipxact:value>basic_8gpcs_rm_disable_rx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_rx_pld_pcs_interface_hd_chnl_ctrl_plane_bonding_rx" type="string">
           <ipxact:name>hssi_rx_pld_pcs_interface_hd_chnl_ctrl_plane_bonding_rx</ipxact:name>
@@ -6228,7 +6175,7 @@
         <ipxact:parameter parameterId="hssi_rx_pld_pcs_interface_hd_8g_prot_mode_rx" type="string">
           <ipxact:name>hssi_rx_pld_pcs_interface_hd_8g_prot_mode_rx</ipxact:name>
           <ipxact:displayName>hssi_rx_pld_pcs_interface_hd_8g_prot_mode_rx</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx_rx</ipxact:value>
+          <ipxact:value>basic_rm_disable_rx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_rx_pld_pcs_interface_hd_8g_hip_mode" type="string">
           <ipxact:name>hssi_rx_pld_pcs_interface_hd_8g_hip_mode</ipxact:name>
@@ -6313,7 +6260,7 @@
         <ipxact:parameter parameterId="hssi_rx_pld_pcs_interface_hd_pmaif_prot_mode_rx" type="string">
           <ipxact:name>hssi_rx_pld_pcs_interface_hd_pmaif_prot_mode_rx</ipxact:name>
           <ipxact:displayName>hssi_rx_pld_pcs_interface_hd_pmaif_prot_mode_rx</ipxact:displayName>
-          <ipxact:value>eightg_only_pld_mode_rx</ipxact:value>
+          <ipxact:value>eightg_basic_mode_rx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_rx_pld_pcs_interface_hd_pmaif_pma_dw_rx" type="string">
           <ipxact:name>hssi_rx_pld_pcs_interface_hd_pmaif_pma_dw_rx</ipxact:name>
@@ -6463,7 +6410,7 @@
         <ipxact:parameter parameterId="hssi_rx_pcs_pma_interface_prot_mode_rx" type="string">
           <ipxact:name>hssi_rx_pcs_pma_interface_prot_mode_rx</ipxact:name>
           <ipxact:displayName>hssi_rx_pcs_pma_interface_prot_mode_rx</ipxact:displayName>
-          <ipxact:value>eightg_only_pld_mode_rx</ipxact:value>
+          <ipxact:value>eightg_basic_mode_rx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_rx_pcs_pma_interface_rx_dyn_polarity_inversion" type="string">
           <ipxact:name>hssi_rx_pcs_pma_interface_rx_dyn_polarity_inversion</ipxact:name>
@@ -6583,7 +6530,7 @@
         <ipxact:parameter parameterId="hssi_tx_pcs_pma_interface_prot_mode_tx" type="string">
           <ipxact:name>hssi_tx_pcs_pma_interface_prot_mode_tx</ipxact:name>
           <ipxact:displayName>hssi_tx_pcs_pma_interface_prot_mode_tx</ipxact:displayName>
-          <ipxact:value>eightg_only_pld_mode_tx</ipxact:value>
+          <ipxact:value>eightg_basic_mode_tx</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_tx_pcs_pma_interface_sq_wave_num" type="string">
           <ipxact:name>hssi_tx_pcs_pma_interface_sq_wave_num</ipxact:name>
@@ -6978,7 +6925,7 @@
         <ipxact:parameter parameterId="hssi_common_pcs_pma_interface_ppm_det_buckets" type="string">
           <ipxact:name>hssi_common_pcs_pma_interface_ppm_det_buckets</ipxact:name>
           <ipxact:displayName>hssi_common_pcs_pma_interface_ppm_det_buckets</ipxact:displayName>
-          <ipxact:value>ppm_100_bucket</ipxact:value>
+          <ipxact:value>ppm_300_100_bucket</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_common_pcs_pma_interface_reconfig_settings" type="string">
           <ipxact:name>hssi_common_pcs_pma_interface_reconfig_settings</ipxact:name>
@@ -7133,7 +7080,7 @@
         <ipxact:parameter parameterId="hssi_pipe_gen1_2_prot_mode" type="string">
           <ipxact:name>hssi_pipe_gen1_2_prot_mode</ipxact:name>
           <ipxact:displayName>hssi_pipe_gen1_2_prot_mode</ipxact:displayName>
-          <ipxact:value>disabled_prot_mode</ipxact:value>
+          <ipxact:value>basic</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_pipe_gen1_2_rpre_emph_a_val" type="int">
           <ipxact:name>hssi_pipe_gen1_2_rpre_emph_a_val</ipxact:name>
@@ -8003,7 +7950,7 @@
         <ipxact:parameter parameterId="pma_cgb_x1_div_m_sel" type="string">
           <ipxact:name>pma_cgb_x1_div_m_sel</ipxact:name>
           <ipxact:displayName>pma_cgb_x1_div_m_sel</ipxact:displayName>
-          <ipxact:value>divby4</ipxact:value>
+          <ipxact:value>divbypass</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_cgb_xn_clock_source_sel" type="string">
           <ipxact:name>pma_cgb_xn_clock_source_sel</ipxact:name>
@@ -8013,7 +7960,7 @@
         <ipxact:parameter parameterId="pma_cgb_input_select_x1" type="string">
           <ipxact:name>pma_cgb_input_select_x1</ipxact:name>
           <ipxact:displayName>pma_cgb_input_select_x1</ipxact:displayName>
-          <ipxact:value>fpll_bot</ipxact:value>
+          <ipxact:value>unused</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_cgb_input_select_gen3" type="string">
           <ipxact:name>pma_cgb_input_select_gen3</ipxact:name>
@@ -8023,7 +7970,7 @@
         <ipxact:parameter parameterId="pma_cgb_input_select_xn" type="string">
           <ipxact:name>pma_cgb_input_select_xn</ipxact:name>
           <ipxact:displayName>pma_cgb_input_select_xn</ipxact:displayName>
-          <ipxact:value>unused</ipxact:value>
+          <ipxact:value>sel_x6_dn</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_cgb_tx_ucontrol_reset" type="string">
           <ipxact:name>pma_cgb_tx_ucontrol_reset</ipxact:name>
@@ -9038,7 +8985,7 @@
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_clock_divider_ratio" type="int">
           <ipxact:name>pma_tx_buf_xtx_path_clock_divider_ratio</ipxact:name>
           <ipxact:displayName>pma_tx_buf_xtx_path_clock_divider_ratio</ipxact:displayName>
-          <ipxact:value>4</ipxact:value>
+          <ipxact:value>1</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_pma_tx_divclk_hz" type="string">
           <ipxact:name>pma_tx_buf_xtx_path_pma_tx_divclk_hz</ipxact:name>
@@ -9048,7 +8995,7 @@
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_tx_pll_clk_hz" type="string">
           <ipxact:name>pma_tx_buf_xtx_path_tx_pll_clk_hz</ipxact:name>
           <ipxact:displayName>pma_tx_buf_xtx_path_tx_pll_clk_hz</ipxact:displayName>
-          <ipxact:value>156250000</ipxact:value>
+          <ipxact:value>625000000</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_tx_buf_link" type="string">
           <ipxact:name>pma_tx_buf_link</ipxact:name>
@@ -9078,7 +9025,7 @@
         <ipxact:parameter parameterId="pma_tx_buf_xtx_path_bonding_mode" type="string">
           <ipxact:name>pma_tx_buf_xtx_path_bonding_mode</ipxact:name>
           <ipxact:displayName>pma_tx_buf_xtx_path_bonding_mode</ipxact:displayName>
-          <ipxact:value>x1_non_bonded</ipxact:value>
+          <ipxact:value>x6_xn_bonded</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_tx_buf_pm_speed_grade" type="string">
           <ipxact:name>pma_tx_buf_pm_speed_grade</ipxact:name>
@@ -9698,7 +9645,7 @@
         <ipxact:parameter parameterId="pma_rx_deser_bitslip_bypass" type="string">
           <ipxact:name>pma_rx_deser_bitslip_bypass</ipxact:name>
           <ipxact:displayName>pma_rx_deser_bitslip_bypass</ipxact:displayName>
-          <ipxact:value>bs_bypass_no</ipxact:value>
+          <ipxact:value>bs_bypass_yes</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pma_rx_deser_prot_mode" type="string">
           <ipxact:name>pma_rx_deser_prot_mode</ipxact:name>
@@ -9728,7 +9675,7 @@
         <ipxact:parameter parameterId="l_protocol_mode" type="string">
           <ipxact:name>l_protocol_mode</ipxact:name>
           <ipxact:displayName>l_protocol_mode</ipxact:displayName>
-          <ipxact:value>cpri_rx_tx</ipxact:value>
+          <ipxact:value>basic_std</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="pcs_speedgrade" type="string">
           <ipxact:name>pcs_speedgrade</ipxact:name>
@@ -9817,6 +9764,7 @@
       <altera:interface_mapping altera:name="rx_analogreset" altera:internal="xcvr_native_a10_0.rx_analogreset" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="rx_analogreset" altera:internal="rx_analogreset"></altera:port_mapping>
       </altera:interface_mapping>
+      <altera:interface_mapping altera:name="rx_bitslip" altera:internal="xcvr_native_a10_0.rx_bitslip"></altera:interface_mapping>
       <altera:interface_mapping altera:name="rx_cal_busy" altera:internal="xcvr_native_a10_0.rx_cal_busy" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="rx_cal_busy" altera:internal="rx_cal_busy"></altera:port_mapping>
       </altera:interface_mapping>
@@ -9865,14 +9813,15 @@
       <altera:interface_mapping altera:name="rx_std_bitslipboundarysel" altera:internal="xcvr_native_a10_0.rx_std_bitslipboundarysel" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="rx_std_bitslipboundarysel" altera:internal="rx_std_bitslipboundarysel"></altera:port_mapping>
       </altera:interface_mapping>
-      <altera:interface_mapping altera:name="rx_std_wa_patternalign" altera:internal="xcvr_native_a10_0.rx_std_wa_patternalign" altera:type="conduit" altera:dir="end">
-        <altera:port_mapping altera:name="rx_std_wa_patternalign" altera:internal="rx_std_wa_patternalign"></altera:port_mapping>
-      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="rx_std_wa_patternalign" altera:internal="xcvr_native_a10_0.rx_std_wa_patternalign"></altera:interface_mapping>
       <altera:interface_mapping altera:name="rx_syncstatus" altera:internal="xcvr_native_a10_0.rx_syncstatus" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="rx_syncstatus" altera:internal="rx_syncstatus"></altera:port_mapping>
       </altera:interface_mapping>
       <altera:interface_mapping altera:name="tx_analogreset" altera:internal="xcvr_native_a10_0.tx_analogreset" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="tx_analogreset" altera:internal="tx_analogreset"></altera:port_mapping>
+      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="tx_bonding_clocks" altera:internal="xcvr_native_a10_0.tx_bonding_clocks" altera:type="conduit" altera:dir="end">
+        <altera:port_mapping altera:name="tx_bonding_clocks" altera:internal="tx_bonding_clocks"></altera:port_mapping>
       </altera:interface_mapping>
       <altera:interface_mapping altera:name="tx_cal_busy" altera:internal="xcvr_native_a10_0.tx_cal_busy" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="tx_cal_busy" altera:internal="tx_cal_busy"></altera:port_mapping>
@@ -9889,12 +9838,11 @@
       <altera:interface_mapping altera:name="tx_digitalreset" altera:internal="xcvr_native_a10_0.tx_digitalreset" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="tx_digitalreset" altera:internal="tx_digitalreset"></altera:port_mapping>
       </altera:interface_mapping>
+      <altera:interface_mapping altera:name="tx_enh_data_valid" altera:internal="xcvr_native_a10_0.tx_enh_data_valid"></altera:interface_mapping>
       <altera:interface_mapping altera:name="tx_parallel_data" altera:internal="xcvr_native_a10_0.tx_parallel_data" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="tx_parallel_data" altera:internal="tx_parallel_data"></altera:port_mapping>
       </altera:interface_mapping>
-      <altera:interface_mapping altera:name="tx_serial_clk0" altera:internal="xcvr_native_a10_0.tx_serial_clk0" altera:type="conduit" altera:dir="end">
-        <altera:port_mapping altera:name="tx_serial_clk0" altera:internal="tx_serial_clk0"></altera:port_mapping>
-      </altera:interface_mapping>
+      <altera:interface_mapping altera:name="tx_serial_clk0" altera:internal="xcvr_native_a10_0.tx_serial_clk0"></altera:interface_mapping>
       <altera:interface_mapping altera:name="tx_serial_data" altera:internal="xcvr_native_a10_0.tx_serial_data" altera:type="conduit" altera:dir="end">
         <altera:port_mapping altera:name="tx_serial_data" altera:internal="tx_serial_data"></altera:port_mapping>
       </altera:interface_mapping>
