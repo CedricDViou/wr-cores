@@ -2640,12 +2640,12 @@
         <ipxact:parameter parameterId="std_rx_word_aligner_pattern_len" type="int">
           <ipxact:name>std_rx_word_aligner_pattern_len</ipxact:name>
           <ipxact:displayName>RX word aligner pattern length</ipxact:displayName>
-          <ipxact:value>7</ipxact:value>
+          <ipxact:value>10</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="std_rx_word_aligner_pattern" type="longint">
           <ipxact:name>std_rx_word_aligner_pattern</ipxact:name>
           <ipxact:displayName>RX word aligner pattern (hex)</ipxact:displayName>
-          <ipxact:value>124</ipxact:value>
+          <ipxact:value>380</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="std_rx_word_aligner_rknumber" type="int">
           <ipxact:name>std_rx_word_aligner_rknumber</ipxact:name>
@@ -5320,12 +5320,12 @@
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pd" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pd</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_pd</ipxact:displayName>
-          <ipxact:value>wa_pd_7</ipxact:value>
+          <ipxact:value>wa_pd_10</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pd_data" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pd_data</ipxact:name>
           <ipxact:displayName>hssi_8g_rx_pcs_wa_pd_data</ipxact:displayName>
-          <ipxact:value>124</ipxact:value>
+          <ipxact:value>380</ipxact:value>
         </ipxact:parameter>
         <ipxact:parameter parameterId="hssi_8g_rx_pcs_wa_pd_polarity" type="string">
           <ipxact:name>hssi_8g_rx_pcs_wa_pd_polarity</ipxact:name>
